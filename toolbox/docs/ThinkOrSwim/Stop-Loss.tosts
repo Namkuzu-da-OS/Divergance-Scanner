@@ -1,0 +1,46 @@
+# ===============================
+# Simple ATR Stop Loss Calculator
+# Just the basics: Stop, Cost, Shares
+# v1.0 - Keep it simple
+# ===============================
+
+declare upper;
+
+# ---- Inputs
+input accountSize = 20000;              # Total account value
+input riskPercentage = 1.5;             # Risk per trade (1-2% recommended)
+input atrPeriod = 14;                   # ATR calculation period
+input atrMultiplier = 2.0;              # ATR multiplier for stop distance
+input showStopLine = yes;               # Show stop loss line on chart
+
+# ---- ATR Calculation
+def atr = MovingAverage(AverageType.WILDERS, TrueRange(high, close, low), atrPeriod);
+def currentPrice = close;
+def stopDistance = atr * atrMultiplier;
+
+# Calculate stop loss prices for both directions
+def longStopPrice = currentPrice - stopDistance;
+def shortStopPrice = currentPrice + stopDistance;
+
+# ---- Position Size Calculation (using long stop for calculations)
+def riskAmount = accountSize * (riskPercentage / 100);
+def priceRiskPerShare = stopDistance;
+def positionSize = if priceRiskPerShare > 0 then RoundDown(riskAmount / priceRiskPerShare, 0) else 0;
+def totalInvestment = positionSize * currentPrice;
+def stopLossCost = positionSize * priceRiskPerShare;
+
+# ---- Visual Stop Loss Lines
+plot LongStopLine = if showStopLine then longStopPrice else Double.NaN;
+plot ShortStopLine = if showStopLine then shortStopPrice else Double.NaN;
+LongStopLine.SetDefaultColor(Color.GREEN);
+LongStopLine.SetLineWeight(2);
+LongStopLine.SetStyle(Curve.LONG_DASH);
+ShortStopLine.SetDefaultColor(Color.RED);
+ShortStopLine.SetLineWeight(2);
+ShortStopLine.SetStyle(Curve.LONG_DASH);
+
+# ---- Display
+AddLabel(yes, "Risk: " + riskPercentage + "% ($" + Round(stopLossCost, 0) + ")", Color.YELLOW);
+AddLabel(yes, "Long Stop: $" + AsPrice(longStopPrice), Color.GREEN);
+AddLabel(yes, "Short Stop: $" + AsPrice(shortStopPrice), Color.RED);
+AddLabel(yes, "Shares: " + positionSize, Color.CYAN);

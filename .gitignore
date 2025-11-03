@@ -1,0 +1,48 @@
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Sensitive data (never commit)
+*.key
+*.pem
+credentials.json
+secrets.json
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+temp/
+
+# Data files (local-only, customize as needed)
+# Uncomment if you want to exclude data files:
+# data/positions.json
+# data/daily_log.md
+# archive/
+
+# Build outputs
+dist/
+build/
+*.zip
+nul

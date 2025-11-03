@@ -1,0 +1,21 @@
+{
+  "last_updated": "2025-11-02T00:00:00Z",
+  "monthly_target": 2500,
+  "notes": "Base monthly profit target. Derived targets auto-calculate from this value.",
+  "derived_targets": {
+    "daily": 83.33,
+    "weekly": 577.25,
+    "yearly": 30000
+  },
+  "calculation_basis": {
+    "daily": "monthly_target / 30 days",
+    "weekly": "monthly_target / 4.33 weeks",
+    "yearly": "monthly_target × 12 months"
+  },
+  "tracking": {
+    "current_day_pnl": 102.00,
+    "current_week_pnl": 102.00,
+    "current_month_pnl": 102.00,
+    "current_year_pnl": 3576.57
+  }
+}

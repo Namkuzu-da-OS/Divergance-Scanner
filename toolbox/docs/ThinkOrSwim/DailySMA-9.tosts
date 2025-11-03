@@ -1,0 +1,20 @@
+#
+# Charles Schwab & Co. (c) 2011-2025
+#
+
+input price = FundamentalType.CLOSE;
+input aggregationPeriod = AggregationPeriod.DAY;
+input length = 9;
+input displace = 0;
+input showOnlyLastPeriod = no;
+
+plot DailySMA;
+
+if showOnlyLastPeriod and !IsNaN(close(period = aggregationPeriod)[-1]) {
+    DailySMA = Double.NaN;
+} else {
+    DailySMA = Average(fundamental(price, period = aggregationPeriod)[-displace], length);
+}
+
+DailySMA.SetDefaultColor(GetColor(1));
+DailySMA.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);

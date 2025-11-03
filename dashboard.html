@@ -1,0 +1,1256 @@
+<!--
+WINGMAN TRADING DASHBOARD
+=========================
+Real-time monitoring dashboard for the Wingman trading system.
+
+PURPOSE:
+- Display live account metrics and position tracking
+- Monitor risk exposure (daily/weekly limits)
+- Visual P&L tracking and position details
+- Real-time goal progress visualization (daily/weekly/monthly/yearly)
+- Session note journaling with timestamps and categories
+- Auto-refresh every 10 seconds
+
+DATA SOURCES:
+- positions.json: Open positions, exposure, unrealized P&L
+- account_summary.json: Daily/weekly/monthly P&L for goal tracking
+- goals.json: Goal targets (customizable - default $2,500/month)
+- daily_log.md: Session notes with timestamps
+- Browser file access via Fetch API (no backend required)
+
+FEATURES:
+- Goals Progress: Real-time tracking against $2,500/month target (daily/weekly/monthly/yearly)
+- Session Notes: Collapsible journaling section with timestamped entries
+  * Timestamps: Auto-added (HH:MM format)
+- Risk Dashboard: Visual indicators for daily/weekly loss limits
+- Position Tracking: Real-time open positions with entry/stop/target/P&L
+- Quick Start Guide: In-dashboard help accessible via "?" button in header
+
+DESIGN:
+- Fintech-inspired dark theme (Chainex aesthetic)
+- Teal accent color (#00d4aa) for comfortable viewing
+- Modern sans-serif typography with font smoothing
+- Responsive grid layout
+- Color-coded progress bars and indicators
+
+USAGE:
+- Open in browser: file:///path/to/dashboard.html
+- Pin on second monitor during trading sessions
+- Manual refresh via REFRESH button (or auto-refresh every 10s)
+- Click "?" button in header for Quick Start Guide and help
+- Add notes using `-note` command (stored in daily_log.md)
+- Monitor goals for real-time accountability
+
+LAST UPDATED: November 2, 2025
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wingman Trading Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: #0a0e1a;
+            color: #e5e7eb;
+            padding: 16px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #2a3641;
+            padding-bottom: 16px;
+        }
+
+        .header h1 {
+            font-size: 26px;
+            font-weight: 600;
+            color: #00d4aa;
+            letter-spacing: -0.5px;
+        }
+
+        .last-update {
+            color: #8b92a8;
+            font-size: 12px;
+            margin-top: 6px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #00d4aa;
+            display: inline-block;
+            margin-right: 6px;
+            box-shadow: 0 0 8px rgba(0, 212, 170, 0.3);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .card:hover {
+            border-color: #3a4a61;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .card h3 {
+            color: #8b92a8;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid #2a3641;
+            padding-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .card-value {
+            font-size: 28px;
+            color: #e5e7eb;
+            font-weight: 700;
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
+        }
+
+        .card-sub {
+            font-size: 13px;
+            color: #8b92a8;
+        }
+
+        .positive {
+            color: #00d4aa;
+        }
+
+        .negative {
+            color: #ff6b6b;
+        }
+
+        .neutral {
+            color: #8b92a8;
+        }
+
+        .risk-bar {
+            background: #2a3641;
+            height: 24px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 12px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .risk-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4aa 0%, #ffc107 60%, #ff6b6b 100%);
+            transition: width 0.3s ease;
+            border-radius: 6px;
+        }
+
+        .risk-label {
+            font-size: 11px;
+            color: #8b92a8;
+            margin-top: 6px;
+            font-weight: 500;
+        }
+
+        .positions-section {
+            margin-bottom: 20px;
+        }
+
+        .positions-section h2 {
+            color: #8b92a8;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 16px;
+            border-top: 1px solid #2a3641;
+            padding-top: 16px;
+            font-weight: 600;
+        }
+
+        .position-item {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-left: 3px solid #00d4aa;
+            padding: 14px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .position-item:hover {
+            border-color: #3a4a61;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .position-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .position-symbol {
+            font-size: 16px;
+            font-weight: 700;
+            color: #00d4aa;
+        }
+
+        .position-pnl {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .position-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 12px;
+            color: #8b92a8;
+        }
+
+        .empty-message {
+            color: #8b92a8;
+            font-size: 13px;
+            font-style: italic;
+            padding: 16px;
+        }
+
+        .refresh-btn {
+            background: transparent;
+            border: 1px solid #00d4aa;
+            color: #00d4aa;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-family: inherit;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-right: 12px;
+        }
+
+        .refresh-btn:hover {
+            background: #00d4aa;
+            color: #0a0e1a;
+            box-shadow: 0 4px 12px rgba(0, 212, 170, 0.2);
+        }
+
+        .alerts {
+            background: rgba(255, 107, 107, 0.08);
+            border: 1px solid #3a2020;
+            border-left: 3px solid #ff6b6b;
+            padding: 14px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .alerts.active {
+            display: block;
+        }
+
+        .alerts h3 {
+            color: #ff6b6b;
+            font-size: 12px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .alerts p {
+            font-size: 12px;
+            color: #ff8888;
+        }
+
+        .notes-section {
+            margin-bottom: 20px;
+        }
+
+        .notes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            padding: 12px;
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .notes-header:hover {
+            border-color: #3a4a61;
+            background: #1a1f2e;
+        }
+
+        .notes-header h2 {
+            color: #8b92a8;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .notes-toggle {
+            color: #8b92a8;
+            font-size: 14px;
+            transition: transform 0.3s ease;
+        }
+
+        .notes-toggle.expanded {
+            transform: rotate(180deg);
+        }
+
+        .notes-container {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .notes-container.expanded {
+            max-height: 500px;
+        }
+
+        .note-item {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-left: 3px solid #00d4aa;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .note-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .note-time {
+            color: #00d4aa;
+            font-weight: 600;
+        }
+
+        .note-category {
+            display: inline-block;
+            padding: 2px 6px;
+            background: rgba(0, 212, 170, 0.1);
+            border-radius: 3px;
+            color: #8b92a8;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        .note-text {
+            color: #e5e7eb;
+            line-height: 1.4;
+        }
+
+        .notes-empty {
+            color: #8b92a8;
+            font-size: 12px;
+            font-style: italic;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .goals-section {
+            margin-bottom: 24px;
+        }
+
+        .goals-header {
+            color: #8b92a8;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 16px;
+            border-top: 1px solid #2a3641;
+            padding-top: 16px;
+            font-weight: 600;
+        }
+
+        .goal-card {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .goal-name {
+            color: #00d4aa;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .goal-progress-text {
+            color: #8b92a8;
+            font-size: 11px;
+        }
+
+        .goal-values {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .goal-current {
+            font-size: 16px;
+            font-weight: 700;
+            color: #e5e7eb;
+        }
+
+        .goal-target {
+            font-size: 12px;
+            color: #8b92a8;
+        }
+
+        .goal-bar-container {
+            background: #2a3641;
+            height: 20px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 6px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .goal-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d4aa 0%, #ffc107 80%, #ff6b6b 100%);
+            transition: width 0.3s ease;
+            border-radius: 6px;
+        }
+
+        .goal-percent {
+            text-align: right;
+            font-size: 11px;
+            color: #8b92a8;
+            font-weight: 500;
+        }
+
+        .help-btn {
+            background: rgba(0, 212, 170, 0.1);
+            border: 1px solid #00d4aa;
+            color: #00d4aa;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-family: inherit;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-left: 8px;
+        }
+
+        .help-btn:hover {
+            background: #00d4aa;
+            color: #0a0e1a;
+        }
+
+        .help-section {
+            margin-top: 24px;
+            border-top: 1px solid #2a3641;
+            padding-top: 16px;
+        }
+
+        .help-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            padding: 12px;
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .help-header:hover {
+            border-color: #3a4a61;
+            background: #1a1f2e;
+        }
+
+        .help-header h2 {
+            color: #8b92a8;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .help-toggle {
+            color: #8b92a8;
+            font-size: 14px;
+            transition: transform 0.3s ease;
+        }
+
+        .help-toggle.expanded {
+            transform: rotate(180deg);
+        }
+
+        .help-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .help-content.expanded {
+            max-height: 800px;
+        }
+
+        .help-body {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 16px;
+            color: #e5e7eb;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .help-body h3 {
+            color: #00d4aa;
+            font-size: 13px;
+            margin: 12px 0 8px 0;
+            font-weight: 600;
+        }
+
+        .help-body p {
+            margin: 6px 0;
+            color: #c5c9d4;
+        }
+
+        .help-body ul {
+            margin: 8px 0 8px 20px;
+            color: #c5c9d4;
+        }
+
+        .help-body li {
+            margin: 4px 0;
+        }
+
+        .help-body code {
+            background: #0f1428;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #00d4aa;
+            font-family: monospace;
+        }
+
+        .help-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-size: 11px;
+        }
+
+        .help-body table th,
+        .help-body table td {
+            border: 1px solid #2a3641;
+            padding: 8px;
+            text-align: left;
+            color: #c5c9d4;
+        }
+
+        .help-body table th {
+            background: #0f1428;
+            color: #00d4aa;
+            font-weight: 600;
+        }
+
+        .help-body table tr:hover {
+            background: rgba(0, 212, 170, 0.05);
+        }
+
+        .rules-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .rules-content.expanded {
+            max-height: 1200px;
+        }
+
+        .rules-toggle {
+            color: #8b92a8;
+            font-size: 14px;
+            transition: transform 0.3s ease;
+        }
+
+        .rules-toggle.expanded {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>⚡ WINGMAN TRADING DASHBOARD</h1>
+            </div>
+            <div>
+                <span class="status-indicator"></span>
+                <button class="refresh-btn" onclick="loadData()">REFRESH</button>
+                <div class="last-update">Last update: <span id="last-update">--:--:--</span></div>
+            </div>
+        </div>
+
+        <div id="alerts-container"></div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>Account Balance</h3>
+                <div class="card-value" id="account-balance">$20,000.00</div>
+                <div class="card-sub" id="account-change">Starting balance</div>
+            </div>
+
+            <div class="card">
+                <h3>Today's P&L</h3>
+                <div class="card-value neutral" id="daily-pnl">$0.00</div>
+                <div class="card-sub" id="daily-pnl-pct">0.00%</div>
+            </div>
+
+            <div class="card">
+                <h3>Weekly P&L</h3>
+                <div class="card-value neutral" id="weekly-pnl">$0.00</div>
+                <div class="card-sub" id="weekly-pnl-pct">0.00%</div>
+            </div>
+
+            <div class="card">
+                <h3>Open Positions</h3>
+                <div class="card-value" id="position-count">0</div>
+                <div class="card-sub" id="position-exposure">$0 exposure</div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <div class="card">
+                <h3>Daily Risk Used</h3>
+                <div class="card-value" id="daily-risk-used">$0</div>
+                <div class="card-sub">of $500 limit</div>
+                <div class="risk-bar">
+                    <div class="risk-fill" id="daily-risk-fill" style="width: 0%"></div>
+                </div>
+                <div class="risk-label" id="daily-risk-label">0% used</div>
+            </div>
+
+            <div class="card">
+                <h3>Weekly Risk Used</h3>
+                <div class="card-value" id="weekly-risk-used">$0</div>
+                <div class="card-sub">of $1,000 limit</div>
+                <div class="risk-bar">
+                    <div class="risk-fill" id="weekly-risk-fill" style="width: 0%"></div>
+                </div>
+                <div class="risk-label" id="weekly-risk-label">0% used</div>
+            </div>
+
+            <div class="card">
+                <h3>Position Slots</h3>
+                <div class="card-value" id="position-slots">5</div>
+                <div class="card-sub">max 5 open positions</div>
+            </div>
+
+            <div class="card">
+                <h3>Unrealized P&L</h3>
+                <div class="card-value neutral" id="unrealized-pnl">$0.00</div>
+                <div class="card-sub" id="unrealized-pnl-pct">0.00%</div>
+            </div>
+        </div>
+
+        <div class="positions-section">
+            <h2>Open Positions</h2>
+            <div id="positions-container">
+                <div class="empty-message">No positions currently open</div>
+            </div>
+        </div>
+
+        <div class="goals-section">
+            <h2 class="goals-header">Goals Progress</h2>
+            <div id="goals-container">
+                <div class="goal-card">
+                    <div class="goal-header">
+                        <span class="goal-name">Daily Goal</span>
+                        <span class="goal-progress-text" id="daily-goal-percent">0%</span>
+                    </div>
+                    <div class="goal-values">
+                        <span class="goal-current" id="daily-goal-current">$0.00</span>
+                        <span class="goal-target">/ $83.33</span>
+                    </div>
+                    <div class="goal-bar-container">
+                        <div class="goal-bar-fill" id="daily-goal-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="goal-card">
+                    <div class="goal-header">
+                        <span class="goal-name">Weekly Goal</span>
+                        <span class="goal-progress-text" id="weekly-goal-percent">0%</span>
+                    </div>
+                    <div class="goal-values">
+                        <span class="goal-current" id="weekly-goal-current">$0.00</span>
+                        <span class="goal-target">/ $577.25</span>
+                    </div>
+                    <div class="goal-bar-container">
+                        <div class="goal-bar-fill" id="weekly-goal-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="goal-card">
+                    <div class="goal-header">
+                        <span class="goal-name">Monthly Goal</span>
+                        <span class="goal-progress-text" id="monthly-goal-percent">0%</span>
+                    </div>
+                    <div class="goal-values">
+                        <span class="goal-current" id="monthly-goal-current">$0.00</span>
+                        <span class="goal-target">/ $2,500.00</span>
+                    </div>
+                    <div class="goal-bar-container">
+                        <div class="goal-bar-fill" id="monthly-goal-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="goal-card">
+                    <div class="goal-header">
+                        <span class="goal-name">Yearly Goal</span>
+                        <span class="goal-progress-text" id="yearly-goal-percent">0%</span>
+                    </div>
+                    <div class="goal-values">
+                        <span class="goal-current" id="yearly-goal-current">$0.00</span>
+                        <span class="goal-target">/ $30,000.00</span>
+                    </div>
+                    <div class="goal-bar-container">
+                        <div class="goal-bar-fill" id="yearly-goal-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="notes-section">
+            <div class="notes-header" onclick="toggleNotes()">
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <h2>Session Notes</h2>
+                    <select id="notes-date-selector" style="padding: 5px 10px; border-radius: 4px; border: 1px solid #4a5568; background-color: #2d3748; color: #e2e8f0; cursor: pointer; font-size: 14px; margin-right: 10px;" onchange="onDateChange(this.value)">
+                        <option value="today">Today</option>
+                    </select>
+                </div>
+                <span class="notes-toggle" id="notes-toggle">▼</span>
+            </div>
+            <div class="notes-container" id="notes-container">
+                <div id="notes-list">
+                    <div class="notes-empty">No notes yet</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="help-section">
+            <div class="help-header" onclick="toggleHelp()">
+                <h2>Quick Start Guide</h2>
+                <span class="help-toggle" id="help-toggle">▼</span>
+            </div>
+            <div class="help-content" id="help-content">
+                <div class="help-body" id="quick-start-content">
+                    <p style="color: #8b92a8; text-align: center;">Loading Quick Start Guide...</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="help-section">
+            <div class="help-header" onclick="toggleRules()">
+                <h2>Trading Rules (NON-NEGOTIABLE)</h2>
+                <span class="rules-toggle" id="rules-toggle">▼</span>
+            </div>
+            <div class="rules-content" id="rules-content">
+                <div class="help-body" id="rules-body">
+                    <p style="color: #8b92a8; text-align: center;">Loading Trading Rules...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BASE_PATH = '/data/';
+
+        async function loadData() {
+            try {
+                // Update timestamp
+                const now = new Date();
+                document.getElementById('last-update').textContent = now.toLocaleTimeString();
+
+                // Load from JSON files using relative paths (works with web servers)
+                let positions = { active_positions: [], summary: { total_open: 0, total_exposure: 0, total_risk: 0, total_unrealized_pnl: 0, total_unrealized_pnl_pct: 0 } };
+
+                try {
+                    const response = await fetch('./data/positions.json');
+                    if (response.ok) {
+                        positions = await response.json();
+                    }
+                } catch (e) {
+                    console.log('Could not load positions.json:', e.message);
+                }
+
+                // Update account info
+                const accountBalance = 20000 + (positions.summary?.total_unrealized_pnl || 0);
+                document.getElementById('account-balance').textContent = '$' + accountBalance.toFixed(2);
+                document.getElementById('account-change').textContent = 'Current balance';
+
+                // Update position count
+                const posCount = positions.active_positions?.length || 0;
+                document.getElementById('position-count').textContent = posCount;
+                document.getElementById('position-exposure').textContent = '$' + (positions.summary?.total_exposure || 0).toFixed(2) + ' exposure';
+                document.getElementById('position-slots').textContent = (5 - posCount) + ' / 5 available';
+
+                // Update P&L
+                const unrealizedPnl = positions.summary?.total_unrealized_pnl || 0;
+                const unrealizedPnlPct = positions.summary?.total_unrealized_pnl_pct || 0;
+
+                document.getElementById('unrealized-pnl').textContent = '$' + unrealizedPnl.toFixed(2);
+                document.getElementById('unrealized-pnl-pct').textContent = unrealizedPnlPct.toFixed(2) + '%';
+
+                const unrealizedPnlEl = document.getElementById('unrealized-pnl');
+                unrealizedPnlEl.className = unrealizedPnl >= 0 ? 'positive' : 'negative';
+
+                // Placeholder for daily/weekly P&L (would need to read from account_summary.json)
+                document.getElementById('daily-pnl').textContent = '$0.00';
+                document.getElementById('daily-pnl-pct').textContent = '0.00%';
+                document.getElementById('weekly-pnl').textContent = '$0.00';
+                document.getElementById('weekly-pnl-pct').textContent = '0.00%';
+
+                // Risk indicators
+                const dailyRiskUsed = 0;
+                const dailyRiskPct = (dailyRiskUsed / 500) * 100;
+                document.getElementById('daily-risk-used').textContent = '$' + dailyRiskUsed.toFixed(0);
+                document.getElementById('daily-risk-fill').style.width = dailyRiskPct + '%';
+                document.getElementById('daily-risk-label').textContent = dailyRiskPct.toFixed(1) + '% used';
+
+                const weeklyRiskUsed = 0;
+                const weeklyRiskPct = (weeklyRiskUsed / 1000) * 100;
+                document.getElementById('weekly-risk-used').textContent = '$' + weeklyRiskUsed.toFixed(0);
+                document.getElementById('weekly-risk-fill').style.width = weeklyRiskPct + '%';
+                document.getElementById('weekly-risk-label').textContent = weeklyRiskPct.toFixed(1) + '% used';
+
+                // Render positions
+                const posContainer = document.getElementById('positions-container');
+                if (posCount === 0) {
+                    posContainer.innerHTML = '<div class="empty-message">No positions currently open</div>';
+                } else {
+                    posContainer.innerHTML = positions.active_positions.map(pos => `
+                        <div class="position-item">
+                            <div class="position-header">
+                                <span class="position-symbol">${pos.symbol}</span>
+                                <span class="position-pnl ${pos.unrealized_pnl >= 0 ? 'positive' : 'negative'}">
+                                    ${pos.unrealized_pnl >= 0 ? '+' : ''}$${pos.unrealized_pnl.toFixed(2)}
+                                </span>
+                            </div>
+                            <div class="position-details">
+                                <div>Entry: $${pos.entry_price.toFixed(2)}</div>
+                                <div>Stop: $${pos.stop_price.toFixed(2)}</div>
+                                <div>Target: $${pos.target_price.toFixed(2)}</div>
+                                <div>Shares: ${pos.quantity}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+
+            // Load notes and goals
+            loadNotes();
+            loadGoals();
+        }
+
+        async function loadNotes(date = 'today') {
+            try {
+                // Determine which file to load
+                let filePath = './data/daily_log.md';
+                if (date !== 'today') {
+                    filePath = `./archive/daily_logs/trading_log_${date}.md`;
+                }
+
+                const response = await fetch(filePath);
+                if (!response.ok) {
+                    document.getElementById('notes-list').innerHTML = '<div class="notes-empty">No notes found for this date</div>';
+                    return;
+                }
+
+                const text = await response.text();
+                const notes = parseNotes(text);
+
+                if (notes.length === 0) {
+                    document.getElementById('notes-list').innerHTML = '<div class="notes-empty">No notes yet</div>';
+                } else {
+                    document.getElementById('notes-list').innerHTML = notes.map(note => `
+                        <div class="note-item">
+                            <div class="note-meta">
+                                <span class="note-time">${note.time}</span>
+                                <span class="note-category">${note.category}</span>
+                            </div>
+                            <div class="note-text">${escapeHtml(note.text)}</div>
+                        </div>
+                    `).reverse().join('');
+                }
+            } catch (e) {
+                console.log('Could not load notes for date:', date);
+                document.getElementById('notes-list').innerHTML = '<div class="notes-empty">Unable to load notes</div>';
+            }
+        }
+
+        function parseNotes(text) {
+            const notes = [];
+            const lines = text.split('\n');
+            const notePattern = /^\[(\d{2}:\d{2})\]\s*\[([^\]]+)\]\s*-\s*(.+)$/;
+
+            lines.forEach(line => {
+                const match = line.match(notePattern);
+                if (match) {
+                    notes.push({
+                        time: match[1],
+                        category: match[2].toLowerCase().replace(/_/g, ' '),
+                        text: match[3]
+                    });
+                }
+            });
+
+            return notes;
+        }
+
+        function toggleNotes() {
+            const container = document.getElementById('notes-container');
+            const toggle = document.getElementById('notes-toggle');
+            container.classList.toggle('expanded');
+            toggle.classList.toggle('expanded');
+        }
+
+        function toggleHelp() {
+            const content = document.getElementById('help-content');
+            const toggle = document.getElementById('help-toggle');
+            content.classList.toggle('expanded');
+            toggle.classList.toggle('expanded');
+        }
+
+        function toggleRules() {
+            const content = document.getElementById('rules-content');
+            const toggle = document.getElementById('rules-toggle');
+            content.classList.toggle('expanded');
+            toggle.classList.toggle('expanded');
+        }
+
+        async function loadRules() {
+            try {
+                const response = await fetch('./toolbox/docs/TRADING_RULES.md');
+                if (!response.ok) {
+                    document.getElementById('rules-body').innerHTML = '<p style="color: #ff6b6b;">Could not load Trading Rules</p>';
+                    return;
+                }
+                const markdown = await response.text();
+                const html = markdownToHtml(markdown);
+                document.getElementById('rules-body').innerHTML = html;
+            } catch (e) {
+                console.error('Error loading Trading Rules:', e.message);
+                document.getElementById('rules-body').innerHTML = '<p style="color: #ff6b6b;">Error: ' + escapeHtml(e.message) + '</p>';
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        async function loadGoals() {
+            try {
+                const goalsResponse = await fetch('./data/goals.json');
+                if (!goalsResponse.ok) {
+                    console.log('Could not load goals.json');
+                    return;
+                }
+
+                const goals = await goalsResponse.json();
+
+                // Try to load account summary for actual P&L data
+                let dailyPnl = 0, weeklyPnl = 0, monthlyPnl = 0, yearlyPnl = 0;
+
+                try {
+                    const accountResponse = await fetch('./data/account_summary.json');
+                    if (accountResponse.ok) {
+                        const accountData = await accountResponse.json();
+                        dailyPnl = accountData.daily_performance?.total_pnl || 0;
+                        weeklyPnl = accountData.weekly_performance?.total_pnl || 0;
+                        monthlyPnl = accountData.monthly_performance?.total_pnl || 0;
+                        // Calculate yearly from statistics
+                        yearlyPnl = (accountData.statistics?.expectancy || 0) * (accountData.statistics?.total_trades_alltime || 0);
+                    }
+                } catch (e) {
+                    console.log('Could not load account_summary.json - using defaults');
+                }
+
+                // Update goal displays
+                updateGoalDisplay('daily', dailyPnl, goals.derived_targets.daily);
+                updateGoalDisplay('weekly', weeklyPnl, goals.derived_targets.weekly);
+                updateGoalDisplay('monthly', monthlyPnl, goals.monthly_target);
+                updateGoalDisplay('yearly', yearlyPnl, goals.derived_targets.yearly);
+
+            } catch (error) {
+                console.error('Error loading goals:', error);
+            }
+        }
+
+        function updateGoalDisplay(period, current, target) {
+            const percent = Math.min((current / target) * 100, 100);
+            const clamped = Math.max(percent, 0);
+
+            document.getElementById(`${period}-goal-current`).textContent = '$' + current.toFixed(2);
+            document.getElementById(`${period}-goal-percent`).textContent = Math.round(clamped) + '%';
+            document.getElementById(`${period}-goal-bar`).style.width = clamped + '%';
+        }
+
+        // Load Quick Start Guide from markdown
+        async function loadQuickStart() {
+            try {
+                console.log('Starting loadQuickStart...');
+                const filePath = './QUICK_START.md';
+                console.log('Fetching from:', filePath);
+
+                const response = await fetch(filePath);
+                console.log('Fetch response status:', response.status, response.ok);
+
+                if (!response.ok) {
+                    console.error('Response not OK:', response.status, response.statusText);
+                    document.getElementById('quick-start-content').innerHTML = '<p style="color: #ff6b6b;">Could not load Quick Start Guide (HTTP ' + response.status + ')</p>';
+                    return;
+                }
+
+                const markdown = await response.text();
+                console.log('Markdown loaded, length:', markdown.length);
+
+                const html = markdownToHtml(markdown);
+                console.log('HTML generated, length:', html.length);
+
+                document.getElementById('quick-start-content').innerHTML = html;
+                console.log('Content updated successfully');
+            } catch (e) {
+                console.error('Error loading Quick Start:', e.message, e.stack);
+                const errorMsg = '<p style="color: #ff6b6b;">Error: ' + escapeHtml(e.message) + '</p>';
+                document.getElementById('quick-start-content').innerHTML = errorMsg;
+            }
+        }
+
+        // Parse markdown to HTML with table support
+        function markdownToHtml(markdown) {
+            try {
+                let html = '';
+                const lines = markdown.split('\n');
+                let inTable = false;
+                let tableLines = [];
+                let dataRowIndex = 0;
+
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i];
+
+                    // Detect table rows
+                    if (line.trim().startsWith('|') && line.trim().endsWith('|')) {
+                        if (!inTable) {
+                            inTable = true;
+                            tableLines = [];
+                            dataRowIndex = 0;
+                        }
+                        tableLines.push({line: line, index: dataRowIndex});
+                        dataRowIndex++;
+                    } else {
+                        // End table if we were in one
+                        if (inTable && tableLines.length > 0) {
+                            html += renderTable(tableLines);
+                            tableLines = [];
+                            inTable = false;
+                            dataRowIndex = 0;
+                        }
+
+                        // Skip empty lines
+                        if (line.trim() === '') {
+                            html += '\n';
+                            continue;
+                        }
+
+                        // Convert headings
+                        if (line.startsWith('### ')) {
+                            html += '<h3>' + escapeHtml(line.substring(4)) + '</h3>\n';
+                        } else if (line.startsWith('## ')) {
+                            html += '<h3>' + escapeHtml(line.substring(3)) + '</h3>\n';
+                        } else if (line.startsWith('# ')) {
+                            html += '<h2>' + escapeHtml(line.substring(2)) + '</h2>\n';
+                        }
+                        // Convert list items
+                        else if (line.trim().startsWith('- ')) {
+                            const itemText = line.trim().substring(2);
+                            html += '<li>' + processInlineMarkdown(itemText) + '</li>\n';
+                        } else {
+                            // Regular paragraph
+                            if (line.trim()) {
+                                html += '<p>' + processInlineMarkdown(line.trim()) + '</p>\n';
+                            }
+                        }
+                    }
+                }
+
+                // Handle table at end of file
+                if (inTable && tableLines.length > 0) {
+                    html += renderTable(tableLines);
+                }
+
+                // Wrap consecutive list items in <ul>
+                html = html.replace(/(<li>.*?<\/li>\n)+/g, (match) => {
+                    return '<ul>\n' + match + '</ul>\n';
+                });
+
+                return html;
+            } catch (e) {
+                console.error('Error in markdownToHtml:', e);
+                throw e;
+            }
+        }
+
+        function renderTable(tableLines) {
+            try {
+                let tableHtml = '<table>\n<tbody>\n';
+
+                tableLines.forEach((item) => {
+                    const line = item.line;
+                    const idx = item.index;
+
+                    // Skip separator row (contains ---)
+                    if (line.includes('---')) return;
+
+                    const cells = line.split('|').slice(1, -1).map(cell => cell.trim());
+                    const tag = idx === 0 ? 'th' : 'td';
+
+                    tableHtml += '<tr>\n';
+                    cells.forEach(cell => {
+                        const cellContent = processInlineMarkdown(cell);
+                        tableHtml += `<${tag}>${cellContent}</${tag}>\n`;
+                    });
+                    tableHtml += '</tr>\n';
+                });
+
+                tableHtml += '</tbody>\n</table>\n';
+                return tableHtml;
+            } catch (e) {
+                console.error('Error in renderTable:', e);
+                throw e;
+            }
+        }
+
+        function processInlineMarkdown(text) {
+            try {
+                if (!text || typeof text !== 'string') return '';
+
+                let result = escapeHtml(text);
+                // Convert bold **text** to <strong>
+                result = result.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+                // Convert inline code `text` to <code>
+                result = result.replace(/`([^`]+)`/g, '<code>$1</code>');
+                return result;
+            } catch (e) {
+                console.error('Error in processInlineMarkdown:', e, 'text:', text);
+                return escapeHtml(String(text));
+            }
+        }
+
+        // Generate list of dates from account start to today
+        function generateDateList() {
+            const startDate = new Date('2025-11-02'); // Account start date from account_summary.json
+            const today = new Date();
+            const dates = [];
+
+            // Generate all dates between start and today
+            for (let d = new Date(startDate); d <= today; d.setDate(d.getDate() + 1)) {
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                dates.push(`${year}-${month}-${day}`);
+            }
+
+            return dates;
+        }
+
+        // Initialize date dropdown
+        function initializeDateSelector() {
+            const selector = document.getElementById('notes-date-selector');
+            const dates = generateDateList();
+
+            // Add all available dates to dropdown (in reverse order - newest first)
+            dates.reverse().forEach(date => {
+                const option = document.createElement('option');
+                option.value = date;
+                const dateObj = new Date(date);
+                option.textContent = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                if (date === new Date().toISOString().split('T')[0]) {
+                    option.textContent = 'Today';
+                    option.value = 'today';
+                }
+                selector.appendChild(option);
+            });
+        }
+
+        // Handle date selection change
+        function onDateChange(selectedDate) {
+            loadNotes(selectedDate);
+        }
+
+        // Initial load
+        initializeDateSelector();
+        loadData();
+        loadQuickStart();
+        loadRules();
+
+        // Auto-refresh every 10 seconds
+        setInterval(loadData, 10000);
+    </script>
+</body>
+</html>

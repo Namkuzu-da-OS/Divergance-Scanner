@@ -1,0 +1,105 @@
+# Smart Volume Alert v2.0
+# Trader-friendly volume indicator that highlights when "something interesting is happening"
+# Shows volume activity in human-readable terms: Normal, Building, Active, or Explosive
+# Works on intraday and daily charts. Add as a LOWER study (and optionally hide the built-in Volume).
+
+declare lower;
+
+input lookbackDays         = 20;     # how many prior sessions to build the baseline
+input useTimeSlotBaseline  = yes;    # yes = compare to same time-of-day; no = simple moving avg
+input buildingThreshold    = 1.5;    # Building activity level
+input activeThreshold      = 2.5;    # Active trading level  
+input explosiveThreshold   = 4.0;    # Explosive institutional level
+input rthOnly              = yes;    # only consider RTH bars (9:30–16:00 ET) for "unusual" logic
+input showBubbles          = yes;    # RVOL readout bubble on flagged bars
+
+# --- Convenience flags
+def msPerBar   = GetAggregationPeriod();
+def isIntraday = msPerBar < AggregationPeriod.DAY;
+def isRTH      = SecondsFromTime(0930) >= 0 and SecondsTillTime(1600) >= 0;
+
+# --- Estimate bars-per-day for given aggregation (RTH = 390 minutes)
+def barsPerDay = Max(1, Floor(390 * 60 * 1000.0 / msPerBar));
+
+# --- Expected volume baseline
+# For intraday + time-slot mode, compare to the *same bar index* from prior sessions.
+def expectedSlot =
+ if isIntraday and useTimeSlotBaseline and (isRTH or !rthOnly) then
+    (
+      ( fold j = 1 to lookbackDays + 1
+        with tot = 0
+        do tot + GetValue(volume, j * barsPerDay)
+      )
+      /
+      Max(1,
+          fold j2 = 1 to lookbackDays + 1
+          with cnt = 0
+          do cnt + (if !IsNaN(GetValue(volume, j2 * barsPerDay)) then 1 else 0)
+      )
+    )
+ else
+    Average(volume, Max(5, lookbackDays * (if isIntraday then barsPerDay else 1)));
+
+# Relative volume now
+def rvol = if expectedSlot > 0 then volume / expectedSlot else 0;
+
+# Time-of-day aware thresholds (market open is naturally higher volume)
+def timeAdjustedBuilding = 
+    if SecondsFromTime(0930) <= 1800 then buildingThreshold * 1.3  # First 30 min
+    else if SecondsTillTime(1600) <= 1800 then buildingThreshold * 1.2  # Last 30 min  
+    else buildingThreshold;
+
+def timeAdjustedActive = 
+    if SecondsFromTime(0930) <= 1800 then activeThreshold * 1.3
+    else if SecondsTillTime(1600) <= 1800 then activeThreshold * 1.2
+    else activeThreshold;
+
+def timeAdjustedExplosive = 
+    if SecondsFromTime(0930) <= 1800 then explosiveThreshold * 1.3
+    else if SecondsTillTime(1600) <= 1800 then explosiveThreshold * 1.2  
+    else explosiveThreshold;
+
+# Volume status determination
+def volumeStatus = 
+    if rvol >= timeAdjustedExplosive then 4    # Explosive
+    else if rvol >= timeAdjustedActive then 3  # Active  
+    else if rvol >= timeAdjustedBuilding then 2 # Building
+    else 1;                                    # Normal
+
+
+# --- Plot the histogram, colored by RVOL tiers
+plot Vol = volume;
+Vol.SetPaintingStrategy(PaintingStrategy.HISTOGRAM);
+Vol.SetLineWeight(3);
+Vol.AssignValueColor(
+    if volumeStatus == 4 then Color.MAGENTA      # Explosive - Purple
+    else if volumeStatus == 3 then Color.RED    # Active - Red
+    else if volumeStatus == 2 then Color.ORANGE # Building - Orange
+    else Color.GRAY                             # Normal - Gray
+);
+
+# Trading-focused volume alerts
+AddChartBubble(
+    showBubbles and volumeStatus >= 3 and (isRTH or !rthOnly),
+    volume,
+    (if volumeStatus == 4 then "EXPLOSIVE" else if volumeStatus == 3 then "ACTIVE" else if volumeStatus == 2 then "BUILDING" else "NORMAL") + " (" + AsText(rvol, NumberFormat.TWO_DECIMAL_PLACES) + "x)",
+    if volumeStatus == 4 then Color.MAGENTA
+    else if volumeStatus == 3 then Color.RED
+    else Color.ORANGE,
+    yes
+);
+
+# Alert once per bar on meaningful spikes  
+Alert(volumeStatus >= 3 and (isRTH or !rthOnly), 
+      (if volumeStatus == 4 then "EXPLOSIVE" else if volumeStatus == 3 then "ACTIVE" else if volumeStatus == 2 then "BUILDING" else "NORMAL") + " Volume Activity", Alert.BAR, Sound.Ding);
+
+# Trader-friendly status label
+AddLabel(
+    yes,
+    "Volume: " + (if volumeStatus == 4 then "EXPLOSIVE" else if volumeStatus == 3 then "ACTIVE" else if volumeStatus == 2 then "BUILDING" else "NORMAL") + " (" + AsText(rvol, NumberFormat.TWO_DECIMAL_PLACES) + "x normal)"
+    + (if isIntraday and useTimeSlotBaseline then " | Same-time comparison" else " | Recent average"),
+    if volumeStatus == 4 then Color.MAGENTA
+    else if volumeStatus == 3 then Color.RED  
+    else if volumeStatus == 2 then Color.ORANGE
+    else Color.GRAY
+);

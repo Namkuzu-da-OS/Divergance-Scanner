@@ -1,0 +1,94 @@
+{
+  "account_info": {
+    "account_name": "Primary Trading Account",
+    "starting_balance": 20000.00,
+    "starting_date": "2025-09-03",
+    "broker": "TD Ameritrade / ThinkOrSwim",
+    "account_type": "Margin"
+  },
+  "current_status": {
+    "date": "2025-11-03",
+    "current_balance": 23526.10,
+    "cash_available": 23526.10,
+    "buying_power": 23526.10,
+    "positions_value": 0.00,
+    "total_equity": 23526.10
+  },
+  "daily_performance": {
+    "date": "2025-11-03",
+    "starting_balance_today": 23424.10,
+    "realized_pnl": 102.00,
+    "unrealized_pnl": 0.00,
+    "total_pnl": 102.00,
+    "pnl_pct": 0.43,
+    "trades_today": 1,
+    "wins_today": 1,
+    "losses_today": 0,
+    "win_rate_today": 100.00
+  },
+  "weekly_performance": {
+    "week_starting": "2025-11-03",
+    "starting_balance_week": 23424.10,
+    "realized_pnl": 102.00,
+    "unrealized_pnl": 0.00,
+    "total_pnl": 102.00,
+    "pnl_pct": 0.43,
+    "trades_week": 1,
+    "wins_week": 1,
+    "losses_week": 0,
+    "win_rate_week": 100.00,
+    "best_day": 102.00,
+    "worst_day": 0.00
+  },
+  "monthly_performance": {
+    "month": "2025-11",
+    "starting_balance_month": 23424.10,
+    "realized_pnl": 102.00,
+    "unrealized_pnl": 0.00,
+    "total_pnl": 102.00,
+    "pnl_pct": 0.43,
+    "trades_month": 1,
+    "wins_month": 1,
+    "losses_month": 0,
+    "win_rate_month": 100.00,
+    "best_week": 102.00,
+    "worst_week": 0.00
+  },
+  "risk_metrics": {
+    "risk_per_trade_pct": 0.01,
+    "risk_per_trade_amount": 200.00,
+    "max_daily_loss": 500.00,
+    "max_weekly_loss": 1000.00,
+    "daily_loss_used": 0.00,
+    "weekly_loss_used": 0.00,
+    "max_positions": 5,
+    "current_positions": 0,
+    "total_risk_exposure": 0.00,
+    "total_risk_pct": 0.00
+  },
+  "account_health": {
+    "status": "GREEN",
+    "warnings": [],
+    "restrictions": [],
+    "notes": "Account initialized and ready for trading"
+  },
+  "statistics": {
+    "total_trades_alltime": 1,
+    "total_wins_alltime": 1,
+    "total_losses_alltime": 0,
+    "win_rate_alltime": 100.00,
+    "avg_win": 102.00,
+    "avg_loss": 0.00,
+    "largest_win": 102.00,
+    "largest_loss": 0.00,
+    "profit_factor": 1.00,
+    "expectancy": 102.00,
+    "sharpe_ratio": 0.00,
+    "max_drawdown": 0.00,
+    "max_drawdown_pct": 0.00,
+    "recovery_factor": 0.00,
+    "ytd_pnl": 3576.57,
+    "ytd_pnl_pct": 17.88
+  },
+  "last_updated": "2025-11-03T14:30:00Z"
+}

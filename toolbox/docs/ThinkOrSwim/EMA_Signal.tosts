@@ -1,0 +1,56 @@
+declare upper;
+
+# ===== INPUTS =====
+input lengthFast  = 20;      # 20‑day EMA
+input lengthMid   = 50;      # 50‑day EMA
+input lengthLong1 = 100;     # 100‑day EMA
+input lengthLong2 = 200;     # 200‑day EMA
+
+input showSignals      = yes;  # plot arrows?
+input showMA_Labels    = yes;  # show value labels?
+input signalArrowSize  = 4;
+input signalOffsetBars = 0;    # shift arrows left/right if they overlap candles
+
+# ===== DAILY PRICE SERIES =====
+def dClose = close(period = AggregationPeriod.DAY);   # <‑‑ key line (daily anchor)
+
+# ===== DAILY EMAS =====
+plot ema20  = ExpAverage(dClose, lengthFast);
+plot ema50  = ExpAverage(dClose, lengthMid);
+plot ema100 = ExpAverage(dClose, lengthLong1);
+plot ema200 = ExpAverage(dClose, lengthLong2);
+
+ema20.SetDefaultColor(Color.LIGHT_GREEN);
+ema50.SetDefaultColor(Color.CYAN);
+ema100.SetDefaultColor(Color.YELLOW);
+ema200.SetDefaultColor(Color.RED);
+
+ema20.SetLineWeight(2);
+ema50.SetLineWeight(2);
+ema100.SetLineWeight(2);
+ema200.SetLineWeight(2);
+
+# ===== BULL / BEAR SIGNALS (also based on DAILY EMAs) =====
+def bullCross = Crosses(ema20, ema50, CrossingDirection.ABOVE);
+def bearCross = Crosses(ema20, ema50, CrossingDirection.BELOW);
+
+plot bullArrow = if showSignals and bullCross
+                 then low[signalOffsetBars] - TickSize() * 2 else Double.NaN;
+bullArrow.SetPaintingStrategy(PaintingStrategy.ARROW_UP);
+bullArrow.SetDefaultColor(Color.UPTICK);
+bullArrow.SetLineWeight(signalArrowSize);
+
+plot bearArrow = if showSignals and bearCross
+                 then high[signalOffsetBars] + TickSize() * 2 else Double.NaN;
+bearArrow.SetPaintingStrategy(PaintingStrategy.ARROW_DOWN);
+bearArrow.SetDefaultColor(Color.DOWNTICK);
+bearArrow.SetLineWeight(signalArrowSize);
+
+# ===== VALUE LABELS =====
+AddLabel(showMA_Labels, "EMA20 "  + Round(ema20, 2),  Color.LIGHT_GREEN);
+AddLabel(showMA_Labels, "EMA50 "  + Round(ema50, 2),  Color.CYAN);
+AddLabel(showMA_Labels, "EMA100 " + Round(ema100, 2), Color.YELLOW);
+AddLabel(showMA_Labels, "EMA200 " + Round(ema200, 2), Color.RED);
+
+# ===== OPTIONAL CLOUD =====
+AddCloud(ema20, ema50, Color.UPTICK, Color.DOWNTICK);

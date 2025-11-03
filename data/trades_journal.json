@@ -1,0 +1,114 @@
+{
+  "journal_info": {
+    "created": "2025-11-02T00:00:00Z",
+    "last_updated": "2025-11-03T14:30:00Z",
+    "total_trades_logged": 1
+  },
+  "trades": [
+    {
+      "trade_id": "TQQQ_20251103_001",
+      "symbol": "TQQQ",
+      "trade_type": "scalp",
+      "strategy": "daily_range_play",
+      "timeframe": "5-min",
+      "entry_date": "2025-11-03",
+      "entry_time": "07:08",
+      "entry_price": 118.28,
+      "entry_value": 35484.00,
+      "quantity": 300,
+      "side": "buy",
+      "exit_date": "2025-11-03",
+      "exit_time": "14:25",
+      "exit_price": 118.62,
+      "exit_value": 35586.00,
+      "stop_price": 117.50,
+      "target_price": 119.50,
+      "hold_time_minutes": 437,
+      "realized_pnl": 102.00,
+      "pnl_percent": 0.29,
+      "higher_timeframe_context": "Near Daily Open",
+      "divergence_confirmed_by": null,
+      "vwap_distance_atr": null,
+      "divergence_count": 0,
+      "notes": "Quick scalp on TQQQ at daily open support. Hit partial target. (Pre-divergence checklist, baseline trade)",
+      "status": "closed",
+      "timestamp": "2025-11-03T14:30:00Z"
+    }
+  ],
+  "statistics": {
+    "total_trades": 1,
+    "winning_trades": 1,
+    "losing_trades": 0,
+    "breakeven_trades": 0,
+    "win_rate": 100.00,
+    "avg_win": 102.00,
+    "avg_loss": 0.00,
+    "avg_win_pct": 0.29,
+    "avg_loss_pct": 0.00,
+    "largest_win": 102.00,
+    "largest_loss": 0.00,
+    "total_pnl": 102.00,
+    "profit_factor": 1.00,
+    "expectancy": 102.00,
+    "avg_trade_duration_minutes": 437,
+    "avg_risk_reward_ratio": 1.27
+  },
+  "strategy_performance": {
+    "weekly_range_plays": {
+      "total": 0,
+      "wins": 0,
+      "losses": 0,
+      "win_rate": 0.00,
+      "pnl": 0.00
+    },
+    "vwap_reversions": {
+      "total": 0,
+      "wins": 0,
+      "losses": 0,
+      "win_rate": 0.00,
+      "pnl": 0.00
+    },
+    "ma_reversions": {
+      "total": 0,
+      "wins": 0,
+      "losses": 0,
+      "win_rate": 0.00,
+      "pnl": 0.00
+    },
+    "midpoint_range_trades": {
+      "total": 0,
+      "wins": 0,
+      "losses": 0,
+      "win_rate": 0.00,
+      "pnl": 0.00
+    },
+    "daily_range_plays": {
+      "total": 1,
+      "wins": 1,
+      "losses": 0,
+      "win_rate": 100.00,
+      "pnl": 102.00
+    }
+  },
+  "market_performance": {
+    "stocks": {
+      "total": 1,
+      "wins": 1,
+      "losses": 0,
+      "pnl": 102.00
+    },
+    "crypto": {
+      "total": 0,
+      "wins": 0,
+      "losses": 0,
+      "pnl": 0.00
+    },
+    "options": {
+      "total": 0,
+      "wins": 0,
+      "losses": 0,
+      "pnl": 0.00
+    }
+  },
+  "notes": "Trade journal initialized. Ready to log trades."
+}

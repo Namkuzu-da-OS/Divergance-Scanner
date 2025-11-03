@@ -1,0 +1,82 @@
+{
+  "calculator_info": {
+    "version": "1.0",
+    "last_updated": "2025-11-02T00:00:00Z",
+    "description": "Risk calculation parameters and position sizing for 1% ATR stop system"
+  },
+  "account_parameters": {
+    "account_balance": 20000.00,
+    "risk_per_trade_pct": 0.01,
+    "risk_per_trade_amount": 200.00,
+    "max_daily_loss": 500.00,
+    "max_daily_loss_pct": 0.025,
+    "max_weekly_loss": 1000.00,
+    "max_weekly_loss_pct": 0.05,
+    "max_positions": 5,
+    "max_portfolio_risk_pct": 0.03
+  },
+  "atr_settings": {
+    "period": 14,
+    "multiplier": 1.0,
+    "description": "14-period ATR with 1.0x multiplier for stop loss calculation",
+    "formula": "Stop Price = Entry Price - (ATR × Multiplier)"
+  },
+  "position_sizing": {
+    "method": "fixed_dollar_risk",
+    "formula": "Position Size = Risk Amount / (Entry Price - Stop Price)",
+    "description": "Calculate shares to buy based on distance to stop and fixed dollar risk",
+    "example": {
+      "entry_price": 100.00,
+      "stop_price": 98.00,
+      "risk_amount": 200.00,
+      "calculation": "200 / (100 - 98) = 200 / 2 = 100 shares",
+      "position_size": 100,
+      "total_cost": 10000.00,
+      "risk_per_share": 2.00
+    }
+  },
+  "risk_reward_calculator": {
+    "minimum_rr_ratio": 1.5,
+    "preferred_rr_ratio": 2.0,
+    "formula": "R/R = (Target - Entry) / (Entry - Stop)",
+    "example": {
+      "entry_price": 100.00,
+      "stop_price": 98.00,
+      "target_price": 104.00,
+      "risk": 2.00,
+      "reward": 4.00,
+      "rr_ratio": 2.0,
+      "verdict": "ACCEPTABLE"
+    }
+  },
+  "last_calculation": {
+    "timestamp": "2025-11-02T00:00:00Z",
+    "symbol": null,
+    "entry_price": null,
+    "stop_price": null,
+    "target_price": null,
+    "atr_value": null,
+    "position_size": null,
+    "risk_amount": null,
+    "reward_amount": null,
+    "rr_ratio": null
+  },
+  "formulas": {
+    "position_size": "Risk Amount / (Entry Price - Stop Price)",
+    "stop_from_atr": "Entry Price - (ATR × Multiplier)",
+    "risk_amount": "Position Size × (Entry Price - Stop Price)",
+    "reward_amount": "Position Size × (Target Price - Entry Price)",
+    "rr_ratio": "(Target Price - Entry Price) / (Entry Price - Stop Price)",
+    "risk_pct": "(Risk Amount / Account Balance) × 100",
+    "position_value": "Position Size × Entry Price"
+  },
+  "safety_checks": {
+    "max_position_value": 20000.00,
+    "max_single_stock_pct": 0.20,
+    "warn_if_position_exceeds": 4000.00,
+    "force_reduce_if_risk_exceeds": 200.00,
+    "min_rr_ratio": 1.0,
+    "min_price_per_share": 1.00
+  },
+  "notes": "Always calculate position size BEFORE entering trade. Never guess or round up risk."
+}

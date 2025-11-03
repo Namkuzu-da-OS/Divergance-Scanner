@@ -1,0 +1,308 @@
+# Smart Mean Reversion with VWAP Guide Insights
+# Built from first principles with market context awareness
+# ===== Change Notes (Sept 2024) =====
+# - Added minAtrPct input to enforce a minimum band width on quiet symbols.
+# - Added maxGapUnits input so reversion arrows wait for VWAP reconnection after large gaps.
+# - Guarded VWAP slope with slopeRaw to prevent first-bar NaN values.
+# - Introduced bandWidth so bands and z-score share the ATR floor.
+# - Added overnightGapUnits and touchedVWAP tracking to manage gap-day eligibility.
+# Usage: bump minAtrPct for illiquid names; raise maxGapUnits (2.0-2.5) for high-vol pairs.
+
+declare upper;
+
+# ===== INPUTS =====
+input useVWAP = yes;              # Use VWAP or SMA for basis
+input smaLength = 20;             # If not using VWAP
+input baseDevLength = 30;         # Base period for deviation calc (shorter = more responsive)
+input devMultiplier = 2.0;        # Base multiplier for bands
+input showBands = yes;
+input showCloud = yes;
+input showSignals = yes;
+input paintBars = yes;
+input showLabels = yes;
+
+# Filters
+input useTrendFilter = yes;       # Skip signals in strong trends
+input useVolumeFilter = yes;      # Consider volume context
+input useTimeFilter = yes;        # Weight signals by time of day
+input useVolatilityAdjustment = yes; # Dynamic band adjustment
+input minAtrPct = 0.001;          # Minimum band width as % of price
+input maxGapUnits = 1.5;           # Max overnight gap (in band units) before signals unlock
+
+# ===== BASIS CALCULATION =====
+def basis = if useVWAP then reference VWAP() else Average(close, smaLength);
+
+# ===== VWAP SLOPE CALCULATION =====
+# Critical for determining trend vs chop as per the guide
+def vwapLookback = 10; # bars to measure slope
+def slopeRaw = if BarNumber() > vwapLookback then basis - basis[vwapLookback] else 0;
+def vwapSlope = if vwapLookback != 0 then slopeRaw / vwapLookback else 0;
+def vwapRising = vwapSlope > 0.01; # threshold for "rising"
+def vwapFalling = vwapSlope < -0.01; # threshold for "falling"
+def vwapFlat = !vwapRising and !vwapFalling;
+
+# ===== MARKET OPEN DETECTION =====
+# Track if we've settled after market open (30 min rule from guide)
+def dayStart = SecondsFromTime(0930) >= 0 and SecondsFromTime(0930)[1] < 0;
+def barsFromOpen = if dayStart then 0 else barsFromOpen[1] + 1;
+def settledVWAP = barsFromOpen > 6; # Wait ~30 min on 5-min chart, adjust for your timeframe
+
+# ===== VOLATILITY ADJUSTMENT =====
+# Measure recent vs historical volatility to adjust bands dynamically
+def recentVol = StDev(close, baseDevLength);
+def historicalVol = StDev(close, baseDevLength * 3);
+def volRatio = if historicalVol != 0 then recentVol / historicalVol else 1;
+# Constrain the ratio to reasonable bounds (0.5 to 1.5)
+def adjustedVolRatio = if useVolatilityAdjustment then
+    (if volRatio > 1.5 then 1.5 else if volRatio < 0.5 then 0.5 else volRatio)
+    else 1.0;
+# Calculate standard deviation from price
+def priceStdDev = StDev(close, baseDevLength);
+def vwapDev = priceStdDev * adjustedVolRatio;
+def bandWidth = Max(vwapDev, close * minAtrPct);
+def upperBand = basis + (devMultiplier * bandWidth);
+def lowerBand = basis - (devMultiplier * bandWidth);
+
+# ===== Z-SCORE CALCULATION =====
+def zScore = if bandWidth != 0 then (close - basis) / bandWidth else 0;
+def zScorePercent = AbsValue(zScore) / devMultiplier * 100;
+
+# ===== TREND FILTER =====
+def ema20 = ExpAverage(close, 20);
+def ema50 = ExpAverage(close, 50);
+def ema200 = ExpAverage(close, 200);
+# Trend strength (0 = strong down, 50 = neutral, 100 = strong up)
+def trendScore =
+    (if close > ema20 then 25 else 0) +
+    (if close > ema50 then 25 else 0) +
+    (if ema20 > ema50 then 25 else 0) +
+    (if close > ema200 then 25 else 0);
+def strongUptrend = trendScore >= 75;
+def strongDowntrend = trendScore <= 25;
+def ranging = trendScore > 25 and trendScore < 75;
+
+# ===== VOLUME FILTER =====
+def avgVolume = Average(volume, 50);
+def relativeVolume = if avgVolume != 0 then volume / avgVolume else 1;
+def lowVolume = relativeVolume < 0.7;
+def normalVolume = relativeVolume >= 0.7 and relativeVolume <= 1.3;
+def highVolume = relativeVolume > 1.3;
+# Volume score (higher is better for mean reversion)
+def volumeScore = if useVolumeFilter then
+    (if lowVolume then 100 else if normalVolume then 50 else 0)
+    else 50;
+
+# ===== TIME FILTER =====
+# Updated based on guide: ignore first 15-30 minutes
+def openingTime = SecondsFromTime(0930) >= 0 and SecondsTillTime(0945) > 0; # First 15 min - ignore
+def settlingTime = SecondsFromTime(0945) >= 0 and SecondsTillTime(1000) > 0; # 15-30 min - caution
+def morningTime = SecondsFromTime(1000) >= 0 and SecondsTillTime(1130) > 0;
+def lunchTime = SecondsFromTime(1130) >= 0 and SecondsTillTime(1330) > 0;
+def afternoonTime = SecondsFromTime(1330) >= 0 and SecondsTillTime(1500) > 0;
+def closingTime = SecondsFromTime(1500) >= 0 and SecondsTillTime(1600) > 0;
+# Time score (higher is better for mean reversion)
+def timeScore = if useTimeFilter then
+    (if openingTime then 0  # Avoid first 15 minutes completely
+    else if settlingTime then 25  # Low confidence 15-30 min
+    else if morningTime or afternoonTime then 100
+    else if lunchTime then 50
+    else if closingTime then 25
+    else 50)
+    else 50;
+
+# ===== MARKET REGIME WITH VWAP SLOPE =====
+# Determine if it's a trend day or range day
+def atr = Average(TrueRange(high, close, low), 14);
+def atr50 = Average(TrueRange(high, close, low), 50);
+def volatileMarket = atr > atr50 * 1.5;
+def quietMarket = atr < atr50 * 0.7;
+def normalMarket = !volatileMarket and !quietMarket;
+# Trend day detection (from guide)
+def trendDay = (vwapRising and close > basis) or (vwapFalling and close < basis);
+def rangeDay = vwapFlat or (AbsValue(close - basis) / basis < 0.002);
+def choppyDay = vwapFlat and volatileMarket;
+
+# ===== SIGNAL STRENGTH CALCULATION =====
+# Adjust strategy based on VWAP slope (from guide)
+def meanReversionMode = vwapFlat or rangeDay;
+def trendFollowMode = (vwapRising or vwapFalling) and !rangeDay;
+def trendFilterScore = if useTrendFilter then
+    (if meanReversionMode then 100  # Perfect for mean reversion
+    else if trendFollowMode and AbsValue(zScore) > devMultiplier * 1.5 then 0  # Don't fade strong trends
+    else if ranging then 75
+    else if (strongUptrend and zScore < 0) or (strongDowntrend and zScore > 0) then 25
+    else 50)
+    else 50;
+def extremeScore =
+    if meanReversionMode then
+        (if zScorePercent >= 125 then 100
+        else if zScorePercent >= 100 then 80
+        else if zScorePercent >= 75 then 60
+        else if zScorePercent >= 50 then 40
+        else 0)
+    else  # Trend mode - require more extreme moves
+        (if zScorePercent >= 200 then 80
+        else if zScorePercent >= 150 then 60
+        else if zScorePercent >= 100 then 40
+        else 0);
+# VWAP slope bonus
+def slopeScore =
+    if vwapFlat then 100  # Best for mean reversion
+    else if (vwapRising and zScore < -devMultiplier) then 75  # Pullback in uptrend
+    else if (vwapFalling and zScore > devMultiplier) then 75  # Bounce in downtrend
+    else 25;
+# Overall confidence (0-100) - adjusted weights
+def confidenceScore =
+    if meanReversionMode then
+        (extremeScore * 0.35 + trendFilterScore * 0.15 + volumeScore * 0.2 + timeScore * 0.15 + slopeScore * 0.15)
+    else
+        (extremeScore * 0.25 + trendFilterScore * 0.25 + volumeScore * 0.15 + timeScore * 0.15 + slopeScore * 0.2);
+# Signal thresholds
+def weakSignal = confidenceScore >= 40 and confidenceScore < 60 and settledVWAP;
+def mediumSignal = confidenceScore >= 60 and confidenceScore < 80 and settledVWAP;
+def strongSignal = confidenceScore >= 80 and settledVWAP;
+
+# ===== RE-ENTRY LOGIC =====
+# Look for first bar back inside bands after extreme
+def wasAboveBand = close[1] > upperBand[1];
+def wasBelowBand = close[1] < lowerBand[1];
+def nowInsideUpper = close <= upperBand;
+def nowInsideLower = close >= lowerBand;
+def overnightGapUnits = if BarNumber() > 1 and bandWidth != 0 then AbsValue(open - close[1]) / bandWidth else 0;
+rec touchedVWAP = if dayStart then (high >= basis and low <= basis) else (touchedVWAP[1] or (high >= basis and low <= basis));
+def gapEligible = touchedVWAP or overnightGapUnits <= maxGapUnits;
+def shortReentry = gapEligible and wasAboveBand and nowInsideUpper and (weakSignal or mediumSignal or strongSignal);
+def longReentry = gapEligible and wasBelowBand and nowInsideLower and (weakSignal or mediumSignal or strongSignal);
+
+# ===== PLOTS =====
+plot pBasis = basis;
+pBasis.SetDefaultColor(Color.GRAY);
+pBasis.SetLineWeight(2);
+plot pUpperBand = if showBands then upperBand else Double.NaN;
+plot pLowerBand = if showBands then lowerBand else Double.NaN;
+pUpperBand.SetDefaultColor(Color.DARK_GRAY);
+pLowerBand.SetDefaultColor(Color.DARK_GRAY);
+AddCloud(if showCloud then pUpperBand else Double.NaN,
+         if showCloud then pLowerBand else Double.NaN,
+         Color.DARK_GRAY, Color.DARK_GRAY);
+
+# ===== SIGNALS WITH STRENGTH INDICATION =====
+# Create separate plots for different signal strengths
+plot StrongShortSignal = if showSignals and shortReentry and strongSignal then high else Double.NaN;
+StrongShortSignal.SetPaintingStrategy(PaintingStrategy.ARROW_DOWN);
+StrongShortSignal.SetDefaultColor(Color.RED);
+StrongShortSignal.SetLineWeight(3);
+plot MediumShortSignal = if showSignals and shortReentry and mediumSignal and !strongSignal then high else Double.NaN;
+MediumShortSignal.SetPaintingStrategy(PaintingStrategy.ARROW_DOWN);
+MediumShortSignal.SetDefaultColor(Color.ORANGE);
+MediumShortSignal.SetLineWeight(2);
+plot WeakShortSignal = if showSignals and shortReentry and weakSignal and !mediumSignal and !strongSignal then high else Double.NaN;
+WeakShortSignal.SetPaintingStrategy(PaintingStrategy.ARROW_DOWN);
+WeakShortSignal.SetDefaultColor(Color.YELLOW);
+WeakShortSignal.SetLineWeight(1);
+plot StrongLongSignal = if showSignals and longReentry and strongSignal then low else Double.NaN;
+StrongLongSignal.SetPaintingStrategy(PaintingStrategy.ARROW_UP);
+StrongLongSignal.SetDefaultColor(Color.GREEN);
+StrongLongSignal.SetLineWeight(3);
+plot MediumLongSignal = if showSignals and longReentry and mediumSignal and !strongSignal then low else Double.NaN;
+MediumLongSignal.SetPaintingStrategy(PaintingStrategy.ARROW_UP);
+MediumLongSignal.SetDefaultColor(Color.LIME);
+MediumLongSignal.SetLineWeight(2);
+plot WeakLongSignal = if showSignals and longReentry and weakSignal and !mediumSignal and !strongSignal then low else Double.NaN;
+WeakLongSignal.SetPaintingStrategy(PaintingStrategy.ARROW_UP);
+WeakLongSignal.SetDefaultColor(Color.YELLOW);
+WeakLongSignal.SetLineWeight(1);
+
+# ===== BAR COLORING =====
+def isExtendedUp = close > upperBand;
+def isExtendedDown = close < lowerBand;
+AssignPriceColor(
+    if !paintBars then Color.CURRENT
+    else if isExtendedUp and strongSignal then Color.RED
+    else if isExtendedUp and mediumSignal then Color.DARK_ORANGE
+    else if isExtendedDown and strongSignal then Color.GREEN
+    else if isExtendedDown and mediumSignal then Color.LIME
+    else Color.CURRENT
+);
+
+# ===== LABELS =====
+# Main Status Label - Updated with VWAP slope context
+AddLabel(showLabels,
+    if !settledVWAP then "WAIT - VWAP Settling (first 30 min)"
+    else if AbsValue(zScore) < 0.25 then "NEUTRAL - At VWAP"
+    else if meanReversionMode and strongSignal and zScore > devMultiplier then
+        "STRONG SHORT (Range Day) - " + Round(zScorePercent, 0) + "% Extended"
+    else if meanReversionMode and strongSignal and zScore < -devMultiplier then
+        "STRONG LONG (Range Day) - " + Round(zScorePercent, 0) + "% Extended"
+    else if trendFollowMode and vwapRising and zScore < -0.5 then
+        "PULLBACK BUY - VWAP Rising"
+    else if trendFollowMode and vwapFalling and zScore > 0.5 then
+        "BOUNCE SHORT - VWAP Falling"
+    else if trendDay then
+        "TREND DAY - Don't Fade"
+    else if mediumSignal and AbsValue(zScore) > devMultiplier * 0.75 then
+        "MEDIUM SIGNAL - " + Round(zScorePercent, 0) + "% Extended"
+    else if weakSignal and AbsValue(zScore) > devMultiplier * 0.5 then
+        "WEAK SIGNAL - " + Round(zScorePercent, 0) + "% Extended"
+    else
+        "NORMAL - " + Round(zScorePercent, 0) + "% from VWAP",
+    if !settledVWAP then Color.DARK_GRAY
+    else if strongSignal and AbsValue(zScore) > devMultiplier then
+        (if zScore > 0 then Color.RED else Color.GREEN)
+    else if trendDay then Color.YELLOW
+    else if mediumSignal then Color.ORANGE
+    else if weakSignal then Color.YELLOW
+    else Color.GRAY
+);
+# VWAP Slope & Market Context Label
+AddLabel(showLabels,
+    "VWAP: " +
+    (if vwapRising then "RISING ↑"
+    else if vwapFalling then "FALLING ↓"
+    else "FLAT →") +
+    " | Market: " +
+    (if trendDay then "TREND DAY"
+    else if rangeDay then "RANGE DAY"
+    else if choppyDay then "CHOPPY"
+    else "NORMAL") +
+    " | Vol: " +
+    (if highVolume then "HIGH"
+    else if lowVolume then "LOW"
+    else "NORMAL"),
+    if vwapRising then Color.GREEN
+    else if vwapFalling then Color.RED
+    else Color.LIGHT_GRAY
+);
+# Strategy Mode Label
+AddLabel(showLabels,
+    if meanReversionMode then "MODE: Mean Reversion (fade extremes)"
+    else if trendFollowMode and vwapRising then "MODE: Trend Follow (buy pullbacks)"
+    else if trendFollowMode and vwapFalling then "MODE: Trend Follow (sell bounces)"
+    else "MODE: Mixed (use caution)",
+    if meanReversionMode then Color.CYAN
+    else if trendFollowMode then Color.ORANGE
+    else Color.GRAY
+);
+# Confidence Score Label
+AddLabel(showLabels,
+    "Confidence: " + Round(confidenceScore, 0) + "% | " +
+    "$" + AsPrice(AbsValue(close - basis)) + " from VWAP",
+    if confidenceScore >= 80 then Color.WHITE
+    else if confidenceScore >= 60 then Color.LIGHT_GRAY
+    else Color.DARK_GRAY
+);
+# Time Window Label - Updated based on guide
+AddLabel(showLabels and useTimeFilter,
+    if openingTime then "First 15min - NO TRADES"
+    else if settlingTime then "15-30min - VWAP Settling"
+    else if morningTime then "Morning - Good Signals"
+    else if lunchTime then "Lunch - Reduced Activity"
+    else if afternoonTime then "Afternoon - Good Signals"
+    else if closingTime then "Closing - Be Cautious"
+    else "",
+    if openingTime then Color.RED
+    else if settlingTime then Color.DARK_ORANGE
+    else if morningTime or afternoonTime then Color.GREEN
+    else if lunchTime then Color.YELLOW
+    else Color.DARK_ORANGE
+);

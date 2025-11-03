@@ -1,0 +1,651 @@
+# ===============================
+# Multi-TF Levels for Swing & Day Trading
+# Daily: PDH/PDL/PDC/DOpen/TDH/TDL/TDM + Week: WH/WL/WO/PWC + Month: MH/ML/MO/PMH/PML/PMC + Year: YH/YL/YO/PYH/PYL/PYC
+# Intraday: VWAP/ONH/ONL/PRMH/PRML + Midpoints: PDM/WM/MM
+# v2.5 - Simplified complex logic, fixed redundancy, improved reliability
+# ===============================
+# TIPS FOR BETTER LINE IDENTIFICATION:
+# 1. Use showLineBubbles = yes to display small identification bubbles along lines (NEW!)
+# 2. Enable "Highlight studies on hover" in ThinkorSwim settings:
+#    Setup -> Application Settings -> Look and Feel -> Charts -> Check "Highlight studies on hover"
+#    This will highlight lines when you hover over them
+# 3. Ensure Data Box is visible: Right-click chart -> Style -> Settings -> General -> Show data box
+# 4. Use showRightEdgeBubbles = yes to see line names on the right edge
+# 5. Use showLabels = yes to see current values at the top of the chart
+
+declare upper;
+
+# ---- Inputs
+
+input includeExtendedHours      = yes;   # Intraday: include extended hours in PDH/PDL calc
+input showLabels                = yes;
+input showRightEdgeBubbles      = no;
+input showLineBubbles           = yes;   # Show identification bubbles on lines
+input showCloudBetweenDaily     = no;
+input showCloudBetweenWeekly    = no;
+input showCloudBetweenMonthly   = no;
+input showCloudBetweenYearly    = no;
+input enableAlerts              = no;
+
+# Timeframe-aware visibility controls
+
+input hideIntradayOnDaily       = yes;   # Hide intraday levels (VWAP, PDC, DO, ONH/ONL) on daily+ charts
+input hideDailyOnWeekly         = yes;   # Hide daily levels (PDH/PDL) on weekly+ charts  
+input hideWeeklyOnMonthly       = yes;   # Hide weekly levels on monthly+ charts
+input hideMonthlyOnYearly       = yes;   # Hide monthly levels on yearly+ charts
+input showWeeklyOpen            = yes;   # This Week's Open (WO)
+input showPrevWeekClose         = yes;   # Previous Week's Close (PWC)
+input showMonthlyOpen           = yes;   # This Month's Open (MO)
+input showPrevMonthClose        = yes;   # Previous Month's Close (PMC)
+input showYearlyOpen            = yes;   # This Year's Open (YO)
+input showPrevYearClose         = yes;   # Previous Year's Close (PYC)
+input showVWAP                  = yes;   # Volume Weighted Average Price
+input showPrevClose             = yes;   # Previous Session Close (PDC)
+input showDayOpen               = yes;   # Current Day's Open (DO)
+input showOvernightLevels       = yes;   # Overnight High/Low (ONH/ONL)
+input showMidpoints             = yes;   # Midpoint levels between major ranges
+input showTodayHigh            = yes;   # Current Day's High (TDH)
+input showTodayLow             = yes;   # Current Day's Low (TDL)
+input showTodayMidpoint        = yes;   # Current Day's midpoint (TDM)
+input showPremarketLevels      = yes;   # Premarket High/Low (4am-9:30am ET)
+input showOpeningRange30       = no;    # Opening Range 30min levels (DISABLED - too complex)
+
+# ---- Global colors (valid CustomColor objects)
+
+DefineGlobalColor("DailyCloud",   Color.LIGHT_GRAY);
+DefineGlobalColor("WeeklyCloud",  CreateColor(100, 180, 255));   # soft light blue
+DefineGlobalColor("MonthlyCloud", CreateColor(255, 235, 128));   # pale gold
+DefineGlobalColor("YearlyCloud",  CreateColor(255, 200, 200));   # pale pink
+DefineGlobalColor("MonthCurrent", CreateColor(255, 215, 0));     # gold (MH/ML/MO)
+DefineGlobalColor("MonthPrev",    CreateColor(190, 120, 255));   # lavender (PMH/PML/PMC)
+DefineGlobalColor("YearCurrent",  CreateColor(220, 20, 60));     # crimson (YH/YL/YO)
+DefineGlobalColor("YearPrev",     CreateColor(255, 105, 180));   # hot pink (PYH/PYL/PYC)
+DefineGlobalColor("VWAP",         CreateColor(255, 165, 0));     # orange (VWAP)
+DefineGlobalColor("Intraday",     CreateColor(128, 255, 128));   # light green (PDC/DO/ONH/ONL)
+DefineGlobalColor("Midpoints",    CreateColor(200, 200, 200));   # light gray (midpoints)
+DefineGlobalColor("Premarket",    CreateColor(255, 255, 0));     # yellow (premarket levels)
+DefineGlobalColor("OpeningRange", CreateColor(255, 192, 203));   # pink (opening range)
+
+# =======================
+# Timeframe Detection
+# =======================
+
+def currentTF = GetAggregationPeriod();
+def isDailyOrHigher = currentTF >= AggregationPeriod.DAY;
+def isWeeklyOrHigher = currentTF >= AggregationPeriod.WEEK;
+def isMonthlyOrHigher = currentTF >= AggregationPeriod.MONTH;
+def isYearlyOrHigher = currentTF >= AggregationPeriod.YEAR;
+
+# Timeframe-aware visibility flags
+
+def showIntradayLevels = !hideIntradayOnDaily or !isDailyOrHigher;
+def showDailyLevels = !hideDailyOnWeekly or !isWeeklyOrHigher;
+def showWeeklyLevels = !hideWeeklyOnMonthly or !isMonthlyOrHigher;
+def showMonthlyLevels = !hideMonthlyOnYearly or !isYearlyOrHigher;
+
+# =======================
+# Previous Day (PDH/PDL)
+# =======================
+# Day change detection
+
+def newDay = GetYYYYMMDD() != GetYYYYMMDD()[1];
+
+# Running H/L for each calendar day (for extended-hours aware snapshot)
+
+def dayHigh = if newDay then high else Max(high, dayHigh[1]);
+def dayLow  = if newDay then low  else Min(low,  dayLow[1]);
+
+# Snapshot prior day      s H/L including extended
+
+def prevHighAll = CompoundValue(1, if newDay then dayHigh[1] else prevHighAll[1], Double.NaN);
+def prevLowAll  = CompoundValue(1, if newDay then dayLow[1]  else prevLowAll[1],  Double.NaN);
+
+# Daily bars (RTH only baseline)
+
+def prevHighRTH = high(period = AggregationPeriod.DAY)[1];
+def prevLowRTH  = low (period = AggregationPeriod.DAY)[1];
+
+# Choose daily source
+
+def isIntraday = GetAggregationPeriod() < AggregationPeriod.DAY;
+def PDHvalue = if includeExtendedHours and isIntraday then prevHighAll else prevHighRTH;
+def PDLvalue = if includeExtendedHours and isIntraday then prevLowAll  else prevLowRTH;
+plot PDH = PDHvalue;
+PDH.SetDefaultColor(Color.GREEN);
+PDH.SetLineWeight(2);
+PDH.SetStyle(Curve.SHORT_DASH);
+PDH.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
+PDH.SetHiding(!showDailyLevels);
+PDH.HideTitle();
+plot PDL = PDLvalue;
+PDL.SetDefaultColor(Color.RED);
+PDL.SetLineWeight(2);
+PDL.SetStyle(Curve.SHORT_DASH);
+PDL.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
+PDL.SetHiding(!showDailyLevels);
+PDL.HideTitle();
+
+# =======================
+# Intraday Levels
+# =======================
+# VWAP (Volume Weighted Average Price)
+
+plot VWAP = reference VWAP();
+VWAP.SetDefaultColor(GlobalColor("VWAP"));
+VWAP.SetLineWeight(3);
+VWAP.SetStyle(Curve.FIRM);
+VWAP.SetHiding(!showVWAP or !showIntradayLevels);
+VWAP.HideTitle();
+
+# Previous Session Close
+
+def prevClose = close(period = AggregationPeriod.DAY)[1];
+plot PDC = prevClose;
+PDC.SetDefaultColor(GlobalColor("Intraday"));
+PDC.SetLineWeight(2);
+PDC.SetStyle(Curve.MEDIUM_DASH);
+PDC.SetHiding(!showPrevClose or !showIntradayLevels);
+PDC.HideTitle();
+
+# Current Day's Open
+
+def dayOpen = open(period = AggregationPeriod.DAY);
+plot DOpen = dayOpen;
+DOpen.SetDefaultColor(GlobalColor("Intraday"));
+DOpen.SetLineWeight(2);
+DOpen.SetStyle(Curve.LONG_DASH);
+DOpen.SetHiding(!showDayOpen or !showIntradayLevels);
+DOpen.HideTitle();
+
+# Overnight High/Low (Only when different from RTH to avoid redundancy)
+# Shows extended hours levels only when they differ from regular trading hours
+
+def overnightHigh = if includeExtendedHours and isIntraday and prevHighAll != prevHighRTH then prevHighAll else Double.NaN;
+def overnightLow = if includeExtendedHours and isIntraday and prevLowAll != prevLowRTH then prevLowAll else Double.NaN;
+plot ONH = overnightHigh;
+ONH.SetDefaultColor(GlobalColor("Intraday"));
+ONH.SetLineWeight(1);
+ONH.SetStyle(Curve.SHORT_DASH);
+ONH.SetHiding(!showOvernightLevels or !includeExtendedHours or !showIntradayLevels);
+ONH.HideTitle();
+plot ONL = overnightLow;
+ONL.SetDefaultColor(GlobalColor("Intraday"));
+ONL.SetLineWeight(1);
+ONL.SetStyle(Curve.SHORT_DASH);
+ONL.SetHiding(!showOvernightLevels or !includeExtendedHours or !showIntradayLevels);
+ONL.HideTitle();
+def todayRangeMid = (dayHigh + dayLow) / 2;
+
+# Show today's levels only on last 3 bars to avoid dynamic line movement
+def lastThreeBars = BarNumber() >= HighestAll(BarNumber()) - 2;
+
+plot TodayHigh = if lastThreeBars then dayHigh else Double.NaN;
+TodayHigh.SetDefaultColor(Color.DARK_GREEN);
+TodayHigh.SetLineWeight(2);
+TodayHigh.SetStyle(Curve.SHORT_DASH);
+TodayHigh.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
+TodayHigh.SetHiding(!showTodayHigh or !showIntradayLevels);
+TodayHigh.HideTitle();
+
+plot TodayLow = if lastThreeBars then dayLow else Double.NaN;
+TodayLow.SetDefaultColor(Color.DARK_RED);
+TodayLow.SetLineWeight(2);
+TodayLow.SetStyle(Curve.SHORT_DASH);
+TodayLow.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
+TodayLow.SetHiding(!showTodayLow or !showIntradayLevels);
+TodayLow.HideTitle();
+
+plot TodayMid = if lastThreeBars then todayRangeMid else Double.NaN;
+TodayMid.SetDefaultColor(GlobalColor("Midpoints"));
+TodayMid.SetLineWeight(1);
+TodayMid.SetStyle(Curve.MEDIUM_DASH);
+TodayMid.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
+TodayMid.SetHiding(!showTodayMidpoint or !showIntradayLevels);
+TodayMid.HideTitle();
+
+# =======================
+# Premarket Levels (Simplified)
+# =======================
+# Note: Uses extended hours data when available. For true premarket-only levels,
+# consider using a dedicated premarket study or manual level placement.
+
+# Simplified approach: Use overnight levels when they exist and differ from RTH
+def pmHigh = if !IsNaN(overnightHigh) then overnightHigh else Double.NaN;
+def pmLow = if !IsNaN(overnightLow) then overnightLow else Double.NaN;
+
+plot PRMH = pmHigh;
+PRMH.SetDefaultColor(GlobalColor("Premarket"));
+PRMH.SetLineWeight(2);
+PRMH.SetStyle(Curve.MEDIUM_DASH);
+PRMH.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
+PRMH.SetHiding(!showPremarketLevels or !showIntradayLevels);
+PRMH.HideTitle();
+
+plot PRML = pmLow;
+PRML.SetDefaultColor(GlobalColor("Premarket"));
+PRML.SetLineWeight(2);
+PRML.SetStyle(Curve.MEDIUM_DASH);
+PRML.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
+PRML.SetHiding(!showPremarketLevels or !showIntradayLevels);
+PRML.HideTitle();
+
+# =======================
+# Opening Range 30min (Removed - Too Complex)
+# =======================
+# OR30 levels require complex time-based calculations that may not work reliably
+# across different time zones and market conditions. Consider manual level placement
+# or dedicated OR30 studies for this functionality.
+
+def or30HighFinal = Double.NaN;  # Disabled - too complex for reliable calculation
+def or30LowFinal = Double.NaN;   # Disabled - too complex for reliable calculation
+
+plot OR30H = or30HighFinal;
+OR30H.SetDefaultColor(GlobalColor("OpeningRange"));
+OR30H.SetLineWeight(2);
+OR30H.SetStyle(Curve.LONG_DASH);
+OR30H.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
+OR30H.SetHiding(yes);  # Always hidden - disabled functionality
+OR30H.HideTitle();
+
+plot OR30L = or30LowFinal;
+OR30L.SetDefaultColor(GlobalColor("OpeningRange"));
+OR30L.SetLineWeight(2);
+OR30L.SetStyle(Curve.LONG_DASH);
+OR30L.SetPaintingStrategy(PaintingStrategy.HORIZONTAL);
+OR30L.SetHiding(yes);  # Always hidden - disabled functionality
+OR30L.HideTitle();
+
+# =======================
+# Weekly Levels
+# =======================
+
+def thisWeekHigh  = high (period = AggregationPeriod.WEEK);
+def thisWeekLow   = low  (period = AggregationPeriod.WEEK);
+def prevWeekHigh  = high (period = AggregationPeriod.WEEK)[1];
+def prevWeekLow   = low  (period = AggregationPeriod.WEEK)[1];
+def thisWeekOpen  = open (period = AggregationPeriod.WEEK);
+def prevWeekClose = close(period = AggregationPeriod.WEEK)[1];
+plot WH = thisWeekHigh;
+WH.SetDefaultColor(Color.CYAN);
+WH.SetLineWeight(2);
+WH.SetStyle(Curve.LONG_DASH);
+WH.SetHiding(!showWeeklyLevels);
+WH.HideTitle();
+plot WL = thisWeekLow;
+WL.SetDefaultColor(Color.CYAN);
+WL.SetLineWeight(2);
+WL.SetStyle(Curve.LONG_DASH);
+WL.SetHiding(!showWeeklyLevels);
+WL.HideTitle();
+plot PWH = prevWeekHigh;
+PWH.SetDefaultColor(Color.BLUE);
+PWH.SetLineWeight(2);
+PWH.SetStyle(Curve.MEDIUM_DASH);
+PWH.SetHiding(!showWeeklyLevels);
+PWH.HideTitle();
+plot PWL = prevWeekLow;
+PWL.SetDefaultColor(Color.BLUE);
+PWL.SetLineWeight(2);
+PWL.SetStyle(Curve.MEDIUM_DASH);
+PWL.SetHiding(!showWeeklyLevels);
+PWL.HideTitle();
+plot WO = thisWeekOpen;
+WO.SetDefaultColor(Color.ORANGE);
+WO.SetLineWeight(2);
+WO.SetStyle(Curve.LONG_DASH);
+WO.SetHiding(!showWeeklyOpen or !showWeeklyLevels);
+WO.HideTitle();
+plot PWC = prevWeekClose;
+PWC.SetDefaultColor(Color.MAGENTA);
+PWC.SetLineWeight(2);
+PWC.SetStyle(Curve.SHORT_DASH);
+PWC.SetHiding(!showPrevWeekClose or !showWeeklyLevels);
+PWC.HideTitle();
+
+# =======================
+# Monthly Levels
+# =======================
+
+def thisMonthHigh  = high (period = AggregationPeriod.MONTH);
+def thisMonthLow   = low  (period = AggregationPeriod.MONTH);
+def prevMonthHigh  = high (period = AggregationPeriod.MONTH)[1];
+def prevMonthLow   = low  (period = AggregationPeriod.MONTH)[1];
+def thisMonthOpen  = open (period = AggregationPeriod.MONTH);
+def prevMonthClose = close(period = AggregationPeriod.MONTH)[1];
+plot MH = thisMonthHigh;
+MH.SetDefaultColor(GlobalColor("MonthCurrent"));
+MH.SetLineWeight(2);
+MH.SetStyle(Curve.LONG_DASH);
+MH.SetHiding(!showMonthlyLevels);
+MH.HideTitle();
+plot ML = thisMonthLow;
+ML.SetDefaultColor(GlobalColor("MonthCurrent"));
+ML.SetLineWeight(2);
+ML.SetStyle(Curve.LONG_DASH);
+ML.SetHiding(!showMonthlyLevels);
+ML.HideTitle();
+plot PMH = prevMonthHigh;
+PMH.SetDefaultColor(GlobalColor("MonthPrev"));
+PMH.SetLineWeight(2);
+PMH.SetStyle(Curve.MEDIUM_DASH);
+PMH.SetHiding(!showMonthlyLevels);
+PMH.HideTitle();
+plot PML = prevMonthLow;
+PML.SetDefaultColor(GlobalColor("MonthPrev"));
+PML.SetLineWeight(2);
+PML.SetStyle(Curve.MEDIUM_DASH);
+PML.SetHiding(!showMonthlyLevels);
+PML.HideTitle();
+plot MO = thisMonthOpen;
+MO.SetDefaultColor(GlobalColor("MonthCurrent"));
+MO.SetLineWeight(2);
+MO.SetStyle(Curve.LONG_DASH);
+MO.SetHiding(!showMonthlyOpen or !showMonthlyLevels);
+MO.HideTitle();
+plot PMC = prevMonthClose;
+PMC.SetDefaultColor(GlobalColor("MonthPrev"));
+PMC.SetLineWeight(2);
+PMC.SetStyle(Curve.SHORT_DASH);
+PMC.SetHiding(!showPrevMonthClose or !showMonthlyLevels);
+PMC.HideTitle();
+
+# =======================
+# Yearly Levels
+# =======================
+
+def thisYearHigh  = high (period = AggregationPeriod.YEAR);
+def thisYearLow   = low  (period = AggregationPeriod.YEAR);
+def prevYearHigh  = high (period = AggregationPeriod.YEAR)[1];
+def prevYearLow   = low  (period = AggregationPeriod.YEAR)[1];
+def thisYearOpen  = open (period = AggregationPeriod.YEAR);
+def prevYearClose = close(period = AggregationPeriod.YEAR)[1];
+plot YH = thisYearHigh;
+YH.SetDefaultColor(GlobalColor("YearCurrent"));
+YH.SetLineWeight(2);
+YH.SetStyle(Curve.LONG_DASH);
+YH.HideTitle();
+plot YL = thisYearLow;
+YL.SetDefaultColor(GlobalColor("YearCurrent"));
+YL.SetLineWeight(2);
+YL.SetStyle(Curve.LONG_DASH);
+YL.HideTitle();
+plot PYH = prevYearHigh;
+PYH.SetDefaultColor(GlobalColor("YearPrev"));
+PYH.SetLineWeight(2);
+PYH.SetStyle(Curve.MEDIUM_DASH);
+PYH.HideTitle();
+plot PYL = prevYearLow;
+PYL.SetDefaultColor(GlobalColor("YearPrev"));
+PYL.SetLineWeight(2);
+PYL.SetStyle(Curve.MEDIUM_DASH);
+PYL.HideTitle();
+plot YO = thisYearOpen;
+YO.SetDefaultColor(GlobalColor("YearCurrent"));
+YO.SetLineWeight(2);
+YO.SetStyle(Curve.LONG_DASH);
+YO.SetHiding(!showYearlyOpen);
+YO.HideTitle();
+plot PYC = prevYearClose;
+PYC.SetDefaultColor(GlobalColor("YearPrev"));
+PYC.SetLineWeight(2);
+PYC.SetStyle(Curve.SHORT_DASH);
+PYC.SetHiding(!showPrevYearClose);
+PYC.HideTitle();
+
+# =======================
+# Midpoint Levels
+# =======================
+# Daily Range Midpoint (PDH/PDL)
+
+def dailyMid = (PDHvalue + PDLvalue) / 2;
+plot PDM = dailyMid;
+PDM.SetDefaultColor(GlobalColor("Midpoints"));
+PDM.SetLineWeight(1);
+PDM.SetStyle(Curve.POINTS);
+PDM.SetHiding(!showMidpoints or !showDailyLevels);
+PDM.HideTitle();
+
+# Weekly Range Midpoint (WH/WL) 
+
+def weeklyMid = (thisWeekHigh + thisWeekLow) / 2;
+plot WM = weeklyMid;
+WM.SetDefaultColor(GlobalColor("Midpoints"));
+WM.SetLineWeight(1);
+WM.SetStyle(Curve.POINTS);
+WM.SetHiding(!showMidpoints or !showWeeklyLevels);
+WM.HideTitle();
+
+# Monthly Range Midpoint (MH/ML)
+
+def monthlyMid = (thisMonthHigh + thisMonthLow) / 2;
+plot MM = monthlyMid;
+MM.SetDefaultColor(GlobalColor("Midpoints"));
+MM.SetLineWeight(1);
+MM.SetStyle(Curve.POINTS);
+MM.SetHiding(!showMidpoints or !showMonthlyLevels);
+MM.HideTitle();
+
+# Yearly Range Midpoint removed - not commonly used by traders
+
+# =======================
+# Optional Clouds
+# =======================
+
+AddCloud(
+    if showCloudBetweenDaily and showDailyLevels then PDH else Double.NaN,
+    if showCloudBetweenDaily and showDailyLevels then PDL else Double.NaN,
+    GlobalColor("DailyCloud"), GlobalColor("DailyCloud")
+);
+AddCloud(
+    if showCloudBetweenWeekly and showWeeklyLevels then WH else Double.NaN,
+    if showCloudBetweenWeekly and showWeeklyLevels then WL else Double.NaN,
+    GlobalColor("WeeklyCloud"), GlobalColor("WeeklyCloud")
+);
+AddCloud(
+    if showCloudBetweenMonthly and showMonthlyLevels then MH else Double.NaN,
+    if showCloudBetweenMonthly and showMonthlyLevels then ML else Double.NaN,
+    GlobalColor("MonthlyCloud"), GlobalColor("MonthlyCloud")
+);
+AddCloud(
+    if showCloudBetweenYearly then YH else Double.NaN,
+    if showCloudBetweenYearly then YL else Double.NaN,
+    GlobalColor("YearlyCloud"), GlobalColor("YearlyCloud")
+);
+
+# =======================
+# Labels
+# =======================
+# Key Intraday Levels (Most Important)
+
+AddLabel(showLabels and showVWAP, "VWAP ---: " + AsPrice(VWAP), GlobalColor("VWAP"));
+
+# Daily Levels
+
+AddLabel(showLabels, "PDH - - -: " + AsPrice(PDHvalue), if close > PDHvalue then Color.GREEN else Color.DARK_GREEN);
+AddLabel(showLabels, "PDL - - -: " + AsPrice(PDLvalue), if close < PDLvalue then Color.RED else Color.DARK_RED);
+AddLabel(showLabels and showTodayHigh, "TDH - - -: " + AsPrice(dayHigh), Color.DARK_GREEN);
+AddLabel(showLabels and showTodayLow, "TDL - - -: " + AsPrice(dayLow), Color.DARK_RED);
+AddLabel(showLabels and showTodayMidpoint, "TDM - - -: " + AsPrice(todayRangeMid), GlobalColor("Midpoints"));
+AddLabel(showLabels and showPrevClose, "PDC - -: " + AsPrice(prevClose), GlobalColor("Intraday"));
+AddLabel(showLabels and showDayOpen, "DO --: " + AsPrice(dayOpen), GlobalColor("Intraday"));
+AddLabel(showLabels and showOvernightLevels and includeExtendedHours, "ONH - - -: " + AsPrice(overnightHigh), GlobalColor("Intraday"));
+AddLabel(showLabels and showOvernightLevels and includeExtendedHours, "ONL - - -: " + AsPrice(overnightLow), GlobalColor("Intraday"));
+AddLabel(showLabels and showPremarketLevels, "PRMH - - -: " + AsPrice(pmHigh), GlobalColor("Premarket"));
+AddLabel(showLabels and showPremarketLevels, "PRML - - -: " + AsPrice(pmLow), GlobalColor("Premarket"));
+# OR30 labels disabled - functionality removed for reliability
+AddLabel(showLabels and showMidpoints, "PDM ...: " + AsPrice(dailyMid), GlobalColor("Midpoints"));
+
+# Weekly Levels
+
+AddLabel(showLabels, "W Hi --: " + AsPrice(thisWeekHigh), Color.CYAN);
+AddLabel(showLabels, "W Lo --: " + AsPrice(thisWeekLow), Color.CYAN);
+AddLabel(showLabels and showWeeklyOpen, "WO --: " + AsPrice(thisWeekOpen), Color.ORANGE);
+AddLabel(showLabels and showMidpoints, "WM ...: " + AsPrice(weeklyMid), GlobalColor("Midpoints"));
+AddLabel(showLabels, "PW Hi - -: " + AsPrice(prevWeekHigh), Color.BLUE);
+AddLabel(showLabels, "PW Lo - -: " + AsPrice(prevWeekLow), Color.BLUE);
+AddLabel(showLabels and showPrevWeekClose, "PWC - - -: " + AsPrice(prevWeekClose), Color.MAGENTA);
+
+# Monthly Levels  
+
+AddLabel(showLabels, "M Hi --: " + AsPrice(thisMonthHigh), GlobalColor("MonthCurrent"));
+AddLabel(showLabels, "M Lo --: " + AsPrice(thisMonthLow), GlobalColor("MonthCurrent"));
+AddLabel(showLabels and showMonthlyOpen, "MO --: " + AsPrice(thisMonthOpen), GlobalColor("MonthCurrent"));
+AddLabel(showLabels and showMidpoints, "MM ...: " + AsPrice(monthlyMid), GlobalColor("Midpoints"));
+AddLabel(showLabels, "PM Hi - -: " + AsPrice(prevMonthHigh), GlobalColor("MonthPrev"));
+AddLabel(showLabels, "PM Lo - -: " + AsPrice(prevMonthLow), GlobalColor("MonthPrev"));
+AddLabel(showLabels and showPrevMonthClose, "PMC - - -: " + AsPrice(prevMonthClose), GlobalColor("MonthPrev"));
+
+# Yearly Levels
+
+AddLabel(showLabels, "Y Hi --: " + AsPrice(thisYearHigh), GlobalColor("YearCurrent"));
+AddLabel(showLabels, "Y Lo --: " + AsPrice(thisYearLow), GlobalColor("YearCurrent"));
+AddLabel(showLabels and showYearlyOpen, "YO --: " + AsPrice(thisYearOpen), GlobalColor("YearCurrent"));
+AddLabel(showLabels, "PY Hi - -: " + AsPrice(prevYearHigh), GlobalColor("YearPrev"));
+AddLabel(showLabels, "PY Lo - -: " + AsPrice(prevYearLow), GlobalColor("YearPrev"));
+AddLabel(showLabels and showPrevYearClose, "PYC - - -: " + AsPrice(prevYearClose), GlobalColor("YearPrev"));
+
+# =======================
+# Line Identification Bubbles
+# =======================
+# Small bubbles along lines for easy identification
+# Bubble placement logic - one bubble per line at strategic positions
+
+def totalBars = HighestAll(BarNumber());
+def bubblePosition = totalBars - RoundDown(totalBars * 0.25, 0); # 25% from right edge
+def singleBubbleCondition = BarNumber() == bubblePosition;
+
+# Daily Level Bubbles
+
+AddChartBubble(showLineBubbles and singleBubbleCondition, PDH, "PDH", Color.GREEN, no);
+AddChartBubble(showLineBubbles and singleBubbleCondition, PDL, "PDL", Color.RED, no);
+AddChartBubble(showLineBubbles and showPrevClose and singleBubbleCondition, PDC, "PDC", GlobalColor("Intraday"), no);
+AddChartBubble(showLineBubbles and showDayOpen and singleBubbleCondition, DOpen, "DO", GlobalColor("Intraday"), no);
+AddChartBubble(showLineBubbles and showTodayHigh and singleBubbleCondition, TodayHigh, "TDH", Color.DARK_GREEN, no);
+AddChartBubble(showLineBubbles and showTodayLow and singleBubbleCondition, TodayLow, "TDL", Color.DARK_RED, no);
+AddChartBubble(showLineBubbles and showTodayMidpoint and singleBubbleCondition, TodayMid, "TDM", GlobalColor("Midpoints"), no);
+
+# VWAP Bubble
+
+AddChartBubble(showLineBubbles and showVWAP and singleBubbleCondition, VWAP, "VWAP", GlobalColor("VWAP"), no);
+
+# Overnight Level Bubbles (only when extended hours enabled)
+
+AddChartBubble(showLineBubbles and showOvernightLevels and includeExtendedHours and singleBubbleCondition and !IsNaN(ONH), ONH, "ONH", GlobalColor("Intraday"), no);
+AddChartBubble(showLineBubbles and showOvernightLevels and includeExtendedHours and singleBubbleCondition and !IsNaN(ONL), ONL, "ONL", GlobalColor("Intraday"), no);
+
+# Premarket and Opening Range Bubbles
+AddChartBubble(showLineBubbles and showPremarketLevels and singleBubbleCondition and !IsNaN(PRMH), PRMH, "PRMH", GlobalColor("Premarket"), no);
+AddChartBubble(showLineBubbles and showPremarketLevels and singleBubbleCondition and !IsNaN(PRML), PRML, "PRML", GlobalColor("Premarket"), no);
+# OR30 bubbles disabled - functionality removed for reliability
+
+# Weekly Level Bubbles
+
+AddChartBubble(showLineBubbles and singleBubbleCondition, WH, "WH", Color.CYAN, no);
+AddChartBubble(showLineBubbles and singleBubbleCondition, WL, "WL", Color.CYAN, no);
+AddChartBubble(showLineBubbles and singleBubbleCondition, PWH, "PWH", Color.BLUE, no);
+AddChartBubble(showLineBubbles and singleBubbleCondition, PWL, "PWL", Color.BLUE, no);
+AddChartBubble(showLineBubbles and showWeeklyOpen and singleBubbleCondition, WO, "WO", Color.ORANGE, no);
+AddChartBubble(showLineBubbles and showPrevWeekClose and singleBubbleCondition, PWC, "PWC", Color.MAGENTA, no);
+
+# Monthly Level Bubbles
+
+AddChartBubble(showLineBubbles and singleBubbleCondition, MH, "MH", GlobalColor("MonthCurrent"), no);
+AddChartBubble(showLineBubbles and singleBubbleCondition, ML, "ML", GlobalColor("MonthCurrent"), no);
+AddChartBubble(showLineBubbles and singleBubbleCondition, PMH, "PMH", GlobalColor("MonthPrev"), no);
+AddChartBubble(showLineBubbles and singleBubbleCondition, PML, "PML", GlobalColor("MonthPrev"), no);
+AddChartBubble(showLineBubbles and showMonthlyOpen and singleBubbleCondition, MO, "MO", GlobalColor("MonthCurrent"), no);
+AddChartBubble(showLineBubbles and showPrevMonthClose and singleBubbleCondition, PMC, "PMC", GlobalColor("MonthPrev"), no);
+
+# Yearly Level Bubbles
+
+AddChartBubble(showLineBubbles and singleBubbleCondition, YH, "YH", GlobalColor("YearCurrent"), no);
+AddChartBubble(showLineBubbles and singleBubbleCondition, YL, "YL", GlobalColor("YearCurrent"), no);
+AddChartBubble(showLineBubbles and singleBubbleCondition, PYH, "PYH", GlobalColor("YearPrev"), no);
+AddChartBubble(showLineBubbles and singleBubbleCondition, PYL, "PYL", GlobalColor("YearPrev"), no);
+AddChartBubble(showLineBubbles and showYearlyOpen and singleBubbleCondition, YO, "YO", GlobalColor("YearCurrent"), no);
+AddChartBubble(showLineBubbles and showPrevYearClose and singleBubbleCondition, PYC, "PYC", GlobalColor("YearPrev"), no);
+
+# Midpoint Bubbles
+
+AddChartBubble(showLineBubbles and showMidpoints and singleBubbleCondition, PDM, "PDM", GlobalColor("Midpoints"), no);
+AddChartBubble(showLineBubbles and showMidpoints and singleBubbleCondition, WM, "WM", GlobalColor("Midpoints"), no);
+AddChartBubble(showLineBubbles and showMidpoints and singleBubbleCondition, MM, "MM", GlobalColor("Midpoints"), no);
+
+# =======================
+# Right-edge bubbles
+# =======================
+
+def lastBar = IsNaN(close[-1]);
+AddChartBubble(showRightEdgeBubbles and lastBar, PDH, "PDH " + AsPrice(PDH), Color.GREEN, yes);
+AddChartBubble(showRightEdgeBubbles and lastBar, PDL, "PDL " + AsPrice(PDL), Color.RED, no);
+AddChartBubble(showRightEdgeBubbles and showVWAP and lastBar, VWAP, "VWAP " + AsPrice(VWAP), GlobalColor("VWAP"), yes);
+AddChartBubble(showRightEdgeBubbles and showPrevClose and lastBar, PDC, "PDC " + AsPrice(PDC), GlobalColor("Intraday"), no);
+AddChartBubble(showRightEdgeBubbles and showDayOpen and lastBar, DOpen, "DO " + AsPrice(DOpen), GlobalColor("Intraday"), yes);
+AddChartBubble(showRightEdgeBubbles and showTodayHigh and lastBar, TodayHigh, "TDH " + AsPrice(TodayHigh), Color.DARK_GREEN, yes);
+AddChartBubble(showRightEdgeBubbles and showTodayLow and lastBar, TodayLow, "TDL " + AsPrice(TodayLow), Color.DARK_RED, no);
+AddChartBubble(showRightEdgeBubbles and showTodayMidpoint and lastBar, TodayMid, "TDM " + AsPrice(todayRangeMid), GlobalColor("Midpoints"), yes);
+AddChartBubble(showRightEdgeBubbles and showOvernightLevels and includeExtendedHours and lastBar, ONH, "ONH " + AsPrice(ONH), GlobalColor("Intraday"), yes);
+AddChartBubble(showRightEdgeBubbles and showOvernightLevels and includeExtendedHours and lastBar, ONL, "ONL " + AsPrice(ONL), GlobalColor("Intraday"), no);
+AddChartBubble(showRightEdgeBubbles and showPremarketLevels and lastBar, PRMH, "PRMH " + AsPrice(PRMH), GlobalColor("Premarket"), yes);
+AddChartBubble(showRightEdgeBubbles and showPremarketLevels and lastBar, PRML, "PRML " + AsPrice(PRML), GlobalColor("Premarket"), no);
+# OR30 right-edge bubbles disabled - functionality removed for reliability
+AddChartBubble(showRightEdgeBubbles and lastBar, WH, "W Hi " + AsPrice(WH), Color.CYAN, yes);
+AddChartBubble(showRightEdgeBubbles and lastBar, WL, "W Lo " + AsPrice(WL), Color.CYAN, no);
+AddChartBubble(showRightEdgeBubbles and lastBar, PWH, "PW Hi " + AsPrice(PWH), Color.BLUE, yes);
+AddChartBubble(showRightEdgeBubbles and lastBar, PWL, "PW Lo " + AsPrice(PWL), Color.BLUE, no);
+AddChartBubble(showRightEdgeBubbles and showWeeklyOpen and lastBar, WO, "WO " + AsPrice(WO), Color.ORANGE, yes);
+AddChartBubble(showRightEdgeBubbles and showPrevWeekClose and lastBar, PWC, "PWC " + AsPrice(PWC), Color.MAGENTA, no);
+AddChartBubble(showRightEdgeBubbles and lastBar, MH, "M Hi " + AsPrice(MH), GlobalColor("MonthCurrent"), yes);
+AddChartBubble(showRightEdgeBubbles and lastBar, ML, "M Lo " + AsPrice(ML), GlobalColor("MonthCurrent"), no);
+AddChartBubble(showRightEdgeBubbles and lastBar, PMH, "PM Hi " + AsPrice(PMH), GlobalColor("MonthPrev"), yes);
+AddChartBubble(showRightEdgeBubbles and lastBar, PML, "PM Lo " + AsPrice(PML), GlobalColor("MonthPrev"), no);
+AddChartBubble(showRightEdgeBubbles and showMonthlyOpen and lastBar, MO, "MO " + AsPrice(MO), GlobalColor("MonthCurrent"), yes);
+AddChartBubble(showRightEdgeBubbles and showPrevMonthClose and lastBar, PMC, "PMC " + AsPrice(PMC), GlobalColor("MonthPrev"), no);
+AddChartBubble(showRightEdgeBubbles and lastBar, YH, "Y Hi " + AsPrice(YH), GlobalColor("YearCurrent"), yes);
+AddChartBubble(showRightEdgeBubbles and lastBar, YL, "Y Lo " + AsPrice(YL), GlobalColor("YearCurrent"), no);
+AddChartBubble(showRightEdgeBubbles and lastBar, PYH, "PY Hi " + AsPrice(PYH), GlobalColor("YearPrev"), yes);
+AddChartBubble(showRightEdgeBubbles and lastBar, PYL, "PY Lo " + AsPrice(PYL), GlobalColor("YearPrev"), no);
+AddChartBubble(showRightEdgeBubbles and showYearlyOpen and lastBar, YO, "YO " + AsPrice(YO), GlobalColor("YearCurrent"), yes);
+AddChartBubble(showRightEdgeBubbles and showPrevYearClose and lastBar, PYC, "PYC " + AsPrice(PYC), GlobalColor("YearPrev"), no);
+AddChartBubble(showRightEdgeBubbles and showMidpoints and lastBar, PDM, "PDM " + AsPrice(PDM), GlobalColor("Midpoints"), yes);
+AddChartBubble(showRightEdgeBubbles and showMidpoints and lastBar, WM, "WM " + AsPrice(WM), GlobalColor("Midpoints"), no);
+AddChartBubble(showRightEdgeBubbles and showMidpoints and lastBar, MM, "MM " + AsPrice(MM), GlobalColor("Midpoints"), yes);
+
+# =======================
+# Alerts (once per bar)
+# =======================
+
+Alert(enableAlerts and Crosses(close, PDH, CrossingDirection.ABOVE), "Breakout above PDH", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and Crosses(close, PDL, CrossingDirection.BELOW), "Breakdown below PDL", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and showVWAP and Crosses(close, VWAP, CrossingDirection.ABOVE), "Cross above VWAP", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and showVWAP and Crosses(close, VWAP, CrossingDirection.BELOW), "Cross below VWAP", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and showPrevClose and Crosses(close, PDC, CrossingDirection.ABOVE), "Cross above Previous Close (PDC)", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and showPrevClose and Crosses(close, PDC, CrossingDirection.BELOW), "Cross below Previous Close (PDC)", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and showDayOpen and Crosses(close, DOpen, CrossingDirection.ABOVE), "Cross above Day Open (DO)", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and showDayOpen and Crosses(close, DOpen, CrossingDirection.BELOW), "Cross below Day Open (DO)", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and Crosses(close, WH, CrossingDirection.ABOVE), "Breakout above Weekly High", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and Crosses(close, WL, CrossingDirection.BELOW), "Breakdown below Weekly Low", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and showWeeklyOpen and Crosses(close, WO, CrossingDirection.ABOVE), "Cross above This Week's Open (WO)", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and showWeeklyOpen and Crosses(close, WO, CrossingDirection.BELOW), "Cross below This Week's Open (WO)", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and showPrevWeekClose and Crosses(close, PWC, CrossingDirection.ABOVE), "Cross above Previous Week's Close (PWC)", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and showPrevWeekClose and Crosses(close, PWC, CrossingDirection.BELOW), "Cross below Previous Week's Close (PWC)", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and Crosses(close, MH, CrossingDirection.ABOVE), "Breakout above Monthly High", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and Crosses(close, ML, CrossingDirection.BELOW), "Breakdown below Monthly Low", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and showMonthlyOpen and Crosses(close, MO, CrossingDirection.ABOVE), "Cross above This Month's Open (MO)", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and showMonthlyOpen and Crosses(close, MO, CrossingDirection.BELOW), "Cross below This Month's Open (MO)", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and showPrevMonthClose and Crosses(close, PMC, CrossingDirection.ABOVE), "Cross above Previous Month's Close (PMC)", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and showPrevMonthClose and Crosses(close, PMC, CrossingDirection.BELOW), "Cross below Previous Month's Close (PMC)", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and Crosses(close, YH, CrossingDirection.ABOVE), "Breakout above Yearly High", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and Crosses(close, YL, CrossingDirection.BELOW), "Breakdown below Yearly Low", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and showYearlyOpen and Crosses(close, YO, CrossingDirection.ABOVE), "Cross above This Year's Open (YO)", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and showYearlyOpen and Crosses(close, YO, CrossingDirection.BELOW), "Cross below This Year's Open (YO)", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and showPrevYearClose and Crosses(close, PYC, CrossingDirection.ABOVE), "Cross above Previous Year's Close (PYC)", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and showPrevYearClose and Crosses(close, PYC, CrossingDirection.BELOW), "Cross below Previous Year's Close (PYC)", Alert.ONCE, Sound.RING);
+
+# New Level Alerts
+Alert(enableAlerts and showPremarketLevels and Crosses(close, PRMH, CrossingDirection.ABOVE), "Breakout above Premarket High (PRMH)", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and showPremarketLevels and Crosses(close, PRML, CrossingDirection.BELOW), "Breakdown below Premarket Low (PRML)", Alert.ONCE, Sound.RING);
+# OR30 alerts disabled - functionality removed for reliability
+Alert(enableAlerts and showTodayHigh and Crosses(close, TodayHigh, CrossingDirection.ABOVE), "New Day High Breakout", Alert.ONCE, Sound.RING);
+Alert(enableAlerts and showTodayLow and Crosses(close, TodayLow, CrossingDirection.BELOW), "New Day Low Breakdown", Alert.ONCE, Sound.RING);
+
