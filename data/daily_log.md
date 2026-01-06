@@ -1,72 +1,35 @@
-# Trading Log - December 29, 2025
+# Trading Log - January 6, 2026
 
-**Session Status:** SYSTEM LAUNCH
+**Session Status:** ACTIVE
 **Account Balance:** $20,000.00
 **Risk Available:** $500.00 (daily max loss)
 
 ---
 
-## SESSION NOTES (Dashboard Feed)
+## MARKET SNAPSHOT (Session Open)
 
-Format: `[HH:MM] [CATEGORY] - Your note text`
-Categories: observation, trade_idea, emotion, lesson, system
+| Metric | Value |
+|--------|-------|
+| SPY | $688.74 (+0.15%) |
+| VIX | 15.01 ⚠️ |
+| Sentiment | 55% Bullish |
+| IV-HV Spread | +5.14 |
 
-**Live Notes:**
-
-[SYSTEM] - Wingman Trading System v1.1 launched
-[SYSTEM] - All data files synchronized
-[SYSTEM] - Data backend online (192.168.10.239:3000)
-[SYSTEM] - Ready for first trade
+**Alert:** VIX crossed 15 threshold - watching for dealer hedging cascades
 
 ---
 
-## PRE-MARKET PREPARATION
+## SESSION NOTES
 
-### Market Overview
-- **SPY:** [Check before market open]
-- **QQQ:** [Check before market open]
-- **VIX:** [Check before market open]
-- **Market Sentiment:** [To be determined]
-
-### Key Levels to Watch
-- [Add levels from data backend]
-
-### Pre-Market Checklist
-- [x] System files synchronized
-- [x] Data backend verified
-- [x] Wingman online
-- [ ] Review market conditions
-- [ ] Identify potential setups
-- [ ] Set price alerts
+[12:16] [SYSTEM] - Session opened, market snapshot captured
+[12:16] [OBSERVATION] - VIX at 15.01, just above critical threshold
 
 ---
 
 ## TRADE LOG
 
-No trades executed yet. System ready.
+No trades yet.
 
 ---
 
-## POST-SESSION SUMMARY
-
-**Financial Results:**
-- Starting Balance: $20,000.00
-- Ending Balance: $--
-- Daily P&L: $--
-- Trades Executed: 0
-
----
-
-## WINGMAN NOTES
-
-System launch complete. Infrastructure verified:
-- Dashboard operational
-- Data tracking ready
-- Risk management rules loaded
-- Goal tracking active ($2,500/month target)
-
-First trade will establish baseline. Enforce discipline from trade #1.
-
----
-
-*Session Log - December 29, 2025*
+*Session Log - January 6, 2026*
