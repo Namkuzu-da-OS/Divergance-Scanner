@@ -17,8 +17,8 @@ const path = require('path');
 const CONFIG = {
   // Telegram settings
   telegram: {
-    botToken: process.env.TELEGRAM_BOT_TOKEN || 'YOUR_BOT_TOKEN_HERE',
-    chatId: process.env.TELEGRAM_CHAT_ID || 'YOUR_CHAT_ID_HERE'
+    botToken: process.env.TELEGRAM_BOT_TOKEN || '8527216242:AAEHs1p5ESUL7dLZoobvJonU_3SGy5wRGTo',
+    chatId: process.env.TELEGRAM_CHAT_ID || '8370088021'
   },
 
   // API endpoints
@@ -44,10 +44,14 @@ const CONFIG = {
 let state = {
   lastVixRegime: null,
   lastWallAlerts: {},
+  lastWallAlertTimes: {},  // Cooldown tracking
   lastSignals: new Set(),
   lastGammaRegime: {},
   initialized: false
 };
+
+// Cooldown period in milliseconds (30 minutes)
+const WALL_COOLDOWN_MS = 30 * 60 * 1000;
 
 // ============================================
 // TELEGRAM FUNCTIONS
@@ -195,28 +199,54 @@ function checkWallProximity(symbol, price, levels, alerts) {
 
   const callDistance = ((callWall - currentPrice) / currentPrice) * 100;
   const putDistance = ((currentPrice - putWall) / currentPrice) * 100;
+  const wallSpread = ((callWall - putWall) / currentPrice) * 100;
 
   const alertKey = `${symbol}_wall`;
+  const now = Date.now();
 
-  // Check call wall
+  // Check if walls are very close (pinned scenario)
+  if (wallSpread < 0.3) {
+    const pinnedKey = `${symbol}_pinned`;
+    const lastPinnedAlert = state.lastWallAlertTimes[pinnedKey] || 0;
+
+    if (now - lastPinnedAlert > WALL_COOLDOWN_MS) {
+      alerts.push({
+        type: 'WALL_PINNED',
+        priority: 'HIGH',
+        message: `📍 <b>${symbol} Pinned Between Walls</b>\n\nPrice: $${currentPrice.toFixed(2)}\nCall Wall: $${callWall.toFixed(2)}\nPut Wall: $${putWall.toFixed(2)}\nSpread: $${(callWall - putWall).toFixed(2)} (${wallSpread.toFixed(2)}%)\n\n⚡ Gamma squeeze zone - expect choppy action`
+      });
+      state.lastWallAlertTimes[pinnedKey] = now;
+    }
+    return; // Don't send individual wall alerts when pinned
+  }
+
+  // Check call wall with cooldown
   if (Math.abs(callDistance) <= CONFIG.thresholds.wallProximityPct) {
-    if (state.lastWallAlerts[alertKey] !== 'call') {
+    const callKey = `${symbol}_call`;
+    const lastCallAlert = state.lastWallAlertTimes[callKey] || 0;
+
+    if (now - lastCallAlert > WALL_COOLDOWN_MS) {
       alerts.push({
         type: 'WALL_PROXIMITY',
         priority: 'HIGH',
         message: `🔴 <b>${symbol} at Call Wall</b>\n\nPrice: $${currentPrice.toFixed(2)}\nCall Wall: $${callWall.toFixed(2)} (${callDistance.toFixed(2)}%)\n\n⚠️ Dealers selling into strength\nWatch for rejection or breakout`
       });
+      state.lastWallAlertTimes[callKey] = now;
       state.lastWallAlerts[alertKey] = 'call';
     }
   }
-  // Check put wall
+  // Check put wall with cooldown
   else if (Math.abs(putDistance) <= CONFIG.thresholds.wallProximityPct) {
-    if (state.lastWallAlerts[alertKey] !== 'put') {
+    const putKey = `${symbol}_put`;
+    const lastPutAlert = state.lastWallAlertTimes[putKey] || 0;
+
+    if (now - lastPutAlert > WALL_COOLDOWN_MS) {
       alerts.push({
         type: 'WALL_PROXIMITY',
         priority: 'HIGH',
         message: `🟢 <b>${symbol} at Put Wall</b>\n\nPrice: $${currentPrice.toFixed(2)}\nPut Wall: $${putWall.toFixed(2)} (${putDistance.toFixed(2)}%)\n\n✅ Dealer support zone\nWatch for bounce`
       });
+      state.lastWallAlertTimes[putKey] = now;
       state.lastWallAlerts[alertKey] = 'put';
     }
   }
@@ -292,6 +322,9 @@ async function runCheck() {
     state.initialized = true;
     console.log('[Monitor] State initialized, monitoring started');
 
+    // Write initial market state for scanner
+    writeMarketState(data);
+
     // Send startup message
     await sendTelegram(`🤖 <b>Wingman Monitor Online</b>\n\n` +
       `SPY: $${parseFloat(data.spy.current_price).toFixed(2)}\n` +
@@ -301,6 +334,9 @@ async function runCheck() {
     );
     return;
   }
+
+  // Write market state for scanner
+  writeMarketState(data);
 
   // Run all checks
   checkVixThresholds(data.vix, alerts);
@@ -354,6 +390,41 @@ function logAlert(alert) {
   }
 
   fs.writeFileSync(logFile, JSON.stringify(logs, null, 2));
+}
+
+// Write full market state to scanner.json for dashboard
+function writeMarketState(data) {
+  const stateFile = path.join(__dirname, '..', 'data', 'scanner.json');
+
+  const marketState = {
+    timestamp: new Date().toISOString(),
+    vix: {
+      price: parseFloat(data.vix?.current_price || 0),
+      regime: state.lastVixRegime
+    },
+    spy: {
+      price: parseFloat(data.spy?.current_price || 0),
+      change_pct: parseFloat(data.spy?.change_percent || 0),
+      levels: data.spyLevels?.levels || {},
+      context: data.spyLevels?.context || {}
+    },
+    qqq: {
+      price: parseFloat(data.qqq?.current_price || 0),
+      change_pct: parseFloat(data.qqq?.change_percent || 0),
+      levels: data.qqqLevels?.levels || {},
+      context: data.qqqLevels?.context || {}
+    },
+    sentiment: data.sentiment || {},
+    market_context: data.context || {},
+    signals: (data.signals || []).slice(0, 5)
+  };
+
+  try {
+    fs.writeFileSync(stateFile, JSON.stringify(marketState, null, 2));
+    console.log('[Scanner] Market state written to scanner.json');
+  } catch (e) {
+    console.error('[Scanner] Failed to write market state:', e.message);
+  }
 }
 
 // ============================================

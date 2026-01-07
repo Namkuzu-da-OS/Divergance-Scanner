@@ -1,0 +1,728 @@
+<!--
+WINGMAN MARKET SCANNER
+======================
+Real-time market structure display pulling from both data backends.
+- Port 3000: Market Intelligence (sentiment, VIX, ETF data)
+- Port 8000: Options Analytics (GEX, gamma walls, levels)
+
+Auto-refreshes every 30 seconds.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wingman Market Scanner</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #0a0e1a;
+            color: #e5e7eb;
+            padding: 16px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container { max-width: 1600px; margin: 0 auto; }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #2a3641;
+            padding-bottom: 16px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #00d4aa;
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #00d4aa;
+            box-shadow: 0 0 8px rgba(0, 212, 170, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.error { background: #ff6b6b; box-shadow: 0 0 8px rgba(255, 107, 107, 0.4); }
+        .status-dot.warning { background: #ffc107; box-shadow: 0 0 8px rgba(255, 193, 7, 0.4); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .last-update { color: #8b92a8; font-size: 12px; }
+
+        .refresh-btn {
+            background: transparent;
+            border: 1px solid #00d4aa;
+            color: #00d4aa;
+            padding: 8px 14px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background: #00d4aa;
+            color: #0a0e1a;
+        }
+
+        /* Grid layout */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-grid { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 10px;
+            padding: 16px;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            border-color: #3a4a61;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .card h3 {
+            color: #8b92a8;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #2a3641;
+        }
+
+        /* VIX Regime Banner */
+        .vix-banner {
+            padding: 16px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .vix-banner.low { background: linear-gradient(135deg, #0d3320 0%, #151821 100%); border: 1px solid #00d4aa; }
+        .vix-banner.normal { background: linear-gradient(135deg, #1a2636 0%, #151821 100%); border: 1px solid #3a8bba; }
+        .vix-banner.elevated { background: linear-gradient(135deg, #3a3020 0%, #151821 100%); border: 1px solid #ffc107; }
+        .vix-banner.high { background: linear-gradient(135deg, #3a2020 0%, #151821 100%); border: 1px solid #ff6b6b; }
+        .vix-banner.extreme { background: linear-gradient(135deg, #4a1515 0%, #151821 100%); border: 1px solid #ff4444; }
+
+        .vix-info h2 { font-size: 20px; margin-bottom: 4px; }
+        .vix-info .subtitle { color: #8b92a8; font-size: 12px; }
+        .vix-value { font-size: 32px; font-weight: 700; }
+
+        /* Symbol Cards */
+        .symbol-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .symbol-name {
+            font-size: 24px;
+            font-weight: 700;
+            color: #00d4aa;
+        }
+
+        .symbol-price {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .symbol-change { font-size: 14px; margin-left: 8px; }
+        .symbol-change.positive { color: #00d4aa; }
+        .symbol-change.negative { color: #ff6b6b; }
+
+        /* Levels Table */
+        .levels-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .levels-table th {
+            text-align: left;
+            color: #8b92a8;
+            font-weight: 500;
+            padding: 8px 0;
+            border-bottom: 1px solid #2a3641;
+        }
+
+        .levels-table td {
+            padding: 10px 0;
+            border-bottom: 1px solid #1a1f2e;
+        }
+
+        .levels-table tr:last-child td { border-bottom: none; }
+
+        .level-name { color: #c5c9d4; }
+        .level-price { font-weight: 600; color: #e5e7eb; }
+        .level-distance { font-size: 11px; }
+        .level-distance.above { color: #00d4aa; }
+        .level-distance.below { color: #ff6b6b; }
+        .level-distance.near { color: #ffc107; }
+
+        /* Gamma Bar */
+        .gamma-bar-container {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid #2a3641;
+        }
+
+        .gamma-bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #8b92a8;
+            margin-bottom: 6px;
+        }
+
+        .gamma-bar {
+            height: 24px;
+            background: linear-gradient(90deg, #ff6b6b 0%, #2a3641 50%, #00d4aa 100%);
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .gamma-marker {
+            position: absolute;
+            top: -4px;
+            width: 4px;
+            height: 32px;
+            background: #fff;
+            border-radius: 2px;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+        }
+
+        .gamma-flip-marker {
+            position: absolute;
+            top: 0;
+            width: 2px;
+            height: 24px;
+            background: #ffc107;
+        }
+
+        /* Sentiment Section */
+        .sentiment-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .sentiment-item {
+            text-align: center;
+            padding: 12px;
+            background: #0f1428;
+            border-radius: 6px;
+        }
+
+        .sentiment-label { font-size: 10px; color: #8b92a8; text-transform: uppercase; margin-bottom: 4px; }
+        .sentiment-value { font-size: 20px; font-weight: 700; }
+        .sentiment-value.bullish { color: #00d4aa; }
+        .sentiment-value.bearish { color: #ff6b6b; }
+        .sentiment-value.neutral { color: #8b92a8; }
+
+        /* Alerts Section */
+        .alerts-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .alert-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            border-left: 3px solid;
+        }
+
+        .alert-item.high {
+            background: rgba(255, 107, 107, 0.1);
+            border-color: #ff6b6b;
+        }
+
+        .alert-item.medium {
+            background: rgba(255, 193, 7, 0.1);
+            border-color: #ffc107;
+        }
+
+        .alert-item.info {
+            background: rgba(0, 212, 170, 0.1);
+            border-color: #00d4aa;
+        }
+
+        .alert-time { font-size: 10px; color: #8b92a8; margin-bottom: 4px; }
+        .alert-message { font-size: 12px; color: #e5e7eb; }
+
+        /* Context Cards */
+        .context-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .context-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .context-card {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .context-label { font-size: 10px; color: #8b92a8; text-transform: uppercase; margin-bottom: 6px; }
+        .context-value { font-size: 18px; font-weight: 700; color: #e5e7eb; }
+        .context-sub { font-size: 11px; color: #8b92a8; margin-top: 4px; }
+
+        /* Pinned Alert */
+        .pinned-alert {
+            background: linear-gradient(135deg, #2a2030 0%, #151821 100%);
+            border: 1px solid #9b59b6;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .pinned-icon { font-size: 32px; }
+        .pinned-text h3 { color: #9b59b6; margin-bottom: 4px; }
+        .pinned-text p { font-size: 12px; color: #c5c9d4; }
+
+        /* Error state */
+        .error-card {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid #ff6b6b;
+            color: #ff8888;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading { color: #8b92a8; text-align: center; padding: 40px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>WINGMAN MARKET SCANNER</h1>
+            <div class="status-row">
+                <div class="status-dot" id="status-dot"></div>
+                <span class="last-update">Last update: <span id="last-update">--:--:--</span></span>
+                <button class="refresh-btn" onclick="loadAllData()">REFRESH</button>
+                <a href="zone-scanner.html" class="refresh-btn" style="text-decoration: none; margin-left: 8px;">ZONES</a>
+                <a href="dashboard.html" class="refresh-btn" style="text-decoration: none; margin-left: 8px;">DASHBOARD</a>
+            </div>
+        </div>
+
+        <!-- VIX Banner -->
+        <div class="vix-banner low" id="vix-banner">
+            <div class="vix-info">
+                <h2 id="vix-regime">VIX REGIME: LOW</h2>
+                <div class="subtitle" id="vix-advice">Standard sizing OK</div>
+            </div>
+            <div class="vix-value" id="vix-value">--</div>
+        </div>
+
+        <!-- Pinned Alert (shown when SPY pinned between walls) -->
+        <div class="pinned-alert" id="pinned-alert" style="display: none;">
+            <div class="pinned-icon">📍</div>
+            <div class="pinned-text">
+                <h3>SPY PINNED BETWEEN WALLS</h3>
+                <p id="pinned-details">Call Wall: $-- | Put Wall: $-- | Spread: $--</p>
+            </div>
+        </div>
+
+        <!-- Context Cards -->
+        <div class="context-grid">
+            <div class="context-card">
+                <div class="context-label">Gamma Regime</div>
+                <div class="context-value" id="gamma-regime">--</div>
+                <div class="context-sub" id="gamma-sub">--</div>
+            </div>
+            <div class="context-card">
+                <div class="context-label">Market Bias</div>
+                <div class="context-value" id="market-bias">--</div>
+                <div class="context-sub" id="bias-sub">--</div>
+            </div>
+            <div class="context-card">
+                <div class="context-label">IV Rank</div>
+                <div class="context-value" id="iv-rank">--%</div>
+                <div class="context-sub">Percentile</div>
+            </div>
+            <div class="context-card">
+                <div class="context-label">Expected Move</div>
+                <div class="context-value" id="expected-move">$--</div>
+                <div class="context-sub" id="em-range">-- to --</div>
+            </div>
+        </div>
+
+        <!-- Main Grid: SPY & QQQ -->
+        <div class="main-grid">
+            <!-- SPY Card -->
+            <div class="card" id="spy-card">
+                <div class="symbol-header">
+                    <span class="symbol-name">SPY</span>
+                    <div>
+                        <span class="symbol-price" id="spy-price">$--</span>
+                        <span class="symbol-change" id="spy-change">--</span>
+                    </div>
+                </div>
+                <table class="levels-table">
+                    <thead>
+                        <tr><th>Level</th><th>Price</th><th>Distance</th></tr>
+                    </thead>
+                    <tbody id="spy-levels">
+                        <tr><td colspan="3" class="loading">Loading...</td></tr>
+                    </tbody>
+                </table>
+                <div class="gamma-bar-container">
+                    <div class="gamma-bar-label">
+                        <span>Put Wall</span>
+                        <span>Gamma Flip</span>
+                        <span>Call Wall</span>
+                    </div>
+                    <div class="gamma-bar" id="spy-gamma-bar">
+                        <div class="gamma-marker" id="spy-price-marker" style="left: 50%"></div>
+                        <div class="gamma-flip-marker" id="spy-flip-marker" style="left: 50%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QQQ Card -->
+            <div class="card" id="qqq-card">
+                <div class="symbol-header">
+                    <span class="symbol-name">QQQ</span>
+                    <div>
+                        <span class="symbol-price" id="qqq-price">$--</span>
+                        <span class="symbol-change" id="qqq-change">--</span>
+                    </div>
+                </div>
+                <table class="levels-table">
+                    <thead>
+                        <tr><th>Level</th><th>Price</th><th>Distance</th></tr>
+                    </thead>
+                    <tbody id="qqq-levels">
+                        <tr><td colspan="3" class="loading">Loading...</td></tr>
+                    </tbody>
+                </table>
+                <div class="gamma-bar-container">
+                    <div class="gamma-bar-label">
+                        <span>Put Wall</span>
+                        <span>Gamma Flip</span>
+                        <span>Call Wall</span>
+                    </div>
+                    <div class="gamma-bar" id="qqq-gamma-bar">
+                        <div class="gamma-marker" id="qqq-price-marker" style="left: 50%"></div>
+                        <div class="gamma-flip-marker" id="qqq-flip-marker" style="left: 50%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Secondary Grid: Sentiment & Alerts -->
+        <div class="main-grid">
+            <!-- Sentiment -->
+            <div class="card">
+                <h3>Sentiment (24h)</h3>
+                <div class="sentiment-grid" id="sentiment-grid">
+                    <div class="sentiment-item">
+                        <div class="sentiment-label">Bullish</div>
+                        <div class="sentiment-value bullish" id="sent-bullish">--%</div>
+                    </div>
+                    <div class="sentiment-item">
+                        <div class="sentiment-label">Bearish</div>
+                        <div class="sentiment-value bearish" id="sent-bearish">--%</div>
+                    </div>
+                    <div class="sentiment-item">
+                        <div class="sentiment-label">Neutral</div>
+                        <div class="sentiment-value neutral" id="sent-neutral">--%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Alerts -->
+            <div class="card">
+                <h3>Recent Alerts</h3>
+                <div class="alerts-list" id="alerts-list">
+                    <div class="loading">Loading alerts...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data is read from local scanner.json (written by monitor)
+
+        async function fetchJson(url) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                return await response.json();
+            } catch (e) {
+                console.error(`Failed to fetch ${url}:`, e);
+                return null;
+            }
+        }
+
+        async function loadAllData() {
+            document.getElementById('status-dot').className = 'status-dot warning';
+
+            try {
+                // Load from local JSON files (written by monitor)
+                const [scannerData, alerts] = await Promise.all([
+                    fetchJson('./data/scanner.json'),
+                    fetchJson('./data/alerts_log.json').catch(() => [])
+                ]);
+
+                if (!scannerData) {
+                    document.getElementById('status-dot').className = 'status-dot error';
+                    console.error('No scanner data - is the monitor running?');
+                    return;
+                }
+
+                // Update timestamp from scanner data
+                const dataTime = new Date(scannerData.timestamp);
+                document.getElementById('last-update').textContent = dataTime.toLocaleTimeString();
+                document.getElementById('status-dot').className = 'status-dot';
+
+                // Update VIX
+                if (scannerData.vix) {
+                    updateVixBanner(scannerData.vix.price, scannerData.vix.regime);
+                }
+
+                // Update SPY
+                if (scannerData.spy) {
+                    updateSymbolCard('spy', scannerData.spy.price, scannerData.spy.change_pct, scannerData.spy.levels);
+                }
+
+                // Update QQQ
+                if (scannerData.qqq) {
+                    updateSymbolCard('qqq', scannerData.qqq.price, scannerData.qqq.change_pct, scannerData.qqq.levels);
+                }
+
+                // Update context cards
+                updateContextCards(scannerData.market_context, scannerData.spy);
+
+                // Update sentiment
+                if (scannerData.sentiment) {
+                    updateSentiment(scannerData.sentiment);
+                }
+
+                // Update alerts
+                updateAlerts(alerts || []);
+
+                // Check for pinned condition
+                if (scannerData.spy?.levels) {
+                    checkPinnedCondition(scannerData.spy);
+                }
+
+            } catch (e) {
+                console.error('Error loading data:', e);
+                document.getElementById('status-dot').className = 'status-dot error';
+            }
+        }
+
+        function updateVixBanner(vix, regime) {
+            const banner = document.getElementById('vix-banner');
+            const regimeEl = document.getElementById('vix-regime');
+            const adviceEl = document.getElementById('vix-advice');
+            const valueEl = document.getElementById('vix-value');
+
+            valueEl.textContent = vix.toFixed(2);
+
+            let advice;
+            const regimeUpper = (regime || 'low').toUpperCase();
+
+            if (regime === 'low') {
+                advice = 'Standard sizing OK';
+                banner.className = 'vix-banner low';
+            } else if (regime === 'normal') {
+                advice = 'Normal market conditions';
+                banner.className = 'vix-banner normal';
+            } else if (regime === 'elevated') {
+                advice = 'Widen stops 50% OR reduce size';
+                banner.className = 'vix-banner elevated';
+            } else if (regime === 'high') {
+                advice = 'Reduce size 50%, expect large moves';
+                banner.className = 'vix-banner high';
+            } else {
+                advice = 'DANGER - Consider sitting out';
+                banner.className = 'vix-banner extreme';
+            }
+
+            regimeEl.textContent = `VIX REGIME: ${regimeUpper}`;
+            adviceEl.textContent = advice;
+        }
+
+        function updateSymbolCard(symbol, price, changePct, levels) {
+            // Price
+            document.getElementById(`${symbol}-price`).textContent = `$${price.toFixed(2)}`;
+
+            // Change
+            const changeEl = document.getElementById(`${symbol}-change`);
+            changeEl.textContent = `${changePct >= 0 ? '+' : ''}${changePct.toFixed(2)}%`;
+            changeEl.className = `symbol-change ${changePct >= 0 ? 'positive' : 'negative'}`;
+
+            // Levels
+            const levelsData = levels || {};
+            const tbody = document.getElementById(`${symbol}-levels`);
+
+            const rows = [
+                { name: 'Call Wall', price: levelsData.call_wall?.price, type: 'resistance' },
+                { name: 'Put Wall', price: levelsData.put_wall?.price, type: 'support' },
+                { name: 'Gamma Flip', price: levelsData.gamma_flip?.price, type: 'pivot' },
+                { name: 'Max Pain', price: levelsData.max_pain?.price, type: 'magnet' },
+                { name: 'VWAP', price: levelsData.vwap, type: 'anchor' },
+                { name: 'SMA 200', price: levelsData.sma_200, type: 'trend' }
+            ];
+
+            tbody.innerHTML = rows.map(row => {
+                if (!row.price) return '';
+                const dist = ((row.price - price) / price * 100);
+                const distClass = Math.abs(dist) < 0.3 ? 'near' : (dist > 0 ? 'above' : 'below');
+                return `
+                    <tr>
+                        <td class="level-name">${row.name}</td>
+                        <td class="level-price">$${row.price.toFixed(2)}</td>
+                        <td class="level-distance ${distClass}">${dist >= 0 ? '+' : ''}${dist.toFixed(2)}%</td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Gamma bar
+            const putWall = levelsData.put_wall?.price || price - 10;
+            const callWall = levelsData.call_wall?.price || price + 10;
+            const gammaFlip = levelsData.gamma_flip?.price || price;
+            const range = callWall - putWall;
+
+            const pricePos = ((price - putWall) / range) * 100;
+            const flipPos = ((gammaFlip - putWall) / range) * 100;
+
+            document.getElementById(`${symbol}-price-marker`).style.left = `${Math.max(0, Math.min(100, pricePos))}%`;
+            document.getElementById(`${symbol}-flip-marker`).style.left = `${Math.max(0, Math.min(100, flipPos))}%`;
+        }
+
+        function updateContextCards(context, spyData) {
+            // Gamma regime
+            const gammaRegime = spyData?.context?.gamma_regime || context?.gamma_regime || 'unknown';
+            document.getElementById('gamma-regime').textContent = gammaRegime.toUpperCase();
+            document.getElementById('gamma-sub').textContent = gammaRegime === 'positive' ? 'Dealers dampen moves' : 'Expect volatility';
+
+            // Market bias
+            const bias = context?.bias || 'neutral';
+            document.getElementById('market-bias').textContent = bias.toUpperCase();
+
+            // IV Rank
+            const ivRank = spyData?.context?.iv_rank || context?.iv_rank || 0;
+            document.getElementById('iv-rank').textContent = `${ivRank}%`;
+
+            // Expected move
+            const em = spyData?.levels?.expected_move;
+            if (em) {
+                document.getElementById('expected-move').textContent = `$${em.value?.toFixed(2) || '--'}`;
+                document.getElementById('em-range').textContent = `$${em.lower?.toFixed(0)} - $${em.upper?.toFixed(0)}`;
+            }
+        }
+
+        function updateSentiment(sentiment) {
+            if (!sentiment) return;
+
+            const bullish = sentiment.bullish_pct || sentiment.bullish || 0;
+            const bearish = sentiment.bearish_pct || sentiment.bearish || 0;
+            const neutral = sentiment.neutral_pct || sentiment.neutral || (100 - bullish - bearish);
+
+            document.getElementById('sent-bullish').textContent = `${bullish.toFixed(0)}%`;
+            document.getElementById('sent-bearish').textContent = `${bearish.toFixed(0)}%`;
+            document.getElementById('sent-neutral').textContent = `${neutral.toFixed(0)}%`;
+        }
+
+        function updateAlerts(alerts) {
+            const container = document.getElementById('alerts-list');
+
+            if (!alerts || alerts.length === 0) {
+                container.innerHTML = '<div class="loading">No recent alerts</div>';
+                return;
+            }
+
+            // Show last 10 alerts, newest first
+            const recentAlerts = alerts.slice(-10).reverse();
+
+            container.innerHTML = recentAlerts.map(alert => {
+                const time = new Date(alert.timestamp).toLocaleTimeString();
+                const priority = alert.priority?.toLowerCase() || 'info';
+                // Strip HTML tags for display
+                const message = (alert.message || '').replace(/<[^>]*>/g, '').substring(0, 100);
+
+                return `
+                    <div class="alert-item ${priority}">
+                        <div class="alert-time">${time}</div>
+                        <div class="alert-message">${message}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function checkPinnedCondition(spyData) {
+            const levels = spyData.levels || {};
+            const price = spyData.price || 0;
+            const callWall = levels.call_wall?.price;
+            const putWall = levels.put_wall?.price;
+
+            if (!callWall || !putWall || !price) {
+                document.getElementById('pinned-alert').style.display = 'none';
+                return;
+            }
+
+            const spread = callWall - putWall;
+            const spreadPct = (spread / price) * 100;
+
+            if (spreadPct < 0.3) {
+                document.getElementById('pinned-alert').style.display = 'flex';
+                document.getElementById('pinned-details').textContent =
+                    `Call Wall: $${callWall.toFixed(2)} | Put Wall: $${putWall.toFixed(2)} | Spread: $${spread.toFixed(2)} (${spreadPct.toFixed(2)}%)`;
+            } else {
+                document.getElementById('pinned-alert').style.display = 'none';
+            }
+        }
+
+        // Initial load
+        loadAllData();
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadAllData, 30000);
+    </script>
+</body>
+</html>
