@@ -31,6 +31,59 @@ docs/RULES.md → data/ACTIVE_SESSION.md → data/positions.json
 
 ---
 
+## MANDATORY: Scanner Review Process (NEVER SKIP)
+
+When reviewing Bloodhound scanner data OR the Zone Scanner dashboard, follow this process EXACTLY:
+
+### Step 1: READ THE COMPLETE DATA
+- Read `data/dynamic_scan.json` for ALL tickers (not just bloodhound.json)
+- `dynamic_scan.json` contains FULL data for ALL 20 scanned symbols
+- `bloodhound.json` only has top opportunities - USE BOTH FILES
+
+### Step 2: COUNT AND LIST ALL TICKERS
+- State exactly how many tickers are in the scan
+- List every single ticker by name: "I see: SPY, QQQ, NVDA, TSLA, GOOGL..."
+- Ask: "I see X tickers. Did I miss any?"
+
+### Step 3: PRESENT ALL TICKERS IN A TABLE
+Show EVERY ticker in a complete table. Example:
+
+| Symbol | Zone | Score | Price | RSI | BB% | Trend |
+|--------|------|-------|-------|-----|-----|-------|
+| SPY | PINNED | 100 | 687.58 | 52 | 65% | bullish |
+| QQQ | BUY_ZONE | 100 | 618.69 | 45 | 40% | bullish |
+... (ALL tickers, no exceptions)
+
+### Step 4: ONLY THEN ANALYZE/FILTER
+- After showing all, you may highlight specific setups
+- After showing all, you may group by zone or priority
+- NEVER skip the "show all" step
+
+### FAILURES TO AVOID
+- DO NOT skip low-score tickers
+- DO NOT assume "they probably don't care about that one"
+- DO NOT substitute reading a file for what the user shows
+- If user shows a screenshot, enumerate FROM THE SCREENSHOT first
+- DO NOT make excuses if you miss tickers - acknowledge and fix immediately
+
+**This is CRITICAL. Missing tickers defeats the entire purpose of the scanner.**
+
+### Validation Tool
+
+After ANY scanner review, the user can verify my work:
+
+```bash
+# Show what's actually in the scan
+node monitor/scanner-validator.js
+
+# Validate my claimed tickers against reality
+node monitor/scanner-validator.js SPY QQQ NVDA TSLA GOOGL ...
+```
+
+If the validator shows ❌ FAIL, I missed tickers and must correct immediately.
+
+---
+
 ## MANDATORY: Data Sources First
 
 **BEFORE using web search for any ticker analysis, ALWAYS pull from our APIs first.**

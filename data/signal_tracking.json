@@ -1,0 +1,96 @@
+{
+  "snapshot_time": "2026-01-08T15:08:38Z",
+  "purpose": "Track signal quality to validate framework",
+  "market_context": {
+    "spy": 689.28,
+    "vix": 15.54,
+    "regime": "risk_on"
+  },
+  "framework": {
+    "required": "At gamma level (put wall for buy, call wall for sell)",
+    "tier1": "Premium direction + RSI extreme",
+    "tier2": "Authors agree + Flow matches + SPY alignment",
+    "red_flags": "Premium opposes, Authors oppose, Counter-trend without RSI extreme"
+  },
+  "signals": [
+    {
+      "symbol": "TSLA",
+      "action": "BUY",
+      "price_at_signal": 431.71,
+      "grade": "A",
+      "reasoning": "RSI 28 oversold + $88M bullish premium + 5 authors bullish + call flow + at put wall",
+      "key_levels": { "put_wall": 430, "call_wall": 435, "vwap": 435.17 },
+      "conflicts": 0,
+      "outcome": null
+    },
+    {
+      "symbol": "IBIT",
+      "action": "BUY",
+      "price_at_signal": 51.11,
+      "grade": "B+",
+      "reasoning": "At put wall + uptrend + 4 authors bullish + call flow + SPY aligned",
+      "key_levels": { "put_wall": 51, "call_wall": 52, "vwap": 51.72 },
+      "conflicts": 0,
+      "outcome": null
+    },
+    {
+      "symbol": "QQQ",
+      "action": "BUY",
+      "price_at_signal": 619.69,
+      "grade": "B-",
+      "reasoning": "At put wall + strong uptrend + 82x call flow, BUT $39M bearish premium",
+      "key_levels": { "put_wall": 620, "call_wall": 624, "vwap": 625.3 },
+      "conflicts": 1,
+      "conflict_detail": "Bearish premium vs bullish setup",
+      "outcome": null
+    },
+    {
+      "symbol": "NVDA",
+      "action": "BUY",
+      "price_at_signal": 185.77,
+      "grade": "C",
+      "reasoning": "At put wall + $44M bullish premium, BUT 3 authors BEARISH + put flow",
+      "key_levels": { "put_wall": 185, "call_wall": 190, "vwap": 189.51 },
+      "conflicts": 2,
+      "conflict_detail": "Authors bearish, put flow vs bullish setup",
+      "outcome": null
+    },
+    {
+      "symbol": "META",
+      "action": "BUY",
+      "price_at_signal": 640.51,
+      "grade": "B",
+      "reasoning": "At put wall + $14M bullish premium + 19.7x call flow + SPY aligned",
+      "key_levels": { "put_wall": 640, "call_wall": 655, "vwap": 650.23 },
+      "conflicts": 0,
+      "outcome": null
+    },
+    {
+      "symbol": "GOOGL",
+      "action": "SELL",
+      "price_at_signal": 323.94,
+      "grade": "D",
+      "reasoning": "At call wall, BUT $34M bullish premium + 9 authors BULLISH + against SPY",
+      "key_levels": { "put_wall": 315, "call_wall": 325, "vwap": 321.21 },
+      "conflicts": 3,
+      "conflict_detail": "Premium bullish, authors bullish, against SPY trend",
+      "outcome": null
+    },
+    {
+      "symbol": "LLY",
+      "action": "SELL",
+      "price_at_signal": 1115.22,
+      "grade": "D",
+      "reasoning": "At call wall, BUT $12M bullish premium + 3 authors bullish + against SPY",
+      "key_levels": { "put_wall": 1080, "call_wall": 1120, "vwap": 1104.18 },
+      "conflicts": 3,
+      "conflict_detail": "Premium bullish, authors bullish, against SPY trend",
+      "outcome": null
+    }
+  ],
+  "check_times": [
+    { "target": "+2h (17:08 UTC)", "checked": false },
+    { "target": "EOD", "checked": false }
+  ],
+  "notes": "Framework hypothesis: Higher grades should perform better. TSLA (A) should outperform GOOGL/LLY (D)"
+}
