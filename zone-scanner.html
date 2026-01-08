@@ -216,6 +216,7 @@
         .zone-badge.OVERBOUGHT { background: rgba(249, 115, 22, 0.2); color: #f97316; }
         .zone-badge.EXTENDED_HIGH { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
         .zone-badge.EXTENDED_LOW { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
+        .zone-badge.PINNED { background: rgba(147, 51, 234, 0.2); color: #a855f7; }
 
         .action-badge {
             display: inline-block;
@@ -323,7 +324,50 @@
         .source-tag.author_consensus { background: rgba(147, 51, 234, 0.2); color: #a855f7; }
         .source-tag.trending { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
         .source-tag.ai_outlook { background: rgba(236, 72, 153, 0.2); color: #ec4899; }
+        .source-tag.x_trending { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .source-tag.narrative { background: rgba(251, 146, 60, 0.2); color: #fb923c; }
         .source-tag.core { background: rgba(139, 146, 168, 0.2); color: #8b92a8; }
+
+        /* Bloodhound Info */
+        .bloodhound-info {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        .bloodhound-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .bloodhound-score {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .bloodhound-sources {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .bloodhound-signals {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 6px;
+        }
+
+        .signal-tag {
+            display: inline-block;
+            padding: 2px 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            font-size: 10px;
+            color: #c0c8d4;
+        }
 
         /* Position Bar */
         .position-bar-container {
@@ -397,8 +441,8 @@
 
         <!-- Scanner Toggle -->
         <div class="scanner-toggle">
-            <button class="btn active" id="btn-static" onclick="setScanner('static')">Static Scanner</button>
-            <button class="btn" id="btn-dynamic" onclick="setScanner('dynamic')">Dynamic Scanner</button>
+            <button class="btn active" id="btn-static" onclick="setScanner('static')">📋 Watchlist</button>
+            <button class="btn" id="btn-dynamic" onclick="setScanner('dynamic')">🐕 Bloodhound</button>
         </div>
 
         <!-- Summary Cards -->
@@ -558,16 +602,38 @@
             const toPutWall = data.distances?.toPutWall?.toFixed(2) || '--';
             const toCallWall = data.distances?.toCallWall?.toFixed(2) || '--';
 
-            // Source tags (for dynamic scanner)
+            // Source tags (for Bloodhound scanner)
             let sourceHtml = '';
             if (data.sourceInfo && data.sourceInfo.sources) {
                 const tags = data.sourceInfo.sources.map(s =>
                     `<span class="source-tag ${s}">${s.replace('_', ' ')}</span>`
                 ).join('');
+
+                // Direction emoji
+                const dirEmoji = data.sourceInfo.direction === 'bullish' ? '🟢' :
+                                data.sourceInfo.direction === 'bearish' ? '🔴' :
+                                data.sourceInfo.direction === 'pinned' ? '📍' : '⚪';
+
+                // Score color based on confluence
+                const scoreColor = data.sourceInfo.score >= 80 ? '#00d4aa' :
+                                  data.sourceInfo.score >= 60 ? '#ffc107' : '#8b92a8';
+
+                // Build signals list
+                const signalsHtml = data.sourceInfo.signals && data.sourceInfo.signals.length > 0 ? `
+                    <div class="bloodhound-signals">
+                        ${data.sourceInfo.signals.slice(0, 4).map(s => `<span class="signal-tag">${s}</span>`).join('')}
+                    </div>
+                ` : '';
+
                 sourceHtml = `
-                    <div class="source-info">
-                        Sources: ${tags}
-                        ${data.sourceInfo.score ? `<span style="margin-left: 8px;">Score: ${data.sourceInfo.score}</span>` : ''}
+                    <div class="source-info bloodhound-info">
+                        <div class="bloodhound-header">
+                            <span class="bloodhound-score" style="color: ${scoreColor}">
+                                ${dirEmoji} ${data.sourceInfo.score}/100
+                            </span>
+                            <span class="bloodhound-sources">${tags}</span>
+                        </div>
+                        ${signalsHtml}
                     </div>
                 `;
             }
@@ -659,7 +725,8 @@
                 'OVERSOLD': 'Oversold',
                 'OVERBOUGHT': 'Overbought',
                 'EXTENDED_HIGH': 'Extended High',
-                'EXTENDED_LOW': 'Extended Low'
+                'EXTENDED_LOW': 'Extended Low',
+                'PINNED': 'Pinned'
             };
             return labels[zone] || zone;
         }

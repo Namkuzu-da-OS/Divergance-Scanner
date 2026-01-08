@@ -4,6 +4,22 @@ Wingman Trading System - AI Instructions
 
 ---
 
+## Project Vision
+
+**READ FIRST:** [docs/VISION.md](docs/VISION.md) - The Bloodhound Scanner
+
+> Wingman is an autonomous opportunity detection system. It finds confluence across
+> multiple data sources (levels, flow, sentiment, technicals) and alerts the trader.
+> The trader makes all final decisions. Wingman finds where to look.
+>
+> **Key Principles:**
+> - Dynamic symbol discovery, not static watchlists
+> - Confluence is everything - multiple factors must align
+> - Market context matters - SPY/QQQ direction affects everything
+> - Find, don't trade - system alerts, human decides
+
+---
+
 ## Quick Start
 
 **Full Wingman Mode:** User says "I know Kung Fu" or `/kungfu`
@@ -90,6 +106,7 @@ docs/RULES.md → data/ACTIVE_SESSION.md → data/positions.json
 ### Monitor System
 | File | Purpose |
 |------|---------|
+| `monitor/bloodhound-scanner.js` | **Confluence scanner** - Dynamic symbol discovery + scoring |
 | `monitor/wingman-monitor.js` | Background alert service |
 | `monitor/trade-client.js` | Trade logging API client |
 | `scanner.html` | Visual market dashboard |
@@ -106,6 +123,40 @@ docs/RULES.md → data/ACTIVE_SESSION.md → data/positions.json
 | `/kungfu` | Load full Wingman context |
 | `/data` | Pull market intelligence |
 | `-note` | Quick journal entry |
+
+---
+
+## Bloodhound Scanner
+
+The core confluence scanner that implements the project vision.
+
+### Starting the Bloodhound
+```bash
+cd monitor
+node bloodhound-scanner.js
+```
+
+### What It Does
+1. **Discovers symbols dynamically** from:
+   - Trending tickers (social data)
+   - Market data (52-week extremes, volume spikes)
+   - Core symbols (SPY, QQQ always included)
+
+2. **Analyzes each symbol** for confluence:
+   - Technical score (RSI, Bollinger Bands, trend)
+   - Level score (gamma walls, VWAP, confluence zones)
+   - Sentiment score (social buzz direction)
+   - Volume score (relative volume)
+   - Context score (aligned with SPY/QQQ)
+
+3. **Alerts on high confluence** (score >= 60/100):
+   - 🟢 Bullish setups (at support, oversold)
+   - 🔴 Bearish setups (at resistance, overbought)
+   - 📍 Pinned (trapped between gamma walls)
+
+### Output Files
+- `data/bloodhound.json` - Latest scan results
+- Telegram alerts for high-confluence opportunities
 
 ---
 

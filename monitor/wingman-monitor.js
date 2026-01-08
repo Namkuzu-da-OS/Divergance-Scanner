@@ -11,20 +11,31 @@ const fs = require('fs');
 const path = require('path');
 
 // ============================================
-// CONFIGURATION - UPDATE THESE VALUES
+// LOAD CONFIG FROM FILE (gitignored)
+// ============================================
+
+let externalConfig = {};
+try {
+  externalConfig = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8'));
+} catch (e) {
+  console.warn('[Config] No config.json found, using environment variables or defaults');
+}
+
+// ============================================
+// CONFIGURATION
 // ============================================
 
 const CONFIG = {
   // Telegram settings
   telegram: {
-    botToken: process.env.TELEGRAM_BOT_TOKEN || '8527216242:AAEHs1p5ESUL7dLZoobvJonU_3SGy5wRGTo',
-    chatId: process.env.TELEGRAM_CHAT_ID || '8370088021'
+    botToken: process.env.TELEGRAM_BOT_TOKEN || externalConfig.telegram?.botToken || 'YOUR_BOT_TOKEN',
+    chatId: process.env.TELEGRAM_CHAT_ID || externalConfig.telegram?.chatId || 'YOUR_CHAT_ID'
   },
 
   // API endpoints
   apis: {
-    intel: 'http://192.168.10.239:3000',
-    options: 'http://192.168.10.239:8000'
+    intel: externalConfig.apis?.intel || 'http://192.168.10.239:3000',
+    options: externalConfig.apis?.options || 'http://192.168.10.239:8000'
   },
 
   // Monitoring settings

@@ -26,6 +26,13 @@ yarn.lock
 *.pem
 credentials.json
 secrets.json
+config.json
+config.local.json
+
+# Telegram/API tokens
+telegram.json
+*.token
+api-keys.json
 
 # Logs
 *.log
