@@ -102,38 +102,68 @@ See: [positions.json](positions.json) for real-time data
 
 ## MARKET CONDITIONS
 
-**Date:** November 2, 2025
+**Date:** January 6, 2026
+**Data Source:** scanner.json (auto-updated every 2 min)
 
 ### Market Overview
-- **SPY:** [To be updated]
-- **QQQ:** [To be updated]
-- **VIX:** [To be updated]
-- **Market Sentiment:** [To be determined]
+- **SPY:** $692.02 (pinned between walls)
+- **QQQ:** $623.78 (pinned between walls)
+- **VIX:** 14.75 (LOW regime - standard sizing OK)
+- **Market Sentiment:** Bullish (176 bullish / 29 bearish / 125 neutral)
+- **Gamma Regime:** POSITIVE (dealers dampen moves)
 
-### Key Levels to Watch
-- Support: [To be added]
-- Resistance: [To be added]
-- VWAP: [To be calculated]
+### Key Levels (SPY)
+| Level | Price | Type |
+|-------|-------|------|
+| Call Wall | $692 | Resistance |
+| Put Wall | $691 | Support |
+| Gamma Flip | $688.31 | Pivot |
+| Max Pain | $687 | Magnet |
+| VWAP | $687.90 | Anchor |
+| R1 | $691.49 | Weekly Pivot |
+| R2 | $695.27 | Weekly Pivot |
+
+### Active Signals
+1. **SPY BULLISH** - 99% conviction - smart_money_lead
+2. **SPY BULLISH** - 94% conviction - smart_money_lead
+3. **NVDA BULLISH** - 92% conviction - smart_money_lead
 
 ### Today's Focus
-- Monitor for weekly range play setups
-- Watch VWAP reversion opportunities
-- Track MA levels for potential bounces
-- Identify mid-point range trades
+- SPY pinned between $691-$692 (gamma squeeze zone)
+- Watch for breakout direction
+- High conviction bullish signals active
+- Low VIX = standard position sizing OK
+
+---
+
+## SYSTEM STATUS
+
+### Running Services
+| Service | Status | Notes |
+|---------|--------|-------|
+| Monitor (Telegram) | RUNNING | Background shell b2db607 |
+| Scanner Dashboard | AVAILABLE | Open scanner.html |
+| Trade Logging API | LIVE | Port 3000 |
+| Options API | LIVE | Port 8000 |
+
+### Recent Alerts
+- SPY Pinned Between Walls ($691-$692)
+- QQQ Pinned Between Walls ($623-$624)
+- 3 High Conviction Signals (SPY, NVDA)
 
 ---
 
 ## WATCHLIST
 
 ### High Priority Setups
-1. [Symbol] - [Strategy] - [Key Level]
-2. [Symbol] - [Strategy] - [Key Level]
-3. [Symbol] - [Strategy] - [Key Level]
+1. SPY - Pinned breakout - Watch $692 call wall break
+2. NVDA - Bullish signal - 92% conviction active
+3. QQQ - Pinned breakout - Watch $624 call wall
 
 ### Monitoring
-- Stocks approaching weekly highs/lows
-- Crypto showing VWAP extensions
-- Options near key MA levels
+- SPY gamma walls for direction
+- VIX for regime change (currently low)
+- Sentiment distribution shifts
 
 ---
 
@@ -203,14 +233,28 @@ See: [positions.json](positions.json) for real-time data
 
 ---
 
-**Last Session Update:** January 6, 2026
+**Last Session Update:** January 6, 2026 22:35 UTC
 
 **Next Update:** Update with each trade, position change, or significant event
 
 ---
 
-**Status:** READY - Watching VIX 15 threshold
+**Status:** READY - VIX LOW, SPY/QQQ Pinned Between Walls
 **Wingman:** Online and watching
-**Data Backend:** Available (190+ endpoints for market intelligence)
+**Data Backend:** Available (Port 3000 Intel + Port 8000 Options)
+**Monitor:** Running (Telegram alerts active)
+**Trade Logging:** API live at /api/trades
+
+### Quick Commands
+```bash
+# Start monitor (if not running)
+cd monitor && node wingman-monitor.js
+
+# Check open trades
+node monitor/trade-client.js open
+
+# View stats
+node monitor/trade-client.js stats
+```
 
 Next: [daily_log.md](daily_log.md)

@@ -333,8 +333,7 @@ async function runCheck() {
     state.initialized = true;
     console.log('[Monitor] State initialized, monitoring started');
 
-    // Write initial market state for scanner
-    writeMarketState(data);
+    // Note: Bloodhound handles scanner.json - Monitor only sends Telegram alerts
 
     // Send startup message
     await sendTelegram(`🤖 <b>Wingman Monitor Online</b>\n\n` +
@@ -346,10 +345,7 @@ async function runCheck() {
     return;
   }
 
-  // Write market state for scanner
-  writeMarketState(data);
-
-  // Run all checks
+  // Run all checks (Bloodhound handles scanner.json)
   checkVixThresholds(data.vix, alerts);
   checkWallProximity('SPY', data.spy.current_price, data.spyLevels, alerts);
   checkWallProximity('QQQ', data.qqq.current_price, data.qqqLevels, alerts);
@@ -403,40 +399,8 @@ function logAlert(alert) {
   fs.writeFileSync(logFile, JSON.stringify(logs, null, 2));
 }
 
-// Write full market state to scanner.json for dashboard
-function writeMarketState(data) {
-  const stateFile = path.join(__dirname, '..', 'data', 'scanner.json');
-
-  const marketState = {
-    timestamp: new Date().toISOString(),
-    vix: {
-      price: parseFloat(data.vix?.current_price || 0),
-      regime: state.lastVixRegime
-    },
-    spy: {
-      price: parseFloat(data.spy?.current_price || 0),
-      change_pct: parseFloat(data.spy?.change_percent || 0),
-      levels: data.spyLevels?.levels || {},
-      context: data.spyLevels?.context || {}
-    },
-    qqq: {
-      price: parseFloat(data.qqq?.current_price || 0),
-      change_pct: parseFloat(data.qqq?.change_percent || 0),
-      levels: data.qqqLevels?.levels || {},
-      context: data.qqqLevels?.context || {}
-    },
-    sentiment: data.sentiment || {},
-    market_context: data.context || {},
-    signals: (data.signals || []).slice(0, 5)
-  };
-
-  try {
-    fs.writeFileSync(stateFile, JSON.stringify(marketState, null, 2));
-    console.log('[Scanner] Market state written to scanner.json');
-  } catch (e) {
-    console.error('[Scanner] Failed to write market state:', e.message);
-  }
-}
+// Note: scanner.json is now exclusively written by Bloodhound Scanner
+// Monitor's role is purely Telegram alerts for state changes
 
 // ============================================
 // STARTUP

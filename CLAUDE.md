@@ -210,7 +210,7 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 | `data/positions.json` | Open trades | Position change |
 | `data/trades_journal.json` | Trade history | Trade closes |
 | `data/account_summary.json` | P&L metrics | EOD |
-| `data/scanner.json` | Live market data | Every 2 min (monitor) |
+| `data/scanner.json` | Live market data | Every 2 min (bloodhound) |
 | `data/alerts_log.json` | Alert history | On alert |
 | `data/ACTIVE_SESSION.md` | Session state | Hourly |
 | `data/daily_log.md` | Today's journal | Throughout day |
@@ -339,18 +339,29 @@ Edit `monitor/bloodhound-scanner.js` SETTINGS for:
 
 ---
 
-## Monitor System
+## Monitor System (State Change Watchdog)
+
+The Monitor is a **state change detector** that sends Telegram alerts when market conditions change. It does NOT write to scanner.json (Bloodhound handles that).
+
+### Architecture
+```
+Bloodhound Scanner          Wingman Monitor
+──────────────────          ───────────────
+Point-in-time scanning  →   State change detection
+"What's interesting now?"   "What just changed?"
+Writes scanner.json     →   Telegram alerts ONLY
+```
 
 ### Starting the Monitor
 ```bash
-cd monitor
-node wingman-monitor.js
+pm2 start monitor/wingman-monitor.js --name monitor
+pm2 logs monitor
 ```
 
 The monitor runs in background and:
 - Polls both APIs every 2 minutes
-- Sends alerts to Telegram
-- Writes `data/scanner.json` for dashboard
+- **Detects STATE CHANGES** (not point-in-time data)
+- Sends alerts to Telegram on transitions
 - Logs alerts to `data/alerts_log.json`
 
 ### Alert Types
