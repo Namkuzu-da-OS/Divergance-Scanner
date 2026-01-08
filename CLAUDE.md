@@ -35,34 +35,46 @@ docs/RULES.md → data/ACTIVE_SESSION.md → data/positions.json
 
 When reviewing Bloodhound scanner data OR the Zone Scanner dashboard, follow this process EXACTLY:
 
-### Step 1: READ THE COMPLETE DATA
-- Read `data/dynamic_scan.json` for ALL tickers (not just bloodhound.json)
-- `dynamic_scan.json` contains FULL data for ALL 20 scanned symbols
-- `bloodhound.json` only has top opportunities - USE BOTH FILES
+### Step 1: USE SUBAGENT FOR SCANNER DATA (Context Efficiency)
 
-### Step 2: COUNT AND LIST ALL TICKERS
-- State exactly how many tickers are in the scan
-- List every single ticker by name: "I see: SPY, QQQ, NVDA, TSLA, GOOGL..."
-- Ask: "I see X tickers. Did I miss any?"
+**DO NOT read dynamic_scan.json directly** - it's 1200+ lines and burns context.
+
+Instead, spawn an Explore agent:
+```
+Task tool with subagent_type=Explore:
+"Read data/dynamic_scan.json and return a compact summary:
+1. Total ticker count
+2. ALL symbols listed (e.g., SPY, QQQ, NVDA...)
+3. Tradeable setups with zone and action
+4. Market context (VIX, SPY trend)
+Format as a table. Miss no tickers."
+```
+
+The agent reads the big file in its own context and returns only the summary.
+
+### Step 2: VERIFY THE COUNT
+- Agent should report exact ticker count (usually 20)
+- List every symbol by name
+- Ask user: "I see X tickers. Did I miss any?"
 
 ### Step 3: PRESENT ALL TICKERS IN A TABLE
-Show EVERY ticker in a complete table. Example:
+Show EVERY ticker from the agent's summary:
 
-| Symbol | Zone | Score | Price | RSI | BB% | Trend |
-|--------|------|-------|-------|-----|-----|-------|
-| SPY | PINNED | 100 | 687.58 | 52 | 65% | bullish |
-| QQQ | BUY_ZONE | 100 | 618.69 | 45 | 40% | bullish |
+| Symbol | Zone | Score | Price | RSI | Trend | Action |
+|--------|------|-------|-------|-----|-------|--------|
+| SPY | PINNED | 100 | 689.51 | 61 | bullish | - |
+| QQQ | BUY_ZONE | 100 | 620.64 | 61 | bullish | BUY |
 ... (ALL tickers, no exceptions)
 
 ### Step 4: ONLY THEN ANALYZE/FILTER
-- After showing all, you may highlight specific setups
-- After showing all, you may group by zone or priority
+- After showing all, highlight specific setups
+- After showing all, group by zone or priority
 - NEVER skip the "show all" step
 
 ### FAILURES TO AVOID
+- DO NOT read dynamic_scan.json directly (use subagent)
 - DO NOT skip low-score tickers
 - DO NOT assume "they probably don't care about that one"
-- DO NOT substitute reading a file for what the user shows
 - If user shows a screenshot, enumerate FROM THE SCREENSHOT first
 - DO NOT make excuses if you miss tickers - acknowledge and fix immediately
 
@@ -81,6 +93,50 @@ node monitor/scanner-validator.js SPY QQQ NVDA TSLA GOOGL ...
 ```
 
 If the validator shows ❌ FAIL, I missed tickers and must correct immediately.
+
+---
+
+## Context Efficiency Guidelines
+
+**Principle:** Keep main conversation context lean. Offload heavy reads to subagents.
+
+### When to Use Subagents
+
+| Task | Use Subagent? | Why |
+|------|---------------|-----|
+| Scanner review | YES | dynamic_scan.json is 1200+ lines |
+| Signal tracking check | YES | Read file + call APIs + compare |
+| Deep ticker analysis | YES | Multiple API calls, lots of data |
+| Quick price check | NO | Single API call, small response |
+| File edits | NO | Need direct access |
+
+### Subagent Patterns
+
+**Scanner Summary:**
+```
+subagent_type=Explore
+"Read data/dynamic_scan.json. Return: ticker count, all symbols,
+tradeable setups table, market context. Be complete, be compact."
+```
+
+**Signal Tracking Check:**
+```
+subagent_type=general-purpose
+"Read data/signal_tracking.json for entry prices.
+Call /api/technicals/{symbol} for current prices.
+Compare and return: Symbol | Entry | Current | Change% | Grade | Outcome"
+```
+
+### Key Research Findings (Jan 2026)
+
+Per [Anthropic context engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents):
+- Subagents use **isolated context windows**
+- Only send **relevant summaries** back to parent
+- "Do the simplest thing that works"
+
+Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-context-management/):
+- Observation masking beats summarization (52% cost reduction)
+- Don't over-engineer - simple delegation works
 
 ---
 
