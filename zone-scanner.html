@@ -424,6 +424,99 @@
             color: #6b7280;
             margin-top: 8px;
         }
+
+        /* Scanner Control Panel */
+        .scanner-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: auto;
+            padding: 8px 12px;
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+        }
+
+        .control-btn {
+            background: transparent;
+            border: 1px solid #00d4aa;
+            color: #00d4aa;
+            padding: 6px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .control-btn:hover {
+            background: #00d4aa;
+            color: #0a0e1a;
+        }
+
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .control-btn.pause {
+            border-color: #ffc107;
+            color: #ffc107;
+        }
+
+        .control-btn.pause:hover {
+            background: #ffc107;
+            color: #0a0e1a;
+        }
+
+        .control-btn.resume {
+            border-color: #00d4aa;
+            color: #00d4aa;
+        }
+
+        .scanner-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            font-size: 10px;
+            color: #8b92a8;
+            min-width: 120px;
+        }
+
+        .scanner-info .status-line {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00d4aa;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.paused {
+            background: #ffc107;
+            animation: none;
+        }
+
+        .status-indicator.scanning {
+            background: #60a5fa;
+            animation: pulse 0.5s infinite;
+        }
+
+        .scanner-info .next-scan {
+            color: #6b7280;
+        }
+
+        .scanner-info .uptime {
+            color: #6b7280;
+        }
     </style>
 </head>
 <body>
@@ -443,6 +536,19 @@
         <div class="scanner-toggle">
             <button class="btn active" id="btn-static" onclick="setScanner('static')">📋 Watchlist</button>
             <button class="btn" id="btn-dynamic" onclick="setScanner('dynamic')">🐕 Bloodhound</button>
+
+            <!-- Bloodhound Control Panel -->
+            <div class="scanner-control" id="scanner-control" style="display: none;">
+                <div class="scanner-info">
+                    <div class="status-line">
+                        <div class="status-indicator" id="status-indicator"></div>
+                        <span id="scanner-status">Running</span>
+                    </div>
+                    <div class="next-scan" id="next-scan">Next: --</div>
+                </div>
+                <button class="control-btn" id="scan-btn" onclick="triggerScan()">⚡ Scan Now</button>
+                <button class="control-btn pause" id="pause-btn" onclick="togglePause()">⏸ Pause</button>
+            </div>
         </div>
 
         <!-- Summary Cards -->
@@ -736,11 +842,136 @@
             return trend.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
         }
 
+        // ============================================
+        // BLOODHOUND CONTROL PANEL
+        // ============================================
+
+        const CONTROL_API = 'http://localhost:8081';
+        let scannerStatus = { paused: false, isScanning: false };
+
+        async function checkScannerStatus() {
+            try {
+                const response = await fetch(`${CONTROL_API}/status`);
+                if (!response.ok) throw new Error('Control API not available');
+                scannerStatus = await response.json();
+                updateControlUI();
+                return scannerStatus;
+            } catch (e) {
+                console.log('Bloodhound control API not available');
+                document.getElementById('scanner-control').style.display = 'none';
+                return null;
+            }
+        }
+
+        function updateControlUI() {
+            const indicator = document.getElementById('status-indicator');
+            const statusText = document.getElementById('scanner-status');
+            const nextScanText = document.getElementById('next-scan');
+            const pauseBtn = document.getElementById('pause-btn');
+            const scanBtn = document.getElementById('scan-btn');
+
+            // Status indicator
+            indicator.className = 'status-indicator';
+            if (scannerStatus.paused) {
+                indicator.classList.add('paused');
+                statusText.textContent = 'Paused';
+            } else if (scannerStatus.isScanning) {
+                indicator.classList.add('scanning');
+                statusText.textContent = 'Scanning...';
+            } else {
+                statusText.textContent = `Running (${scannerStatus.uptime || '--'})`;
+            }
+
+            // Next scan countdown
+            if (scannerStatus.paused) {
+                nextScanText.textContent = 'Paused';
+            } else if (scannerStatus.isScanning) {
+                nextScanText.textContent = 'Scanning now...';
+            } else if (scannerStatus.nextScanIn) {
+                const mins = Math.floor(scannerStatus.nextScanIn / 60);
+                const secs = scannerStatus.nextScanIn % 60;
+                nextScanText.textContent = `Next: ${mins}:${secs.toString().padStart(2, '0')}`;
+            } else {
+                nextScanText.textContent = 'Next: --';
+            }
+
+            // Pause button
+            if (scannerStatus.paused) {
+                pauseBtn.className = 'control-btn resume';
+                pauseBtn.innerHTML = '▶ Resume';
+            } else {
+                pauseBtn.className = 'control-btn pause';
+                pauseBtn.innerHTML = '⏸ Pause';
+            }
+
+            // Scan button
+            scanBtn.disabled = scannerStatus.paused || scannerStatus.isScanning;
+        }
+
+        async function togglePause() {
+            try {
+                const endpoint = scannerStatus.paused ? '/resume' : '/pause';
+                const response = await fetch(`${CONTROL_API}${endpoint}`, { method: 'POST' });
+                if (response.ok) {
+                    await checkScannerStatus();
+                }
+            } catch (e) {
+                console.error('Failed to toggle pause:', e);
+                alert('Failed to control scanner. Is Bloodhound running?');
+            }
+        }
+
+        async function triggerScan() {
+            try {
+                const response = await fetch(`${CONTROL_API}/scan`, { method: 'POST' });
+                if (response.ok) {
+                    await checkScannerStatus();
+                    // Refresh data after a short delay to show results
+                    setTimeout(() => {
+                        loadData();
+                        checkScannerStatus();
+                    }, 3000);
+                } else {
+                    const data = await response.json();
+                    alert(data.error || 'Failed to trigger scan');
+                }
+            } catch (e) {
+                console.error('Failed to trigger scan:', e);
+                alert('Failed to trigger scan. Is Bloodhound running?');
+            }
+        }
+
+        // Show/hide control panel based on scanner type
+        function updateControlVisibility() {
+            const control = document.getElementById('scanner-control');
+            if (currentScanner === 'dynamic') {
+                control.style.display = 'flex';
+                checkScannerStatus();
+            } else {
+                control.style.display = 'none';
+            }
+        }
+
+        // Override setScanner to also update control visibility
+        const originalSetScanner = setScanner;
+        setScanner = function(type) {
+            originalSetScanner(type);
+            updateControlVisibility();
+        };
+
         // Initial load
         loadData();
+        updateControlVisibility();
 
-        // Auto-refresh every 30 seconds
+        // Auto-refresh data every 30 seconds
         setInterval(loadData, 30000);
+
+        // Update scanner status every 5 seconds when on Bloodhound tab
+        setInterval(() => {
+            if (currentScanner === 'dynamic') {
+                checkScannerStatus();
+            }
+        }, 5000);
     </script>
 </body>
 </html>

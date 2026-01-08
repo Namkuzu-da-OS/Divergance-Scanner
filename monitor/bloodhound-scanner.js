@@ -13,6 +13,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const http = require('http');
 
 // Load config
 let CONFIG;
@@ -713,10 +714,181 @@ function formatAlert(analysis) {
 }
 
 // ============================================
+// PAUSE CONTROL
+// ============================================
+
+const PAUSE_FILE = path.join(__dirname, '..', 'data', '.bloodhound_paused');
+const CONTROL_PORT = 8081;
+
+// Scanner state for control API
+const scannerState = {
+    startedAt: new Date().toISOString(),
+    lastScanAt: null,
+    lastScanDuration: null,
+    nextScanAt: null,
+    scanCount: 0,
+    isScanning: false
+};
+
+function isPaused() {
+    return fs.existsSync(PAUSE_FILE);
+}
+
+function setPaused(paused) {
+    if (paused) {
+        fs.writeFileSync(PAUSE_FILE, new Date().toISOString());
+    } else if (fs.existsSync(PAUSE_FILE)) {
+        fs.unlinkSync(PAUSE_FILE);
+    }
+}
+
+// Queue for manual scan requests
+let manualScanRequested = false;
+
+// ============================================
+// HTTP CONTROL API (for web interface)
+// ============================================
+
+function startControlServer() {
+    const server = http.createServer((req, res) => {
+        // Enable CORS for web interface
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+        res.setHeader('Content-Type', 'application/json');
+
+        // Handle preflight
+        if (req.method === 'OPTIONS') {
+            res.writeHead(200);
+            res.end();
+            return;
+        }
+
+        const url = req.url;
+
+        // GET /status - Full scanner status
+        if (req.method === 'GET' && url === '/status') {
+            const paused = isPaused();
+            let pausedAt = null;
+            if (paused) {
+                try {
+                    pausedAt = fs.readFileSync(PAUSE_FILE, 'utf8');
+                } catch (e) {}
+            }
+
+            // Calculate uptime
+            const uptimeMs = Date.now() - new Date(scannerState.startedAt).getTime();
+            const uptimeMin = Math.floor(uptimeMs / 60000);
+            const uptimeHrs = Math.floor(uptimeMin / 60);
+            const uptime = uptimeHrs > 0
+                ? `${uptimeHrs}h ${uptimeMin % 60}m`
+                : `${uptimeMin}m`;
+
+            // Calculate next scan countdown
+            let nextScanIn = null;
+            if (scannerState.nextScanAt && !paused) {
+                const msUntil = new Date(scannerState.nextScanAt).getTime() - Date.now();
+                if (msUntil > 0) {
+                    nextScanIn = Math.ceil(msUntil / 1000);
+                }
+            }
+
+            res.writeHead(200);
+            res.end(JSON.stringify({
+                paused,
+                pausedAt,
+                status: paused ? 'paused' : (scannerState.isScanning ? 'scanning' : 'running'),
+                uptime,
+                startedAt: scannerState.startedAt,
+                lastScanAt: scannerState.lastScanAt,
+                lastScanDuration: scannerState.lastScanDuration,
+                nextScanAt: scannerState.nextScanAt,
+                nextScanIn,
+                scanCount: scannerState.scanCount,
+                isScanning: scannerState.isScanning,
+                scanInterval: SETTINGS.scanIntervalMs / 1000
+            }));
+            return;
+        }
+
+        // POST /pause - Pause the scanner
+        if (req.method === 'POST' && url === '/pause') {
+            setPaused(true);
+            console.log(`[Control] Scanner PAUSED via web interface`);
+            res.writeHead(200);
+            res.end(JSON.stringify({ success: true, status: 'paused' }));
+            return;
+        }
+
+        // POST /resume - Resume the scanner
+        if (req.method === 'POST' && url === '/resume') {
+            setPaused(false);
+            console.log(`[Control] Scanner RESUMED via web interface`);
+            res.writeHead(200);
+            res.end(JSON.stringify({ success: true, status: 'running' }));
+            return;
+        }
+
+        // POST /scan - Trigger immediate scan
+        if (req.method === 'POST' && url === '/scan') {
+            if (isPaused()) {
+                res.writeHead(400);
+                res.end(JSON.stringify({ success: false, error: 'Scanner is paused' }));
+                return;
+            }
+            if (scannerState.isScanning) {
+                res.writeHead(400);
+                res.end(JSON.stringify({ success: false, error: 'Scan already in progress' }));
+                return;
+            }
+            manualScanRequested = true;
+            console.log(`[Control] Manual scan triggered via web interface`);
+            // Trigger scan immediately
+            runScan().catch(console.error);
+            res.writeHead(200);
+            res.end(JSON.stringify({ success: true, message: 'Scan started' }));
+            return;
+        }
+
+        // 404 for unknown routes
+        res.writeHead(404);
+        res.end(JSON.stringify({ error: 'Not found' }));
+    });
+
+    server.listen(CONTROL_PORT, () => {
+        console.log(`[Control] HTTP control server on port ${CONTROL_PORT}`);
+        console.log(`         GET  /status  - Check scanner status`);
+        console.log(`         POST /pause   - Pause scanner`);
+        console.log(`         POST /resume  - Resume scanner`);
+    });
+
+    server.on('error', (err) => {
+        if (err.code === 'EADDRINUSE') {
+            console.log(`[Control] Port ${CONTROL_PORT} in use - control server disabled`);
+        } else {
+            console.error(`[Control] Server error:`, err.message);
+        }
+    });
+}
+
+// ============================================
 // MAIN SCAN LOOP
 // ============================================
 
 async function runScan() {
+    // Check if paused
+    if (isPaused()) {
+        console.log(`\n[${new Date().toISOString()}] 💤 Bloodhound PAUSED - skipping scan`);
+        console.log('   Run: node bloodhound-scanner.js resume');
+        // Update next scan time even when paused
+        scannerState.nextScanAt = new Date(Date.now() + SETTINGS.scanIntervalMs).toISOString();
+        return;
+    }
+
+    // Track scan state
+    const scanStartTime = Date.now();
+    scannerState.isScanning = true;
+
     console.log('\n' + '='.repeat(60));
     console.log(`[${new Date().toISOString()}] Running Bloodhound scan...`);
     console.log('='.repeat(60));
@@ -958,12 +1130,51 @@ async function runScan() {
         }, null, 2)
     );
 
-    console.log(`\n[Bloodhound] Scan complete. Next scan in ${SETTINGS.scanIntervalMs / 60000} minutes.`);
+    // Update scanner state
+    scannerState.isScanning = false;
+    scannerState.lastScanAt = new Date().toISOString();
+    scannerState.lastScanDuration = Math.round((Date.now() - scanStartTime) / 1000);
+    scannerState.scanCount++;
+    scannerState.nextScanAt = new Date(Date.now() + SETTINGS.scanIntervalMs).toISOString();
+
+    console.log(`\n[Bloodhound] Scan complete (${scannerState.lastScanDuration}s). Next scan in ${SETTINGS.scanIntervalMs / 60000} minutes.`);
 }
 
 // ============================================
 // STARTUP
 // ============================================
+
+// Handle CLI commands
+const command = process.argv[2]?.toLowerCase();
+
+if (command === 'pause' || command === 'sleep') {
+    fs.writeFileSync(PAUSE_FILE, new Date().toISOString());
+    console.log('💤 Bloodhound PAUSED');
+    console.log('   Scans will be skipped until resumed.');
+    console.log('   Run: node bloodhound-scanner.js resume');
+    process.exit(0);
+}
+
+if (command === 'resume' || command === 'wake') {
+    if (fs.existsSync(PAUSE_FILE)) {
+        fs.unlinkSync(PAUSE_FILE);
+        console.log('✅ Bloodhound RESUMED');
+        console.log('   Scans will continue on next interval.');
+    } else {
+        console.log('ℹ️  Bloodhound is not paused.');
+    }
+    process.exit(0);
+}
+
+if (command === 'status') {
+    if (isPaused()) {
+        const pausedAt = fs.readFileSync(PAUSE_FILE, 'utf8');
+        console.log(`💤 Bloodhound is PAUSED (since ${pausedAt})`);
+    } else {
+        console.log('✅ Bloodhound is ACTIVE');
+    }
+    process.exit(0);
+}
 
 async function main() {
     console.log('='.repeat(60));
@@ -974,7 +1185,13 @@ async function main() {
     console.log(`Options API: ${APIS.options}`);
     console.log(`Min Confluence Score: ${SETTINGS.minConfluenceScore}/100`);
     console.log(`Scan Interval: ${SETTINGS.scanIntervalMs / 1000}s`);
+    if (isPaused()) {
+        console.log(`Status: 💤 PAUSED`);
+    }
     console.log('='.repeat(60));
+
+    // Start HTTP control server for web interface
+    startControlServer();
 
     // Initial scan
     await runScan();
@@ -983,6 +1200,7 @@ async function main() {
     setInterval(runScan, SETTINGS.scanIntervalMs);
 
     console.log('\nBloodhound running. Press Ctrl+C to stop.');
+    console.log('Commands: node bloodhound-scanner.js [pause|resume|status]');
 }
 
 main().catch(console.error);
