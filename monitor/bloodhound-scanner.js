@@ -92,15 +92,34 @@ async function sendTelegram(message) {
 }
 
 // ============================================
+// WATCHLIST LOADING
+// ============================================
+
+const WATCHLIST_PATH = path.join(__dirname, '..', 'data', 'watchlist.json');
+
+function loadWatchlist() {
+    try {
+        const data = JSON.parse(fs.readFileSync(WATCHLIST_PATH, 'utf8'));
+        return data.symbols
+            .filter(s => s.enabled)
+            .map(s => s.symbol);
+    } catch (e) {
+        console.log('[Watchlist] Could not load watchlist.json, using defaults');
+        return ['SPY', 'QQQ'];
+    }
+}
+
+// ============================================
 // SYMBOL DISCOVERY
 // ============================================
 
 async function discoverSymbols() {
     const symbols = new Map(); // symbol -> { score, sources }
 
-    // Core symbols always included
-    const coreSymbols = ['SPY', 'QQQ'];
-    coreSymbols.forEach(s => symbols.set(s, { score: 100, sources: ['core'] }));
+    // Load watchlist - these are ALWAYS included with highest priority
+    const watchlistSymbols = loadWatchlist();
+    console.log(`[Watchlist] Loaded ${watchlistSymbols.length} symbols: ${watchlistSymbols.join(', ')}`);
+    watchlistSymbols.forEach(s => symbols.set(s, { score: 100, sources: ['watchlist'] }));
 
     // 1. Trending tickers from social data (X/Twitter)
     const trending = await fetchJSON(`${APIS.intel}/api/x/tickers/trending?hours=24`);
@@ -850,6 +869,123 @@ function startControlServer() {
             return;
         }
 
+        // POST /clear-cooldowns - Clear all alert cooldowns
+        if (req.method === 'POST' && url === '/clear-cooldowns') {
+            const count = alertCooldowns.size;
+            alertCooldowns.clear();
+            console.log(`[Control] Cleared ${count} alert cooldowns`);
+            res.writeHead(200);
+            res.end(JSON.stringify({ success: true, cleared: count }));
+            return;
+        }
+
+        // POST /test-alert - Send a test alert to Telegram
+        if (req.method === 'POST' && url === '/test-alert') {
+            console.log(`[Control] Sending test alert to Telegram...`);
+            const testMsg = `🧪 <b>BLOODHOUND TEST ALERT</b>\n\n` +
+                `This is a test message to verify Telegram integration.\n\n` +
+                `<b>Status:</b> ✅ Working\n` +
+                `<b>Time:</b> ${new Date().toISOString()}\n` +
+                `<b>Scanner:</b> ${scannerState.scanCount} scans completed\n\n` +
+                `<i>Ready for market open!</i>`;
+
+            sendTelegram(testMsg).then(() => {
+                res.writeHead(200);
+                res.end(JSON.stringify({ success: true, message: 'Test alert sent' }));
+            }).catch(err => {
+                res.writeHead(500);
+                res.end(JSON.stringify({ success: false, error: err.message }));
+            });
+            return;
+        }
+
+        // GET /watchlist - Get current watchlist
+        if (req.method === 'GET' && url === '/watchlist') {
+            try {
+                const data = JSON.parse(fs.readFileSync(WATCHLIST_PATH, 'utf8'));
+                res.writeHead(200);
+                res.end(JSON.stringify(data));
+            } catch (e) {
+                res.writeHead(500);
+                res.end(JSON.stringify({ error: 'Failed to load watchlist' }));
+            }
+            return;
+        }
+
+        // POST /watchlist/add - Add symbol to watchlist
+        if (req.method === 'POST' && url.startsWith('/watchlist/add')) {
+            let body = '';
+            req.on('data', chunk => body += chunk);
+            req.on('end', () => {
+                try {
+                    const { symbol, notes } = JSON.parse(body);
+                    if (!symbol) {
+                        res.writeHead(400);
+                        res.end(JSON.stringify({ error: 'Symbol required' }));
+                        return;
+                    }
+                    const ticker = symbol.toUpperCase().trim();
+                    const data = JSON.parse(fs.readFileSync(WATCHLIST_PATH, 'utf8'));
+
+                    // Check if already exists
+                    if (data.symbols.some(s => s.symbol === ticker)) {
+                        res.writeHead(400);
+                        res.end(JSON.stringify({ error: `${ticker} already in watchlist` }));
+                        return;
+                    }
+
+                    data.symbols.push({
+                        symbol: ticker,
+                        enabled: true,
+                        notes: notes || ''
+                    });
+                    fs.writeFileSync(WATCHLIST_PATH, JSON.stringify(data, null, 2));
+                    console.log(`[Watchlist] Added ${ticker}`);
+                    res.writeHead(200);
+                    res.end(JSON.stringify({ success: true, symbol: ticker }));
+                } catch (e) {
+                    res.writeHead(500);
+                    res.end(JSON.stringify({ error: e.message }));
+                }
+            });
+            return;
+        }
+
+        // POST /watchlist/remove - Remove symbol from watchlist
+        if (req.method === 'POST' && url.startsWith('/watchlist/remove')) {
+            let body = '';
+            req.on('data', chunk => body += chunk);
+            req.on('end', () => {
+                try {
+                    const { symbol } = JSON.parse(body);
+                    if (!symbol) {
+                        res.writeHead(400);
+                        res.end(JSON.stringify({ error: 'Symbol required' }));
+                        return;
+                    }
+                    const ticker = symbol.toUpperCase().trim();
+                    const data = JSON.parse(fs.readFileSync(WATCHLIST_PATH, 'utf8'));
+                    const idx = data.symbols.findIndex(s => s.symbol === ticker);
+
+                    if (idx === -1) {
+                        res.writeHead(400);
+                        res.end(JSON.stringify({ error: `${ticker} not in watchlist` }));
+                        return;
+                    }
+
+                    data.symbols.splice(idx, 1);
+                    fs.writeFileSync(WATCHLIST_PATH, JSON.stringify(data, null, 2));
+                    console.log(`[Watchlist] Removed ${ticker}`);
+                    res.writeHead(200);
+                    res.end(JSON.stringify({ success: true, symbol: ticker }));
+                } catch (e) {
+                    res.writeHead(500);
+                    res.end(JSON.stringify({ error: e.message }));
+                }
+            });
+            return;
+        }
+
         // 404 for unknown routes
         res.writeHead(404);
         res.end(JSON.stringify({ error: 'Not found' }));
@@ -1099,11 +1235,11 @@ async function runScan() {
             },
             timestamp: new Date().toISOString(),
             sourceInfo: {
-                sources: symbols.find(s => s.symbol === a.symbol)?.sources || ['core'],
+                sources: symbols.find(s => s.symbol === a.symbol)?.sources || ['watchlist'],
                 score: a.totalScore,
                 direction: a.direction,
                 signals: a.signals,
-                isCore: ['SPY', 'QQQ'].includes(a.symbol)
+                isWatchlist: symbols.find(s => s.symbol === a.symbol)?.sources?.includes('watchlist') || false
             }
         }))
     };

@@ -517,6 +517,78 @@
         .scanner-info .uptime {
             color: #6b7280;
         }
+
+        /* Watchlist Management */
+        .watchlist-panel {
+            display: none;
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 20px;
+        }
+
+        .watchlist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .watchlist-header h3 {
+            font-size: 14px;
+            color: #00d4aa;
+            margin: 0;
+        }
+
+        .watchlist-add {
+            display: flex;
+            gap: 8px;
+        }
+
+        .watchlist-add input {
+            background: #0a0e1a;
+            border: 1px solid #2a3641;
+            color: #e5e7eb;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            width: 80px;
+            text-transform: uppercase;
+        }
+
+        .watchlist-add input:focus {
+            outline: none;
+            border-color: #00d4aa;
+        }
+
+        .watchlist-symbols {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .watchlist-chip {
+            background: #1e2530;
+            border: 1px solid #2a3641;
+            border-radius: 16px;
+            padding: 4px 10px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .watchlist-chip .remove-btn {
+            color: #ff6b6b;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 1;
+        }
+
+        .watchlist-chip .remove-btn:hover {
+            color: #ff4444;
+        }
     </style>
 </head>
 <body>
@@ -546,8 +618,24 @@
                     </div>
                     <div class="next-scan" id="next-scan">Next: --</div>
                 </div>
-                <button class="control-btn" id="scan-btn" onclick="triggerScan()">⚡ Scan Now</button>
+                <button class="control-btn" id="scan-btn" onclick="triggerScan()">⚡ Scan</button>
+                <button class="control-btn" id="clear-btn" onclick="clearCooldowns()">🔄 Clear</button>
+                <button class="control-btn" id="test-btn" onclick="testAlert()">📨 Test</button>
                 <button class="control-btn pause" id="pause-btn" onclick="togglePause()">⏸ Pause</button>
+            </div>
+        </div>
+
+        <!-- Watchlist Management Panel -->
+        <div class="watchlist-panel" id="watchlist-panel">
+            <div class="watchlist-header">
+                <h3>📋 Watchlist (always scanned)</h3>
+                <div class="watchlist-add">
+                    <input type="text" id="add-symbol" placeholder="AAPL" maxlength="5" onkeypress="if(event.key==='Enter')addToWatchlist()">
+                    <button class="control-btn" onclick="addToWatchlist()">+ Add</button>
+                </div>
+            </div>
+            <div class="watchlist-symbols" id="watchlist-symbols">
+                Loading...
             </div>
         </div>
 
@@ -941,14 +1029,126 @@
             }
         }
 
+        async function clearCooldowns() {
+            try {
+                const response = await fetch(`${CONTROL_API}/clear-cooldowns`, { method: 'POST' });
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(`Cleared ${data.cleared} cooldowns. Next scan will send fresh alerts.`);
+                }
+            } catch (e) {
+                console.error('Failed to clear cooldowns:', e);
+                alert('Failed to clear cooldowns. Is Bloodhound running?');
+            }
+        }
+
+        async function testAlert() {
+            try {
+                document.getElementById('test-btn').disabled = true;
+                document.getElementById('test-btn').textContent = '📨 Sending...';
+                const response = await fetch(`${CONTROL_API}/test-alert`, { method: 'POST' });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('Test alert sent! Check your Telegram.');
+                } else {
+                    alert('Failed: ' + (data.error || 'Unknown error'));
+                }
+            } catch (e) {
+                console.error('Failed to send test alert:', e);
+                alert('Failed to send test alert. Is Bloodhound running?');
+            } finally {
+                document.getElementById('test-btn').disabled = false;
+                document.getElementById('test-btn').textContent = '📨 Test';
+            }
+        }
+
+        // ============================================
+        // WATCHLIST MANAGEMENT
+        // ============================================
+
+        async function loadWatchlist() {
+            try {
+                const response = await fetch(`${CONTROL_API}/watchlist`);
+                if (!response.ok) throw new Error('Failed to load');
+                const data = await response.json();
+                renderWatchlist(data.symbols || []);
+            } catch (e) {
+                document.getElementById('watchlist-symbols').innerHTML =
+                    '<span style="color: #ff6b6b">Failed to load watchlist</span>';
+            }
+        }
+
+        function renderWatchlist(symbols) {
+            const container = document.getElementById('watchlist-symbols');
+            if (symbols.length === 0) {
+                container.innerHTML = '<span style="color: #6b7280">No symbols in watchlist</span>';
+                return;
+            }
+            container.innerHTML = symbols
+                .filter(s => s.enabled)
+                .map(s => `
+                    <div class="watchlist-chip">
+                        <span>${s.symbol}</span>
+                        <span class="remove-btn" onclick="removeFromWatchlist('${s.symbol}')">&times;</span>
+                    </div>
+                `).join('');
+        }
+
+        async function addToWatchlist() {
+            const input = document.getElementById('add-symbol');
+            const symbol = input.value.trim().toUpperCase();
+            if (!symbol) return;
+
+            try {
+                const response = await fetch(`${CONTROL_API}/watchlist/add`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ symbol })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    input.value = '';
+                    loadWatchlist();
+                } else {
+                    alert(data.error || 'Failed to add');
+                }
+            } catch (e) {
+                alert('Failed to add symbol');
+            }
+        }
+
+        async function removeFromWatchlist(symbol) {
+            if (!confirm(`Remove ${symbol} from watchlist?`)) return;
+
+            try {
+                const response = await fetch(`${CONTROL_API}/watchlist/remove`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ symbol })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    loadWatchlist();
+                } else {
+                    alert(data.error || 'Failed to remove');
+                }
+            } catch (e) {
+                alert('Failed to remove symbol');
+            }
+        }
+
         // Show/hide control panel based on scanner type
         function updateControlVisibility() {
             const control = document.getElementById('scanner-control');
+            const watchlistPanel = document.getElementById('watchlist-panel');
             if (currentScanner === 'dynamic') {
                 control.style.display = 'flex';
+                watchlistPanel.style.display = 'block';
                 checkScannerStatus();
+                loadWatchlist();
             } else {
                 control.style.display = 'none';
+                watchlistPanel.style.display = 'none';
             }
         }
 
