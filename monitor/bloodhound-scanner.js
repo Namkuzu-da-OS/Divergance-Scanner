@@ -36,6 +36,14 @@ const SETTINGS = {
     alertCooldownMs: 30 * 60 * 1000, // 30 min cooldown per symbol
 };
 
+// Non-tradeable symbols to filter out (crypto, futures, indices)
+const NON_TRADEABLE = new Set([
+    'BTC', 'ETH', 'SOL', 'XRP', 'DOGE', 'ADA', 'DOT', 'AVAX', 'MATIC', 'LINK',  // Crypto
+    'SPX', 'NDX', 'DJI', 'RUT', 'VIX',  // Indices (use SPY, QQQ, DIA, IWM instead)
+    'ES', 'NQ', 'YM', 'RTY', 'CL', 'GC', 'SI',  // Futures
+    'USD', 'EUR', 'GBP', 'JPY', 'CNY',  // Currencies
+]);
+
 // State
 const alertCooldowns = new Map();
 let marketContext = null;
@@ -126,7 +134,7 @@ async function discoverSymbols() {
     if (trending?.success && trending.data) {
         trending.data.forEach((item, idx) => {
             const ticker = item.ticker;
-            if (!ticker || ticker === 'SPX' || ticker === 'BTC' || ticker === 'ES') return; // Skip non-tradeable
+            if (!ticker || NON_TRADEABLE.has(ticker)) return; // Skip non-tradeable
 
             const existing = symbols.get(ticker) || { score: 0, sources: [] };
             existing.score += Math.max(50 - idx * 5, 10); // Higher ranked = higher score
@@ -261,6 +269,13 @@ async function discoverSymbols() {
     symbols.delete('_intraday_bias');
     symbols.delete('_swing_bias');
     symbols.delete('_marketSentiment');
+
+    // Filter out non-tradeable symbols (crypto, futures, indices)
+    for (const symbol of symbols.keys()) {
+        if (NON_TRADEABLE.has(symbol)) {
+            symbols.delete(symbol);
+        }
+    }
 
     // Sort by score and take top N
     const sorted = Array.from(symbols.entries())
