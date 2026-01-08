@@ -425,6 +425,187 @@
             margin-top: 8px;
         }
 
+        /* Modal Overlay */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 16px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            animation: modalSlideIn 0.2s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: #2a3641;
+            border: none;
+            color: #8b92a8;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .modal-close:hover {
+            background: #ff6b6b;
+            color: #fff;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        /* Expanded card styles in modal */
+        .modal-body .symbol-header {
+            margin-bottom: 20px;
+            padding-right: 40px; /* Room for close button */
+        }
+
+        .modal-body .symbol-name {
+            font-size: 32px;
+        }
+
+        .modal-body .price-value {
+            font-size: 28px;
+        }
+
+        .modal-body .zone-badge {
+            font-size: 12px;
+            padding: 6px 14px;
+        }
+
+        .modal-body .action-badge {
+            font-size: 14px;
+            padding: 6px 14px;
+        }
+
+        .modal-body .levels-section {
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .modal-body .levels-grid {
+            font-size: 16px;
+            gap: 16px;
+        }
+
+        .modal-body .technicals-row {
+            font-size: 16px;
+            gap: 24px;
+            margin-top: 20px;
+        }
+
+        .modal-body .reasoning-section {
+            margin-top: 20px;
+            padding-top: 20px;
+        }
+
+        .modal-body .reasoning-title {
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .modal-body .reasoning-list {
+            font-size: 14px;
+        }
+
+        .modal-body .reasoning-list li {
+            margin-bottom: 6px;
+        }
+
+        .modal-body .source-info {
+            margin-top: 20px;
+            padding: 16px;
+        }
+
+        .modal-body .bloodhound-score {
+            font-size: 20px;
+        }
+
+        .modal-body .signal-tag {
+            font-size: 12px;
+            padding: 4px 10px;
+        }
+
+        .modal-body .position-bar {
+            height: 12px;
+        }
+
+        .modal-body .position-marker {
+            height: 20px;
+            top: -4px;
+        }
+
+        .modal-body .card-timestamp {
+            font-size: 12px;
+            margin-top: 16px;
+        }
+
+        /* Clickable card indicator */
+        .symbol-card {
+            cursor: pointer;
+        }
+
+        .symbol-card::after {
+            content: "↗";
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 14px;
+            color: #4a5568;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .symbol-card {
+            position: relative;
+        }
+
+        .symbol-card:hover::after {
+            opacity: 1;
+        }
+
         /* Scanner Control Panel */
         .scanner-control {
             display: flex;
@@ -677,10 +858,237 @@
         </div>
     </div>
 
+    <!-- Modal Overlay -->
+    <div class="modal-overlay" id="modal-overlay" onclick="closeModalOnOverlay(event)">
+        <div class="modal-content" id="modal-content">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div class="modal-body" id="modal-body">
+                <!-- Modal content populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
     <script>
         let currentScanner = 'static';
         let currentFilter = 'all';
         let scanData = null;
+
+        // ============================================
+        // MODAL FUNCTIONS
+        // ============================================
+
+        async function openModal(symbol) {
+            if (!scanData || !scanData.results) return;
+
+            const data = scanData.results.find(r => r.symbol === symbol);
+            if (!data) return;
+
+            // Show modal immediately with cached data
+            const modalBody = document.getElementById('modal-body');
+            modalBody.innerHTML = renderModalContent(data);
+            document.getElementById('modal-overlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Fetch live price in background and update
+            try {
+                const liveData = await fetchJson(`http://192.168.10.239:8000/api/technicals/${symbol}`);
+                if (liveData && liveData.price) {
+                    // Update price display
+                    const priceEl = modalBody.querySelector('.price-value');
+                    if (priceEl) {
+                        const oldPrice = data.price;
+                        const newPrice = liveData.price;
+                        const change = ((newPrice - oldPrice) / oldPrice * 100).toFixed(2);
+                        const changeColor = newPrice >= oldPrice ? '#00d4aa' : '#ff6b6b';
+                        priceEl.innerHTML = `$${newPrice.toFixed(2)} <span style="font-size: 14px; color: ${changeColor}">(live)</span>`;
+                    }
+                    // Update RSI if changed significantly
+                    if (liveData.rsi) {
+                        const rsiEl = modalBody.querySelector('.tech-value.bullish, .tech-value.bearish, .tech-value.neutral');
+                        if (rsiEl && rsiEl.previousElementSibling?.textContent === 'RSI:') {
+                            rsiEl.textContent = liveData.rsi.toFixed(1);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.log('Could not fetch live price:', e);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.remove('active');
+            document.body.style.overflow = ''; // Restore scroll
+        }
+
+        function closeModalOnOverlay(event) {
+            if (event.target.id === 'modal-overlay') {
+                closeModal();
+            }
+        }
+
+        // Close on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        function renderModalContent(data) {
+            if (data.error) {
+                return `
+                    <div class="symbol-header">
+                        <span class="symbol-name">${data.symbol}</span>
+                    </div>
+                    <div class="error-message">Error: ${data.error}</div>
+                `;
+            }
+
+            const zoneClass = data.zone || '';
+
+            // Calculate position in range for the bar
+            let positionPct = 50;
+            if (data.distances && data.distances.positionInRange !== null) {
+                positionPct = Math.max(0, Math.min(100, data.distances.positionInRange * 100));
+            }
+
+            // RSI color
+            const rsiClass = data.technicals?.rsi > 70 ? 'bearish' :
+                            data.technicals?.rsi < 30 ? 'bullish' : 'neutral';
+
+            // Trend color
+            const trendClass = (data.technicals?.trend || '').includes('up') ? 'bullish' :
+                              (data.technicals?.trend || '').includes('down') ? 'bearish' : 'neutral';
+
+            // Format distances
+            const toPutWall = data.distances?.toPutWall?.toFixed(2) || '--';
+            const toCallWall = data.distances?.toCallWall?.toFixed(2) || '--';
+
+            // Source tags (for Bloodhound scanner) - show ALL signals in modal
+            let sourceHtml = '';
+            if (data.sourceInfo && data.sourceInfo.sources) {
+                const tags = data.sourceInfo.sources.map(s =>
+                    `<span class="source-tag ${s}">${s.replace('_', ' ')}</span>`
+                ).join('');
+
+                const dirEmoji = data.sourceInfo.direction === 'bullish' ? '🟢' :
+                                data.sourceInfo.direction === 'bearish' ? '🔴' :
+                                data.sourceInfo.direction === 'pinned' ? '📍' : '⚪';
+
+                const scoreColor = data.sourceInfo.score >= 80 ? '#00d4aa' :
+                                  data.sourceInfo.score >= 60 ? '#ffc107' : '#8b92a8';
+
+                // Show ALL signals in modal (not just first 4)
+                const signalsHtml = data.sourceInfo.signals && data.sourceInfo.signals.length > 0 ? `
+                    <div class="bloodhound-signals">
+                        ${data.sourceInfo.signals.map(s => `<span class="signal-tag">${s}</span>`).join('')}
+                    </div>
+                ` : '';
+
+                sourceHtml = `
+                    <div class="source-info bloodhound-info">
+                        <div class="bloodhound-header">
+                            <span class="bloodhound-score" style="color: ${scoreColor}">
+                                ${dirEmoji} ${data.sourceInfo.score}/100
+                            </span>
+                            <span class="bloodhound-sources">${tags}</span>
+                        </div>
+                        ${signalsHtml}
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="symbol-header">
+                    <div>
+                        <span class="symbol-name">${data.symbol}</span>
+                        <span class="zone-badge ${zoneClass}">${formatZone(data.zone)}</span>
+                        ${data.action ? `<span class="action-badge ${data.action}">${data.action}</span>` : ''}
+                    </div>
+                    <div class="symbol-price">
+                        <div class="price-value">$${data.price?.toFixed(2) || '--'}</div>
+                    </div>
+                </div>
+
+                <div class="levels-section">
+                    <div class="levels-grid">
+                        <div class="level-item">
+                            <span class="level-label">Put Wall</span>
+                            <span class="level-value ${Math.abs(parseFloat(toPutWall)) < 0.5 ? 'near' : ''}">
+                                $${data.levels?.putWall?.toFixed(2) || '--'} (${toPutWall}%)
+                            </span>
+                        </div>
+                        <div class="level-item">
+                            <span class="level-label">Call Wall</span>
+                            <span class="level-value ${Math.abs(parseFloat(toCallWall)) < 0.5 ? 'near' : ''}">
+                                $${data.levels?.callWall?.toFixed(2) || '--'} (${toCallWall}%)
+                            </span>
+                        </div>
+                        <div class="level-item">
+                            <span class="level-label">Max Pain</span>
+                            <span class="level-value">$${data.levels?.maxPain?.toFixed(2) || '--'}</span>
+                        </div>
+                        <div class="level-item">
+                            <span class="level-label">Gamma Flip</span>
+                            <span class="level-value">$${data.levels?.gammaFlip?.toFixed(2) || '--'}</span>
+                        </div>
+                        <div class="level-item">
+                            <span class="level-label">VWAP</span>
+                            <span class="level-value">$${data.levels?.vwap?.toFixed(2) || '--'}</span>
+                        </div>
+                        <div class="level-item">
+                            <span class="level-label">Range Size</span>
+                            <span class="level-value">${data.distances?.rangeSize?.toFixed(2) || '--'}%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="position-bar-container">
+                    <div class="position-bar-labels">
+                        <span>Put Wall ($${data.levels?.putWall?.toFixed(0) || '--'})</span>
+                        <span>Call Wall ($${data.levels?.callWall?.toFixed(0) || '--'})</span>
+                    </div>
+                    <div class="position-bar">
+                        <div class="position-marker" style="left: ${positionPct}%"></div>
+                    </div>
+                </div>
+
+                <div class="technicals-row">
+                    <div class="tech-item">
+                        <span class="tech-label">RSI:</span>
+                        <span class="tech-value ${rsiClass}">${data.technicals?.rsi?.toFixed(1) || '--'}</span>
+                    </div>
+                    <div class="tech-item">
+                        <span class="tech-label">Trend:</span>
+                        <span class="tech-value ${trendClass}">${formatTrend(data.technicals?.trend)}</span>
+                    </div>
+                    <div class="tech-item">
+                        <span class="tech-label">BB Position:</span>
+                        <span class="tech-value">${(data.technicals?.bbPosition * 100)?.toFixed(0) || '--'}%</span>
+                    </div>
+                    <div class="tech-item">
+                        <span class="tech-label">5D Mom:</span>
+                        <span class="tech-value ${data.technicals?.momentum5d > 0 ? 'bullish' : 'bearish'}">${data.technicals?.momentum5d?.toFixed(2) || '--'}%</span>
+                    </div>
+                    <div class="tech-item">
+                        <span class="tech-label">Vol Signal:</span>
+                        <span class="tech-value">${data.technicals?.volumeSignal || '--'}</span>
+                    </div>
+                </div>
+
+                ${data.reasoning && data.reasoning.length > 0 ? `
+                    <div class="reasoning-section">
+                        <div class="reasoning-title">Analysis</div>
+                        <ul class="reasoning-list">
+                            ${data.reasoning.map(r => `<li>${r}</li>`).join('')}
+                        </ul>
+                    </div>
+                ` : ''}
+
+                ${sourceHtml}
+
+                <div class="card-timestamp">Last Updated: ${new Date(data.timestamp).toLocaleString()}</div>
+            `;
+        }
 
         async function fetchJson(url) {
             try {
@@ -766,7 +1174,7 @@
         function renderSymbolCard(data) {
             if (data.error) {
                 return `
-                    <div class="symbol-card error">
+                    <div class="symbol-card error" onclick="openModal('${data.symbol}')">
                         <div class="symbol-header">
                             <span class="symbol-name">${data.symbol}</span>
                         </div>
@@ -833,7 +1241,7 @@
             }
 
             return `
-                <div class="symbol-card ${tradeableClass} ${zoneClass}">
+                <div class="symbol-card ${tradeableClass} ${zoneClass}" onclick="openModal('${data.symbol}')">
                     <div class="symbol-header">
                         <div>
                             <span class="symbol-name">${data.symbol}</span>

@@ -130,6 +130,64 @@ async function sendTelegram(message) {
 }
 
 // ============================================
+// WALL ACTIVITY CLASSIFICATION
+// ============================================
+
+/**
+ * Classify wall activity level based on vol/OI ratio at the wall strike.
+ * Uses already-fetched optionsAnalysis data (no additional API call).
+ *
+ * Returns: { status: 'ACTIVE'|'ENGAGED'|'DORMANT'|'UNKNOWN', volOiRatio, volume, openInterest }
+ *
+ * Principle: Only penalize DORMANT (stale OI). Don't reward ACTIVE
+ * since we can't verify if activity is bullish or bearish.
+ */
+function classifyWallActivity(optionsAnalysis, wallPrice, wallType, wallExpiration, totalChainVolume) {
+    if (!optionsAnalysis?.analysis) {
+        return { status: 'UNKNOWN', volOiRatio: 0 };
+    }
+
+    const flowArray = wallType === 'put'
+        ? optionsAnalysis.analysis.unusual_puts
+        : optionsAnalysis.analysis.unusual_calls;
+
+    // Tolerance: 0.2% of price OR $1.00, whichever is larger
+    const tolerance = Math.max(wallPrice * 0.002, 1.0);
+
+    // Normalize expiration format (defensive - handle ISO vs date-only)
+    const normalizeExp = (exp) => exp?.split('T')[0];
+    const targetExp = normalizeExp(wallExpiration);
+
+    const activityAtWall = flowArray?.filter(f =>
+        Math.abs(f.strike - wallPrice) <= tolerance &&
+        normalizeExp(f.expiration) === targetExp
+    ) || [];
+
+    if (activityAtWall.length === 0) {
+        // Distinguish UNKNOWN (illiquid) from DORMANT (liquid but inactive)
+        const isLiquid = totalChainVolume >= 10000;
+        return {
+            status: isLiquid ? 'DORMANT' : 'UNKNOWN',
+            volOiRatio: 0,
+            volume: 0
+        };
+    }
+
+    // Aggregate activity at wall
+    const totalVolume = activityAtWall.reduce((sum, f) => sum + f.volume, 0);
+    const totalOI = activityAtWall.reduce((sum, f) => sum + f.open_interest, 0);
+    const volOiRatio = totalVolume / Math.max(totalOI, 1);
+
+    // Classify activity level
+    let status;
+    if (volOiRatio >= 5) status = 'ACTIVE';
+    else if (volOiRatio >= 2) status = 'ENGAGED';
+    else status = 'DORMANT';
+
+    return { status, volOiRatio, volume: totalVolume, openInterest: totalOI };
+}
+
+// ============================================
 // WATCHLIST LOADING
 // ============================================
 
@@ -357,12 +415,15 @@ async function discoverSymbols() {
 // ============================================
 
 async function getMarketContext() {
-    const context = await fetchJSON(`${APIS.options}/api/market/context`);
-    if (!context) return null;
+    // Fetch all context data in parallel
+    const [context, spyLevels, qqqLevels, outlook] = await Promise.all([
+        fetchJSON(`${APIS.options}/api/market/context`),
+        fetchJSON(`${APIS.options}/api/levels/SPY`),
+        fetchJSON(`${APIS.options}/api/levels/QQQ`),
+        fetchJSON(`${APIS.intel}/api/market/outlook`)  // Multi-timeframe bias
+    ]);
 
-    // Get SPY and QQQ levels for support/resistance context
-    const spyLevels = await fetchJSON(`${APIS.options}/api/levels/SPY`);
-    const qqqLevels = await fetchJSON(`${APIS.options}/api/levels/QQQ`);
+    if (!context) return null;
 
     return {
         vix: context.vix,
@@ -373,7 +434,10 @@ async function getMarketContext() {
         regime: context.regime,
         positionSizeModifier: context.position_size_modifier,
         spyLevels: spyLevels?.levels || null,
-        qqqLevels: qqqLevels?.levels || null
+        qqqLevels: qqqLevels?.levels || null,
+        // Multi-timeframe bias from AI outlook
+        intradayBias: outlook?.data?.intraday_bias || 'NEUTRAL',
+        swingBias: outlook?.data?.swing_bias || 'NEUTRAL'
     };
 }
 
@@ -526,6 +590,38 @@ async function analyzeSymbol(symbol, discoveryData) {
         }
     }
 
+    // --- WALL ACTIVITY CHECK ---
+    // Only penalize DORMANT walls (stale OI). Don't reward ACTIVE since we
+    // can't verify if activity is bullish or bearish.
+    let wallActivity = null;
+    const atWall = atPutWall || atCallWall;
+
+    if (atWall) {
+        const wallType = atPutWall ? 'put' : 'call';
+        const wallPrice = atPutWall ? putWall : callWall;
+
+        if (wallPrice) {
+            const wallExpiration = levels.levels?.max_pain?.expiration;
+            const totalChainVolume = optionsAnalysis?.analysis?.total_volume || 0;
+
+            wallActivity = classifyWallActivity(
+                optionsAnalysis, wallPrice, wallType, wallExpiration, totalChainVolume
+            );
+
+            // Only penalize DORMANT - don't reward ACTIVE (can't verify direction)
+            if (wallActivity.status === 'DORMANT') {
+                scores.levels -= 5;
+                signals.push(`⚠️ ${wallType.toUpperCase()} wall dormant (stale OI)`);
+            } else if (wallActivity.status === 'ACTIVE') {
+                // Log for visibility but no score change - activity doesn't tell us direction
+                signals.push(`${wallType.toUpperCase()} wall ACTIVE (${wallActivity.volOiRatio.toFixed(1)}x vol/OI)`);
+            } else if (wallActivity.status === 'ENGAGED') {
+                signals.push(`${wallType.toUpperCase()} wall engaged (${wallActivity.volOiRatio.toFixed(1)}x vol/OI)`);
+            }
+            // UNKNOWN: No action (illiquid symbol)
+        }
+    }
+
     // --- SENTIMENT SCORE (0-20) ---
     const sentimentData = discoveryData?.sentiment || sentiment?.avg_sentiment;
     const mentions = discoveryData?.mentions || sentiment?.count || 0;
@@ -669,6 +765,34 @@ async function analyzeSymbol(symbol, discoveryData) {
             signals.push(`⚠️ Against SPY ${spyTrend}`);
         }
 
+        // --- MULTI-TIMEFRAME ALIGNMENT ---
+        // Check if setup direction aligns with higher timeframe bias
+        if (marketContext.intradayBias && marketContext.swingBias) {
+            const swingBias = marketContext.swingBias.toLowerCase();
+            const intradayBias = marketContext.intradayBias.toLowerCase();
+
+            // Check if setup direction aligns with swing bias
+            const setupAligned = (direction === 'bullish' && swingBias === 'bullish') ||
+                                 (direction === 'bearish' && swingBias === 'bearish');
+
+            // Check if timeframes agree with each other
+            const tfAligned = swingBias === intradayBias;
+
+            if (setupAligned && tfAligned) {
+                // Highest probability: setup + both timeframes aligned
+                scores.context += 15;
+                signals.push(`✅ TF aligned: both ${marketContext.swingBias}`);
+            } else if (setupAligned && !tfAligned) {
+                // Good swing setup, but intraday differs - still decent
+                scores.context += 5;
+                signals.push(`Swing ${marketContext.swingBias}, intraday ${marketContext.intradayBias}`);
+            } else if (!setupAligned && direction !== 'neutral' && direction !== 'pinned' && swingBias !== 'neutral') {
+                // Counter-trend trade - lower probability
+                scores.context -= 15;
+                signals.push(`⚠️ COUNTER-TREND: ${direction} vs swing ${marketContext.swingBias}`);
+            }
+        }
+
         // VIX regime adjustment
         if (marketContext.vixRegime === 'elevated' || marketContext.vixRegime === 'high') {
             signals.push(`⚠️ VIX ${marketContext.vixRegime} (${marketContext.vix})`);
@@ -766,8 +890,14 @@ async function analyzeSymbol(symbol, discoveryData) {
         context: {
             spyTrend: marketContext?.spyTrend,
             vixRegime: marketContext?.vixRegime,
-            vix: marketContext?.vix
-        }
+            vix: marketContext?.vix,
+            intradayBias: marketContext?.intradayBias,
+            swingBias: marketContext?.swingBias
+        },
+        // Wall activity data for filtering/display
+        atWall,
+        wallActivity: wallActivity?.status || null,
+        wallVolOiRatio: wallActivity?.volOiRatio || null
     };
 }
 
@@ -786,6 +916,45 @@ function shouldAlert(analysis) {
     }
 
     return true;
+}
+
+/**
+ * Check if setup direction aligns with higher timeframe bias
+ * Used for tier filtering - HIGH CONVICTION requires alignment
+ */
+function isTimeframeAligned(analysis, ctx) {
+    // If no swing bias available, don't filter
+    if (!ctx?.swingBias || ctx.swingBias === 'NEUTRAL') return true;
+
+    const swing = ctx.swingBias.toLowerCase();
+
+    // Pinned and neutral setups are always allowed (no directional conflict)
+    if (analysis.direction === 'pinned' || analysis.direction === 'neutral') {
+        return true;
+    }
+
+    // Bullish setup must align with bullish swing, bearish with bearish
+    return analysis.direction === swing;
+}
+
+/**
+ * Classify analysis into HIGH_CONVICTION or WATCH tier
+ * HIGH_CONVICTION: Score ≥70 + TF aligned + wall not dormant
+ * WATCH: Score ≥60 but doesn't meet high conviction criteria
+ */
+function getAlertTier(analysis, ctx) {
+    if (analysis.totalScore < SETTINGS.minConfluenceScore) {
+        return 'FILTERED';
+    }
+
+    const tfAligned = isTimeframeAligned(analysis, ctx);
+    const wallOk = !analysis.atWall || analysis.wallActivity !== 'DORMANT';
+
+    if (analysis.totalScore >= 70 && tfAligned && wallOk) {
+        return 'HIGH_CONVICTION';
+    }
+
+    return 'WATCH';
 }
 
 function formatAlert(analysis) {
@@ -1170,18 +1339,54 @@ async function runScan() {
         console.log(`  ${emoji} ${a.symbol}: ${a.totalScore}/100 ${dir} - ${a.signals.slice(0, 2).join(', ')}`);
     });
 
-    // 6. Send alerts for high confluence
-    const alertable = analyses.filter(a => shouldAlert(a));
+    // 6. Tier-based filtering and alerts
+    // HIGH_CONVICTION: Score ≥70 + TF aligned + wall not dormant → Telegram alert
+    // WATCH: Score ≥60 but missing criteria → Dashboard only
+    // FILTERED: Score <60 → No output
 
-    if (alertable.length > 0) {
-        console.log(`\n[Alerts] Sending ${alertable.length} alert(s)...`);
-        for (const analysis of alertable) {
+    const tieredAnalyses = analyses.map(a => ({
+        ...a,
+        tier: getAlertTier(a, marketContext)
+    }));
+
+    const highConviction = tieredAnalyses.filter(a =>
+        a.tier === 'HIGH_CONVICTION' && shouldAlert(a)
+    );
+    const watchList = tieredAnalyses.filter(a => a.tier === 'WATCH');
+
+    // Log tier breakdown
+    console.log(`\n[Tiers] HIGH_CONVICTION: ${highConviction.length} | WATCH: ${watchList.length} | FILTERED: ${analyses.length - highConviction.length - watchList.length}`);
+
+    if (highConviction.length > 0) {
+        console.log(`[HIGH CONVICTION]`);
+        highConviction.forEach(a => {
+            const dir = a.direction === 'bullish' ? '🟢' :
+                        a.direction === 'bearish' ? '🔴' :
+                        a.direction === 'pinned' ? '📍' : '⚪';
+            console.log(`  🔥 ${a.symbol}: ${a.totalScore}/100 ${dir}`);
+        });
+    }
+
+    if (watchList.length > 0) {
+        console.log(`[WATCH LIST]`);
+        watchList.slice(0, 5).forEach(a => {
+            const reason = !isTimeframeAligned(a, marketContext) ? '(TF misaligned)' :
+                           a.wallActivity === 'DORMANT' ? '(dormant wall)' :
+                           a.totalScore < 70 ? `(score ${a.totalScore})` : '';
+            console.log(`  👀 ${a.symbol}: ${a.totalScore}/100 ${reason}`);
+        });
+    }
+
+    // Only send Telegram alerts for HIGH_CONVICTION
+    if (highConviction.length > 0) {
+        console.log(`\n[Alerts] Sending ${highConviction.length} HIGH CONVICTION alert(s)...`);
+        for (const analysis of highConviction) {
             const message = formatAlert(analysis);
             await sendTelegram(message);
             alertCooldowns.set(analysis.symbol, Date.now());
         }
     } else {
-        console.log(`\n[Alerts] No high-confluence opportunities found`);
+        console.log(`\n[Alerts] No high-conviction opportunities (${watchList.length} on watch list)`);
     }
 
     // 7. Write results to file (format compatible with scanner.html)
@@ -1219,14 +1424,18 @@ async function runScan() {
             sourcesUsed: ['x_trending', 'ai_outlook', 'narrative', 'market_data', 'sector_rotation']
         },
         symbolsScanned: analyses.length,
-        topOpportunities: analyses.slice(0, 15).map(a => ({
+        topOpportunities: tieredAnalyses.slice(0, 15).map(a => ({
             symbol: a.symbol,
             score: a.totalScore,
             direction: a.direction,
+            tier: a.tier,
             signals: a.signals,
+            atWall: a.atWall,
+            wallActivity: a.wallActivity,
             sources: symbols.find(s => s.symbol === a.symbol)?.sources || []
         })),
-        alertsSent: alertable.length
+        alertsSent: highConviction.length,
+        watchListCount: watchList.length
     };
 
     fs.writeFileSync(
@@ -1344,13 +1553,17 @@ async function runScan() {
             timestamp: new Date().toISOString(),
             marketContext: dynamicOutput.marketContext,
             symbolsScanned: analyses.length,
-            topOpportunities: analyses.slice(0, 15).map(a => ({
+            topOpportunities: tieredAnalyses.slice(0, 15).map(a => ({
                 symbol: a.symbol,
                 score: a.totalScore,
                 direction: a.direction,
-                signals: a.signals
+                tier: a.tier,
+                signals: a.signals,
+                atWall: a.atWall,
+                wallActivity: a.wallActivity
             })),
-            alertsSent: alertable.length
+            alertsSent: highConviction.length,
+            watchListCount: watchList.length
         }, null, 2)
     );
 
