@@ -36,13 +36,43 @@ const SETTINGS = {
     alertCooldownMs: 30 * 60 * 1000, // 30 min cooldown per symbol
 };
 
-// Non-tradeable symbols to filter out (crypto, futures, indices)
+// Map non-tradeable symbols to their liquid ETF equivalents
+const SYMBOL_MAP = {
+    // Crypto → ETFs
+    'BTC': 'IBIT',    // BlackRock Bitcoin ETF (most liquid)
+    'ETH': 'ETHA',    // BlackRock Ethereum ETF
+    'SOL': 'SOLQ',    // Solana ETF (if available)
+    'TAO': 'GTAO',    // Grayscale TAO
+    // Indices → ETFs
+    'SPX': 'SPY',
+    'NDX': 'QQQ',
+    'DJI': 'DIA',
+    'RUT': 'IWM',
+    // Futures → ETFs
+    'ES': 'SPY',
+    'NQ': 'QQQ',
+    'CL': 'USO',      // Oil ETF
+    'GC': 'GLD',      // Gold ETF
+};
+
+// Symbols to filter out completely (no ETF equivalent)
 const NON_TRADEABLE = new Set([
-    'BTC', 'ETH', 'SOL', 'XRP', 'DOGE', 'ADA', 'DOT', 'AVAX', 'MATIC', 'LINK',  // Crypto
-    'SPX', 'NDX', 'DJI', 'RUT', 'VIX',  // Indices (use SPY, QQQ, DIA, IWM instead)
-    'ES', 'NQ', 'YM', 'RTY', 'CL', 'GC', 'SI',  // Futures
+    'XRP', 'DOGE', 'ADA', 'DOT', 'AVAX', 'MATIC', 'LINK',  // Crypto without liquid ETFs
+    'VIX',  // Can't trade VIX directly (use VXX/UVXY but they're decay products)
+    'YM', 'RTY', 'SI',  // Futures without common ETF mapping
     'USD', 'EUR', 'GBP', 'JPY', 'CNY',  // Currencies
 ]);
+
+// Translate symbol to tradeable equivalent
+function mapSymbol(ticker) {
+    if (SYMBOL_MAP[ticker]) {
+        return SYMBOL_MAP[ticker];
+    }
+    if (NON_TRADEABLE.has(ticker)) {
+        return null; // Filter out
+    }
+    return ticker; // Pass through
+}
 
 // State
 const alertCooldowns = new Map();
@@ -133,14 +163,16 @@ async function discoverSymbols() {
     const trending = await fetchJSON(`${APIS.intel}/api/x/tickers/trending?hours=24`);
     if (trending?.success && trending.data) {
         trending.data.forEach((item, idx) => {
-            const ticker = item.ticker;
-            if (!ticker || NON_TRADEABLE.has(ticker)) return; // Skip non-tradeable
+            const rawTicker = item.ticker;
+            const ticker = mapSymbol(rawTicker); // Map BTC→IBIT, SPX→SPY, etc.
+            if (!ticker) return; // Skip if no mapping
 
             const existing = symbols.get(ticker) || { score: 0, sources: [] };
             existing.score += Math.max(50 - idx * 5, 10); // Higher ranked = higher score
             existing.sources.push('x_trending');
             existing.sentiment = item.avg_sentiment;
             existing.mentions = item.mentions;
+            if (rawTicker !== ticker) existing.mappedFrom = rawTicker; // Track original
             symbols.set(ticker, existing);
         });
     }
@@ -183,8 +215,9 @@ async function discoverSymbols() {
     const consensus = await fetchJSON(`${APIS.intel}/api/garden/consensus?hours=24&min_authors=3`);
     if (consensus?.success && consensus.data) {
         consensus.data.forEach(item => {
-            const ticker = item.ticker;
-            if (!ticker || NON_TRADEABLE.has(ticker)) return;
+            const rawTicker = item.ticker;
+            const ticker = mapSymbol(rawTicker); // Map BTC→IBIT, ETH→ETHA, etc.
+            if (!ticker) return;
 
             // Score based on author count and established count
             const authorBoost = Math.min(item.author_count * 8, 40); // Up to 40 pts for 5+ authors
@@ -201,6 +234,7 @@ async function discoverSymbols() {
                 avgRoi: item.avg_author_roi,
                 strongestAuthor: item.strongest_signal?.handle
             };
+            if (rawTicker !== ticker) existing.mappedFrom = rawTicker; // Track original (e.g., BTC)
             symbols.set(ticker, existing);
         });
     }
