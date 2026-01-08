@@ -95,6 +95,9 @@ docs/RULES.md → data/ACTIVE_SESSION.md → data/positions.json
 ### Data Files
 | File | Purpose | Update Trigger |
 |------|---------|----------------|
+| `data/bloodhound.json` | **Bloodhound scan results** | Every 2 min scan |
+| `data/watchlist.json` | Symbols to always scan | Manual edit or web UI |
+| `data/dynamic_scan.json` | Full technical data for dashboard | Every scan |
 | `data/positions.json` | Open trades | Position change |
 | `data/trades_journal.json` | Trade history | Trade closes |
 | `data/account_summary.json` | P&L metrics | EOD |
@@ -128,35 +131,102 @@ docs/RULES.md → data/ACTIVE_SESSION.md → data/positions.json
 
 ## Bloodhound Scanner
 
-The core confluence scanner that implements the project vision.
+**The core autonomous opportunity detection system.** This is the primary scanner that implements the project vision - finding high-confluence trading opportunities across multiple data sources.
 
-### Starting the Bloodhound
+### Running Bloodhound
+
+Bloodhound runs persistently via PM2:
 ```bash
-cd monitor
-node bloodhound-scanner.js
+pm2 start monitor/bloodhound-scanner.js --name bloodhound
+pm2 logs bloodhound          # View logs
+pm2 restart bloodhound       # Restart after changes
 ```
 
-### What It Does
-1. **Discovers symbols dynamically** from:
-   - Trending tickers (social data)
-   - Market data (52-week extremes, volume spikes)
-   - Core symbols (SPY, QQQ always included)
+### Web Control Interface
 
-2. **Analyzes each symbol** for confluence:
-   - Technical score (RSI, Bollinger Bands, trend)
-   - Level score (gamma walls, VWAP, confluence zones)
-   - Sentiment score (social buzz direction)
-   - Volume score (relative volume)
-   - Context score (aligned with SPY/QQQ)
+Dashboard: `http://localhost:8080` (zone-scanner.html)
+Control API: `http://localhost:8081`
 
-3. **Alerts on high confluence** (score >= 60/100):
-   - 🟢 Bullish setups (at support, oversold)
-   - 🔴 Bearish setups (at resistance, overbought)
-   - 📍 Pinned (trapped between gamma walls)
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/status` | GET | Scanner status, uptime, next scan countdown |
+| `/pause` | POST | Pause scanner |
+| `/resume` | POST | Resume scanner |
+| `/scan` | POST | Trigger immediate scan |
+| `/clear-cooldowns` | POST | Clear 30-min alert cooldowns |
+| `/test-alert` | POST | Send test message to Telegram |
+| `/watchlist` | GET | Get current watchlist |
+| `/watchlist/add` | POST | Add symbol `{"symbol":"AAPL"}` |
+| `/watchlist/remove` | POST | Remove symbol `{"symbol":"AAPL"}` |
+
+### 6 Discovery Sources
+
+Bloodhound dynamically discovers symbols from:
+
+1. **Watchlist** (`data/watchlist.json`) - Always scanned, highest priority
+2. **X/Twitter Trending** (`/api/x/tickers/trending`) - Most mentioned tickers
+3. **AI Market Outlook** (`/api/market/outlook`) - AI-identified key tickers
+4. **Author Consensus** (`/api/garden/consensus`) - 3+ authors agree on direction
+5. **Market Data** (`/api/latest`) - 52-week extremes, volume spikes
+6. **Sector Rotation** - Strongest/weakest sector ETFs
+
+### Symbol Mapping
+
+Non-tradeable symbols are mapped to liquid ETF equivalents:
+
+| Source | Maps To | Description |
+|--------|---------|-------------|
+| BTC | IBIT | BlackRock Bitcoin ETF |
+| ETH | ETHA | BlackRock Ethereum ETF |
+| SOL | SOLQ | Solana ETF |
+| TAO | GTAO | Grayscale TAO |
+| SPX | SPY | S&P 500 Index → ETF |
+| NDX | QQQ | Nasdaq 100 → ETF |
+| DJI | DIA | Dow Jones → ETF |
+| CL | USO | Crude Oil futures → ETF |
+| GC | GLD | Gold futures → ETF |
+
+When BTC is trending, IBIT gets the score boost. When authors are bullish on ETH, ETHA gets scanned.
+
+### Confluence Scoring (0-100)
+
+Each symbol is scored across multiple factors:
+
+| Category | Max Points | Signals |
+|----------|------------|---------|
+| Technical | 25 | RSI oversold/overbought, Bollinger Band position, trend |
+| Levels | 25 | At gamma walls, VWAP, confluence zones, breakout/breakdown |
+| Sentiment | 15 | Social mentions, author consensus, AI outlook mention |
+| Volume | 15 | Volume spike (2x+), elevated volume (1.5x+) |
+| Context | 20 | Aligned with SPY trend, market regime |
+
+**Alert threshold: 60/100** (configurable in SETTINGS)
+
+### Alert Types
+
+- 🟢 **Bullish** - At support, oversold, aligned with market
+- 🔴 **Bearish** - At resistance, overbought, or breakdown
+- 📍 **Pinned** - Trapped between gamma walls
+- 🚀 **Breakout** - Above call wall resistance
+- 💥 **Breakdown** - Below put wall support
+- 👥 **Consensus** - Multiple authors agree (e.g., "6 authors BULLISH")
 
 ### Output Files
-- `data/bloodhound.json` - Latest scan results
-- Telegram alerts for high-confluence opportunities
+
+| File | Content |
+|------|---------|
+| `data/bloodhound.json` | Latest scan results with all opportunities |
+| `data/dynamic_scan.json` | Full technical data for dashboard |
+| `data/watchlist.json` | Symbols to always scan |
+
+### Configuration
+
+Edit `monitor/config.json` for API endpoints and Telegram credentials.
+Edit `monitor/bloodhound-scanner.js` SETTINGS for:
+- `scanIntervalMs` - Scan frequency (default: 2 min)
+- `minConfluenceScore` - Alert threshold (default: 60)
+- `maxSymbols` - Max symbols per scan (default: 20)
+- `alertCooldownMs` - Per-symbol cooldown (default: 30 min)
 
 ---
 
@@ -399,6 +469,7 @@ Auto-refreshes every 30 seconds from `data/scanner.json`.
 | `GET /api/x/sentiment/ticker/{symbol}` | Ticker-specific sentiment |
 | `GET /api/x/tickers/trending?hours=24` | Most mentioned tickers |
 | `GET /api/garden/leaderboard?limit=20` | Top authors by accuracy |
+| `GET /api/garden/consensus?hours=24&min_authors=3` | **Tickers where 3+ authors agree** (used by Bloodhound) |
 
 **Trade Logging**
 | Endpoint | Purpose |
