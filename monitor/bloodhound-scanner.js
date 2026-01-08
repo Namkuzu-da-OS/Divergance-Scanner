@@ -179,6 +179,32 @@ async function discoverSymbols() {
         symbols._swing_bias = outlook.data.swing_bias;
     }
 
+    // 2.5. Author Consensus - tickers where 3+ authors agree (high conviction)
+    const consensus = await fetchJSON(`${APIS.intel}/api/garden/consensus?hours=24&min_authors=3`);
+    if (consensus?.success && consensus.data) {
+        consensus.data.forEach(item => {
+            const ticker = item.ticker;
+            if (!ticker || NON_TRADEABLE.has(ticker)) return;
+
+            // Score based on author count and established count
+            const authorBoost = Math.min(item.author_count * 8, 40); // Up to 40 pts for 5+ authors
+            const establishedBoost = item.established_count * 5; // 5 pts per established author
+            const roiBoost = (item.avg_author_roi && item.avg_author_roi > 0) ? 10 : 0; // Bonus for positive ROI authors
+
+            const existing = symbols.get(ticker) || { score: 0, sources: [] };
+            existing.score += authorBoost + establishedBoost + roiBoost;
+            existing.sources.push('author_consensus');
+            existing.consensus = {
+                sentiment: item.sentiment,
+                authorCount: item.author_count,
+                establishedCount: item.established_count,
+                avgRoi: item.avg_author_roi,
+                strongestAuthor: item.strongest_signal?.handle
+            };
+            symbols.set(ticker, existing);
+        });
+    }
+
     // 3. Sector rotation from XL* ETFs (find strongest/weakest sectors)
     const latest = await fetchJSON(`${APIS.intel}/api/latest`);
     const sectorETFs = [];
@@ -287,7 +313,7 @@ async function discoverSymbols() {
     // Attach context to result
     result._context = { themes, intradayBias, swingBias, marketSentiment };
 
-    console.log(`[Discovery] Sources: X trending, AI outlook, market data, sector rotation`);
+    console.log(`[Discovery] Sources: X trending, AI outlook, author consensus, market data, sector rotation`);
 
     return result;
 }
@@ -494,6 +520,19 @@ async function analyzeSymbol(symbol, discoveryData) {
     if (mentions >= 10) {
         scores.sentiment += 5;
         signals.push(`High social mentions (${mentions})`);
+    }
+
+    // Author consensus bonus (multiple authors agree)
+    if (discoveryData?.consensus) {
+        const cons = discoveryData.consensus;
+        scores.sentiment += 10;
+        const estLabel = cons.establishedCount > 0 ? ` (${cons.establishedCount} established)` : '';
+        signals.push(`👥 ${cons.authorCount} authors ${cons.sentiment.toUpperCase()}${estLabel}`);
+
+        // Use consensus to influence direction if we don't have strong signals yet
+        if (direction === 'neutral' && cons.authorCount >= 4) {
+            direction = cons.sentiment;
+        }
     }
 
     // --- VOLUME SCORE (0-15) ---
