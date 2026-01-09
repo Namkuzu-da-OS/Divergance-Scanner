@@ -1555,16 +1555,7 @@ async function runScan() {
         for (const va of velocityAlerts) {
             const dir = va.direction === 'bullish' ? '🟢' : va.direction === 'bearish' ? '🔴' : '📍';
             console.log(`  🚀 ${va.symbol}: +${va.velocity} pts (${va.prevScore}→${va.newScore}) ${dir}`);
-
-            // Send Telegram alert for significant velocity spikes
-            if (va.velocity >= 30) {
-                const msg = `🚀 <b>VELOCITY SPIKE: ${va.symbol}</b>\n\n` +
-                    `Score: ${va.prevScore} → ${va.newScore} (+${va.velocity})\n` +
-                    `Price: $${va.price.toFixed(2)}\n` +
-                    `Direction: ${va.direction.toUpperCase()}\n\n` +
-                    `<em>Rapid confluence building - check setup</em>`;
-                await sendTelegram(msg);
-            }
+            // Velocity is shown in the Bloodhound alert signals list, no separate message needed
         }
     }
 
