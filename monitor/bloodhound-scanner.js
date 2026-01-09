@@ -1044,6 +1044,20 @@ async function analyzeSymbol(symbol, discoveryData) {
             : null
     };
 
+    // ============================================
+    // STRATEGY TRIGGERS (Pattern Detection)
+    // ============================================
+
+    // Strategy #1: Smart Money Dip Buy
+    // When RSI oversold + unusual CALL activity + at put wall support = smart money buying the dip
+    const hasRsiOversold = signals.some(s => s.includes('RSI oversold'));
+    const hasUnusualCall = signals.some(s => s.includes('Unusual CALL'));
+    const hasAtPutWall = signals.some(s => s.includes('put wall support'));
+
+    if (hasRsiOversold && hasUnusualCall && hasAtPutWall) {
+        signals.unshift('🎯 TRIGGER: Smart Money Dip Buy');
+    }
+
     return {
         symbol,
         price,
