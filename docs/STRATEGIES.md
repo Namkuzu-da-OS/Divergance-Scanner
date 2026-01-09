@@ -9,6 +9,7 @@
 | MA Reversion | Both | Varies | 1 ATR beyond MA | Next MA or S/R | 2:1 |
 | Mid-Point Range | Both | Daily | Beyond extreme + 1 ATR | 50% retrace, then 61.8% | 1.5:1 |
 | Volatility Box | Scalp | 5/15min | Opposite side of box | 127% Fib extension | 2:1 |
+| Golden Pocket + GEX | Both | 4H/Daily | Below -1 SD or 61.8% Fib | Call wall or 200 MA | 2:1 |
 
 ## ENTRY DEFINITIONS
 
@@ -76,6 +77,36 @@
 | Stop | Opposite side of box |
 | Target | 127% Fib extension of box height |
 | Skip if | Volume < 1.5x on breakout, no clear box (< 3 touches) |
+
+### 6. Golden Pocket + GEX Reversion
+| Component | Specification |
+|-----------|---------------|
+| Setup | Price at golden pocket (50-61.8% Fib), at/below put wall, RSI <35 |
+| Entry | Bottoming tail reclaims VWAP OR close above -1 SD after touch |
+| Stop | Below 61.8% Fib / -2 SD / inefficiency zone low |
+| Target | T1: Gamma flip, T2: 200 MA, T3: Call wall |
+| Skip if | VIX >25, no author consensus, counter-trend to SPY |
+
+**Confluence Checklist (need 5+ of 8):**
+- Golden pocket (50-61.8% Fib of recent swing)
+- At/near put wall or GEX -1 SD band
+- RSI oversold (<35) or recovering from <30
+- 3+ authors bullish (established preferred)
+- Unusual call activity (>5x vol/OI)
+- Key MA nearby (100/200 SMA flat or as support)
+- VWAP reclaimed after dip
+- Call wall above as magnet/target
+
+**The Trigger (TSLA Pattern Jan 2026):**
+When RSI hits oversold AND unusual call activity appears together = smart money buying the dip.
+This combination caused a +35 point score jump in the scanner and preceded a 3%+ move to call wall.
+
+**Signal Progression Example:**
+```
+Score 60  → Technical only (BB lower, put wall)
+Score 95  → RSI oversold + unusual calls (TRIGGER)
+Score 100 → Author consensus confirms
+```
 
 ## TARGET EXITS
 

@@ -785,13 +785,9 @@
             </div>
         </div>
 
-        <!-- Scanner Toggle -->
+        <!-- Bloodhound Control Panel -->
         <div class="scanner-toggle">
-            <button class="btn active" id="btn-static" onclick="setScanner('static')">📋 Watchlist</button>
-            <button class="btn" id="btn-dynamic" onclick="setScanner('dynamic')">🐕 Bloodhound</button>
-
-            <!-- Bloodhound Control Panel -->
-            <div class="scanner-control" id="scanner-control" style="display: none;">
+            <div class="scanner-control" id="scanner-control">
                 <div class="scanner-info">
                     <div class="status-line">
                         <div class="status-indicator" id="status-indicator"></div>
@@ -869,7 +865,6 @@
     </div>
 
     <script>
-        let currentScanner = 'static';
         let currentFilter = 'all';
         let scanData = null;
 
@@ -1101,13 +1096,6 @@
             }
         }
 
-        function setScanner(type) {
-            currentScanner = type;
-            document.getElementById('btn-static').classList.toggle('active', type === 'static');
-            document.getElementById('btn-dynamic').classList.toggle('active', type === 'dynamic');
-            loadData();
-        }
-
         function setFilter(filter) {
             currentFilter = filter;
             document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -1117,8 +1105,8 @@
         }
 
         async function loadData() {
-            const file = currentScanner === 'static' ? './data/scan_results.json' : './data/dynamic_scan.json';
-            scanData = await fetchJson(file);
+            // Always load from Bloodhound's dynamic scan data
+            scanData = await fetchJson('./data/dynamic_scan.json');
 
             if (!scanData) {
                 document.getElementById('symbols-grid').innerHTML =
@@ -1545,41 +1533,18 @@
             }
         }
 
-        // Show/hide control panel based on scanner type
-        function updateControlVisibility() {
-            const control = document.getElementById('scanner-control');
-            const watchlistPanel = document.getElementById('watchlist-panel');
-            if (currentScanner === 'dynamic') {
-                control.style.display = 'flex';
-                watchlistPanel.style.display = 'block';
-                checkScannerStatus();
-                loadWatchlist();
-            } else {
-                control.style.display = 'none';
-                watchlistPanel.style.display = 'none';
-            }
-        }
-
-        // Override setScanner to also update control visibility
-        const originalSetScanner = setScanner;
-        setScanner = function(type) {
-            originalSetScanner(type);
-            updateControlVisibility();
-        };
-
-        // Initial load
+        // Initial load - always show Bloodhound controls
+        document.getElementById('scanner-control').style.display = 'flex';
+        document.getElementById('watchlist-panel').style.display = 'block';
         loadData();
-        updateControlVisibility();
+        checkScannerStatus();
+        loadWatchlist();
 
         // Auto-refresh data every 30 seconds
         setInterval(loadData, 30000);
 
-        // Update scanner status every 5 seconds when on Bloodhound tab
-        setInterval(() => {
-            if (currentScanner === 'dynamic') {
-                checkScannerStatus();
-            }
-        }, 5000);
+        // Update scanner status every 5 seconds
+        setInterval(checkScannerStatus, 5000);
     </script>
 </body>
 </html>

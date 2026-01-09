@@ -5,14 +5,13 @@ Background service for market alerts and scanner data.
 ## Quick Start
 
 ```bash
-# Main monitor (VIX, walls, signals)
-node wingman-monitor.js
+# Bloodhound scanner (primary) - run via PM2
+pm2 start bloodhound-scanner.js --name bloodhound
+pm2 logs bloodhound
 
-# Zone scanner (buy/sell zones per trading rules)
-node zone-scanner.js
-
-# Dynamic scanner (sources from social/narrative, then applies zones)
-node dynamic-scanner.js
+# VIX monitor (regime changes only)
+pm2 start wingman-monitor.js --name monitor
+pm2 logs monitor
 ```
 
 ## Dynamic Scanner (NEW)
@@ -42,11 +41,9 @@ Then applies zone filter logic to find tradeable setups.
 
 Higher score = scanned first, shown first in results.
 
-## Zone Scanner (NEW)
+## Zone Classifications
 
-Scans watchlist for buy/sell zone opportunities. Enforces the rule: **"No mid-range trades"**
-
-### Zone Classifications
+Bloodhound applies these zones to determine tradeability:
 
 | Zone | Meaning | Tradeable? |
 |------|---------|------------|
@@ -60,40 +57,34 @@ Scans watchlist for buy/sell zone opportunities. Enforces the rule: **"No mid-ra
 
 ### Watchlist
 
-Edit `../data/watchlist.json`:
+Edit `../data/watchlist.json` - symbols here are always included in Bloodhound scans:
 ```json
 {
   "symbols": [
     {"symbol": "SPY", "enabled": true},
     {"symbol": "IBIT", "enabled": true}
-  ],
-  "settings": {
-    "buyZoneThresholdPct": 0.5,
-    "rsiOverbought": 75,
-    "alertCooldownMinutes": 60
-  }
+  ]
 }
 ```
-
-### Output
-
-Results written to `../data/scan_results.json` every 2 minutes.
 
 ---
 
 ## What It Does
 
-1. **Polls APIs** every 2 minutes:
-   - Port 3000: VIX, sentiment, signals
-   - Port 8000: Gamma walls, levels
+### Bloodhound Scanner (Primary)
 
-2. **Sends Telegram Alerts** for:
-   - VIX regime changes (15/20/25/35 thresholds)
-   - Price near call/put walls (0.15% proximity)
-   - Pinned between walls (<0.3% spread)
-   - High conviction signals (85%+)
+1. **Discovers symbols** from 6 sources (trending, consensus, watchlist, etc.)
+2. **Scores confluence** across technicals, levels, sentiment, volume, context
+3. **Sends Telegram alerts** for tradeable zones (BUY_ZONE, SELL_ZONE, etc.)
+4. **Writes scanner.json** and **dynamic_scan.json** for dashboard
 
-3. **Writes scanner.json** for dashboard
+### VIX Monitor (Secondary)
+
+1. **Polls VIX** every 2 minutes
+2. **Checks Bloodhound pause state** before alerting (unified control)
+3. **Sends Telegram alerts** for VIX regime changes ONLY:
+   - low (<15) → normal → elevated → high → extreme
+4. Does NOT send wall/signal alerts (Bloodhound handles those)
 
 ## Configuration
 
@@ -109,13 +100,11 @@ const CONFIG = {
     intel: 'http://192.168.10.239:3000',
     options: 'http://192.168.10.239:8000'
   },
-  checkIntervalMs: 2 * 60 * 1000,  // 2 minutes
-  thresholds: {
-    wallProximityPct: 0.15,
-    convictionMin: 85
-  }
+  checkIntervalMs: 2 * 60 * 1000  // 2 minutes
 };
 ```
+
+**Note:** Wall proximity and conviction thresholds removed - Bloodhound handles those alerts now.
 
 ## Trade Client
 
@@ -134,6 +123,8 @@ node trade-client.js context SPY
 
 | File | Purpose |
 |------|---------|
+| `../data/bloodhound.json` | Bloodhound scan results |
+| `../data/dynamic_scan.json` | Full technical data for Zone Scanner dashboard |
 | `../data/scanner.json` | Market state for dashboard |
 | `../data/alerts_log.json` | Alert history (last 500) |
 

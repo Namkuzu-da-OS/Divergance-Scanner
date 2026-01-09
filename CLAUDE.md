@@ -339,17 +339,21 @@ Edit `monitor/bloodhound-scanner.js` SETTINGS for:
 
 ---
 
-## Monitor System (State Change Watchdog)
+## Monitor System (VIX Regime Watchdog)
 
-The Monitor is a **state change detector** that sends Telegram alerts when market conditions change. It does NOT write to scanner.json (Bloodhound handles that).
+The Monitor is a **VIX regime change detector** that sends Telegram alerts when volatility conditions change. It runs alongside Bloodhound but with a focused purpose.
+
+### Unified Control System
+
+**When Bloodhound pauses, Monitor also pauses.** The monitor checks Bloodhound's `/status` endpoint before each alert cycle.
 
 ### Architecture
 ```
 Bloodhound Scanner          Wingman Monitor
 ──────────────────          ───────────────
-Point-in-time scanning  →   State change detection
-"What's interesting now?"   "What just changed?"
-Writes scanner.json     →   Telegram alerts ONLY
+Confluence scanning     →   VIX regime detection ONLY
+Wall alerts, signals    →   No wall/signal alerts (removed)
+Writes scanner.json     →   Checks Bloodhound pause state
 ```
 
 ### Starting the Monitor
@@ -359,18 +363,22 @@ pm2 logs monitor
 ```
 
 The monitor runs in background and:
-- Polls both APIs every 2 minutes
-- **Detects STATE CHANGES** (not point-in-time data)
-- Sends alerts to Telegram on transitions
+- Polls VIX every 2 minutes
+- **Checks Bloodhound pause state** before alerting
+- Only sends **VIX regime change** alerts
 - Logs alerts to `data/alerts_log.json`
 
 ### Alert Types
-| Alert | Trigger | Cooldown |
-|-------|---------|----------|
-| VIX Regime | VIX crosses 15/20/25/35 | On change |
-| Wall Proximity | Price within 0.15% of wall | 30 min |
-| Pinned | Spread < 0.3% between walls | 30 min |
-| High Conviction | Signal conviction ≥ 85% | Once per signal |
+| Alert | Trigger | Notes |
+|-------|---------|-------|
+| VIX Regime | VIX crosses 15/20/25/35 | Only alert type - Bloodhound handles wall/signal alerts |
+
+### Why Separate Processes?
+
+- **Bloodhound** = Confluence scanner (walls, signals, zones, scoring)
+- **Monitor** = VIX regime watchdog (simpler, focused on volatility)
+
+Both respect the same pause state - pause Bloodhound from the dashboard and both go silent.
 
 ### Configuration
 Edit `monitor/wingman-monitor.js`:

@@ -34,6 +34,10 @@ const SETTINGS = {
     minConfluenceScore: 60,          // Minimum score to alert (0-100)
     maxSymbols: 20,                  // Max symbols to scan per cycle
     alertCooldownMs: 30 * 60 * 1000, // 30 min cooldown per symbol
+    // Signal tracking settings
+    velocityThreshold: 20,           // Points jump to trigger velocity alert
+    autoTrackMinScore: 80,           // Minimum score to auto-track for outcomes
+    signalExpirationDays: 5,         // Days before unresolved signal = EXPIRED
 };
 
 // Map non-tradeable symbols to their liquid ETF equivalents
@@ -77,6 +81,186 @@ function mapSymbol(ticker) {
 // State
 const alertCooldowns = new Map();
 let marketContext = null;
+
+// ============================================
+// SIGNAL TRACKING
+// ============================================
+
+const SIGNAL_TRACKING_PATH = path.join(__dirname, '..', 'data', 'signal_tracking.json');
+
+// Load signal tracking data
+function loadSignalTracking() {
+    try {
+        if (fs.existsSync(SIGNAL_TRACKING_PATH)) {
+            return JSON.parse(fs.readFileSync(SIGNAL_TRACKING_PATH, 'utf8'));
+        }
+    } catch (e) {
+        console.error('[Bloodhound] Error loading signal tracking:', e.message);
+    }
+    return { signals: {}, lastUpdated: null };
+}
+
+// Save signal tracking data
+function saveSignalTracking(data) {
+    try {
+        data.lastUpdated = new Date().toISOString();
+        fs.writeFileSync(SIGNAL_TRACKING_PATH, JSON.stringify(data, null, 2));
+    } catch (e) {
+        console.error('[Bloodhound] Error saving signal tracking:', e.message);
+    }
+}
+
+// Update signal history and calculate velocity
+function updateSignalHistory(symbol, score, price, direction, analysis) {
+    const tracking = loadSignalTracking();
+    const now = new Date().toISOString();
+
+    if (!tracking.signals[symbol]) {
+        tracking.signals[symbol] = {
+            history: [],
+            firstSeen: now,
+            peakScore: 0,
+            activeSignal: null
+        };
+    }
+
+    const symbolData = tracking.signals[symbol];
+
+    // Get previous score for velocity calculation
+    const prevEntry = symbolData.history.length > 0
+        ? symbolData.history[symbolData.history.length - 1]
+        : null;
+    const prevScore = prevEntry?.score || 0;
+    const velocity = score - prevScore;
+
+    // Add to history (keep last 50 entries per symbol)
+    symbolData.history.push({
+        timestamp: now,
+        score,
+        price,
+        direction,
+        velocity
+    });
+    if (symbolData.history.length > 50) {
+        symbolData.history = symbolData.history.slice(-50);
+    }
+
+    // Update peak score
+    if (score > symbolData.peakScore) {
+        symbolData.peakScore = score;
+    }
+
+    // Check if this should create/update an active tracked signal
+    if (score >= SETTINGS.autoTrackMinScore && !symbolData.activeSignal) {
+        // Create new active signal to track for outcome
+        symbolData.activeSignal = {
+            id: `${symbol}_${Date.now()}`,
+            entryTime: now,
+            entryPrice: price,
+            entryScore: score,
+            direction: direction,
+            target: analysis?.levels?.callWall || null,
+            stop: analysis?.levels?.putWall || null,
+            signalsAtEntry: analysis?.signals?.slice(0, 5) || [],
+            currentPrice: price,
+            pnlPct: 0,
+            outcome: null,
+            resolvedTime: null,
+            daysHeld: 0
+        };
+        console.log(`[Bloodhound] Tracking new signal: ${symbol} @ $${price} (score ${score})`);
+    }
+
+    saveSignalTracking(tracking);
+
+    return { prevScore, velocity };
+}
+
+// Resolve signal outcomes based on current prices
+async function resolveSignalOutcomes() {
+    const tracking = loadSignalTracking();
+    let resolved = 0;
+
+    for (const [symbol, data] of Object.entries(tracking.signals)) {
+        const signal = data.activeSignal;
+        if (!signal || signal.outcome) continue; // Skip if no active signal or already resolved
+
+        try {
+            // Get current price
+            const technicals = await fetchJSON(`${APIS.options}/api/technicals/${symbol}`);
+            if (!technicals?.current) continue;
+
+            const currentPrice = technicals.current;
+            signal.currentPrice = currentPrice;
+            signal.pnlPct = ((currentPrice - signal.entryPrice) / signal.entryPrice * 100).toFixed(2);
+            signal.daysHeld = Math.floor((Date.now() - new Date(signal.entryTime).getTime()) / (1000 * 60 * 60 * 24));
+
+            // Auto-grade based on direction and price levels
+            if (signal.direction === 'bullish' || signal.direction === 'pinned') {
+                if (signal.target && currentPrice >= signal.target) {
+                    signal.outcome = 'WIN';
+                    signal.resolvedTime = new Date().toISOString();
+                    console.log(`[Bloodhound] Signal WIN: ${symbol} hit target $${signal.target}`);
+                    resolved++;
+                } else if (signal.stop && currentPrice <= signal.stop * 0.98) { // 2% buffer below stop
+                    signal.outcome = 'LOSS';
+                    signal.resolvedTime = new Date().toISOString();
+                    console.log(`[Bloodhound] Signal LOSS: ${symbol} hit stop $${signal.stop}`);
+                    resolved++;
+                } else if (signal.daysHeld >= SETTINGS.signalExpirationDays) {
+                    signal.outcome = signal.pnlPct > 0 ? 'EXPIRED_WIN' : 'EXPIRED_LOSS';
+                    signal.resolvedTime = new Date().toISOString();
+                    console.log(`[Bloodhound] Signal EXPIRED: ${symbol} P&L ${signal.pnlPct}%`);
+                    resolved++;
+                }
+            } else if (signal.direction === 'bearish') {
+                if (signal.stop && currentPrice >= signal.stop * 1.02) { // 2% buffer above stop for shorts
+                    signal.outcome = 'LOSS';
+                    signal.resolvedTime = new Date().toISOString();
+                    resolved++;
+                } else if (signal.target && currentPrice <= signal.target) {
+                    signal.outcome = 'WIN';
+                    signal.resolvedTime = new Date().toISOString();
+                    resolved++;
+                } else if (signal.daysHeld >= SETTINGS.signalExpirationDays) {
+                    signal.outcome = signal.pnlPct < 0 ? 'EXPIRED_WIN' : 'EXPIRED_LOSS'; // Inverted for shorts
+                    signal.resolvedTime = new Date().toISOString();
+                    resolved++;
+                }
+            }
+        } catch (e) {
+            console.error(`[Bloodhound] Error resolving ${symbol}:`, e.message);
+        }
+    }
+
+    if (resolved > 0) {
+        saveSignalTracking(tracking);
+        console.log(`[Bloodhound] Resolved ${resolved} signal outcome(s)`);
+    }
+
+    return resolved;
+}
+
+// Get signal tracking stats for display
+function getSignalStats() {
+    const tracking = loadSignalTracking();
+    let active = 0, wins = 0, losses = 0, expired = 0;
+
+    for (const data of Object.values(tracking.signals)) {
+        const signal = data.activeSignal;
+        if (!signal) continue;
+
+        if (!signal.outcome) active++;
+        else if (signal.outcome === 'WIN' || signal.outcome === 'EXPIRED_WIN') wins++;
+        else if (signal.outcome === 'LOSS' || signal.outcome === 'EXPIRED_LOSS') losses++;
+        else expired++;
+    }
+
+    const total = wins + losses;
+    const winRate = total > 0 ? ((wins / total) * 100).toFixed(1) : 'N/A';
+
+    return { active, wins, losses, expired, winRate };
+}
 
 // ============================================
 // UTILITY FUNCTIONS
@@ -1317,14 +1501,61 @@ async function runScan() {
         console.log(`  ${i + 1}. ${s.symbol} (score: ${s.score}, ${src})${extra}`);
     });
 
-    // 3. Analyze each symbol
+    // 3. Analyze each symbol and track velocity
     const analyses = [];
+    const velocityAlerts = [];
+
     for (const symbolData of symbols) {
         const analysis = await analyzeSymbol(symbolData.symbol, symbolData);
         if (analysis) {
+            // Track signal history and calculate velocity
+            const { prevScore, velocity } = updateSignalHistory(
+                analysis.symbol,
+                analysis.totalScore,
+                analysis.price,
+                analysis.direction,
+                analysis
+            );
+
+            // Check for velocity spike
+            if (velocity >= SETTINGS.velocityThreshold) {
+                velocityAlerts.push({
+                    symbol: analysis.symbol,
+                    prevScore,
+                    newScore: analysis.totalScore,
+                    velocity,
+                    price: analysis.price,
+                    direction: analysis.direction
+                });
+                analysis.velocitySpike = true;
+                analysis.signals.unshift(`VELOCITY +${velocity} pts`);
+            }
+
             analyses.push(analysis);
         }
     }
+
+    // Log velocity alerts
+    if (velocityAlerts.length > 0) {
+        console.log(`\n[VELOCITY ALERTS]`);
+        for (const va of velocityAlerts) {
+            const dir = va.direction === 'bullish' ? '🟢' : va.direction === 'bearish' ? '🔴' : '📍';
+            console.log(`  🚀 ${va.symbol}: +${va.velocity} pts (${va.prevScore}→${va.newScore}) ${dir}`);
+
+            // Send Telegram alert for significant velocity spikes
+            if (va.velocity >= 30) {
+                const msg = `🚀 <b>VELOCITY SPIKE: ${va.symbol}</b>\n\n` +
+                    `Score: ${va.prevScore} → ${va.newScore} (+${va.velocity})\n` +
+                    `Price: $${va.price.toFixed(2)}\n` +
+                    `Direction: ${va.direction.toUpperCase()}\n\n` +
+                    `<em>Rapid confluence building - check setup</em>`;
+                await sendTelegram(msg);
+            }
+        }
+    }
+
+    // Resolve any tracked signal outcomes
+    await resolveSignalOutcomes();
 
     // 4. Sort by confluence score
     analyses.sort((a, b) => b.totalScore - a.totalScore);
