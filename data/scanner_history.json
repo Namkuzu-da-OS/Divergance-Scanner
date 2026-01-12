@@ -1,0 +1,822 @@
+{
+  "meta": {
+    "last_updated": "2026-01-12T15:51:27.431Z",
+    "retention_days": 14,
+    "total_symbols_tracked": 17
+  },
+  "symbols": {
+    "SPY": {
+      "first_seen": "2026-01-12T15:36:47.351Z",
+      "last_seen": "2026-01-12T15:51:27.430Z",
+      "daily_snapshots": [
+        {
+          "date": "2026-01-12",
+          "first_scan": "2026-01-12T15:36:47.351Z",
+          "scans_today": 8,
+          "peak_score": 100,
+          "price_action": {
+            "vwap": 693.15,
+            "range_pct": 0,
+            "gap_from_prev_pct": null
+          },
+          "volume": {
+            "total": 0,
+            "avg_20d": null,
+            "ratio": null,
+            "vs_yesterday": null,
+            "first_hour": 0
+          },
+          "social": {
+            "x_mentions": 0,
+            "sentiment_score": 0,
+            "author_count": 0,
+            "author_direction": "NEUTRAL"
+          },
+          "scanner_data": {
+            "peak_zone": "OVERBOUGHT",
+            "peak_direction": "pinned",
+            "peak_signals": [
+              "RSI overbought (72.5)",
+              "📍 PINNED between walls ($694-$695)",
+              "At VWAP ($693.15)",
+              "Confluence zone (5 levels)",
+              "PUT wall ACTIVE (6.4x vol/OI)"
+            ],
+            "time_in_scanner_mins": 14
+          },
+          "technicals_eod": {
+            "rsi": 72.49,
+            "above_20ema": false,
+            "above_50sma": false,
+            "bb_position": 0.89
+          }
+        }
+      ]
+    },
+    "QQQ": {
+      "first_seen": "2026-01-12T15:36:47.351Z",
+      "last_seen": "2026-01-12T15:51:27.430Z",
+      "daily_snapshots": [
+        {
+          "date": "2026-01-12",
+          "first_scan": "2026-01-12T15:36:47.351Z",
+          "scans_today": 8,
+          "peak_score": 100,
+          "price_action": {
+            "vwap": 624.85,
+            "range_pct": 0,
+            "gap_from_prev_pct": null
+          },
+          "volume": {
+            "total": 0,
+            "avg_20d": null,
+            "ratio": null,
+            "vs_yesterday": null,
+            "first_hour": 0
+          },
+          "social": {
+            "x_mentions": 0,
+            "sentiment_score": 0,
+            "author_count": 0,
+            "author_direction": "NEUTRAL"
+          },
+          "scanner_data": {
+            "peak_zone": "PINNED",
+            "peak_direction": "pinned",
+            "peak_signals": [
+              "📍 PINNED between walls ($624-$625)",
+              "At VWAP ($624.85)",
+              "Confluence zone (6 levels)",
+              "PUT wall ACTIVE (9.0x vol/OI)",
+              "🔥 Unusual CALL activity (24.6x vol/OI)"
+            ],
+            "time_in_scanner_mins": 14
+          },
+          "technicals_eod": {
+            "rsi": 68.96,
+            "above_20ema": false,
+            "above_50sma": false,
+            "bb_position": 0.84
+          }
+        }
+      ]
+    },
+    "AAPL": {
+      "first_seen": "2026-01-12T15:36:47.351Z",
+      "last_seen": "2026-01-12T15:51:27.430Z",
+      "daily_snapshots": [
+        {
+          "date": "2026-01-12",
+          "first_scan": "2026-01-12T15:36:47.351Z",
+          "scans_today": 8,
+          "peak_score": 100,
+          "price_action": {
+            "vwap": 258.68,
+            "range_pct": 0,
+            "gap_from_prev_pct": null
+          },
+          "volume": {
+            "total": 0,
+            "avg_20d": null,
+            "ratio": null,
+            "vs_yesterday": null,
+            "first_hour": 0
+          },
+          "social": {
+            "x_mentions": 0,
+            "sentiment_score": 0,
+            "author_count": 0,
+            "author_direction": "NEUTRAL"
+          },
+          "scanner_data": {
+            "peak_zone": "BUY_ZONE",
+            "peak_direction": "pinned",
+            "peak_signals": [
+              "RSI oversold (21.9)",
+              "At lower Bollinger Band",
+              "📍 PINNED between walls ($260-$260)",
+              "Confluence zone (4 levels)",
+              "⚠️ PUT wall dormant (stale OI)"
+            ],
+            "time_in_scanner_mins": 14
+          },
+          "technicals_eod": {
+            "rsi": 21.94,
+            "above_20ema": false,
+            "above_50sma": false,
+            "bb_position": 0.01
+          }
+        }
+      ]
+    },
+    "GOOGL": {
+      "first_seen": "2026-01-12T15:36:47.351Z",
+      "last_seen": "2026-01-12T15:51:27.430Z",
+      "daily_snapshots": [
+        {
+          "date": "2026-01-12",
+          "first_scan": "2026-01-12T15:36:47.351Z",
+          "scans_today": 8,
+          "peak_score": 100,
+          "price_action": {
+            "vwap": 329.01,
+            "range_pct": 0,
+            "gap_from_prev_pct": null
+          },
+          "volume": {
+            "total": 0,
+            "avg_20d": null,
+            "ratio": null,
+            "vs_yesterday": null,
+            "first_hour": 0
+          },
+          "social": {
+            "x_mentions": 0,
+            "sentiment_score": 0,
+            "author_count": 0,
+            "author_direction": "NEUTRAL"
+          },
+          "scanner_data": {
+            "peak_zone": "OVERBOUGHT",
+            "peak_direction": "bearish",
+            "peak_signals": [
+              "RSI overbought (88.5)",
+              "At upper Bollinger Band",
+              "At call wall resistance ($330)",
+              "At VWAP ($329.01)",
+              "Confluence zone (3 levels)"
+            ],
+            "time_in_scanner_mins": 14
+          },
+          "technicals_eod": {
+            "rsi": 88.52,
+            "above_20ema": false,
+            "above_50sma": false,
+            "bb_position": 1.06
+          }
+        }
+      ]
+    },
+    "STRC": {
+      "first_seen": "2026-01-12T15:36:47.351Z",
+      "last_seen": "2026-01-12T15:51:27.430Z",
+      "daily_snapshots": [
+        {
+          "date": "2026-01-12",
+          "first_scan": "2026-01-12T15:36:47.351Z",
+          "scans_today": 8,
+          "peak_score": 100,
+          "price_action": {
+            "vwap": 100.03,
+            "range_pct": 0,
+            "gap_from_prev_pct": null
+          },
+          "volume": {
+            "total": 0,
+            "avg_20d": null,
+            "ratio": null,
+            "vs_yesterday": null,
+            "first_hour": 0
+          },
+          "social": {
+            "x_mentions": 0,
+            "sentiment_score": 0,
+            "author_count": 0,
+            "author_direction": "NEUTRAL"
+          },
+          "scanner_data": {
+            "peak_zone": "OVERBOUGHT",
+            "peak_direction": "pinned",
+            "peak_signals": [
+              "RSI overbought (82.3)",
+              "📍 PINNED between walls ($100-$100)",
+              "At VWAP ($100.03)",
+              "Confluence zone (9 levels)",
+              "Extreme sentiment (contrarian)"
+            ],
+            "time_in_scanner_mins": 14
+          },
+          "technicals_eod": {
+            "rsi": 82.27,
+            "above_20ema": false,
+            "above_50sma": false,
+            "bb_position": 0.83
+          }
+        }
+      ]
+    },
+    "TSLA": {
+      "first_seen": "2026-01-12T15:36:47.351Z",
+      "last_seen": "2026-01-12T15:51:27.430Z",
+      "daily_snapshots": [
+        {
+          "date": "2026-01-12",
+          "first_scan": "2026-01-12T15:36:47.351Z",
+          "scans_today": 8,
+          "peak_score": 95,
+          "price_action": {
+            "vwap": 442.59,
+            "range_pct": 0,
+            "gap_from_prev_pct": null
+          },
+          "volume": {
+            "total": 0,
+            "avg_20d": null,
+            "ratio": null,
+            "vs_yesterday": null,
+            "first_hour": 0
+          },
+          "social": {
+            "x_mentions": 0,
+            "sentiment_score": 0,
+            "author_count": 0,
+            "author_direction": "NEUTRAL"
+          },
+          "scanner_data": {
+            "peak_zone": "PINNED",
+            "peak_direction": "pinned",
+            "peak_signals": [
+              "📍 PINNED between walls ($450-$450)",
+              "Confluence zone (4 levels)",
+              "⚠️ PUT wall dormant (stale OI)",
+              "🔥 Unusual PUT activity (5.3x vol/OI)",
+              "$167M net bullish premium"
+            ],
+            "time_in_scanner_mins": 14
+          },
+          "technicals_eod": {
+            "rsi": 32.21,
+            "above_20ema": false,
+            "above_50sma": false,
+            "bb_position": 0.29
+          }
+        }
+      ]
+    },
+    "MSTR": {
+      "first_seen": "2026-01-12T15:36:47.351Z",
+      "last_seen": "2026-01-12T15:51:27.430Z",
+      "daily_snapshots": [
+        {
+          "date": "2026-01-12",
+          "first_scan": "2026-01-12T15:36:47.351Z",
+          "scans_today": 8,
+          "peak_score": 80,
+          "price_action": {
+            "vwap": 159.45,
+            "range_pct": 0,
+            "gap_from_prev_pct": null
+          },
+          "volume": {
+            "total": 0,
+            "avg_20d": null,
+            "ratio": null,
+            "vs_yesterday": null,
+            "first_hour": 0
+          },
+          "social": {
+            "x_mentions": 0,
+            "sentiment_score": 0,
+            "author_count": 0,
+            "author_direction": "NEUTRAL"
+          },
+          "scanner_data": {
+            "peak_zone": "MID_RANGE",
+            "peak_direction": "bullish",
+            "peak_signals": [
+              "At VWAP ($159.45)",
+              "Confluence zone (2 levels)",
+              "Extreme sentiment (contrarian)",
+              "🔥 Unusual CALL activity (6.6x vol/OI)",
+              "$14M net bullish premium"
+            ],
+            "time_in_scanner_mins": 14
+          },
+          "technicals_eod": {
+            "rsi": 49.24,
+            "above_20ema": false,
+            "above_50sma": false,
+            "bb_position": 0.34
+          }
+        }
+      ]
+    },
+    "BCH": {
+      "first_seen": "2026-01-12T15:36:47.351Z",
+      "last_seen": "2026-01-12T15:51:27.430Z",
+      "daily_snapshots": [
+        {
+          "date": "2026-01-12",
+          "first_scan": "2026-01-12T15:36:47.351Z",
+          "scans_today": 8,
+          "peak_score": 80,
+          "price_action": {
+            "vwap": 40.41,
+            "range_pct": 0,
+            "gap_from_prev_pct": null
+          },
+          "volume": {
+            "total": 0,
+            "avg_20d": null,
+            "ratio": null,
+            "vs_yesterday": null,
+            "first_hour": 0
+          },
+          "social": {
+            "x_mentions": 0,
+            "sentiment_score": 0,
+            "author_count": 0,
+            "author_direction": "NEUTRAL"
+          },
+          "scanner_data": {
+            "peak_zone": "OVERBOUGHT",
+            "peak_direction": "bullish",
+            "peak_signals": [
+              "RSI overbought (79.6)",
+              "At upper Bollinger Band",
+              "🚀 BREAKOUT above call wall ($40) +2.7%",
+              "Above gamma flip ($37.27)",
+              "Bullish sentiment (82%)"
+            ],
+            "time_in_scanner_mins": 14
+          },
+          "technicals_eod": {
+            "rsi": 79.59,
+            "above_20ema": false,
+            "above_50sma": false,
+            "bb_position": 0.99
+          }
+        }
+      ]
+    },
+    "META": {
+      "first_seen": "2026-01-12T15:36:47.351Z",
+      "last_seen": "2026-01-12T15:51:27.430Z",
+      "daily_snapshots": [
+        {
+          "date": "2026-01-12",
+          "first_scan": "2026-01-12T15:36:47.351Z",
+          "scans_today": 8,
+          "peak_score": 65,
+          "price_action": {
+            "vwap": 651.09,
+            "range_pct": 0,
+            "gap_from_prev_pct": null
+          },
+          "volume": {
+            "total": 0,
+            "avg_20d": null,
+            "ratio": null,
+            "vs_yesterday": null,
+            "first_hour": 0
+          },
+          "social": {
+            "x_mentions": 0,
+            "sentiment_score": 0,
+            "author_count": 0,
+            "author_direction": "NEUTRAL"
+          },
+          "scanner_data": {
+            "peak_zone": "EXTENDED_LOW",
+            "peak_direction": "pinned",
+            "peak_signals": [
+              "📍 PINNED between walls ($650-$650)",
+              "Confluence zone (2 levels)",
+              "⚠️ PUT wall dormant (stale OI)",
+              "🔥 Unusual PUT activity (7.8x vol/OI)",
+              "$15M net bullish premium"
+            ],
+            "time_in_scanner_mins": 14
+          },
+          "technicals_eod": {
+            "rsi": 42.69,
+            "above_20ema": false,
+            "above_50sma": false,
+            "bb_position": 0.37
+          }
+        }
+      ]
+    },
+    "NVDA": {
+      "first_seen": "2026-01-12T15:36:47.351Z",
+      "last_seen": "2026-01-12T15:51:27.430Z",
+      "daily_snapshots": [
+        {
+          "date": "2026-01-12",
+          "first_scan": "2026-01-12T15:36:47.351Z",
+          "scans_today": 8,
+          "peak_score": 80,
+          "price_action": {
+            "vwap": 185.1,
+            "range_pct": 0,
+            "gap_from_prev_pct": null
+          },
+          "volume": {
+            "total": 0,
+            "avg_20d": null,
+            "ratio": null,
+            "vs_yesterday": null,
+            "first_hour": 0
+          },
+          "social": {
+            "x_mentions": 0,
+            "sentiment_score": 0,
+            "author_count": 0,
+            "author_direction": "NEUTRAL"
+          },
+          "scanner_data": {
+            "peak_zone": "MID_RANGE",
+            "peak_direction": "bullish",
+            "peak_signals": [
+              "VELOCITY +30 pts",
+              "Confluence zone (4 levels)",
+              "🔥 Unusual CALL activity (5.5x vol/OI)",
+              "$54M net bullish premium",
+              "Aligned with SPY bullish"
+            ],
+            "time_in_scanner_mins": 14
+          },
+          "technicals_eod": {
+            "rsi": 66.91,
+            "above_20ema": false,
+            "above_50sma": false,
+            "bb_position": 0.55
+          }
+        }
+      ]
+    },
+    "BTC": {
+      "first_seen": "2026-01-12T15:36:47.351Z",
+      "last_seen": "2026-01-12T15:51:27.430Z",
+      "daily_snapshots": [
+        {
+          "date": "2026-01-12",
+          "first_scan": "2026-01-12T15:36:47.351Z",
+          "scans_today": 8,
+          "peak_score": 50,
+          "price_action": {
+            "vwap": 40.16,
+            "range_pct": 0,
+            "gap_from_prev_pct": null
+          },
+          "volume": {
+            "total": 0,
+            "avg_20d": null,
+            "ratio": null,
+            "vs_yesterday": null,
+            "first_hour": 0
+          },
+          "social": {
+            "x_mentions": 0,
+            "sentiment_score": 0,
+            "author_count": 0,
+            "author_direction": "NEUTRAL"
+          },
+          "scanner_data": {
+            "peak_zone": "EXTENDED_HIGH",
+            "peak_direction": "bullish",
+            "peak_signals": [
+              "🚀 BREAKOUT above call wall ($40) +1.1%",
+              "Above gamma flip ($39.49)",
+              "Heavy call bias (2.88 C/P)",
+              "📌 AI Outlook highlight",
+              "Aligned with SPY bullish"
+            ],
+            "time_in_scanner_mins": 14
+          },
+          "technicals_eod": {
+            "rsi": 66.32,
+            "above_20ema": false,
+            "above_50sma": false,
+            "bb_position": 0.65
+          }
+        }
+      ]
+    },
+    "XLI": {
+      "first_seen": "2026-01-12T15:36:47.351Z",
+      "last_seen": "2026-01-12T15:51:27.430Z",
+      "daily_snapshots": [
+        {
+          "date": "2026-01-12",
+          "first_scan": "2026-01-12T15:36:47.351Z",
+          "scans_today": 8,
+          "peak_score": 50,
+          "price_action": {
+            "vwap": 161.66,
+            "range_pct": 0,
+            "gap_from_prev_pct": null
+          },
+          "volume": {
+            "total": 0,
+            "avg_20d": null,
+            "ratio": null,
+            "vs_yesterday": null,
+            "first_hour": 0
+          },
+          "social": {
+            "x_mentions": 0,
+            "sentiment_score": 0,
+            "author_count": 0,
+            "author_direction": "NEUTRAL"
+          },
+          "scanner_data": {
+            "peak_zone": "OVERBOUGHT",
+            "peak_direction": "bearish",
+            "peak_signals": [
+              "RSI overbought (70.1)",
+              "At upper Bollinger Band",
+              "Confluence zone (2 levels)",
+              "🔥 Unusual PUT activity (6.0x vol/OI)",
+              "Heavy call bias (2.18 C/P)"
+            ],
+            "time_in_scanner_mins": 14
+          },
+          "technicals_eod": {
+            "rsi": 70.13,
+            "above_20ema": false,
+            "above_50sma": false,
+            "bb_position": 1.02
+          }
+        }
+      ]
+    },
+    "IBIT": {
+      "first_seen": "2026-01-12T15:36:47.351Z",
+      "last_seen": "2026-01-12T15:51:27.430Z",
+      "daily_snapshots": [
+        {
+          "date": "2026-01-12",
+          "first_scan": "2026-01-12T15:36:47.351Z",
+          "scans_today": 8,
+          "peak_score": 45,
+          "price_action": {
+            "vwap": 51.48,
+            "range_pct": 0,
+            "gap_from_prev_pct": null
+          },
+          "volume": {
+            "total": 0,
+            "avg_20d": null,
+            "ratio": null,
+            "vs_yesterday": null,
+            "first_hour": 0
+          },
+          "social": {
+            "x_mentions": 0,
+            "sentiment_score": 0,
+            "author_count": 0,
+            "author_direction": "NEUTRAL"
+          },
+          "scanner_data": {
+            "peak_zone": "MID_RANGE",
+            "peak_direction": "bearish",
+            "peak_signals": [
+              "Confluence zone (2 levels)",
+              "Extreme sentiment (contrarian)",
+              "🔥 Unusual PUT activity (11.0x vol/OI)",
+              "$12M net bullish premium",
+              "Heavy call bias (4.94 C/P)"
+            ],
+            "time_in_scanner_mins": 14
+          },
+          "technicals_eod": {
+            "rsi": 66.19,
+            "above_20ema": false,
+            "above_50sma": false,
+            "bb_position": 0.65
+          }
+        }
+      ]
+    },
+    "C": {
+      "first_seen": "2026-01-12T15:36:47.351Z",
+      "last_seen": "2026-01-12T15:51:27.430Z",
+      "daily_snapshots": [
+        {
+          "date": "2026-01-12",
+          "first_scan": "2026-01-12T15:36:47.351Z",
+          "scans_today": 8,
+          "peak_score": 35,
+          "price_action": {
+            "vwap": 121.25,
+            "range_pct": 0,
+            "gap_from_prev_pct": null
+          },
+          "volume": {
+            "total": 0,
+            "avg_20d": null,
+            "ratio": null,
+            "vs_yesterday": null,
+            "first_hour": 0
+          },
+          "social": {
+            "x_mentions": 0,
+            "sentiment_score": 0,
+            "author_count": 0,
+            "author_direction": "NEUTRAL"
+          },
+          "scanner_data": {
+            "peak_zone": "MID_RANGE",
+            "peak_direction": "bullish",
+            "peak_signals": [
+              "Extreme sentiment (contrarian)",
+              "🔥 Unusual CALL activity (6.7x vol/OI)",
+              "Heavy call bias (2.04 C/P)",
+              "Aligned with SPY bullish"
+            ],
+            "time_in_scanner_mins": 14
+          },
+          "technicals_eod": {
+            "rsi": 67.96,
+            "above_20ema": false,
+            "above_50sma": false,
+            "bb_position": 0.75
+          }
+        }
+      ]
+    },
+    "ETH": {
+      "first_seen": "2026-01-12T15:36:47.351Z",
+      "last_seen": "2026-01-12T15:51:27.430Z",
+      "daily_snapshots": [
+        {
+          "date": "2026-01-12",
+          "first_scan": "2026-01-12T15:36:47.351Z",
+          "scans_today": 8,
+          "peak_score": 35,
+          "price_action": {
+            "vwap": 29.23,
+            "range_pct": 0,
+            "gap_from_prev_pct": null
+          },
+          "volume": {
+            "total": 0,
+            "avg_20d": null,
+            "ratio": null,
+            "vs_yesterday": null,
+            "first_hour": 0
+          },
+          "social": {
+            "x_mentions": 0,
+            "sentiment_score": 0,
+            "author_count": 0,
+            "author_direction": "NEUTRAL"
+          },
+          "scanner_data": {
+            "peak_zone": "EXTENDED_LOW",
+            "peak_direction": "bearish",
+            "peak_signals": [
+              "💥 BREAKDOWN below put wall ($30) -1.8%",
+              "🔥 Unusual CALL activity (11.1x vol/OI)",
+              "Heavy call bias (2.62 C/P)",
+              "📌 AI Outlook highlight",
+              "⚠️ Against SPY bullish"
+            ],
+            "time_in_scanner_mins": 14
+          },
+          "technicals_eod": {
+            "rsi": 68.74,
+            "above_20ema": false,
+            "above_50sma": false,
+            "bb_position": 0.61
+          }
+        }
+      ]
+    },
+    "LULU": {
+      "first_seen": "2026-01-12T15:36:47.351Z",
+      "last_seen": "2026-01-12T15:51:27.430Z",
+      "daily_snapshots": [
+        {
+          "date": "2026-01-12",
+          "first_scan": "2026-01-12T15:36:47.351Z",
+          "scans_today": 8,
+          "peak_score": 35,
+          "price_action": {
+            "vwap": 203.89,
+            "range_pct": 0,
+            "gap_from_prev_pct": null
+          },
+          "volume": {
+            "total": 0,
+            "avg_20d": null,
+            "ratio": null,
+            "vs_yesterday": null,
+            "first_hour": 0
+          },
+          "social": {
+            "x_mentions": 0,
+            "sentiment_score": 0,
+            "author_count": 0,
+            "author_direction": "NEUTRAL"
+          },
+          "scanner_data": {
+            "peak_zone": "MID_RANGE",
+            "peak_direction": "bullish",
+            "peak_signals": [
+              "Extreme sentiment (contrarian)",
+              "🔥 Unusual CALL activity (22.6x vol/OI)",
+              "Heavy call bias (3.31 C/P)",
+              "Aligned with SPY bullish"
+            ],
+            "time_in_scanner_mins": 14
+          },
+          "technicals_eod": {
+            "rsi": 36.61,
+            "above_20ema": false,
+            "above_50sma": false,
+            "bb_position": 0.29
+          }
+        }
+      ]
+    },
+    "AMD": {
+      "first_seen": "2026-01-12T15:36:47.351Z",
+      "last_seen": "2026-01-12T15:51:27.430Z",
+      "daily_snapshots": [
+        {
+          "date": "2026-01-12",
+          "first_scan": "2026-01-12T15:36:47.351Z",
+          "scans_today": 8,
+          "peak_score": 15,
+          "price_action": {
+            "vwap": 204.89,
+            "range_pct": 0,
+            "gap_from_prev_pct": null
+          },
+          "volume": {
+            "total": 0,
+            "avg_20d": null,
+            "ratio": null,
+            "vs_yesterday": null,
+            "first_hour": 0
+          },
+          "social": {
+            "x_mentions": 0,
+            "sentiment_score": 0,
+            "author_count": 0,
+            "author_direction": "NEUTRAL"
+          },
+          "scanner_data": {
+            "peak_zone": "MID_RANGE",
+            "peak_direction": "bearish",
+            "peak_signals": [
+              "🔥 Unusual PUT activity (15.1x vol/OI)",
+              "$28M net bullish premium",
+              "Heavy call bias (2.44 C/P)",
+              "⚠️ Against SPY bullish"
+            ],
+            "time_in_scanner_mins": 14
+          },
+          "technicals_eod": {
+            "rsi": 52.3,
+            "above_20ema": false,
+            "above_50sma": false,
+            "bb_position": 0.16
+          }
+        }
+      ]
+    }
+  }
+}
