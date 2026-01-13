@@ -2084,10 +2084,11 @@ async function runScan() {
         console.log(`\n[Alerts] No high-conviction opportunities (${tradeable.length} tradeable, ${watchList.length} on watch)`);
     }
 
-    // Create paper trades for HIGH_CONVICTION and TRADEABLE tiers
-    const paperTradeEligible = [...highConviction, ...tradeable];
+    // Create paper trades for ALL tiers (HIGH_CONVICTION, TRADEABLE, and WATCH)
+    // This allows us to validate if filtering is correct by comparing performance
+    const paperTradeEligible = [...highConviction, ...tradeable, ...watchList];
     if (paperTradeEligible.length > 0) {
-        console.log(`\n[Paper Trades] Creating ${paperTradeEligible.length} paper trade(s)...`);
+        console.log(`\n[Paper Trades] Creating ${paperTradeEligible.length} paper trade(s) (${highConviction.length} HIGH, ${tradeable.length} TRADE, ${watchList.length} WATCH)...`);
         for (const analysis of paperTradeEligible) {
             try {
                 // Validate price exists before creating trade
