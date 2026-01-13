@@ -782,6 +782,7 @@
                 <button class="btn" onclick="loadData()">REFRESH</button>
                 <a href="scanner.html" class="btn">MARKET</a>
                 <a href="dashboard.html" class="btn">DASHBOARD</a>
+                <a href="analytics.html" class="btn">📊 ANALYTICS</a>
             </div>
         </div>
 
@@ -1159,6 +1160,25 @@
             document.getElementById('symbols-grid').innerHTML = html;
         }
 
+        function renderHistoryBadge(historyStatus) {
+            if (!historyStatus) return '';
+
+            const badgeMap = {
+                'NEW': { emoji: '🆕', text: 'NEW', color: '#3b82f6' },
+                'DAY_2': { emoji: '📈', text: 'Day 2', color: '#00d4aa' },
+                'STREAK': { emoji: '🔥', text: `${historyStatus.consecutive_days}d`, color: '#f97316' },
+                'RETURNED': { emoji: '↩️', text: 'Back', color: '#8b92a8' }
+            };
+
+            const badge = badgeMap[historyStatus.label];
+            if (!badge) return '';
+
+            const trendIndicator = historyStatus.trend === 'RISING' ? '↗' :
+                                 historyStatus.trend === 'FADING' ? '↘' : '';
+
+            return `<span class="history-badge" style="background: ${badge.color}20; color: ${badge.color}; border: 1px solid ${badge.color}40; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-left: 6px;">${badge.emoji} ${badge.text}${trendIndicator}</span>`;
+        }
+
         function renderSymbolCard(data) {
             if (data.error) {
                 return `
@@ -1232,7 +1252,7 @@
                 <div class="symbol-card ${tradeableClass} ${zoneClass}" onclick="openModal('${data.symbol}')">
                     <div class="symbol-header">
                         <div>
-                            <span class="symbol-name">${data.symbol}</span>
+                            <span class="symbol-name">${data.symbol}${renderHistoryBadge(data.history_status)}</span>
                             <span class="zone-badge ${zoneClass}">${formatZone(data.zone)}</span>
                             ${data.action ? `<span class="action-badge ${data.action}">${data.action}</span>` : ''}
                         </div>

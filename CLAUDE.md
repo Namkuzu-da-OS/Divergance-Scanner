@@ -228,6 +228,7 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 |------|---------|
 | `docs/RULES.md` | All trading rules |
 | `docs/STRATEGIES.md` | All strategies |
+| `docs/SCANNER_HISTORY.md` | Scanner history & Day 2 detection system |
 
 ### Commands
 | Command | Purpose |
@@ -489,7 +490,26 @@ End of day      → account_summary.json + archive
 
 ## Scanner Dashboard
 
-Open `scanner.html` in browser. Shows:
+### Zone Scanner (Primary)
+
+**URL:** [http://localhost:8080](http://localhost:8080) (`zone-scanner.html`)
+
+**Features:**
+- Real-time ticker cards with zones (BUY_ZONE, SELL_ZONE, PINNED, etc.)
+- **History badges:** 🆕 NEW, 📈 Day 2, 🔥 Streak (see [docs/SCANNER_HISTORY.md](docs/SCANNER_HISTORY.md))
+- Gamma walls visualization with position bars
+- RSI, trend, Bollinger Band position
+- Bloodhound confluence scores and signals
+- Filtering by zone type (tradeable, buy zones, sell zones, etc.)
+- Click any ticker for detailed modal view
+
+Auto-refreshes every 30 seconds from `data/dynamic_scan.json`.
+
+### Legacy Dashboard
+
+**URL:** `scanner.html` (older dashboard)
+
+Shows:
 - VIX regime banner with sizing advice
 - SPY/QQQ price vs gamma walls
 - Sentiment distribution

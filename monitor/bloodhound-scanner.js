@@ -15,6 +15,9 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 
+// Paper trade tracking for analytics
+const paperTradeManager = require('./paper-trade-manager');
+
 // Load config
 let CONFIG;
 try {
@@ -81,6 +84,81 @@ function mapSymbol(ticker) {
 // State
 const alertCooldowns = new Map();
 let marketContext = null;
+
+// ============================================
+// MARKET HOURS DETECTION
+// ============================================
+
+/**
+ * Check if market is currently open
+ * US Stock Market Hours (Eastern Time):
+ * - Pre-market: 4:00 AM - 9:30 AM
+ * - Regular: 9:30 AM - 4:00 PM
+ * - After-hours: 4:00 PM - 8:00 PM
+ * - Closed: Weekends
+ */
+function isMarketOpen() {
+    const now = new Date();
+
+    // Convert to Eastern Time (market timezone)
+    const etString = now.toLocaleString('en-US', { timeZone: 'America/New_York' });
+    const etDate = new Date(etString);
+
+    const day = etDate.getDay(); // 0 = Sunday, 6 = Saturday
+    const hours = etDate.getHours();
+    const minutes = etDate.getMinutes();
+    const timeInMinutes = hours * 60 + minutes;
+
+    // Closed on weekends
+    if (day === 0 || day === 6) {
+        return false;
+    }
+
+    // Regular market hours: 9:30 AM - 4:00 PM ET
+    const marketOpen = 9 * 60 + 30;  // 9:30 AM
+    const marketClose = 16 * 60;     // 4:00 PM
+
+    return timeInMinutes >= marketOpen && timeInMinutes < marketClose;
+}
+
+/**
+ * Get next market open time as a human-readable string
+ */
+function getNextMarketOpen() {
+    const now = new Date();
+    const etString = now.toLocaleString('en-US', { timeZone: 'America/New_York' });
+    const etDate = new Date(etString);
+
+    const day = etDate.getDay();
+    const hours = etDate.getHours();
+    const minutes = etDate.getMinutes();
+    const timeInMinutes = hours * 60 + minutes;
+
+    // If it's weekend
+    if (day === 0) { // Sunday
+        return 'Monday 9:30 AM ET';
+    }
+    if (day === 6) { // Saturday
+        return 'Monday 9:30 AM ET';
+    }
+
+    // If it's a weekday before market open
+    const marketOpen = 9 * 60 + 30;
+    if (timeInMinutes < marketOpen) {
+        return 'Today 9:30 AM ET';
+    }
+
+    // If it's after market close, next open is tomorrow (or Monday if Friday)
+    const marketClose = 16 * 60;
+    if (timeInMinutes >= marketClose) {
+        if (day === 5) { // Friday
+            return 'Monday 9:30 AM ET';
+        }
+        return 'Tomorrow 9:30 AM ET';
+    }
+
+    return 'Now (market is open)';
+}
 
 // ============================================
 // SIGNAL TRACKING
@@ -260,6 +338,272 @@ function getSignalStats() {
     const winRate = total > 0 ? ((wins / total) * 100).toFixed(1) : 'N/A';
 
     return { active, wins, losses, expired, winRate };
+}
+
+// ============================================
+// SCANNER HISTORY TRACKING
+// ============================================
+
+const HISTORY_FILE = path.join(__dirname, '..', 'data', 'scanner_history.json');
+const HISTORY_RETENTION_DAYS = 14;
+
+function loadScannerHistory() {
+    try {
+        if (!fs.existsSync(HISTORY_FILE)) {
+            return {
+                meta: {
+                    last_updated: new Date().toISOString(),
+                    retention_days: HISTORY_RETENTION_DAYS,
+                    total_symbols_tracked: 0
+                },
+                symbols: {}
+            };
+        }
+        return JSON.parse(fs.readFileSync(HISTORY_FILE, 'utf8'));
+    } catch (e) {
+        console.error('[History] Failed to load scanner_history.json:', e.message);
+        return {
+            meta: {
+                last_updated: new Date().toISOString(),
+                retention_days: HISTORY_RETENTION_DAYS,
+                total_symbols_tracked: 0
+            },
+            symbols: {}
+        };
+    }
+}
+
+function saveScannerHistory(history) {
+    try {
+        history.meta.last_updated = new Date().toISOString();
+        history.meta.total_symbols_tracked = Object.keys(history.symbols).length;
+        fs.writeFileSync(HISTORY_FILE, JSON.stringify(history, null, 2));
+    } catch (e) {
+        console.error('[History] Failed to save scanner_history.json:', e.message);
+    }
+}
+
+function updateScannerHistory(analyses, marketContext) {
+    const history = loadScannerHistory();
+    const now = new Date();
+    const today = now.toISOString().split('T')[0]; // YYYY-MM-DD
+
+    console.log(`\n[History] Updating scanner history for ${analyses.length} symbols...`);
+
+    for (const analysis of analyses) {
+        const symbol = analysis.symbol;
+
+        // Initialize symbol if not exists
+        if (!history.symbols[symbol]) {
+            history.symbols[symbol] = {
+                first_seen: now.toISOString(),
+                last_seen: now.toISOString(),
+                daily_snapshots: []
+            };
+        }
+
+        // Update last_seen
+        history.symbols[symbol].last_seen = now.toISOString();
+
+        // Find or create today's snapshot
+        let todaySnapshot = history.symbols[symbol].daily_snapshots.find(s => s.date === today);
+
+        if (!todaySnapshot) {
+            // First scan of the day - create new snapshot
+            todaySnapshot = {
+                date: today,
+                first_scan: now.toISOString(),
+                scans_today: 1,
+                peak_score: analysis.totalScore,
+
+                price_action: {
+                    open: analysis.technicals.price,
+                    high: analysis.technicals.price,
+                    low: analysis.technicals.price,
+                    close: analysis.technicals.price,
+                    vwap: analysis.levels.vwap || null,
+                    range_pct: 0,
+                    gap_from_prev_pct: null
+                },
+
+                volume: {
+                    total: 0,
+                    avg_20d: analysis.technicals.volumeAvg || null,
+                    ratio: analysis.technicals.volumeRatio || null,
+                    vs_yesterday: null,
+                    first_hour: 0
+                },
+
+                social: {
+                    x_mentions: analysis.sentiment?.totalMentions || 0,
+                    sentiment_score: analysis.sentiment?.sentimentScore || 0,
+                    author_count: analysis.sentiment?.authorCount || 0,
+                    author_direction: analysis.sentiment?.authorDirection || 'NEUTRAL'
+                },
+
+                scanner_data: {
+                    peak_zone: analysis.zone,
+                    peak_direction: analysis.direction,
+                    peak_signals: analysis.signals.slice(0, 5),
+                    time_in_scanner_mins: 0
+                },
+
+                technicals_eod: {
+                    rsi: analysis.technicals.rsi,
+                    above_20ema: analysis.technicals.above20EMA || false,
+                    above_50sma: analysis.technicals.above50SMA || false,
+                    bb_position: analysis.technicals.bbPosition || 'MIDDLE'
+                }
+            };
+
+            // Calculate gap from previous day if available
+            const yesterday = history.symbols[symbol].daily_snapshots[history.symbols[symbol].daily_snapshots.length - 1];
+            if (yesterday && yesterday.price_action.close) {
+                const gap = ((analysis.technicals.price - yesterday.price_action.close) / yesterday.price_action.close) * 100;
+                todaySnapshot.price_action.gap_from_prev_pct = parseFloat(gap.toFixed(2));
+            }
+
+            history.symbols[symbol].daily_snapshots.push(todaySnapshot);
+        } else {
+            // Update existing snapshot
+            todaySnapshot.scans_today++;
+
+            // Update peak score if higher
+            if (analysis.totalScore > todaySnapshot.peak_score) {
+                todaySnapshot.peak_score = analysis.totalScore;
+                todaySnapshot.scanner_data.peak_zone = analysis.zone;
+                todaySnapshot.scanner_data.peak_direction = analysis.direction;
+                todaySnapshot.scanner_data.peak_signals = analysis.signals.slice(0, 5);
+            }
+
+            // Update price action (track high/low/close)
+            if (analysis.technicals.price > todaySnapshot.price_action.high) {
+                todaySnapshot.price_action.high = analysis.technicals.price;
+            }
+            if (analysis.technicals.price < todaySnapshot.price_action.low) {
+                todaySnapshot.price_action.low = analysis.technicals.price;
+            }
+            todaySnapshot.price_action.close = analysis.technicals.price;
+            todaySnapshot.price_action.vwap = analysis.levels.vwap || todaySnapshot.price_action.vwap;
+
+            // Calculate range %
+            if (todaySnapshot.price_action.high > todaySnapshot.price_action.low) {
+                const rangePct = ((todaySnapshot.price_action.high - todaySnapshot.price_action.low) / todaySnapshot.price_action.low) * 100;
+                todaySnapshot.price_action.range_pct = parseFloat(rangePct.toFixed(2));
+            }
+
+            // Update volume (use latest available)
+            todaySnapshot.volume.ratio = analysis.technicals.volumeRatio || todaySnapshot.volume.ratio;
+            todaySnapshot.volume.avg_20d = analysis.technicals.volumeAvg || todaySnapshot.volume.avg_20d;
+
+            // Update social
+            todaySnapshot.social.x_mentions = Math.max(todaySnapshot.social.x_mentions, analysis.sentiment?.totalMentions || 0);
+            todaySnapshot.social.sentiment_score = analysis.sentiment?.sentimentScore || todaySnapshot.social.sentiment_score;
+            todaySnapshot.social.author_count = Math.max(todaySnapshot.social.author_count, analysis.sentiment?.authorCount || 0);
+            todaySnapshot.social.author_direction = analysis.sentiment?.authorDirection || todaySnapshot.social.author_direction;
+
+            // Update technicals (EOD = latest)
+            todaySnapshot.technicals_eod.rsi = analysis.technicals.rsi;
+            todaySnapshot.technicals_eod.above_20ema = analysis.technicals.above20EMA || false;
+            todaySnapshot.technicals_eod.above_50sma = analysis.technicals.above50SMA || false;
+            todaySnapshot.technicals_eod.bb_position = analysis.technicals.bbPosition || 'MIDDLE';
+
+            // Update time in scanner
+            const firstScan = new Date(todaySnapshot.first_scan);
+            todaySnapshot.scanner_data.time_in_scanner_mins = Math.floor((now - firstScan) / 60000);
+        }
+
+        // Calculate volume vs yesterday if we have yesterday's data
+        const yesterday = history.symbols[symbol].daily_snapshots[history.symbols[symbol].daily_snapshots.length - 2];
+        if (yesterday && yesterday.volume.total > 0 && todaySnapshot.volume.total > 0) {
+            todaySnapshot.volume.vs_yesterday = parseFloat((todaySnapshot.volume.total / yesterday.volume.total).toFixed(2));
+        }
+    }
+
+    // Prune old data (keep only HISTORY_RETENTION_DAYS)
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - HISTORY_RETENTION_DAYS);
+    const cutoffDateStr = cutoffDate.toISOString().split('T')[0];
+
+    for (const symbol in history.symbols) {
+        history.symbols[symbol].daily_snapshots = history.symbols[symbol].daily_snapshots.filter(
+            s => s.date >= cutoffDateStr
+        );
+
+        // Remove symbol if no snapshots left
+        if (history.symbols[symbol].daily_snapshots.length === 0) {
+            delete history.symbols[symbol];
+        }
+    }
+
+    saveScannerHistory(history);
+    console.log(`[History] Updated. Tracking ${Object.keys(history.symbols).length} symbols.`);
+}
+
+function computeHistoryStatus(symbol) {
+    const history = loadScannerHistory();
+
+    if (!history.symbols[symbol]) {
+        return null; // No history
+    }
+
+    const symbolData = history.symbols[symbol];
+    const snapshots = symbolData.daily_snapshots;
+
+    if (snapshots.length === 0) {
+        return null;
+    }
+
+    // Count consecutive days (no gaps)
+    const today = new Date().toISOString().split('T')[0];
+    let consecutiveDays = 0;
+    let checkDate = new Date(today);
+
+    for (let i = 0; i < 30; i++) { // Check back 30 days max
+        const dateStr = checkDate.toISOString().split('T')[0];
+        const hasSnapshot = snapshots.some(s => s.date === dateStr);
+
+        if (!hasSnapshot) {
+            break; // Gap found
+        }
+
+        consecutiveDays++;
+        checkDate.setDate(checkDate.getDate() - 1);
+    }
+
+    // Calculate days since first seen
+    const firstSeen = new Date(symbolData.first_seen);
+    const daysSinceFirst = Math.floor((new Date() - firstSeen) / (1000 * 60 * 60 * 24));
+
+    // Find peak score across all history
+    const peakScoreEver = Math.max(...snapshots.map(s => s.peak_score));
+    const todaySnapshot = snapshots.find(s => s.date === today);
+    const currentScore = todaySnapshot ? todaySnapshot.peak_score : 0;
+
+    // Determine trend
+    let trend = 'STABLE';
+    if (snapshots.length >= 2) {
+        const yesterday = snapshots[snapshots.length - 2];
+        const scoreDiff = currentScore - yesterday.peak_score;
+
+        if (scoreDiff >= 15) trend = 'RISING';
+        else if (scoreDiff <= -15) trend = 'FADING';
+    }
+
+    // Determine label
+    let label = 'NEW';
+    if (consecutiveDays === 2) label = 'DAY_2';
+    else if (consecutiveDays >= 3) label = 'STREAK';
+    else if (daysSinceFirst > consecutiveDays && consecutiveDays === 1) label = 'RETURNED';
+
+    return {
+        label,
+        consecutive_days: consecutiveDays,
+        days_since_first: daysSinceFirst,
+        trend,
+        peak_score_ever: peakScoreEver,
+        current_vs_peak: currentScore - peakScoreEver
+    };
 }
 
 // ============================================
@@ -1476,6 +1820,16 @@ async function runScan() {
         return;
     }
 
+    // Check market hours
+    if (!isMarketOpen()) {
+        const nextOpen = getNextMarketOpen();
+        console.log(`\n[${new Date().toISOString()}] 🌙 Market CLOSED - scanner idle`);
+        console.log(`   Next market open: ${nextOpen}`);
+        // Update next scan time
+        scannerState.nextScanAt = new Date(Date.now() + SETTINGS.scanIntervalMs).toISOString();
+        return;
+    }
+
     // Track scan state
     const scanStartTime = Date.now();
     scannerState.isScanning = true;
@@ -1565,6 +1919,9 @@ async function runScan() {
     // 4. Sort by confluence score
     analyses.sort((a, b) => b.totalScore - a.totalScore);
 
+    // 4.5. Update scanner history (Stage 1: Data Capture)
+    updateScannerHistory(analyses, marketContext);
+
     // 5. Log results
     console.log(`\n[Results] Analyzed ${analyses.length} symbols:`);
     analyses.forEach(a => {
@@ -1582,7 +1939,8 @@ async function runScan() {
 
     const tieredAnalyses = analyses.map(a => ({
         ...a,
-        tier: getAlertTier(a, marketContext)
+        tier: getAlertTier(a, marketContext),
+        history_status: computeHistoryStatus(a.symbol)
     }));
 
     const highConviction = tieredAnalyses.filter(a =>
@@ -1620,6 +1978,30 @@ async function runScan() {
             const message = formatAlert(analysis);
             await sendTelegram(message);
             alertCooldowns.set(analysis.symbol, Date.now());
+
+            // Create paper trade for backtesting (analytics)
+            try {
+                // Validate price exists before creating trade
+                if (!analysis.price) {
+                    console.error(`[Paper Trade] No price for ${analysis.symbol}, skipping`);
+                } else {
+                    paperTradeManager.createPaperTrade(
+                        'HIGH_CONVICTION',
+                        analysis.symbol,
+                        analysis.price,
+                        analysis.direction || 'neutral',  // Don't fallback to zone
+                        {
+                            score: analysis.totalScore,
+                            zone: analysis.zone,
+                            signals: analysis.signals || [],
+                            vix: marketContext?.vix,
+                            vix_regime: marketContext?.vixRegime
+                        }
+                    );
+                }
+            } catch (e) {
+                console.error(`[Paper Trade] Failed to create trade for ${analysis.symbol}:`, e.message);
+            }
         }
     } else {
         console.log(`\n[Alerts] No high-conviction opportunities (${watchList.length} on watch list)`);
@@ -1668,7 +2050,8 @@ async function runScan() {
             signals: a.signals,
             atWall: a.atWall,
             wallActivity: a.wallActivity,
-            sources: symbols.find(s => s.symbol === a.symbol)?.sources || []
+            sources: symbols.find(s => s.symbol === a.symbol)?.sources || [],
+            history_status: a.history_status
         })),
         alertsSent: highConviction.length,
         watchListCount: watchList.length
@@ -1773,7 +2156,8 @@ async function runScan() {
                 direction: a.direction,
                 signals: a.signals,
                 isWatchlist: symbols.find(s => s.symbol === a.symbol)?.sources?.includes('watchlist') || false
-            }
+            },
+            history_status: computeHistoryStatus(a.symbol)
         }))
     };
 
@@ -1802,6 +2186,13 @@ async function runScan() {
             watchListCount: watchList.length
         }, null, 2)
     );
+
+    // Update paper trades (price tracking and auto-close)
+    try {
+        await paperTradeManager.updatePaperTrades();
+    } catch (e) {
+        console.error('[Paper Trade] Update failed:', e.message);
+    }
 
     // Update scanner state
     scannerState.isScanning = false;

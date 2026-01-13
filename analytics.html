@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wingman Analytics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #0a0e1a;
+            color: #e5e7eb;
+            padding: 16px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #2a3641;
+            padding-bottom: 16px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #00d4aa;
+        }
+
+        .back-btn {
+            padding: 8px 14px;
+            background: transparent;
+            border: 1px solid #00d4aa;
+            color: #00d4aa;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s;
+            margin-left: 8px;
+        }
+
+        .back-btn:hover {
+            background: #00d4aa;
+            color: #0a0e1a;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .card-title {
+            font-size: 11px;
+            color: #8b92a8;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .card-subtitle {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .positive {
+            color: #00d4aa;
+        }
+
+        .negative {
+            color: #ff6b6b;
+        }
+
+        .neutral {
+            color: #8b92a8;
+        }
+
+        .section {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #e5e7eb;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 11px;
+            color: #8b92a8;
+            border-bottom: 1px solid #2a3641;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        tbody td {
+            padding: 12px;
+            border-bottom: 1px solid #2a3641;
+            font-size: 13px;
+        }
+
+        tbody tr {
+            background: #0f1428;
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: #1a2332;
+        }
+
+        .signal-type {
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .metric-badge.win {
+            background: rgba(0, 212, 170, 0.2);
+            color: #00d4aa;
+        }
+
+        .metric-badge.loss {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+        }
+
+        .metric-badge.breakeven {
+            background: rgba(139, 146, 168, 0.2);
+            color: #8b92a8;
+        }
+
+        .insights {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .insight-item {
+            padding: 12px;
+            border-radius: 6px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: #0f1428;
+            border: 1px solid #2a3641;
+        }
+
+        .insight-item.keep {
+            border-left: 3px solid #00d4aa;
+        }
+
+        .insight-item.tune {
+            border-left: 3px solid #ffc107;
+        }
+
+        .insight-item.filter {
+            border-left: 3px solid #ff6b6b;
+        }
+
+        .insight-icon {
+            font-size: 18px;
+        }
+
+        .insight-text {
+            flex: 1;
+        }
+
+        .insight-label {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .insight-detail {
+            font-size: 12px;
+            color: #8b92a8;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #8b92a8;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .empty-state-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #e5e7eb;
+        }
+
+        .empty-state-text {
+            font-size: 13px;
+            max-width: 500px;
+            margin: 0 auto;
+            color: #8b92a8;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+            font-size: 13px;
+            color: #8b92a8;
+        }
+
+        .trades-list {
+            margin-top: 12px;
+        }
+
+        .trade-item {
+            background: #0f1428;
+            border: 1px solid #2a3641;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 8px;
+            display: grid;
+            grid-template-columns: 80px 1fr 120px 100px;
+            gap: 12px;
+            align-items: center;
+            transition: border-color 0.2s;
+        }
+
+        .trade-item:hover {
+            border-color: #3a4a61;
+        }
+
+        .trade-symbol {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .trade-details {
+            font-size: 12px;
+            color: #8b92a8;
+        }
+
+        .trade-pnl {
+            font-size: 16px;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .trade-status {
+            text-align: center;
+        }
+
+        .refresh-btn {
+            padding: 8px 14px;
+            background: transparent;
+            border: 1px solid #00d4aa;
+            color: #00d4aa;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background: #00d4aa;
+            color: #0a0e1a;
+        }
+
+        .last-updated {
+            font-size: 11px;
+            color: #8b92a8;
+            margin-left: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h1>📊 Analytics Dashboard</h1>
+                <p style="color: #8b92a8; margin-top: 4px; font-size: 12px;">
+                    Signal performance tracking and backtesting
+                </p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="last-updated" id="lastUpdated"></span>
+                <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+                <button class="back-btn" onclick="window.location.href='http://localhost:8080'">
+                    ← Scanner
+                </button>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-cards" id="summaryCards">
+            <div class="card">
+                <div class="card-title">Total Trades</div>
+                <div class="card-value" id="totalTrades">-</div>
+                <div class="card-subtitle">
+                    <span id="openPositions">-</span> open, <span id="closedPositions">-</span> closed
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">Overall Win Rate</div>
+                <div class="card-value" id="overallWinRate">-%</div>
+                <div class="card-subtitle">
+                    <span id="winCount">-</span> wins, <span id="lossCount">-</span> losses
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">Profit Factor</div>
+                <div class="card-value" id="profitFactor">-</div>
+                <div class="card-subtitle">Average: <span id="avgPnl">-%</span></div>
+            </div>
+            <div class="card">
+                <div class="card-title">Best Signal</div>
+                <div class="card-value" id="bestSignal">-</div>
+                <div class="card-subtitle"><span id="bestSignalWinRate">-%</span> win rate</div>
+            </div>
+        </div>
+
+        <!-- Performance by Signal Type -->
+        <div class="section">
+            <h2 class="section-title">Performance by Signal Type</h2>
+            <div id="signalStatsContainer">
+                <div class="loading">Loading signal statistics...</div>
+            </div>
+        </div>
+
+        <!-- Signal Quality Insights -->
+        <div class="section">
+            <h2 class="section-title">Signal Quality Insights</h2>
+            <div class="insights" id="insightsContainer">
+                <div class="loading">Analyzing signal quality...</div>
+            </div>
+        </div>
+
+        <!-- Recent Trades -->
+        <div class="section">
+            <h2 class="section-title">Recent Closed Trades (Last 20)</h2>
+            <div class="trades-list" id="recentTrades">
+                <div class="loading">Loading recent trades...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let paperTrades = null;
+
+        async function loadData() {
+            try {
+                const response = await fetch('/data/paper_trades.json?_=' + Date.now());
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                paperTrades = await response.json();
+
+                // Validate JSON structure
+                if (!paperTrades || !paperTrades.trades || !paperTrades.meta) {
+                    throw new Error('Invalid data structure');
+                }
+
+                updateSummary();
+                updateSignalStats();
+                updateInsights();
+                updateRecentTrades();
+
+                document.getElementById('lastUpdated').textContent =
+                    'Updated: ' + new Date().toLocaleTimeString();
+            } catch (e) {
+                console.error('Failed to load data:', e);
+                showError(e.message);
+            }
+        }
+
+        function updateSummary() {
+            const closed = paperTrades.trades.filter(t => t.status === 'closed');
+            const wins = closed.filter(t => t.outcome.result === 'WIN').length;
+            const losses = closed.filter(t => t.outcome.result === 'LOSS').length;
+            const winRate = closed.length > 0 ? ((wins / closed.length) * 100).toFixed(1) : 0;
+
+            const totalPnl = closed.reduce((sum, t) => sum + (t.outcome.pnl_pct || 0), 0);
+            const avgPnl = closed.length > 0 ? (totalPnl / closed.length).toFixed(2) : 0;
+
+            const winPnl = closed.filter(t => t.outcome.result === 'WIN')
+                .reduce((sum, t) => sum + (t.outcome.pnl_pct || 0), 0);
+            const lossPnl = Math.abs(closed.filter(t => t.outcome.result === 'LOSS')
+                .reduce((sum, t) => sum + (t.outcome.pnl_pct || 0), 0));
+            const profitFactor = lossPnl > 0 ? (winPnl / lossPnl).toFixed(2) : wins > 0 ? 'N/A' : '0.00';
+
+            document.getElementById('totalTrades').textContent = paperTrades.meta.total_trades;
+            document.getElementById('openPositions').textContent = paperTrades.meta.open_positions;
+            document.getElementById('closedPositions').textContent = paperTrades.meta.closed_positions;
+            document.getElementById('overallWinRate').textContent = winRate + '%';
+            document.getElementById('overallWinRate').className = 'card-value ' +
+                (winRate >= 60 ? 'positive' : winRate >= 50 ? 'neutral' : 'negative');
+            document.getElementById('winCount').textContent = wins;
+            document.getElementById('lossCount').textContent = losses;
+            document.getElementById('profitFactor').textContent = profitFactor;
+            document.getElementById('profitFactor').className = 'card-value ' +
+                (profitFactor >= 1.5 ? 'positive' : profitFactor >= 1.0 ? 'neutral' : 'negative');
+            document.getElementById('avgPnl').textContent = avgPnl + '%';
+
+            // Find best signal
+            const stats = calculateStatsBySignal();
+            let bestSignal = '-';
+            let bestWinRate = 0;
+            for (const [signal, data] of Object.entries(stats)) {
+                const wr = parseFloat(data.win_rate);
+                if (wr > bestWinRate) {
+                    bestWinRate = wr;
+                    bestSignal = signal;
+                }
+            }
+            document.getElementById('bestSignal').textContent = bestSignal;
+            document.getElementById('bestSignalWinRate').textContent = bestWinRate.toFixed(1);
+        }
+
+        function calculateStatsBySignal() {
+            const closed = paperTrades.trades.filter(t => t.status === 'closed');
+            const stats = {};
+
+            for (const trade of closed) {
+                const signal = trade.signal_type;
+                if (!stats[signal]) {
+                    stats[signal] = {
+                        total: 0,
+                        wins: 0,
+                        losses: 0,
+                        breakevens: 0,
+                        totalPnl: 0,
+                        winPnl: 0,
+                        lossPnl: 0
+                    };
+                }
+
+                stats[signal].total++;
+                stats[signal].totalPnl += trade.outcome.pnl_pct || 0;
+
+                if (trade.outcome.result === 'WIN') {
+                    stats[signal].wins++;
+                    stats[signal].winPnl += (trade.outcome.pnl_pct || 0);
+                } else if (trade.outcome.result === 'LOSS') {
+                    stats[signal].losses++;
+                    stats[signal].lossPnl += Math.abs(trade.outcome.pnl_pct || 0);
+                } else {
+                    stats[signal].breakevens++;
+                }
+            }
+
+            // Calculate metrics
+            for (const signal in stats) {
+                const s = stats[signal];
+                s.win_rate = ((s.wins / s.total) * 100).toFixed(1);
+                s.avg_win = s.wins > 0 ? (s.winPnl / s.wins).toFixed(2) : '0.00';
+                s.avg_loss = s.losses > 0 ? (-s.lossPnl / s.losses).toFixed(2) : '0.00';
+                s.profit_factor = s.lossPnl > 0 ? (s.winPnl / s.lossPnl).toFixed(2) : s.wins > 0 ? 'N/A' : '0.00';
+            }
+
+            return stats;
+        }
+
+        function updateSignalStats() {
+            const stats = calculateStatsBySignal();
+            const container = document.getElementById('signalStatsContainer');
+
+            if (Object.keys(stats).length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📊</div>
+                        <div class="empty-state-title">No closed trades yet</div>
+                        <div class="empty-state-text">
+                            Paper trades will automatically close after 72 hours or when stop/target is hit.
+                            Check back soon to see signal performance data.
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            const sorted = Object.entries(stats).sort((a, b) => parseFloat(b[1].win_rate) - parseFloat(a[1].win_rate));
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Signal Type</th>
+                            <th>Trades</th>
+                            <th>Win Rate</th>
+                            <th>Avg Win</th>
+                            <th>Avg Loss</th>
+                            <th>Profit Factor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            for (const [signal, data] of sorted) {
+                const winRateClass = parseFloat(data.win_rate) >= 60 ? 'positive' :
+                                   parseFloat(data.win_rate) >= 50 ? 'neutral' : 'negative';
+                const pfClass = parseFloat(data.profit_factor) >= 1.5 ? 'positive' :
+                              parseFloat(data.profit_factor) >= 1.0 ? 'neutral' : 'negative';
+
+                html += `
+                    <tr>
+                        <td class="signal-type">${signal.replace(/_/g, ' ')}</td>
+                        <td>${data.total}</td>
+                        <td class="${winRateClass}">${data.win_rate}%</td>
+                        <td class="positive">+${data.avg_win}%</td>
+                        <td class="negative">${data.avg_loss}%</td>
+                        <td class="${pfClass}">${data.profit_factor}</td>
+                    </tr>
+                `;
+            }
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function updateInsights() {
+            const stats = calculateStatsBySignal();
+            const container = document.getElementById('insightsContainer');
+
+            if (Object.keys(stats).length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-text">
+                            Insights will be generated once you have closed trades.
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+
+            for (const [signal, data] of Object.entries(stats)) {
+                const winRate = parseFloat(data.win_rate);
+                const profitFactor = parseFloat(data.profit_factor);
+
+                if (winRate >= 60 && profitFactor >= 1.5) {
+                    html += `
+                        <div class="insight-item keep">
+                            <div class="insight-icon">✅</div>
+                            <div class="insight-text">
+                                <div class="insight-label">KEEP: ${signal.replace(/_/g, ' ')}</div>
+                                <div class="insight-detail">
+                                    ${winRate}% win rate, ${profitFactor} profit factor - Strong performer
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else if (winRate >= 50 && winRate < 60) {
+                    html += `
+                        <div class="insight-item tune">
+                            <div class="insight-icon">⚠️</div>
+                            <div class="insight-text">
+                                <div class="insight-label">TUNE: ${signal.replace(/_/g, ' ')}</div>
+                                <div class="insight-detail">
+                                    ${winRate}% win rate - Needs tighter filters or higher score threshold
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="insight-item filter">
+                            <div class="insight-icon">❌</div>
+                            <div class="insight-text">
+                                <div class="insight-label">FILTER OUT: ${signal.replace(/_/g, ' ')}</div>
+                                <div class="insight-detail">
+                                    ${winRate}% win rate, ${profitFactor} profit factor - Poor performance
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            container.innerHTML = html || '<div class="empty-state-text">No insights available yet.</div>';
+        }
+
+        function updateRecentTrades() {
+            const closed = paperTrades.trades
+                .filter(t => t.status === 'closed')
+                .sort((a, b) => new Date(b.exit.timestamp) - new Date(a.exit.timestamp))
+                .slice(0, 20);
+
+            const container = document.getElementById('recentTrades');
+
+            if (closed.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📝</div>
+                        <div class="empty-state-title">No closed trades yet</div>
+                        <div class="empty-state-text">
+                            Trades will appear here once they close (72h time stop or stop/target hit).
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            for (const trade of closed) {
+                const pnlClass = trade.outcome.result === 'WIN' ? 'positive' :
+                               trade.outcome.result === 'LOSS' ? 'negative' : 'neutral';
+                const badgeClass = trade.outcome.result.toLowerCase();
+
+                html += `
+                    <div class="trade-item">
+                        <div class="trade-symbol">${trade.symbol}</div>
+                        <div class="trade-details">
+                            ${trade.signal_type.replace(/_/g, ' ')} •
+                            ${trade.direction} •
+                            Score: ${trade.entry.score || '-'}/100<br>
+                            Entry: $${trade.entry.price.toFixed(2)} →
+                            Exit: $${trade.exit.price.toFixed(2)} (${trade.exit.reason.replace(/_/g, ' ')})
+                        </div>
+                        <div class="trade-pnl ${pnlClass}">
+                            ${trade.outcome.pnl_pct > 0 ? '+' : ''}${trade.outcome.pnl_pct.toFixed(2)}%
+                        </div>
+                        <div class="trade-status">
+                            <span class="metric-badge ${badgeClass}">${trade.outcome.result}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = html;
+        }
+
+        function showError(errorMsg) {
+            const errorHtml = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">⚠️</div>
+                    <div class="empty-state-title">Failed to load data</div>
+                    <div class="empty-state-text">
+                        ${errorMsg || 'Make sure the Bloodhound scanner is running and try refreshing the page.'}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('summaryCards').innerHTML = `<div class="card" style="grid-column: 1 / -1;">${errorHtml}</div>`;
+            document.getElementById('signalStatsContainer').innerHTML = errorHtml;
+            document.getElementById('insightsContainer').innerHTML = errorHtml;
+            document.getElementById('recentTrades').innerHTML = errorHtml;
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadData, 30000);
+
+        // Load on page load
+        loadData();
+    </script>
+</body>
+</html>

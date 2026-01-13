@@ -1,0 +1,1242 @@
+{
+  "timestamp": "2026-01-13T00:23:52.467Z",
+  "scanType": "bloodhound",
+  "sources": {
+    "highConviction": true,
+    "trending": true,
+    "authorConsensus": true,
+    "aiOutlook": true
+  },
+  "marketContext": {
+    "vix": 15.12,
+    "vixRegime": "normal",
+    "spyTrend": "bullish",
+    "spyPrice": 694.3,
+    "riskAppetite": "moderate",
+    "regime": "risk_on",
+    "positionSizeModifier": 1,
+    "spyLevels": {
+      "call_wall": {
+        "price": 695,
+        "gex": 7950519539.013239,
+        "oi": 16051,
+        "strength": 1
+      },
+      "put_wall": {
+        "price": 695,
+        "gex": -4953024192.295323,
+        "oi": 8851,
+        "strength": 1
+      },
+      "gamma_flip": {
+        "price": 694.23,
+        "above_underlying": false
+      },
+      "max_pain": {
+        "price": 693,
+        "expiration": "2026-01-12",
+        "total_oi_value": 16740300,
+        "dte": 0
+      },
+      "vwap": 693.15,
+      "vwap_bands": {
+        "upper_1": 694.59,
+        "lower_1": 691.71,
+        "upper_2": 696.02,
+        "lower_2": 690.27
+      },
+      "high_oi_strikes": [
+        {
+          "price": 700,
+          "call_oi": 28243,
+          "put_oi": 231,
+          "total_oi": 28474,
+          "bias": "call"
+        },
+        {
+          "price": 693,
+          "call_oi": 10124,
+          "put_oi": 15982,
+          "total_oi": 26106,
+          "bias": "put"
+        },
+        {
+          "price": 695,
+          "call_oi": 16051,
+          "put_oi": 8851,
+          "total_oi": 24902,
+          "bias": "call"
+        }
+      ],
+      "expected_move": {
+        "value": 0.23,
+        "upper": 695.39,
+        "lower": 694.93,
+        "straddle_price": 0.27,
+        "atm_strike": 695,
+        "pct_move": 0.03
+      },
+      "weekly_pivots": {
+        "pivot": 692.29,
+        "r1": 697.09,
+        "r2": 700.11,
+        "s1": 689.27,
+        "s2": 684.47,
+        "week_high": 695.31,
+        "week_low": 687.49
+      },
+      "developing_pivots": {
+        "pivot": null,
+        "r1": null,
+        "r2": null,
+        "s1": null,
+        "s2": null,
+        "week_high": null,
+        "week_low": null
+      },
+      "sma_200": 630.55
+    },
+    "qqqLevels": {
+      "call_wall": {
+        "price": 627,
+        "gex": 1396806958.2378037,
+        "oi": 6564,
+        "strength": 1
+      },
+      "put_wall": {
+        "price": 627,
+        "gex": -1882472877.0419757,
+        "oi": 5202,
+        "strength": 1
+      },
+      "gamma_flip": {
+        "price": 628,
+        "above_underlying": true
+      },
+      "max_pain": {
+        "price": 625,
+        "expiration": "2026-01-12",
+        "total_oi_value": 9432600,
+        "dte": 0
+      },
+      "vwap": 624.85,
+      "vwap_bands": {
+        "upper_1": 627.17,
+        "lower_1": 622.53,
+        "upper_2": 629.48,
+        "lower_2": 620.21
+      },
+      "high_oi_strikes": [
+        {
+          "price": 625,
+          "call_oi": 8162,
+          "put_oi": 9157,
+          "total_oi": 17319,
+          "bias": "put"
+        },
+        {
+          "price": 630,
+          "call_oi": 14598,
+          "put_oi": 348,
+          "total_oi": 14946,
+          "bias": "call"
+        },
+        {
+          "price": 624,
+          "call_oi": 1977,
+          "put_oi": 12918,
+          "total_oi": 14895,
+          "bias": "put"
+        }
+      ],
+      "expected_move": {
+        "value": 0.36,
+        "upper": 627.53,
+        "lower": 626.81,
+        "straddle_price": 0.43,
+        "atm_strike": 627,
+        "pct_move": 0.06
+      },
+      "weekly_pivots": {
+        "pivot": 624.13,
+        "r1": 630.46,
+        "r2": 634.27,
+        "s1": 620.32,
+        "s2": 613.99,
+        "week_high": 627.94,
+        "week_low": 617.8
+      },
+      "developing_pivots": {
+        "pivot": null,
+        "r1": null,
+        "r2": null,
+        "s1": null,
+        "s2": null,
+        "week_high": null,
+        "week_low": null
+      },
+      "sma_200": 561.93
+    }
+  },
+  "scanCount": 18,
+  "tradeableCount": 2,
+  "results": [
+    {
+      "symbol": "SPY",
+      "price": 695.16,
+      "zone": "OVERBOUGHT",
+      "tradeable": false,
+      "action": null,
+      "reasoning": [
+        "RSI 72.5 > 70 (overbought)"
+      ],
+      "levels": {
+        "putWall": 695,
+        "callWall": 695,
+        "maxPain": 693,
+        "gammaFlip": 694.23,
+        "vwap": 693.15
+      },
+      "distances": {
+        "toPutWall": 0.02301628402094024,
+        "toCallWall": -0.02301628402094024,
+        "rangeSize": 0,
+        "positionInRange": null
+      },
+      "technicals": {
+        "rsi": 72.49,
+        "trend": "strong_uptrend",
+        "momentum5d": 1.6,
+        "momentum20d": 0.95,
+        "bbPosition": 0.89,
+        "volumeSignal": "normal"
+      },
+      "timestamp": "2026-01-13T00:23:52.467Z",
+      "sourceInfo": {
+        "sources": [
+          "watchlist",
+          "x_trending",
+          "x_trending",
+          "author_consensus",
+          "market_data"
+        ],
+        "score": 100,
+        "direction": "pinned",
+        "signals": [
+          "RSI overbought (72.5)",
+          "📍 PINNED between walls ($695-$695)",
+          "At VWAP ($693.15)",
+          "Confluence zone (6 levels)",
+          "PUT wall ACTIVE (53.4x vol/OI)",
+          "Extreme sentiment (contrarian)",
+          "👥 7 authors BULLISH (3 established)",
+          "🔥 Unusual CALL activity (60.5x vol/OI)",
+          "$215M net bullish premium",
+          "Market: SPY bullish, VIX 15.12"
+        ],
+        "isWatchlist": true
+      },
+      "history_status": {
+        "label": "DAY_2",
+        "consecutive_days": 2,
+        "days_since_first": 0,
+        "trend": "STABLE",
+        "peak_score_ever": 100,
+        "current_vs_peak": 0
+      }
+    },
+    {
+      "symbol": "NVDA",
+      "price": 184.94,
+      "zone": "MID_RANGE",
+      "tradeable": false,
+      "action": null,
+      "reasoning": [
+        "Mid-range (49% between walls)",
+        "Wait for price to reach support or resistance"
+      ],
+      "levels": {
+        "putWall": 180,
+        "callWall": 190,
+        "maxPain": 184,
+        "gammaFlip": 184.54,
+        "vwap": 185.1
+      },
+      "distances": {
+        "toPutWall": 2.6711365848383246,
+        "toCallWall": 2.7360224937817685,
+        "rangeSize": 5.407159078620094,
+        "positionInRange": 0.4939999999999998
+      },
+      "technicals": {
+        "rsi": 66.91,
+        "trend": "uptrend",
+        "momentum5d": -2.11,
+        "momentum20d": 0.59,
+        "bbPosition": 0.55,
+        "volumeSignal": "normal"
+      },
+      "timestamp": "2026-01-13T00:23:52.468Z",
+      "sourceInfo": {
+        "sources": [
+          "watchlist",
+          "x_trending",
+          "ai_outlook",
+          "author_consensus"
+        ],
+        "score": 100,
+        "direction": "bullish",
+        "signals": [
+          "VELOCITY +25 pts",
+          "At VWAP ($185.1)",
+          "Confluence zone (4 levels)",
+          "👥 5 authors BULLISH (3 established)",
+          "🔥 Unusual PUT activity (6.4x vol/OI)",
+          "$171M net bullish premium",
+          "📌 AI Outlook highlight",
+          "Trending on X (8 mentions)",
+          "Aligned with SPY bullish",
+          "Swing BULLISH, intraday NEUTRAL"
+        ],
+        "isWatchlist": true
+      },
+      "history_status": {
+        "label": "DAY_2",
+        "consecutive_days": 2,
+        "days_since_first": 0,
+        "trend": "STABLE",
+        "peak_score_ever": 100,
+        "current_vs_peak": 0
+      }
+    },
+    {
+      "symbol": "QQQ",
+      "price": 627.17,
+      "zone": "PINNED",
+      "tradeable": false,
+      "action": null,
+      "reasoning": [
+        "Pinned between walls ($627 - $627)"
+      ],
+      "levels": {
+        "putWall": 627,
+        "callWall": 627,
+        "maxPain": 625,
+        "gammaFlip": 628,
+        "vwap": 624.85
+      },
+      "distances": {
+        "toPutWall": 0.027105888355622734,
+        "toCallWall": -0.027105888355622734,
+        "rangeSize": 0,
+        "positionInRange": null
+      },
+      "technicals": {
+        "rsi": 68.96,
+        "trend": "strong_uptrend",
+        "momentum5d": 2.21,
+        "momentum20d": -0.15,
+        "bbPosition": 0.84,
+        "volumeSignal": "normal"
+      },
+      "timestamp": "2026-01-13T00:23:52.470Z",
+      "sourceInfo": {
+        "sources": [
+          "watchlist",
+          "author_consensus",
+          "market_data"
+        ],
+        "score": 100,
+        "direction": "pinned",
+        "signals": [
+          "📍 PINNED between walls ($627-$627)",
+          "Confluence zone (4 levels)",
+          "PUT wall ACTIVE (67.9x vol/OI)",
+          "👥 3 authors BULLISH (1 established)",
+          "🔥 Unusual PUT activity (80.0x vol/OI)",
+          "$86M net bullish premium",
+          "Market: SPY bullish, VIX 15.12"
+        ],
+        "isWatchlist": true
+      },
+      "history_status": {
+        "label": "DAY_2",
+        "consecutive_days": 2,
+        "days_since_first": 0,
+        "trend": "STABLE",
+        "peak_score_ever": 100,
+        "current_vs_peak": 0
+      }
+    },
+    {
+      "symbol": "AAPL",
+      "price": 260.25,
+      "zone": "BUY_ZONE",
+      "tradeable": true,
+      "action": "BUY",
+      "reasoning": [
+        "RSI 21.9 < 30 (oversold)",
+        "At put wall support + oversold = Strong buy",
+        "Trend aligned: strong_downtrend"
+      ],
+      "levels": {
+        "putWall": 260,
+        "callWall": 260,
+        "maxPain": 250,
+        "gammaFlip": 224.89,
+        "vwap": 258.68
+      },
+      "distances": {
+        "toPutWall": 0.09606147934678194,
+        "toCallWall": -0.09606147934678194,
+        "rangeSize": 0,
+        "positionInRange": null
+      },
+      "technicals": {
+        "rsi": 21.94,
+        "trend": "strong_downtrend",
+        "momentum5d": -4.3,
+        "momentum20d": -6.96,
+        "bbPosition": 0.01,
+        "volumeSignal": "normal"
+      },
+      "timestamp": "2026-01-13T00:23:52.471Z",
+      "sourceInfo": {
+        "sources": [
+          "watchlist"
+        ],
+        "score": 100,
+        "direction": "pinned",
+        "signals": [
+          "RSI oversold (21.9)",
+          "At lower Bollinger Band",
+          "📍 PINNED between walls ($260-$260)",
+          "Confluence zone (4 levels)",
+          "⚠️ PUT wall dormant (stale OI)",
+          "🔥 Unusual PUT activity (19.0x vol/OI)",
+          "$34M net bearish premium",
+          "Heavy call bias (2.08 C/P)",
+          "Market: SPY bullish, VIX 15.12"
+        ],
+        "isWatchlist": true
+      },
+      "history_status": {
+        "label": "DAY_2",
+        "consecutive_days": 2,
+        "days_since_first": 0,
+        "trend": "STABLE",
+        "peak_score_ever": 100,
+        "current_vs_peak": 0
+      }
+    },
+    {
+      "symbol": "GOOGL",
+      "price": 331.86,
+      "zone": "OVERBOUGHT",
+      "tradeable": false,
+      "action": null,
+      "reasoning": [
+        "RSI 88.5 > 70 (overbought)"
+      ],
+      "levels": {
+        "putWall": 330,
+        "callWall": 330,
+        "maxPain": 310,
+        "gammaFlip": 319.55,
+        "vwap": 329.01
+      },
+      "distances": {
+        "toPutWall": 0.5604773097089175,
+        "toCallWall": -0.5604773097089175,
+        "rangeSize": 0,
+        "positionInRange": null
+      },
+      "technicals": {
+        "rsi": 88.52,
+        "trend": "strong_uptrend",
+        "momentum5d": 4.26,
+        "momentum20d": 2.61,
+        "bbPosition": 1.06,
+        "volumeSignal": "normal"
+      },
+      "timestamp": "2026-01-13T00:23:52.472Z",
+      "sourceInfo": {
+        "sources": [
+          "market_data"
+        ],
+        "score": 100,
+        "direction": "bullish",
+        "signals": [
+          "RSI overbought (88.5)",
+          "At upper Bollinger Band",
+          "🚀 BREAKOUT above call wall ($330) +0.6%",
+          "Above gamma flip ($319.55)",
+          "🔥 Unusual PUT activity (22.2x vol/OI)",
+          "$124M net bullish premium",
+          "Heavy call bias (2.62 C/P)",
+          "Aligned with SPY bullish",
+          "Swing BULLISH, intraday NEUTRAL"
+        ],
+        "isWatchlist": false
+      },
+      "history_status": {
+        "label": "DAY_2",
+        "consecutive_days": 2,
+        "days_since_first": 0,
+        "trend": "STABLE",
+        "peak_score_ever": 100,
+        "current_vs_peak": 0
+      }
+    },
+    {
+      "symbol": "IREN",
+      "price": 50.33,
+      "zone": "EXTENDED_HIGH",
+      "tradeable": false,
+      "action": null,
+      "reasoning": [
+        "Price above call wall (breakout or reversal)"
+      ],
+      "levels": {
+        "putWall": 43.5,
+        "callWall": 50,
+        "maxPain": 45,
+        "gammaFlip": 46.7,
+        "vwap": 47.75
+      },
+      "distances": {
+        "toPutWall": 13.570435128154179,
+        "toCallWall": -0.655672561096758,
+        "rangeSize": 12.914762567057423,
+        "positionInRange": 1.0507692307692305
+      },
+      "technicals": {
+        "rsi": 68.23,
+        "trend": "uptrend",
+        "momentum5d": 7.8,
+        "momentum20d": 4.8,
+        "bbPosition": 0.83,
+        "volumeSignal": "normal"
+      },
+      "timestamp": "2026-01-13T00:23:52.475Z",
+      "sourceInfo": {
+        "sources": [
+          "x_trending"
+        ],
+        "score": 95,
+        "direction": "bullish",
+        "signals": [
+          "🚀 BREAKOUT above call wall ($50) +0.7%",
+          "Above gamma flip ($46.70)",
+          "Bullish sentiment (51%)",
+          "🔥 Unusual PUT activity (139.4x vol/OI)",
+          "$19M net bullish premium",
+          "Heavy call bias (3.15 C/P)",
+          "Trending on X (5 mentions)",
+          "Aligned with SPY bullish",
+          "Swing BULLISH, intraday NEUTRAL"
+        ],
+        "isWatchlist": false
+      },
+      "history_status": {
+        "label": "DAY_2",
+        "consecutive_days": 2,
+        "days_since_first": 0,
+        "trend": "STABLE",
+        "peak_score_ever": 100,
+        "current_vs_peak": -5
+      }
+    },
+    {
+      "symbol": "IBIT",
+      "price": 51.87,
+      "zone": "MID_RANGE",
+      "tradeable": false,
+      "action": null,
+      "reasoning": [
+        "Mid-range (62% between walls)",
+        "Wait for price to reach support or resistance"
+      ],
+      "levels": {
+        "putWall": 50,
+        "callWall": 53,
+        "maxPain": 50.5,
+        "gammaFlip": 51.89,
+        "vwap": 51.48
+      },
+      "distances": {
+        "toPutWall": 3.605166763061495,
+        "toCallWall": 2.178523231154815,
+        "rangeSize": 5.78368999421631,
+        "positionInRange": 0.6233333333333325
+      },
+      "technicals": {
+        "rsi": 66.19,
+        "trend": "uptrend",
+        "momentum5d": 0.43,
+        "momentum20d": -2.53,
+        "bbPosition": 0.65,
+        "volumeSignal": "normal"
+      },
+      "timestamp": "2026-01-13T00:23:52.476Z",
+      "sourceInfo": {
+        "sources": [
+          "watchlist",
+          "x_trending",
+          "author_consensus"
+        ],
+        "score": 90,
+        "direction": "bullish",
+        "signals": [
+          "Confluence zone (2 levels)",
+          "Extreme sentiment (contrarian)",
+          "👥 5 authors BULLISH",
+          "🔥 Unusual CALL activity (38.6x vol/OI)",
+          "$34M net bullish premium",
+          "Heavy call bias (2.79 C/P)",
+          "Trending on X (8 mentions)",
+          "Aligned with SPY bullish",
+          "Swing BULLISH, intraday NEUTRAL"
+        ],
+        "isWatchlist": true
+      },
+      "history_status": {
+        "label": "DAY_2",
+        "consecutive_days": 2,
+        "days_since_first": 0,
+        "trend": "STABLE",
+        "peak_score_ever": 100,
+        "current_vs_peak": -10
+      }
+    },
+    {
+      "symbol": "CRWV",
+      "price": 89.93,
+      "zone": "BUY_ZONE",
+      "tradeable": true,
+      "action": "BUY",
+      "reasoning": [
+        "Within 0.5% of put wall ($90.00)",
+        "RSI 63.7 - not overbought",
+        "Trend aligned: uptrend"
+      ],
+      "levels": {
+        "putWall": 90,
+        "callWall": 100,
+        "maxPain": 85,
+        "gammaFlip": 79.27,
+        "vwap": 79.2
+      },
+      "distances": {
+        "toPutWall": -0.07783831869230864,
+        "toCallWall": 11.197598131880342,
+        "rangeSize": 11.119759813188034,
+        "positionInRange": -0.0069999999999993175
+      },
+      "technicals": {
+        "rsi": 63.69,
+        "trend": "uptrend",
+        "momentum5d": 1.03,
+        "momentum20d": -9.1,
+        "bbPosition": 0.66,
+        "volumeSignal": "normal"
+      },
+      "timestamp": "2026-01-13T00:23:52.477Z",
+      "sourceInfo": {
+        "sources": [
+          "x_trending",
+          "author_consensus"
+        ],
+        "score": 90,
+        "direction": "bullish",
+        "signals": [
+          "At put wall support ($90)",
+          "PUT wall ACTIVE (28.4x vol/OI)",
+          "Bullish sentiment (72%)",
+          "👥 4 authors BULLISH (2 established)",
+          "🔥 Unusual PUT activity (121.5x vol/OI)",
+          "$86M net bullish premium",
+          "Heavy call bias (2.99 C/P)",
+          "Aligned with SPY bullish",
+          "Swing BULLISH, intraday NEUTRAL"
+        ],
+        "isWatchlist": false
+      },
+      "history_status": {
+        "label": "DAY_2",
+        "consecutive_days": 2,
+        "days_since_first": 0,
+        "trend": "STABLE",
+        "peak_score_ever": 90,
+        "current_vs_peak": 0
+      }
+    },
+    {
+      "symbol": "ORCL",
+      "price": 204.68,
+      "zone": "EXTENDED_HIGH",
+      "tradeable": false,
+      "action": null,
+      "reasoning": [
+        "Price above call wall (breakout or reversal)"
+      ],
+      "levels": {
+        "putWall": 200,
+        "callWall": 200,
+        "maxPain": 200,
+        "gammaFlip": 199.64,
+        "vwap": 196.62
+      },
+      "distances": {
+        "toPutWall": 2.286495993746339,
+        "toCallWall": -2.286495993746339,
+        "rangeSize": 0,
+        "positionInRange": null
+      },
+      "technicals": {
+        "rsi": 68.93,
+        "trend": "uptrend",
+        "momentum5d": 1.44,
+        "momentum20d": -10.98,
+        "bbPosition": 0.76,
+        "volumeSignal": "normal"
+      },
+      "timestamp": "2026-01-13T00:23:52.478Z",
+      "sourceInfo": {
+        "sources": [
+          "author_consensus"
+        ],
+        "score": 85,
+        "direction": "bullish",
+        "signals": [
+          "🚀 BREAKOUT above call wall ($200) +2.3%",
+          "Above gamma flip ($199.64)",
+          "👥 3 authors BULLISH (2 established)",
+          "🔥 Unusual PUT activity (20.8x vol/OI)",
+          "$101M net bullish premium",
+          "Heavy call bias (3.28 C/P)",
+          "Aligned with SPY bullish",
+          "Swing BULLISH, intraday NEUTRAL"
+        ],
+        "isWatchlist": false
+      },
+      "history_status": {
+        "label": "DAY_2",
+        "consecutive_days": 2,
+        "days_since_first": 0,
+        "trend": "STABLE",
+        "peak_score_ever": 100,
+        "current_vs_peak": 0
+      }
+    },
+    {
+      "symbol": "JPM",
+      "price": 324.49,
+      "zone": "PINNED",
+      "tradeable": false,
+      "action": null,
+      "reasoning": [
+        "Pinned between walls ($325 - $325)"
+      ],
+      "levels": {
+        "putWall": 325,
+        "callWall": 325,
+        "maxPain": 320,
+        "gammaFlip": 328.9,
+        "vwap": 330.04
+      },
+      "distances": {
+        "toPutWall": -0.15716971247187614,
+        "toCallWall": 0.15716971247187614,
+        "rangeSize": 0,
+        "positionInRange": null
+      },
+      "technicals": {
+        "rsi": 67.4,
+        "trend": "strong_uptrend",
+        "momentum5d": 1.14,
+        "momentum20d": 6.15,
+        "bbPosition": 0.73,
+        "volumeSignal": "normal"
+      },
+      "timestamp": "2026-01-13T00:23:52.480Z",
+      "sourceInfo": {
+        "sources": [
+          "ai_outlook"
+        ],
+        "score": 85,
+        "direction": "pinned",
+        "signals": [
+          "📍 PINNED between walls ($325-$325)",
+          "Confluence zone (3 levels)",
+          "⚠️ PUT wall dormant (stale OI)",
+          "🔥 Unusual CALL activity (319.0x vol/OI)",
+          "$21M net bullish premium",
+          "📌 AI Outlook highlight",
+          "Market: SPY bullish, VIX 15.12"
+        ],
+        "isWatchlist": false
+      },
+      "history_status": {
+        "label": "DAY_2",
+        "consecutive_days": 2,
+        "days_since_first": 0,
+        "trend": "STABLE",
+        "peak_score_ever": 85,
+        "current_vs_peak": 0
+      }
+    },
+    {
+      "symbol": "TSLA",
+      "price": 448.96,
+      "zone": "PINNED",
+      "tradeable": false,
+      "action": null,
+      "reasoning": [
+        "Pinned between walls ($450 - $450)"
+      ],
+      "levels": {
+        "putWall": 450,
+        "callWall": 450,
+        "maxPain": 442.5,
+        "gammaFlip": 444.77,
+        "vwap": 442.59
+      },
+      "distances": {
+        "toPutWall": -0.23164647184604875,
+        "toCallWall": 0.23164647184604875,
+        "rangeSize": 0,
+        "positionInRange": null
+      },
+      "technicals": {
+        "rsi": 32.21,
+        "trend": "downtrend",
+        "momentum5d": 1.58,
+        "momentum20d": -1.43,
+        "bbPosition": 0.29,
+        "volumeSignal": "normal"
+      },
+      "timestamp": "2026-01-13T00:23:52.481Z",
+      "sourceInfo": {
+        "sources": [
+          "watchlist",
+          "x_trending"
+        ],
+        "score": 80,
+        "direction": "pinned",
+        "signals": [
+          "📍 PINNED between walls ($450-$450)",
+          "Confluence zone (4 levels)",
+          "PUT wall engaged (3.7x vol/OI)",
+          "🔥 Unusual PUT activity (24.5x vol/OI)",
+          "Market: SPY bullish, VIX 15.12"
+        ],
+        "isWatchlist": true
+      },
+      "history_status": {
+        "label": "DAY_2",
+        "consecutive_days": 2,
+        "days_since_first": 0,
+        "trend": "FADING",
+        "peak_score_ever": 100,
+        "current_vs_peak": -20
+      }
+    },
+    {
+      "symbol": "BTC",
+      "price": 40.48,
+      "zone": "EXTENDED_HIGH",
+      "tradeable": false,
+      "action": null,
+      "reasoning": [
+        "Price above call wall (breakout or reversal)"
+      ],
+      "levels": {
+        "putWall": 40,
+        "callWall": 40,
+        "maxPain": 40,
+        "gammaFlip": 39.42,
+        "vwap": 40.16
+      },
+      "distances": {
+        "toPutWall": 1.1857707509881346,
+        "toCallWall": -1.1857707509881346,
+        "rangeSize": 0,
+        "positionInRange": null
+      },
+      "technicals": {
+        "rsi": 66.32,
+        "trend": "uptrend",
+        "momentum5d": 0.5,
+        "momentum20d": -2.49,
+        "bbPosition": 0.65,
+        "volumeSignal": "normal"
+      },
+      "timestamp": "2026-01-13T00:23:52.482Z",
+      "sourceInfo": {
+        "sources": [
+          "ai_outlook"
+        ],
+        "score": 55,
+        "direction": "bullish",
+        "signals": [
+          "🚀 BREAKOUT above call wall ($40) +1.2%",
+          "Above gamma flip ($39.42)",
+          "Heavy call bias (5.34 C/P)",
+          "📌 AI Outlook highlight",
+          "Aligned with SPY bullish",
+          "Swing BULLISH, intraday NEUTRAL"
+        ],
+        "isWatchlist": false
+      },
+      "history_status": {
+        "label": "DAY_2",
+        "consecutive_days": 2,
+        "days_since_first": 0,
+        "trend": "FADING",
+        "peak_score_ever": 75,
+        "current_vs_peak": -20
+      }
+    },
+    {
+      "symbol": "HIMS",
+      "price": 32.34,
+      "zone": "MID_RANGE",
+      "tradeable": false,
+      "action": null,
+      "reasoning": [
+        "Mid-range (67% between walls)",
+        "Wait for price to reach support or resistance"
+      ],
+      "levels": {
+        "putWall": 30,
+        "callWall": 33.5,
+        "maxPain": 35,
+        "gammaFlip": 23,
+        "vwap": 32.49
+      },
+      "distances": {
+        "toPutWall": 7.235621521335816,
+        "toCallWall": 3.5868893011750043,
+        "rangeSize": 10.822510822510822,
+        "positionInRange": 0.6685714285714296
+      },
+      "technicals": {
+        "rsi": 35.53,
+        "trend": "strong_downtrend",
+        "momentum5d": -5.15,
+        "momentum20d": -16.34,
+        "bbPosition": -0.03,
+        "volumeSignal": "very_high"
+      },
+      "timestamp": "2026-01-13T00:23:52.483Z",
+      "sourceInfo": {
+        "sources": [
+          "x_trending"
+        ],
+        "score": 55,
+        "direction": "bullish",
+        "signals": [
+          "At lower Bollinger Band",
+          "Volume spike (2.1x avg)",
+          "🔥 Unusual CALL activity (57.0x vol/OI)",
+          "Aligned with SPY bullish",
+          "Swing BULLISH, intraday NEUTRAL"
+        ],
+        "isWatchlist": false
+      },
+      "history_status": {
+        "label": "DAY_2",
+        "consecutive_days": 2,
+        "days_since_first": 0,
+        "trend": "STABLE",
+        "peak_score_ever": 65,
+        "current_vs_peak": -10
+      }
+    },
+    {
+      "symbol": "MSTR",
+      "price": 162.23,
+      "zone": "MID_RANGE",
+      "tradeable": false,
+      "action": null,
+      "reasoning": [
+        "Mid-range (37% between walls)",
+        "Wait for price to reach support or resistance"
+      ],
+      "levels": {
+        "putWall": 160,
+        "callWall": 166,
+        "maxPain": 160,
+        "gammaFlip": 165.1,
+        "vwap": 159.45
+      },
+      "distances": {
+        "toPutWall": 1.3745916291684583,
+        "toCallWall": 2.3238611847377246,
+        "rangeSize": 3.6984528139061825,
+        "positionInRange": 0.371666666666665
+      },
+      "technicals": {
+        "rsi": 49.24,
+        "trend": "strong_downtrend",
+        "momentum5d": 0.11,
+        "momentum20d": -14.79,
+        "bbPosition": 0.34,
+        "volumeSignal": "normal"
+      },
+      "timestamp": "2026-01-13T00:23:52.484Z",
+      "sourceInfo": {
+        "sources": [
+          "author_consensus"
+        ],
+        "score": 55,
+        "direction": "bullish",
+        "signals": [
+          "👥 3 authors BULLISH",
+          "🔥 Unusual CALL activity (40.0x vol/OI)",
+          "$40M net bullish premium",
+          "Heavy call bias (2.20 C/P)",
+          "Aligned with SPY bullish",
+          "Swing BULLISH, intraday NEUTRAL"
+        ],
+        "isWatchlist": false
+      },
+      "history_status": {
+        "label": "DAY_2",
+        "consecutive_days": 2,
+        "days_since_first": 0,
+        "trend": "FADING",
+        "peak_score_ever": 100,
+        "current_vs_peak": -35
+      }
+    },
+    {
+      "symbol": "MSFT",
+      "price": 477.18,
+      "zone": "MID_RANGE",
+      "tradeable": false,
+      "action": null,
+      "reasoning": [
+        "Mid-range (72% between walls)",
+        "Wait for price to reach support or resistance"
+      ],
+      "levels": {
+        "putWall": 470,
+        "callWall": 480,
+        "maxPain": 475,
+        "gammaFlip": 499.7,
+        "vwap": 477.25
+      },
+      "distances": {
+        "toPutWall": 1.5046732889056553,
+        "toCallWall": 0.5909719602665646,
+        "rangeSize": 2.09564524917222,
+        "positionInRange": 0.7180000000000006
+      },
+      "technicals": {
+        "rsi": 43.99,
+        "trend": "strong_downtrend",
+        "momentum5d": 1.34,
+        "momentum20d": 0.15,
+        "bbPosition": 0.39,
+        "volumeSignal": "normal"
+      },
+      "timestamp": "2026-01-13T00:23:52.485Z",
+      "sourceInfo": {
+        "sources": [
+          "x_trending",
+          "author_consensus"
+        ],
+        "score": 40,
+        "direction": "bearish",
+        "signals": [
+          "VELOCITY +40 pts",
+          "At VWAP ($477.25)",
+          "Confluence zone (2 levels)",
+          "👥 3 authors BEARISH (1 established)",
+          "🔥 Unusual PUT activity (29.0x vol/OI)",
+          "$36M net bullish premium",
+          "⚠️ Against SPY bullish",
+          "⚠️ COUNTER-TREND: bearish vs swing BULLISH"
+        ],
+        "isWatchlist": false
+      },
+      "history_status": {
+        "label": "NEW",
+        "consecutive_days": 1,
+        "days_since_first": 0,
+        "trend": "STABLE",
+        "peak_score_ever": 40,
+        "current_vs_peak": 0
+      }
+    },
+    {
+      "symbol": "META",
+      "price": 641.97,
+      "zone": "EXTENDED_LOW",
+      "tradeable": false,
+      "action": null,
+      "reasoning": [
+        "Price below put wall (breakdown or reversal)"
+      ],
+      "levels": {
+        "putWall": 650,
+        "callWall": 650,
+        "maxPain": 650,
+        "gammaFlip": 605,
+        "vwap": 651.09
+      },
+      "distances": {
+        "toPutWall": -1.2508372665389305,
+        "toCallWall": 1.2508372665389305,
+        "rangeSize": 0,
+        "positionInRange": null
+      },
+      "technicals": {
+        "rsi": 42.69,
+        "trend": "downtrend",
+        "momentum5d": 0.41,
+        "momentum20d": 0.45,
+        "bbPosition": 0.37,
+        "volumeSignal": "normal"
+      },
+      "timestamp": "2026-01-13T00:23:52.486Z",
+      "sourceInfo": {
+        "sources": [
+          "watchlist",
+          "x_trending"
+        ],
+        "score": 20,
+        "direction": "bearish",
+        "signals": [
+          "💥 BREAKDOWN below put wall ($650) -1.3%",
+          "🔥 Unusual CALL activity (43.0x vol/OI)",
+          "$46M net bullish premium",
+          "⚠️ Against SPY bullish",
+          "⚠️ COUNTER-TREND: bearish vs swing BULLISH"
+        ],
+        "isWatchlist": true
+      },
+      "history_status": {
+        "label": "DAY_2",
+        "consecutive_days": 2,
+        "days_since_first": 0,
+        "trend": "FADING",
+        "peak_score_ever": 100,
+        "current_vs_peak": -80
+      }
+    },
+    {
+      "symbol": "XLI",
+      "price": 163.17,
+      "zone": "OVERBOUGHT",
+      "tradeable": false,
+      "action": null,
+      "reasoning": [
+        "RSI 70.1 > 70 (overbought)"
+      ],
+      "levels": {
+        "putWall": 155,
+        "callWall": 165,
+        "maxPain": 158,
+        "gammaFlip": 159.6,
+        "vwap": 161.66
+      },
+      "distances": {
+        "toPutWall": 5.007047864190714,
+        "toCallWall": 1.121529692958272,
+        "rangeSize": 6.128577557148986,
+        "positionInRange": 0.8169999999999987
+      },
+      "technicals": {
+        "rsi": 70.13,
+        "trend": "strong_uptrend",
+        "momentum5d": 2.5,
+        "momentum20d": 3.76,
+        "bbPosition": 1.02,
+        "volumeSignal": "normal"
+      },
+      "timestamp": "2026-01-13T00:23:52.487Z",
+      "sourceInfo": {
+        "sources": [
+          "sector_leader"
+        ],
+        "score": 15,
+        "direction": "bearish",
+        "signals": [
+          "RSI overbought (70.1)",
+          "At upper Bollinger Band",
+          "🔥 Unusual PUT activity (31.5x vol/OI)",
+          "Heavy call bias (2.05 C/P)",
+          "⚠️ Against SPY bullish",
+          "⚠️ COUNTER-TREND: bearish vs swing BULLISH"
+        ],
+        "isWatchlist": false
+      },
+      "history_status": {
+        "label": "DAY_2",
+        "consecutive_days": 2,
+        "days_since_first": 0,
+        "trend": "FADING",
+        "peak_score_ever": 80,
+        "current_vs_peak": -65
+      }
+    },
+    {
+      "symbol": "AMD",
+      "price": 207.69,
+      "zone": "MID_RANGE",
+      "tradeable": false,
+      "action": null,
+      "reasoning": [
+        "Mid-range (77% between walls)",
+        "Wait for price to reach support or resistance"
+      ],
+      "levels": {
+        "putWall": 200,
+        "callWall": 210,
+        "maxPain": 205,
+        "gammaFlip": 217.67,
+        "vwap": 204.89
+      },
+      "distances": {
+        "toPutWall": 3.7026337329674024,
+        "toCallWall": 1.1122345803842277,
+        "rangeSize": 4.81486831335163,
+        "positionInRange": 0.7689999999999998
+      },
+      "technicals": {
+        "rsi": 52.3,
+        "trend": "strong_downtrend",
+        "momentum5d": -9.08,
+        "momentum20d": -8.24,
+        "bbPosition": 0.16,
+        "volumeSignal": "normal"
+      },
+      "timestamp": "2026-01-13T00:23:52.488Z",
+      "sourceInfo": {
+        "sources": [
+          "watchlist"
+        ],
+        "score": 0,
+        "direction": "bearish",
+        "signals": [
+          "🔥 Unusual PUT activity (15.4x vol/OI)",
+          "$31M net bullish premium",
+          "⚠️ Against SPY bullish",
+          "⚠️ COUNTER-TREND: bearish vs swing BULLISH"
+        ],
+        "isWatchlist": true
+      },
+      "history_status": {
+        "label": "DAY_2",
+        "consecutive_days": 2,
+        "days_since_first": 0,
+        "trend": "FADING",
+        "peak_score_ever": 45,
+        "current_vs_peak": -45
+      }
+    }
+  ]
+}
