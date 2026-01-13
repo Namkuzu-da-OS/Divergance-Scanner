@@ -36,9 +36,21 @@ Ping both servers:
 Bloodhound is the autonomous opportunity detection system running via PM2. It:
 - Discovers symbols from 6 sources (watchlist, X trending, AI outlook, author consensus, market data, sector rotation)
 - Maps crypto/indices to ETFs (BTC→IBIT, ETH→ETHA, SPX→SPY)
-- Scores confluence (0-100) and alerts on opportunities ≥60
+- Scores confluence (0-100) and classifies into tiers:
+  - **HIGH_CONVICTION**: Score ≥70 at wall, or ≥80 near wall → Telegram alert + paper trade
+  - **TRADEABLE**: Score ≥60 at wall + trend-aligned → Paper trade
+  - **WATCH**: Near wall but missing criteria → Paper trade for validation
+  - **FILTERED**: Everything else → No action
 - Control API at http://localhost:8081 (pause/resume/scan/watchlist)
-- Dashboard at http://localhost:8080
+- Zone Scanner at http://localhost:8080
+- Analytics Dashboard at http://localhost:8080/analytics.html
+
+**Paper Trade Tracking:**
+- All HIGH_CONVICTION, TRADEABLE, and WATCH signals create paper trades
+- Tracks entry context (VIX regime, SPY trend, score, zone)
+- Captures price at 1h/4h/24h/72h intervals
+- Auto-closes at ±5% or 72h timeout
+- Analytics dashboard shows tier comparison, market condition analysis
 
 Scanner data is loaded via subagent in Step 2. For subsequent scanner checks during the session, always use the subagent pattern.
 

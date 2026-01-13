@@ -359,6 +359,42 @@ The tradeable decision uses both wall proximity AND confluence score:
 | `data/bloodhound.json` | Latest scan results with all opportunities |
 | `data/dynamic_scan.json` | Full technical data for dashboard |
 | `data/watchlist.json` | Symbols to always scan |
+| `data/paper_trades.json` | Paper trade tracking for signal validation |
+
+### Paper Trade System
+
+Bloodhound automatically creates paper trades for signals to validate their effectiveness.
+
+**Which signals get paper trades:**
+- HIGH_CONVICTION tier - Yes
+- TRADEABLE tier - Yes
+- WATCH tier - Yes (for validation comparison)
+- FILTERED tier - No
+
+**Data captured at entry:**
+| Field | Description |
+|-------|-------------|
+| `score` | Confluence score (0-100) |
+| `zone` | BUY_ZONE, SELL_ZONE, PINNED, etc. |
+| `signals` | Array of contributing signals |
+| `vix` | VIX level at entry |
+| `vix_regime` | low/normal/elevated/high |
+| `spy_trend` | bullish/bearish/neutral |
+| `intraday_bias` | Market intraday direction |
+| `swing_bias` | Market swing direction |
+
+**Price tracking:**
+- Updates every scan cycle (2 min)
+- Captures prices at 1h, 4h, 24h, 72h after entry
+- Tracks peak gain and max drawdown
+
+**Exit conditions:**
+- Stop loss: -5%
+- Take profit: +5%
+- Time stop: 72 hours
+- Outcome classified as WIN (≥2%), LOSS (≤-2%), or BREAKEVEN
+
+**File:** `monitor/paper-trade-manager.js`
 
 ### Configuration
 
@@ -540,6 +576,14 @@ Auto-refreshes every 30 seconds from `data/dynamic_scan.json`.
 
 **URL:** `scanner.html` (older dashboard)
 
+**Market Context Cards:**
+| Field | Source | Description |
+|-------|--------|-------------|
+| Gamma Regime | `/api/options-walls/SPY/pressure` | BULLISH_SUPPORT, BEARISH_RESISTANCE, etc. |
+| Market Bias | AI Outlook intraday_bias | BULLISH, BEARISH, NEUTRAL |
+| IV Rank | `/api/options/SPY/iv` | IV percentile (0-100%) |
+| Expected Move | SPY levels | Daily expected range |
+
 Shows:
 - VIX regime banner with sizing advice
 - SPY/QQQ price vs gamma walls
@@ -548,6 +592,32 @@ Shows:
 - Recent alerts
 
 Auto-refreshes every 30 seconds from `data/scanner.json`.
+
+### Analytics Dashboard
+
+**URL:** [http://localhost:8080/analytics.html](http://localhost:8080/analytics.html)
+
+Analyzes paper trade performance to validate signal quality.
+
+**Metrics tracked:**
+| Section | Analysis |
+|---------|----------|
+| Performance by Tier | HIGH_CONVICTION vs TRADEABLE vs WATCH win rates |
+| Performance by VIX Regime | Which VIX levels produce best signals |
+| Performance by Score Range | Does higher score = better results? |
+| Performance by SPY Trend | Bullish vs bearish market context |
+| Bias Alignment | Trading with vs against market direction |
+| Exit Reason Breakdown | Stop loss vs target vs time stop distribution |
+| Optimal Exit Timing | Best time window (1h, 4h, 24h, 72h) |
+| Risk Metrics | Peak gain, max drawdown, left on table |
+
+**Key insights:**
+- Compares tier performance to validate filtering logic
+- Shows if score threshold should be adjusted
+- Identifies which market conditions favor signals
+- Auto-generated recommendations based on data
+
+Auto-refreshes every 30 seconds from `data/paper_trades.json`.
 
 ---
 
