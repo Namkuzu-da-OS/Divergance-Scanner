@@ -114,9 +114,10 @@ function isMarketOpen() {
         return false;
     }
 
-    // Regular market hours: 9:30 AM - 4:00 PM ET
-    const marketOpen = 9 * 60 + 30;  // 9:30 AM
-    const marketClose = 16 * 60;     // 4:00 PM
+    // Extended hours: 7:30 AM - 4:00 PM ET (4:30 AM - 1:00 PM PST)
+    // Starts 2 hours before regular open to catch pre-market movers
+    const marketOpen = 7 * 60 + 30;  // 7:30 AM ET (4:30 AM PST)
+    const marketClose = 16 * 60;     // 4:00 PM ET (1:00 PM PST)
 
     return timeInMinutes >= marketOpen && timeInMinutes < marketClose;
 }
@@ -136,28 +137,28 @@ function getNextMarketOpen() {
 
     // If it's weekend
     if (day === 0) { // Sunday
-        return 'Monday 9:30 AM ET';
+        return 'Monday 7:30 AM ET (4:30 AM PST)';
     }
     if (day === 6) { // Saturday
-        return 'Monday 9:30 AM ET';
+        return 'Monday 7:30 AM ET (4:30 AM PST)';
     }
 
-    // If it's a weekday before market open
-    const marketOpen = 9 * 60 + 30;
+    // If it's a weekday before scanner start
+    const marketOpen = 7 * 60 + 30;  // 7:30 AM ET
     if (timeInMinutes < marketOpen) {
-        return 'Today 9:30 AM ET';
+        return 'Today 7:30 AM ET (4:30 AM PST)';
     }
 
     // If it's after market close, next open is tomorrow (or Monday if Friday)
     const marketClose = 16 * 60;
     if (timeInMinutes >= marketClose) {
         if (day === 5) { // Friday
-            return 'Monday 9:30 AM ET';
+            return 'Monday 7:30 AM ET (4:30 AM PST)';
         }
-        return 'Tomorrow 9:30 AM ET';
+        return 'Tomorrow 7:30 AM ET (4:30 AM PST)';
     }
 
-    return 'Now (market is open)';
+    return 'Now (scanner active)';
 }
 
 // ============================================
