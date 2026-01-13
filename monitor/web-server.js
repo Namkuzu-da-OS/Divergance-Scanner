@@ -32,7 +32,9 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    let filePath = path.join(ROOT, req.url === '/' ? 'zone-scanner.html' : req.url);
+    // Strip query string from URL
+    const urlPath = req.url.split('?')[0];
+    let filePath = path.join(ROOT, urlPath === '/' ? 'zone-scanner.html' : urlPath);
 
     // Security: prevent directory traversal
     if (!filePath.startsWith(ROOT)) {

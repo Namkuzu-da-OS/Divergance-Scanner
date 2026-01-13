@@ -15,6 +15,9 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 
+// Paper trade tracking for analytics
+const paperTradeManager = require('./paper-trade-manager');
+
 // Load config
 let CONFIG;
 try {
@@ -1890,6 +1893,30 @@ async function runScan() {
             const message = formatAlert(analysis);
             await sendTelegram(message);
             alertCooldowns.set(analysis.symbol, Date.now());
+
+            // Create paper trade for backtesting (analytics)
+            try {
+                // Validate price exists before creating trade
+                if (!analysis.price) {
+                    console.error(`[Paper Trade] No price for ${analysis.symbol}, skipping`);
+                } else {
+                    paperTradeManager.createPaperTrade(
+                        'HIGH_CONVICTION',
+                        analysis.symbol,
+                        analysis.price,
+                        analysis.direction || 'neutral',  // Don't fallback to zone
+                        {
+                            score: analysis.totalScore,
+                            zone: analysis.zone,
+                            signals: analysis.signals || [],
+                            vix: marketContext?.vix,
+                            vix_regime: marketContext?.vixRegime
+                        }
+                    );
+                }
+            } catch (e) {
+                console.error(`[Paper Trade] Failed to create trade for ${analysis.symbol}:`, e.message);
+            }
         }
     } else {
         console.log(`\n[Alerts] No high-conviction opportunities (${watchList.length} on watch list)`);
@@ -2074,6 +2101,13 @@ async function runScan() {
             watchListCount: watchList.length
         }, null, 2)
     );
+
+    // Update paper trades (price tracking and auto-close)
+    try {
+        await paperTradeManager.updatePaperTrades();
+    } catch (e) {
+        console.error('[Paper Trade] Update failed:', e.message);
+    }
 
     // Update scanner state
     scannerState.isScanning = false;

@@ -10,7 +10,16 @@
       "Skill(morning)",
       "Skill(morning:*)",
       "Skill(kungfu)",
-      "Skill(kungfu:*)"
+      "Skill(kungfu:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd probability filters to Bloodhound and modal popups to Zone Scanner\n\nBloodhound Scanner:\n- Add wall activity classification \\(ACTIVE/ENGAGED/DORMANT/UNKNOWN\\)\n- Add multi-timeframe alignment scoring \\(intraday + swing bias\\)\n- Add tier system \\(HIGH_CONVICTION, WATCH, FILTERED\\)\n- Only alert HIGH_CONVICTION setups to reduce noise\n\nZone Scanner:\n- Add clickable modal popups for expanded ticker details\n- Fetch live price on modal open\n- Fix close button overlapping price display\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(node --check:*)",
+      "Bash(pm2 restart:*)",
+      "Bash(pm2 logs:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nRemove separate velocity Telegram alert\n\nVelocity info now only appears in the Bloodhound alert signals list.\nOne message instead of two - cleaner, less noise.\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(node -e:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
