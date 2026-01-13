@@ -321,6 +321,37 @@ Each symbol is scored across multiple factors:
 - 💥 **Breakdown** - Below put wall support
 - 👥 **Consensus** - Multiple authors agree (e.g., "6 authors BULLISH")
 
+### Tradeable Tiers (Score-Aware)
+
+The tradeable decision uses both wall proximity AND confluence score:
+
+| Tier | Criteria | Paper Trade? |
+|------|----------|--------------|
+| **HIGH_CONVICTION** | Score >= 70 + at wall (0.5%), OR Score >= 80 + near wall (1.5%) | Yes |
+| **TRADEABLE** | Score >= 60 + at wall (0.5%) + trend-aligned | Yes |
+| **WATCH** | Score >= 50 + near wall (2%), OR EXTENDED_LOW + RSI < 35, OR Score >= 70 mid-range | No (alert only) |
+| **FILTERED** | Everything else | No |
+
+**Key Rules:**
+1. **Score gates tradeability** - Low-score symbols at walls are NOT tradeable
+2. **High scores loosen threshold** - Score 80+ can be 1.5% from wall instead of 0.5%
+3. **Trend alignment matters** - Counter-trend trades downgraded to WATCH
+4. **EXTENDED_LOW reversals** - Below put wall with RSI < 35 = potential bounce watch
+
+**Wall Threshold by Score:**
+| Score | Wall Threshold |
+|-------|---------------|
+| 80+ | 1.5% (looser - high conviction) |
+| 70-79 | 1.0% (moderate) |
+| 60-69 | 0.5% (strict - lower conviction) |
+| < 60 | Not tradeable at any distance |
+
+**Trend Alignment:**
+- BUY action + bullish/neutral trend = aligned
+- BUY action + bearish trend = counter-trend → WATCH tier
+- SELL action + bearish/neutral trend = aligned
+- SELL action + bullish trend = counter-trend → WATCH tier
+
 ### Output Files
 
 | File | Content |

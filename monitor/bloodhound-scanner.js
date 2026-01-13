@@ -1353,40 +1353,96 @@ async function analyzeSymbol(symbol, discoveryData) {
     let zone = 'MID_RANGE';
     let tradeable = false;
     let action = null;
+    let tier = 'FILTERED';  // New: tradeable tier
 
     const rsiOverbought = 70;
     const rsiOversold = 30;
-    const wallThreshold = 0.5; // % distance to be "at" a wall
 
-    // Check RSI extremes first
+    // Dynamic wall threshold based on score
+    const getWallThreshold = (score) => {
+        if (score >= 80) return 1.5;  // High conviction = looser threshold
+        if (score >= 70) return 1.0;  // Moderate
+        return 0.5;                    // Strict for lower scores
+    };
+
+    const wallThreshold = getWallThreshold(totalScore);
+
+    // Near wall checks (using dynamic threshold)
+    const nearPutWall = distToPutWall !== null && Math.abs(distToPutWall) <= wallThreshold;
+    const nearCallWall = distToCallWall !== null && Math.abs(distToCallWall) <= wallThreshold;
+
+    // WATCH zone threshold (2% for near-misses)
+    const watchThreshold = 2.0;
+    const watchNearPutWall = distToPutWall !== null && Math.abs(distToPutWall) <= watchThreshold;
+    const watchNearCallWall = distToCallWall !== null && Math.abs(distToCallWall) <= watchThreshold;
+
+    // Trend alignment check
+    const isTrendAligned = (actionType, trendDir) => {
+        if (actionType === 'BUY') return trendDir !== 'bearish';  // bullish or neutral OK
+        if (actionType === 'SELL') return trendDir !== 'bullish'; // bearish or neutral OK
+        return true;
+    };
+
+    // Step 1: Determine BASE ZONE (same logic as before)
     if (rsi >= rsiOverbought) {
         zone = 'OVERBOUGHT';
     } else if (rsi <= rsiOversold) {
         zone = 'OVERSOLD';
-        // Oversold at support = strong buy
-        if (atPutWall) {
+        if (nearPutWall) {
             zone = 'BUY_ZONE';
-            tradeable = true;
             action = 'BUY';
         }
-    }
-    // Check extended (breakout/breakdown)
-    else if (aboveCallWall) {
+    } else if (aboveCallWall) {
         zone = 'EXTENDED_HIGH';
     } else if (belowPutWall) {
         zone = 'EXTENDED_LOW';
-    }
-    // Check at walls
-    else if (isPinned) {
+    } else if (isPinned) {
         zone = 'PINNED';
-    } else if (atPutWall) {
+    } else if (nearPutWall) {
         zone = 'BUY_ZONE';
-        tradeable = true;
         action = 'BUY';
-    } else if (atCallWall) {
+    } else if (nearCallWall) {
         zone = 'SELL_ZONE';
-        tradeable = true;
         action = 'SELL';
+    }
+
+    // Step 2: Apply SCORE-AWARE TRADEABLE TIERS
+    if (action) {
+        const aligned = isTrendAligned(action, trend);
+
+        // HIGH_CONVICTION: Score >= 70 at wall, OR Score >= 80 near wall
+        if (totalScore >= 70 && (atPutWall || atCallWall)) {
+            tradeable = true;
+            tier = 'HIGH_CONVICTION';
+        } else if (totalScore >= 80 && (nearPutWall || nearCallWall)) {
+            tradeable = true;
+            tier = 'HIGH_CONVICTION';
+        }
+        // TRADEABLE: Score >= 60 at wall + trend aligned
+        else if (totalScore >= 60 && (atPutWall || atCallWall) && aligned) {
+            tradeable = true;
+            tier = 'TRADEABLE';
+        }
+        // WATCH: Score >= 60 at wall but counter-trend
+        else if (totalScore >= 60 && (atPutWall || atCallWall) && !aligned) {
+            tier = 'WATCH';  // Downgraded due to counter-trend
+        }
+        // WATCH: Score >= 50 near wall (not at)
+        else if (totalScore >= 50 && (watchNearPutWall || watchNearCallWall)) {
+            tier = 'WATCH';
+        }
+    }
+
+    // WATCH: EXTENDED_LOW with low RSI (potential reversal)
+    if (zone === 'EXTENDED_LOW' && rsi < 35 && totalScore >= 50) {
+        tier = 'WATCH';
+        action = 'WATCH_REVERSAL';
+    }
+
+    // WATCH: High score but mid-range (waiting for level)
+    if (zone === 'MID_RANGE' && totalScore >= 70) {
+        tier = 'WATCH';
+        action = 'WATCH_LEVEL';
     }
 
     // Calculate distances for output
@@ -1423,6 +1479,7 @@ async function analyzeSymbol(symbol, discoveryData) {
         // Zone data for zone-scanner UI
         zone,
         tradeable,
+        tier,  // NEW: HIGH_CONVICTION, TRADEABLE, WATCH, or FILTERED
         action,
         levels: {
             callWall,
@@ -1491,23 +1548,43 @@ function isTimeframeAligned(analysis, ctx) {
 }
 
 /**
- * Classify analysis into HIGH_CONVICTION or WATCH tier
- * HIGH_CONVICTION: Score ≥70 + TF aligned + wall not dormant
- * WATCH: Score ≥60 but doesn't meet high conviction criteria
+ * Classify analysis into HIGH_CONVICTION, TRADEABLE, WATCH, or FILTERED tier
+ * Uses the analysis.tier from zone classification, with additional alert-level checks
+ * HIGH_CONVICTION: Score ≥70 + at wall + TF aligned + wall not dormant
+ * TRADEABLE: Score ≥60 + at wall + trend aligned
+ * WATCH: Near wall or counter-trend or high score waiting for level
  */
 function getAlertTier(analysis, ctx) {
-    if (analysis.totalScore < SETTINGS.minConfluenceScore) {
+    // Start with the tier calculated during zone classification
+    let tier = analysis.tier || 'FILTERED';
+
+    // If already FILTERED, stay filtered
+    if (tier === 'FILTERED') {
         return 'FILTERED';
     }
 
+    // Additional checks for alert eligibility
     const tfAligned = isTimeframeAligned(analysis, ctx);
     const wallOk = !analysis.atWall || analysis.wallActivity !== 'DORMANT';
 
-    if (analysis.totalScore >= 70 && tfAligned && wallOk) {
+    // Downgrade HIGH_CONVICTION if TF misaligned or dormant wall
+    if (tier === 'HIGH_CONVICTION') {
+        if (!tfAligned || !wallOk) {
+            return 'WATCH';  // Downgrade to WATCH
+        }
         return 'HIGH_CONVICTION';
     }
 
-    return 'WATCH';
+    // TRADEABLE stays as is (alerts but lower priority)
+    if (tier === 'TRADEABLE') {
+        if (!tfAligned || !wallOk) {
+            return 'WATCH';  // Downgrade to WATCH
+        }
+        return 'TRADEABLE';
+    }
+
+    // WATCH stays as WATCH
+    return tier;
 }
 
 function formatAlert(analysis) {
@@ -1944,9 +2021,10 @@ async function runScan() {
     });
 
     // 6. Tier-based filtering and alerts
-    // HIGH_CONVICTION: Score ≥70 + TF aligned + wall not dormant → Telegram alert
-    // WATCH: Score ≥60 but missing criteria → Dashboard only
-    // FILTERED: Score <60 → No output
+    // HIGH_CONVICTION: Score ≥70 + at wall + TF aligned → Telegram alert + Paper trade
+    // TRADEABLE: Score ≥60 + at wall + trend aligned → Paper trade (no Telegram)
+    // WATCH: Near wall or counter-trend or high score waiting for level → Dashboard only
+    // FILTERED: Doesn't meet criteria → No output
 
     const tieredAnalyses = analyses.map(a => ({
         ...a,
@@ -1957,10 +2035,11 @@ async function runScan() {
     const highConviction = tieredAnalyses.filter(a =>
         a.tier === 'HIGH_CONVICTION' && shouldAlert(a)
     );
+    const tradeable = tieredAnalyses.filter(a => a.tier === 'TRADEABLE');
     const watchList = tieredAnalyses.filter(a => a.tier === 'WATCH');
 
     // Log tier breakdown
-    console.log(`\n[Tiers] HIGH_CONVICTION: ${highConviction.length} | WATCH: ${watchList.length} | FILTERED: ${analyses.length - highConviction.length - watchList.length}`);
+    console.log(`\n[Tiers] HIGH_CONVICTION: ${highConviction.length} | TRADEABLE: ${tradeable.length} | WATCH: ${watchList.length} | FILTERED: ${analyses.length - highConviction.length - tradeable.length - watchList.length}`);
 
     if (highConviction.length > 0) {
         console.log(`[HIGH CONVICTION]`);
@@ -1972,35 +2051,54 @@ async function runScan() {
         });
     }
 
+    if (tradeable.length > 0) {
+        console.log(`[TRADEABLE]`);
+        tradeable.forEach(a => {
+            const dir = a.direction === 'bullish' ? '🟢' :
+                        a.direction === 'bearish' ? '🔴' : '⚪';
+            console.log(`  ✅ ${a.symbol}: ${a.totalScore}/100 ${dir} (${a.action})`);
+        });
+    }
+
     if (watchList.length > 0) {
         console.log(`[WATCH LIST]`);
         watchList.slice(0, 5).forEach(a => {
-            const reason = !isTimeframeAligned(a, marketContext) ? '(TF misaligned)' :
+            const reason = a.action === 'WATCH_REVERSAL' ? '(reversal watch)' :
+                           a.action === 'WATCH_LEVEL' ? '(waiting for level)' :
+                           !isTimeframeAligned(a, marketContext) ? '(TF misaligned)' :
                            a.wallActivity === 'DORMANT' ? '(dormant wall)' :
                            a.totalScore < 70 ? `(score ${a.totalScore})` : '';
             console.log(`  👀 ${a.symbol}: ${a.totalScore}/100 ${reason}`);
         });
     }
 
-    // Only send Telegram alerts for HIGH_CONVICTION
+    // Send Telegram alerts for HIGH_CONVICTION only
     if (highConviction.length > 0) {
         console.log(`\n[Alerts] Sending ${highConviction.length} HIGH CONVICTION alert(s)...`);
         for (const analysis of highConviction) {
             const message = formatAlert(analysis);
             await sendTelegram(message);
             alertCooldowns.set(analysis.symbol, Date.now());
+        }
+    } else {
+        console.log(`\n[Alerts] No high-conviction opportunities (${tradeable.length} tradeable, ${watchList.length} on watch)`);
+    }
 
-            // Create paper trade for backtesting (analytics)
+    // Create paper trades for HIGH_CONVICTION and TRADEABLE tiers
+    const paperTradeEligible = [...highConviction, ...tradeable];
+    if (paperTradeEligible.length > 0) {
+        console.log(`\n[Paper Trades] Creating ${paperTradeEligible.length} paper trade(s)...`);
+        for (const analysis of paperTradeEligible) {
             try {
                 // Validate price exists before creating trade
                 if (!analysis.price) {
                     console.error(`[Paper Trade] No price for ${analysis.symbol}, skipping`);
                 } else {
                     paperTradeManager.createPaperTrade(
-                        'HIGH_CONVICTION',
+                        analysis.tier,  // Use actual tier (HIGH_CONVICTION or TRADEABLE)
                         analysis.symbol,
                         analysis.price,
-                        analysis.direction || 'neutral',  // Don't fallback to zone
+                        analysis.direction || 'neutral',
                         {
                             score: analysis.totalScore,
                             zone: analysis.zone,
@@ -2014,8 +2112,6 @@ async function runScan() {
                 console.error(`[Paper Trade] Failed to create trade for ${analysis.symbol}:`, e.message);
             }
         }
-    } else {
-        console.log(`\n[Alerts] No high-conviction opportunities (${watchList.length} on watch list)`);
     }
 
     // 7. Write results to file (format compatible with scanner.html)
