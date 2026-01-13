@@ -371,11 +371,57 @@
             </div>
         </div>
 
-        <!-- Performance by Signal Type -->
+        <!-- Performance by Signal Type (Tier) -->
         <div class="section">
-            <h2 class="section-title">Performance by Signal Type</h2>
+            <h2 class="section-title">Performance by Tier</h2>
             <div id="signalStatsContainer">
                 <div class="loading">Loading signal statistics...</div>
+            </div>
+        </div>
+
+        <!-- Two Column Layout for Analysis Sections -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 20px;">
+            <!-- VIX Regime Analysis -->
+            <div class="section" style="margin-bottom: 0;">
+                <h2 class="section-title">Performance by VIX Regime</h2>
+                <div id="vixStatsContainer">
+                    <div class="loading">Loading VIX analysis...</div>
+                </div>
+            </div>
+
+            <!-- Score Range Analysis -->
+            <div class="section" style="margin-bottom: 0;">
+                <h2 class="section-title">Performance by Score Range</h2>
+                <div id="scoreStatsContainer">
+                    <div class="loading">Loading score analysis...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Two Column Layout for Exit/Risk Analysis -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 20px;">
+            <!-- Exit Reason Breakdown -->
+            <div class="section" style="margin-bottom: 0;">
+                <h2 class="section-title">Exit Reason Breakdown</h2>
+                <div id="exitStatsContainer">
+                    <div class="loading">Loading exit analysis...</div>
+                </div>
+            </div>
+
+            <!-- Time Window Analysis -->
+            <div class="section" style="margin-bottom: 0;">
+                <h2 class="section-title">Optimal Exit Timing</h2>
+                <div id="timeWindowContainer">
+                    <div class="loading">Loading timing analysis...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Risk Metrics -->
+        <div class="section">
+            <h2 class="section-title">Risk Metrics</h2>
+            <div class="summary-cards" id="riskMetricsContainer">
+                <div class="loading" style="grid-column: 1 / -1;">Loading risk metrics...</div>
             </div>
         </div>
 
@@ -416,6 +462,11 @@
 
                 updateSummary();
                 updateSignalStats();
+                updateVixStats();
+                updateScoreStats();
+                updateExitStats();
+                updateTimeWindowStats();
+                updateRiskMetrics();
                 updateInsights();
                 updateRecentTrades();
 
@@ -684,6 +735,331 @@
             container.innerHTML = html;
         }
 
+        // ============================================
+        // NEW ANALYTICS FUNCTIONS
+        // ============================================
+
+        function updateVixStats() {
+            const closed = paperTrades.trades.filter(t => t.status === 'closed');
+            const container = document.getElementById('vixStatsContainer');
+
+            if (closed.length === 0) {
+                container.innerHTML = '<div class="empty-state-text">No closed trades yet.</div>';
+                return;
+            }
+
+            const stats = {};
+            for (const trade of closed) {
+                const regime = trade.entry.vix_regime || 'unknown';
+                if (!stats[regime]) {
+                    stats[regime] = { total: 0, wins: 0, totalPnl: 0 };
+                }
+                stats[regime].total++;
+                if (trade.outcome.result === 'WIN') stats[regime].wins++;
+                stats[regime].totalPnl += (trade.outcome.pnl_pct || 0);
+            }
+
+            const regimeOrder = ['low', 'normal', 'elevated', 'high', 'unknown'];
+            const regimeColors = { low: '#00d4aa', normal: '#8b92a8', elevated: '#ffc107', high: '#ff6b6b', unknown: '#64748b' };
+
+            let html = '<table><thead><tr><th>VIX Regime</th><th>Trades</th><th>Win Rate</th><th>Avg PnL</th></tr></thead><tbody>';
+
+            for (const regime of regimeOrder) {
+                if (!stats[regime]) continue;
+                const s = stats[regime];
+                const winRate = ((s.wins / s.total) * 100).toFixed(1);
+                const avgPnl = (s.totalPnl / s.total).toFixed(2);
+                const wrClass = parseFloat(winRate) >= 60 ? 'positive' : parseFloat(winRate) >= 50 ? 'neutral' : 'negative';
+                const pnlClass = parseFloat(avgPnl) >= 0 ? 'positive' : 'negative';
+
+                html += `
+                    <tr>
+                        <td><span style="color: ${regimeColors[regime]}; font-weight: 600;">${regime.toUpperCase()}</span></td>
+                        <td>${s.total}</td>
+                        <td class="${wrClass}">${winRate}%</td>
+                        <td class="${pnlClass}">${avgPnl > 0 ? '+' : ''}${avgPnl}%</td>
+                    </tr>
+                `;
+            }
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function updateScoreStats() {
+            const closed = paperTrades.trades.filter(t => t.status === 'closed');
+            const container = document.getElementById('scoreStatsContainer');
+
+            if (closed.length === 0) {
+                container.innerHTML = '<div class="empty-state-text">No closed trades yet.</div>';
+                return;
+            }
+
+            const ranges = {
+                '80-100': { min: 80, max: 100, total: 0, wins: 0, totalPnl: 0 },
+                '70-79': { min: 70, max: 79, total: 0, wins: 0, totalPnl: 0 },
+                '60-69': { min: 60, max: 69, total: 0, wins: 0, totalPnl: 0 },
+                '<60': { min: 0, max: 59, total: 0, wins: 0, totalPnl: 0 }
+            };
+
+            for (const trade of closed) {
+                const score = trade.entry.score || 0;
+                for (const [range, data] of Object.entries(ranges)) {
+                    if (score >= data.min && score <= data.max) {
+                        data.total++;
+                        if (trade.outcome.result === 'WIN') data.wins++;
+                        data.totalPnl += (trade.outcome.pnl_pct || 0);
+                        break;
+                    }
+                }
+            }
+
+            let html = '<table><thead><tr><th>Score Range</th><th>Trades</th><th>Win Rate</th><th>Avg PnL</th></tr></thead><tbody>';
+
+            for (const [range, data] of Object.entries(ranges)) {
+                if (data.total === 0) continue;
+                const winRate = ((data.wins / data.total) * 100).toFixed(1);
+                const avgPnl = (data.totalPnl / data.total).toFixed(2);
+                const wrClass = parseFloat(winRate) >= 60 ? 'positive' : parseFloat(winRate) >= 50 ? 'neutral' : 'negative';
+                const pnlClass = parseFloat(avgPnl) >= 0 ? 'positive' : 'negative';
+
+                html += `
+                    <tr>
+                        <td style="font-weight: 600;">${range}</td>
+                        <td>${data.total}</td>
+                        <td class="${wrClass}">${winRate}%</td>
+                        <td class="${pnlClass}">${avgPnl > 0 ? '+' : ''}${avgPnl}%</td>
+                    </tr>
+                `;
+            }
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function updateExitStats() {
+            const closed = paperTrades.trades.filter(t => t.status === 'closed');
+            const container = document.getElementById('exitStatsContainer');
+
+            if (closed.length === 0) {
+                container.innerHTML = '<div class="empty-state-text">No closed trades yet.</div>';
+                return;
+            }
+
+            const stats = {};
+            for (const trade of closed) {
+                const reason = trade.exit?.reason || 'unknown';
+                if (!stats[reason]) {
+                    stats[reason] = { total: 0, wins: 0, totalPnl: 0 };
+                }
+                stats[reason].total++;
+                if (trade.outcome.result === 'WIN') stats[reason].wins++;
+                stats[reason].totalPnl += (trade.outcome.pnl_pct || 0);
+            }
+
+            const reasonLabels = {
+                'time_stop_72h': 'Time Stop (72h)',
+                'stop_hit': 'Stop Loss Hit',
+                'target_hit': 'Target Hit',
+                'manual': 'Manual Close',
+                'unknown': 'Unknown'
+            };
+
+            let html = '<table><thead><tr><th>Exit Reason</th><th>Count</th><th>Win Rate</th><th>Avg PnL</th></tr></thead><tbody>';
+
+            const sorted = Object.entries(stats).sort((a, b) => b[1].total - a[1].total);
+
+            for (const [reason, data] of sorted) {
+                const winRate = ((data.wins / data.total) * 100).toFixed(1);
+                const avgPnl = (data.totalPnl / data.total).toFixed(2);
+                const wrClass = parseFloat(winRate) >= 60 ? 'positive' : parseFloat(winRate) >= 50 ? 'neutral' : 'negative';
+                const pnlClass = parseFloat(avgPnl) >= 0 ? 'positive' : 'negative';
+
+                html += `
+                    <tr>
+                        <td style="font-weight: 600;">${reasonLabels[reason] || reason.replace(/_/g, ' ')}</td>
+                        <td>${data.total} (${((data.total / closed.length) * 100).toFixed(0)}%)</td>
+                        <td class="${wrClass}">${winRate}%</td>
+                        <td class="${pnlClass}">${avgPnl > 0 ? '+' : ''}${avgPnl}%</td>
+                    </tr>
+                `;
+            }
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function updateTimeWindowStats() {
+            const closed = paperTrades.trades.filter(t => t.status === 'closed');
+            const container = document.getElementById('timeWindowContainer');
+
+            if (closed.length === 0) {
+                container.innerHTML = '<div class="empty-state-text">No closed trades yet.</div>';
+                return;
+            }
+
+            // Analyze where trades peaked
+            const windows = {
+                '1h': { bestAt: 0, wouldWin: 0 },
+                '4h': { bestAt: 0, wouldWin: 0 },
+                '24h': { bestAt: 0, wouldWin: 0 },
+                '72h': { bestAt: 0, wouldWin: 0 }
+            };
+
+            let tradesWithData = 0;
+
+            for (const trade of closed) {
+                const entry = trade.entry.price;
+                const prices = {
+                    '1h': trade.outcome.price_1h,
+                    '4h': trade.outcome.price_4h,
+                    '24h': trade.outcome.price_24h,
+                    '72h': trade.exit?.price
+                };
+
+                // Skip if no time window data
+                if (!prices['1h'] && !prices['4h'] && !prices['24h']) continue;
+                tradesWithData++;
+
+                const isBullish = trade.direction !== 'bearish';
+
+                // Find best exit point
+                let bestWindow = null;
+                let bestPnl = -Infinity;
+
+                for (const [window, price] of Object.entries(prices)) {
+                    if (price == null) continue;
+                    const pnl = isBullish
+                        ? ((price - entry) / entry) * 100
+                        : ((entry - price) / entry) * 100;
+
+                    if (pnl > bestPnl) {
+                        bestPnl = pnl;
+                        bestWindow = window;
+                    }
+
+                    // Would this have been a win (>2%)?
+                    if (pnl >= 2) windows[window].wouldWin++;
+                }
+
+                if (bestWindow) windows[bestWindow].bestAt++;
+            }
+
+            if (tradesWithData === 0) {
+                container.innerHTML = '<div class="empty-state-text">Time window data not yet available.</div>';
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time Window</th>
+                            <th>Peak Exit</th>
+                            <th>Would Win</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            for (const [window, data] of Object.entries(windows)) {
+                const peakPct = ((data.bestAt / tradesWithData) * 100).toFixed(0);
+                const winPct = ((data.wouldWin / tradesWithData) * 100).toFixed(0);
+                const peakClass = parseFloat(peakPct) >= 30 ? 'positive' : 'neutral';
+
+                html += `
+                    <tr>
+                        <td style="font-weight: 600;">${window}</td>
+                        <td class="${peakClass}">${peakPct}% of trades</td>
+                        <td>${winPct}% would win</td>
+                    </tr>
+                `;
+            }
+
+            html += '</tbody></table>';
+            html += `<div style="margin-top: 12px; font-size: 11px; color: #8b92a8;">
+                Based on ${tradesWithData} trades with time window data
+            </div>`;
+
+            container.innerHTML = html;
+        }
+
+        function updateRiskMetrics() {
+            const allTrades = paperTrades.trades;
+            const closed = allTrades.filter(t => t.status === 'closed');
+            const container = document.getElementById('riskMetricsContainer');
+
+            // Calculate metrics from all trades (open + closed)
+            let avgPeakGain = 0;
+            let avgMaxDrawdown = 0;
+            let tradesWithRisk = 0;
+
+            for (const trade of allTrades) {
+                if (trade.outcome.peak_gain_pct != null) {
+                    avgPeakGain += trade.outcome.peak_gain_pct;
+                    tradesWithRisk++;
+                }
+                if (trade.outcome.max_drawdown_pct != null) {
+                    avgMaxDrawdown += trade.outcome.max_drawdown_pct;
+                }
+            }
+
+            if (tradesWithRisk > 0) {
+                avgPeakGain = (avgPeakGain / tradesWithRisk).toFixed(2);
+                avgMaxDrawdown = (avgMaxDrawdown / tradesWithRisk).toFixed(2);
+            }
+
+            // Calculate how often we left money on table
+            let leftOnTable = 0;
+            for (const trade of closed) {
+                const peakGain = trade.outcome.peak_gain_pct || 0;
+                const actualPnl = trade.outcome.pnl_pct || 0;
+                if (peakGain > actualPnl + 1) leftOnTable++; // Lost more than 1% from peak
+            }
+            const leftOnTablePct = closed.length > 0 ? ((leftOnTable / closed.length) * 100).toFixed(0) : 0;
+
+            // Calculate average winner vs loser size
+            const winners = closed.filter(t => t.outcome.result === 'WIN');
+            const losers = closed.filter(t => t.outcome.result === 'LOSS');
+            const avgWin = winners.length > 0
+                ? (winners.reduce((sum, t) => sum + (t.outcome.pnl_pct || 0), 0) / winners.length).toFixed(2)
+                : '0.00';
+            const avgLoss = losers.length > 0
+                ? (losers.reduce((sum, t) => sum + (t.outcome.pnl_pct || 0), 0) / losers.length).toFixed(2)
+                : '0.00';
+
+            container.innerHTML = `
+                <div class="card">
+                    <div class="card-title">Avg Peak Gain</div>
+                    <div class="card-value ${parseFloat(avgPeakGain) >= 0 ? 'positive' : 'negative'}">
+                        ${avgPeakGain > 0 ? '+' : ''}${avgPeakGain}%
+                    </div>
+                    <div class="card-subtitle">Max profit before close</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Avg Max Drawdown</div>
+                    <div class="card-value negative">${avgMaxDrawdown}%</div>
+                    <div class="card-subtitle">Worst adverse move</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Left on Table</div>
+                    <div class="card-value ${parseFloat(leftOnTablePct) <= 30 ? 'positive' : 'negative'}">
+                        ${leftOnTablePct}%
+                    </div>
+                    <div class="card-subtitle">Closed >1% below peak</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Win/Loss Size</div>
+                    <div class="card-value">
+                        <span class="positive">+${avgWin}%</span>
+                        <span style="color: #64748b; font-size: 16px;"> / </span>
+                        <span class="negative">${avgLoss}%</span>
+                    </div>
+                    <div class="card-subtitle">Average winner vs loser</div>
+                </div>
+            `;
+        }
+
         function showError(errorMsg) {
             const errorHtml = `
                 <div class="empty-state">
@@ -697,6 +1073,11 @@
 
             document.getElementById('summaryCards').innerHTML = `<div class="card" style="grid-column: 1 / -1;">${errorHtml}</div>`;
             document.getElementById('signalStatsContainer').innerHTML = errorHtml;
+            document.getElementById('vixStatsContainer').innerHTML = errorHtml;
+            document.getElementById('scoreStatsContainer').innerHTML = errorHtml;
+            document.getElementById('exitStatsContainer').innerHTML = errorHtml;
+            document.getElementById('timeWindowContainer').innerHTML = errorHtml;
+            document.getElementById('riskMetricsContainer').innerHTML = `<div style="grid-column: 1 / -1;">${errorHtml}</div>`;
             document.getElementById('insightsContainer').innerHTML = errorHtml;
             document.getElementById('recentTrades').innerHTML = errorHtml;
         }
