@@ -769,12 +769,15 @@ async function discoverSymbols() {
     if (outlook?.success && outlook.data) {
         // Add key_tickers from AI outlook (high priority - AI identified these as important)
         const keyTickers = outlook.data.key_tickers || [];
-        keyTickers.forEach((ticker, idx) => {
-            if (!ticker || ticker === 'SPY' || ticker === 'QQQ') return; // Already in core
+        keyTickers.forEach((rawTicker, idx) => {
+            if (!rawTicker || rawTicker === 'SPY' || rawTicker === 'QQQ') return; // Already in core
+            const ticker = mapSymbol(rawTicker); // Map BTC→IBIT, etc.
+            if (!ticker) return;
             const existing = symbols.get(ticker) || { score: 0, sources: [] };
             existing.score += 40 - idx * 5; // High score for AI-identified tickers
             existing.sources.push('ai_outlook');
             existing.narrative = true;
+            if (rawTicker !== ticker) existing.mappedFrom = rawTicker;
             symbols.set(ticker, existing);
         });
 
@@ -782,13 +785,17 @@ async function discoverSymbols() {
         const narrative = outlook.data.ai_narrative || '';
         const narrativeMatches = narrative.match(/\b([A-Z]{2,5})\b/g) || [];
         const commonTickers = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'META', 'NVDA', 'TSLA', 'AMD', 'INTC',
-                              'COIN', 'IBIT', 'PLTR', 'ABBV', 'XBI', 'SOFI', 'ARM', 'SMCI', 'MU'];
-        narrativeMatches.forEach(match => {
-            if (commonTickers.includes(match) && !symbols.has(match)) {
-                const existing = symbols.get(match) || { score: 0, sources: [] };
+                              'COIN', 'IBIT', 'PLTR', 'ABBV', 'XBI', 'SOFI', 'ARM', 'SMCI', 'MU',
+                              'BTC', 'ETH', 'SOL'];  // Include crypto for mapping
+        narrativeMatches.forEach(rawMatch => {
+            if (commonTickers.includes(rawMatch)) {
+                const ticker = mapSymbol(rawMatch); // Map BTC→IBIT, etc.
+                if (!ticker || symbols.has(ticker)) return;
+                const existing = symbols.get(ticker) || { score: 0, sources: [] };
                 existing.score += 15;
                 existing.sources.push('narrative');
-                symbols.set(match, existing);
+                if (rawMatch !== ticker) existing.mappedFrom = rawMatch;
+                symbols.set(ticker, existing);
             }
         });
 
@@ -864,13 +871,16 @@ async function discoverSymbols() {
             if (volRatio > 2.0) boost += 10; // Extra boost for volume spike
 
             if (boost > 0) {
-                const existing = symbols.get(item.symbol) || { score: 0, sources: [] };
+                const ticker = mapSymbol(item.symbol); // Map BTC→IBIT, etc.
+                if (!ticker) return;
+                const existing = symbols.get(ticker) || { score: 0, sources: [] };
                 existing.score += boost;
                 existing.sources.push('market_data');
                 existing.price = parseFloat(item.current_price);
                 existing.pos52wk = pos52wk;
                 existing.volRatio = volRatio;
-                symbols.set(item.symbol, existing);
+                if (item.symbol !== ticker) existing.mappedFrom = item.symbol;
+                symbols.set(ticker, existing);
             }
         });
 
