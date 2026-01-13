@@ -141,10 +141,11 @@ function createPaperTrade(signalType, symbol, price, direction, context = {}) {
  */
 async function getCurrentPrice(symbol) {
   try {
-    const response = await axios.get(`${CONFIG.OPTIONS_API}/api/quotes/${symbol}`, {
+    const response = await axios.get(`${CONFIG.OPTIONS_API}/api/technicals/${symbol}`, {
       timeout: 5000
     });
-    return response.data.price || response.data.last || null;
+    // Extract price from technicals response (quote.last is the current price)
+    return response.data?.quote?.last || response.data?.price || null;
   } catch (e) {
     console.error(`[Paper Trade] Failed to fetch price for ${symbol}:`, e.message);
     return null;

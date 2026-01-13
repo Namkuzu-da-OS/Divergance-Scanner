@@ -86,6 +86,81 @@ const alertCooldowns = new Map();
 let marketContext = null;
 
 // ============================================
+// MARKET HOURS DETECTION
+// ============================================
+
+/**
+ * Check if market is currently open
+ * US Stock Market Hours (Eastern Time):
+ * - Pre-market: 4:00 AM - 9:30 AM
+ * - Regular: 9:30 AM - 4:00 PM
+ * - After-hours: 4:00 PM - 8:00 PM
+ * - Closed: Weekends
+ */
+function isMarketOpen() {
+    const now = new Date();
+
+    // Convert to Eastern Time (market timezone)
+    const etString = now.toLocaleString('en-US', { timeZone: 'America/New_York' });
+    const etDate = new Date(etString);
+
+    const day = etDate.getDay(); // 0 = Sunday, 6 = Saturday
+    const hours = etDate.getHours();
+    const minutes = etDate.getMinutes();
+    const timeInMinutes = hours * 60 + minutes;
+
+    // Closed on weekends
+    if (day === 0 || day === 6) {
+        return false;
+    }
+
+    // Regular market hours: 9:30 AM - 4:00 PM ET
+    const marketOpen = 9 * 60 + 30;  // 9:30 AM
+    const marketClose = 16 * 60;     // 4:00 PM
+
+    return timeInMinutes >= marketOpen && timeInMinutes < marketClose;
+}
+
+/**
+ * Get next market open time as a human-readable string
+ */
+function getNextMarketOpen() {
+    const now = new Date();
+    const etString = now.toLocaleString('en-US', { timeZone: 'America/New_York' });
+    const etDate = new Date(etString);
+
+    const day = etDate.getDay();
+    const hours = etDate.getHours();
+    const minutes = etDate.getMinutes();
+    const timeInMinutes = hours * 60 + minutes;
+
+    // If it's weekend
+    if (day === 0) { // Sunday
+        return 'Monday 9:30 AM ET';
+    }
+    if (day === 6) { // Saturday
+        return 'Monday 9:30 AM ET';
+    }
+
+    // If it's a weekday before market open
+    const marketOpen = 9 * 60 + 30;
+    if (timeInMinutes < marketOpen) {
+        return 'Today 9:30 AM ET';
+    }
+
+    // If it's after market close, next open is tomorrow (or Monday if Friday)
+    const marketClose = 16 * 60;
+    if (timeInMinutes >= marketClose) {
+        if (day === 5) { // Friday
+            return 'Monday 9:30 AM ET';
+        }
+        return 'Tomorrow 9:30 AM ET';
+    }
+
+    return 'Now (market is open)';
+}
+
+// ============================================
 // SIGNAL TRACKING
 // ============================================
 
@@ -1741,6 +1816,16 @@ async function runScan() {
         console.log(`\n[${new Date().toISOString()}] 💤 Bloodhound PAUSED - skipping scan`);
         console.log('   Run: node bloodhound-scanner.js resume');
         // Update next scan time even when paused
+        scannerState.nextScanAt = new Date(Date.now() + SETTINGS.scanIntervalMs).toISOString();
+        return;
+    }
+
+    // Check market hours
+    if (!isMarketOpen()) {
+        const nextOpen = getNextMarketOpen();
+        console.log(`\n[${new Date().toISOString()}] 🌙 Market CLOSED - scanner idle`);
+        console.log(`   Next market open: ${nextOpen}`);
+        // Update next scan time
         scannerState.nextScanAt = new Date(Date.now() + SETTINGS.scanIntervalMs).toISOString();
         return;
     }
