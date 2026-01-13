@@ -2104,8 +2104,13 @@ async function runScan() {
                             score: analysis.totalScore,
                             zone: analysis.zone,
                             signals: analysis.signals || [],
+                            // VIX context
                             vix: marketContext?.vix,
-                            vix_regime: marketContext?.vixRegime
+                            vix_regime: marketContext?.vixRegime,
+                            // Market context (for analytics)
+                            spy_trend: marketContext?.spyTrend,
+                            intraday_bias: marketContext?.intradayBias,
+                            swing_bias: marketContext?.swingBias
                         }
                     );
                 }

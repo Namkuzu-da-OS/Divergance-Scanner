@@ -111,8 +111,13 @@ function createPaperTrade(signalType, symbol, price, direction, context = {}) {
       score: context.score || null,
       zone: context.zone || null,
       signals: context.signals || [],
+      // VIX context
       vix: context.vix || null,
-      vix_regime: context.vix_regime || null
+      vix_regime: context.vix_regime || null,
+      // Market context
+      spy_trend: context.spy_trend || null,
+      intraday_bias: context.intraday_bias || null,
+      swing_bias: context.swing_bias || null
     },
 
     exit: null,
