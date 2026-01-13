@@ -12,11 +12,12 @@
         }
 
         body {
-            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
             background: #0a0e1a;
-            color: #e2e8f0;
-            padding: 20px;
-            line-height: 1.6;
+            color: #e5e7eb;
+            padding: 16px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
         }
 
         .container {
@@ -28,66 +29,65 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border-radius: 12px;
-            border: 1px solid #334155;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #2a3641;
+            padding-bottom: 16px;
         }
 
         .header h1 {
-            font-size: 2rem;
-            background: linear-gradient(135deg, #00d4aa 0%, #00a8ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 24px;
+            font-weight: 600;
+            color: #00d4aa;
         }
 
         .back-btn {
-            padding: 10px 20px;
-            background: #1e293b;
-            border: 1px solid #334155;
-            color: #e2e8f0;
-            border-radius: 8px;
+            padding: 8px 14px;
+            background: transparent;
+            border: 1px solid #00d4aa;
+            color: #00d4aa;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 0.95rem;
-            transition: all 0.2s;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s;
+            margin-left: 8px;
         }
 
         .back-btn:hover {
-            background: #334155;
-            border-color: #475569;
+            background: #00d4aa;
+            color: #0a0e1a;
         }
 
         .summary-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
         }
 
         .card {
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 20px;
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 16px;
         }
 
         .card-title {
-            font-size: 0.875rem;
-            color: #94a3b8;
-            margin-bottom: 10px;
+            font-size: 11px;
+            color: #8b92a8;
+            margin-bottom: 8px;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 1px;
         }
 
         .card-value {
-            font-size: 2rem;
+            font-size: 32px;
             font-weight: 700;
-            margin-bottom: 5px;
+            margin-bottom: 4px;
         }
 
         .card-subtitle {
-            font-size: 0.875rem;
+            font-size: 12px;
             color: #64748b;
         }
 
@@ -104,17 +104,18 @@
         }
 
         .section {
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 25px;
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
         }
 
         .section-title {
-            font-size: 1.25rem;
-            margin-bottom: 20px;
-            color: #f1f5f9;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #e5e7eb;
         }
 
         table {
@@ -124,23 +125,23 @@
 
         thead th {
             text-align: left;
-            padding: 12px;
-            font-size: 0.875rem;
-            color: #94a3b8;
-            border-bottom: 1px solid #334155;
+            padding: 10px 12px;
+            font-size: 11px;
+            color: #8b92a8;
+            border-bottom: 1px solid #2a3641;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 1px;
         }
 
         tbody td {
-            padding: 15px 12px;
-            border-bottom: 1px solid #1e293b;
-            font-size: 0.95rem;
+            padding: 12px;
+            border-bottom: 1px solid #2a3641;
+            font-size: 13px;
         }
 
         tbody tr {
-            background: #0f172a;
+            background: #0f1428;
             transition: background 0.2s;
         }
 
@@ -150,35 +151,33 @@
 
         .signal-type {
             font-weight: 600;
-            font-size: 0.875rem;
+            font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.5px;
         }
 
         .metric-badge {
             display: inline-block;
             padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.85rem;
+            border-radius: 4px;
+            font-size: 10px;
             font-weight: 600;
+            text-transform: uppercase;
         }
 
         .metric-badge.win {
-            background: #00d4aa20;
+            background: rgba(0, 212, 170, 0.2);
             color: #00d4aa;
-            border: 1px solid #00d4aa40;
         }
 
         .metric-badge.loss {
-            background: #ff6b6b20;
+            background: rgba(255, 107, 107, 0.2);
             color: #ff6b6b;
-            border: 1px solid #ff6b6b40;
         }
 
         .metric-badge.breakeven {
-            background: #8b92a820;
+            background: rgba(139, 146, 168, 0.2);
             color: #8b92a8;
-            border: 1px solid #8b92a840;
         }
 
         .insights {
@@ -188,30 +187,29 @@
         }
 
         .insight-item {
-            padding: 15px;
-            border-radius: 8px;
+            padding: 12px;
+            border-radius: 6px;
             display: flex;
             align-items: flex-start;
             gap: 12px;
+            background: #0f1428;
+            border: 1px solid #2a3641;
         }
 
         .insight-item.keep {
-            background: #00d4aa15;
-            border: 1px solid #00d4aa30;
+            border-left: 3px solid #00d4aa;
         }
 
         .insight-item.tune {
-            background: #f59e0b15;
-            border: 1px solid #f59e0b30;
+            border-left: 3px solid #ffc107;
         }
 
         .insight-item.filter {
-            background: #ff6b6b15;
-            border: 1px solid #ff6b6b30;
+            border-left: 3px solid #ff6b6b;
         }
 
         .insight-icon {
-            font-size: 1.25rem;
+            font-size: 18px;
         }
 
         .insight-text {
@@ -220,72 +218,80 @@
 
         .insight-label {
             font-weight: 600;
+            font-size: 13px;
             margin-bottom: 4px;
         }
 
         .insight-detail {
-            font-size: 0.875rem;
-            color: #94a3b8;
+            font-size: 12px;
+            color: #8b92a8;
         }
 
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
-            color: #64748b;
+            padding: 40px 20px;
+            color: #8b92a8;
         }
 
         .empty-state-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
+            font-size: 48px;
+            margin-bottom: 12px;
         }
 
         .empty-state-title {
-            font-size: 1.25rem;
-            margin-bottom: 10px;
-            color: #94a3b8;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #e5e7eb;
         }
 
         .empty-state-text {
-            font-size: 0.95rem;
+            font-size: 13px;
             max-width: 500px;
             margin: 0 auto;
+            color: #8b92a8;
         }
 
         .loading {
             text-align: center;
-            padding: 40px;
-            font-size: 1.1rem;
-            color: #94a3b8;
+            padding: 30px;
+            font-size: 13px;
+            color: #8b92a8;
         }
 
         .trades-list {
-            margin-top: 20px;
+            margin-top: 12px;
         }
 
         .trade-item {
-            background: #0f172a;
-            border: 1px solid #1e293b;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 12px;
+            background: #0f1428;
+            border: 1px solid #2a3641;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 8px;
             display: grid;
             grid-template-columns: 80px 1fr 120px 100px;
-            gap: 15px;
+            gap: 12px;
             align-items: center;
+            transition: border-color 0.2s;
+        }
+
+        .trade-item:hover {
+            border-color: #3a4a61;
         }
 
         .trade-symbol {
-            font-size: 1.1rem;
+            font-size: 16px;
             font-weight: 700;
         }
 
         .trade-details {
-            font-size: 0.875rem;
-            color: #94a3b8;
+            font-size: 12px;
+            color: #8b92a8;
         }
 
         .trade-pnl {
-            font-size: 1.1rem;
+            font-size: 16px;
             font-weight: 700;
             text-align: right;
         }
@@ -295,25 +301,26 @@
         }
 
         .refresh-btn {
-            padding: 8px 16px;
-            background: #00d4aa;
-            color: #0a0e1a;
-            border: none;
+            padding: 8px 14px;
+            background: transparent;
+            border: 1px solid #00d4aa;
+            color: #00d4aa;
             border-radius: 6px;
             cursor: pointer;
-            font-weight: 600;
-            font-size: 0.875rem;
-            transition: all 0.2s;
+            font-weight: 500;
+            font-size: 12px;
+            transition: all 0.3s;
         }
 
         .refresh-btn:hover {
-            background: #00bfa0;
+            background: #00d4aa;
+            color: #0a0e1a;
         }
 
         .last-updated {
-            font-size: 0.85rem;
-            color: #64748b;
-            margin-left: 15px;
+            font-size: 11px;
+            color: #8b92a8;
+            margin-left: 12px;
         }
     </style>
 </head>
@@ -323,16 +330,16 @@
         <div class="header">
             <div>
                 <h1>📊 Analytics Dashboard</h1>
-                <p style="color: #94a3b8; margin-top: 5px; font-size: 0.95rem;">
+                <p style="color: #8b92a8; margin-top: 4px; font-size: 12px;">
                     Signal performance tracking and backtesting
                 </p>
             </div>
-            <div>
-                <button class="refresh-btn" onclick="loadData()">Refresh</button>
-                <button class="back-btn" onclick="window.location.href='http://localhost:8080'">
-                    ← Back to Scanner
-                </button>
+            <div style="display: flex; align-items: center; gap: 8px;">
                 <span class="last-updated" id="lastUpdated"></span>
+                <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+                <button class="back-btn" onclick="window.location.href='http://localhost:8080'">
+                    ← Scanner
+                </button>
             </div>
         </div>
 
