@@ -638,12 +638,17 @@ Auto-refreshes every 30 seconds.
         function updateContextCards(context, spyData) {
             // Gamma regime
             const gammaRegime = spyData?.context?.gamma_regime || context?.gamma_regime || 'unknown';
-            document.getElementById('gamma-regime').textContent = gammaRegime.toUpperCase();
-            document.getElementById('gamma-sub').textContent = gammaRegime === 'positive' ? 'Dealers dampen moves' : 'Expect volatility';
+            document.getElementById('gamma-regime').textContent = gammaRegime.toUpperCase().replace('_', ' ');
+            // Set subtitle based on regime type
+            const isBullish = gammaRegime.toLowerCase().includes('bullish');
+            const isBearish = gammaRegime.toLowerCase().includes('bearish');
+            document.getElementById('gamma-sub').textContent = isBullish ? 'Dealers support dips' : isBearish ? 'Dealers sell rallies' : 'Expect volatility';
 
             // Market bias
             const bias = context?.bias || 'neutral';
             document.getElementById('market-bias').textContent = bias.toUpperCase();
+            const swingBias = context?.swing_bias || '--';
+            document.getElementById('bias-sub').textContent = swingBias !== '--' ? `Swing: ${swingBias}` : '--';
 
             // IV Rank
             const ivRank = spyData?.context?.iv_rank || context?.iv_rank || 0;

@@ -955,11 +955,13 @@ async function discoverSymbols() {
 
 async function getMarketContext() {
     // Fetch all context data in parallel
-    const [context, spyLevels, qqqLevels, outlook] = await Promise.all([
+    const [context, spyLevels, qqqLevels, outlook, spyPressure, spyIv] = await Promise.all([
         fetchJSON(`${APIS.options}/api/market/context`),
         fetchJSON(`${APIS.options}/api/levels/SPY`),
         fetchJSON(`${APIS.options}/api/levels/QQQ`),
-        fetchJSON(`${APIS.intel}/api/market/outlook`)  // Multi-timeframe bias
+        fetchJSON(`${APIS.intel}/api/market/outlook`),  // Multi-timeframe bias
+        fetchJSON(`${APIS.intel}/api/options-walls/SPY/pressure`),  // Gamma regime
+        fetchJSON(`${APIS.options}/api/options/SPY/iv`)  // IV rank
     ]);
 
     if (!context) return null;
@@ -976,7 +978,11 @@ async function getMarketContext() {
         qqqLevels: qqqLevels?.levels || null,
         // Multi-timeframe bias from AI outlook
         intradayBias: outlook?.data?.intraday_bias || 'NEUTRAL',
-        swingBias: outlook?.data?.swing_bias || 'NEUTRAL'
+        swingBias: outlook?.data?.swing_bias || 'NEUTRAL',
+        // Gamma regime from options-walls pressure (BULLISH_SUPPORT, BEARISH_RESISTANCE, etc.)
+        gammaRegime: spyPressure?.data?.net_bias || 'UNKNOWN',
+        // IV rank from options IV endpoint
+        ivRank: spyIv?.iv_percentile || 0
     };
 }
 
@@ -2132,7 +2138,11 @@ async function runScan() {
             price: marketContext?.spyPrice || 0,
             change_pct: 0, // TODO: get from API if needed
             levels: marketContext?.spyLevels || {},
-            context: { regime: marketContext?.regime }
+            context: {
+                regime: marketContext?.regime,
+                gamma_regime: marketContext?.gammaRegime || 'unknown',
+                iv_rank: marketContext?.ivRank || 0
+            }
         },
         qqq: {
             price: analyses.find(a => a.symbol === 'QQQ')?.price || 0,
@@ -2145,7 +2155,11 @@ async function runScan() {
             vix_regime: marketContext?.vixRegime,
             spy_trend: marketContext?.spyTrend,
             risk_appetite: marketContext?.riskAppetite,
-            position_size_modifier: marketContext?.positionSizeModifier
+            position_size_modifier: marketContext?.positionSizeModifier,
+            bias: marketContext?.intradayBias || 'NEUTRAL',
+            swing_bias: marketContext?.swingBias || 'NEUTRAL',
+            gamma_regime: marketContext?.gammaRegime || 'unknown',
+            iv_rank: marketContext?.ivRank || 0
         },
         // Bloodhound-specific data
         discovery: {
