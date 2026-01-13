@@ -269,16 +269,23 @@ Control API: `http://localhost:8081`
 | `/watchlist/add` | POST | Add symbol `{"symbol":"AAPL"}` |
 | `/watchlist/remove` | POST | Remove symbol `{"symbol":"AAPL"}` |
 
-### 6 Discovery Sources
+### 7 Discovery Sources (with Failover)
 
-Bloodhound dynamically discovers symbols from:
+Bloodhound dynamically discovers symbols from multiple sources. **Social data (X/Twitter) is optional** - the system continues with alternative sources if X is down.
 
 1. **Watchlist** (`data/watchlist.json`) - Always scanned, highest priority
-2. **X/Twitter Trending** (`/api/x/tickers/trending`) - Most mentioned tickers
+2. **X/Twitter Trending** (`/api/x/tickers/trending`) - Most mentioned tickers (OPTIONAL)
 3. **AI Market Outlook** (`/api/market/outlook`) - AI-identified key tickers
 4. **Author Consensus** (`/api/garden/consensus`) - 3+ authors agree on direction
 5. **Market Data** (`/api/latest`) - 52-week extremes, volume spikes
 6. **Sector Rotation** - Strongest/weakest sector ETFs
+7. **Options Activity** (`/api/options/{symbol}/analysis`) - Unusual vol/OI ratios
+
+**Failover Behavior:** When X/Twitter data is unavailable:
+- Scanner logs `[X/Twitter] Social data unavailable - using alternative sources`
+- Weights for AI outlook, market data, and options activity are **boosted by 15-20 points**
+- System continues discovering symbols from remaining 6 sources
+- Options activity becomes primary indicator of institutional interest
 
 ### Symbol Mapping
 

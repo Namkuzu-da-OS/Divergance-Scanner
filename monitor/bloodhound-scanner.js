@@ -741,14 +741,29 @@ function loadWatchlist() {
 async function discoverSymbols() {
     const symbols = new Map(); // symbol -> { score, sources }
 
+    // Track data source availability for failover
+    let socialDataAvailable = false;
+    let sourcesStatus = {
+        watchlist: false,
+        x_trending: false,
+        ai_outlook: false,
+        author_consensus: false,
+        market_data: false,
+        options_activity: false
+    };
+
     // Load watchlist - these are ALWAYS included with highest priority
     const watchlistSymbols = loadWatchlist();
     console.log(`[Watchlist] Loaded ${watchlistSymbols.length} symbols: ${watchlistSymbols.join(', ')}`);
     watchlistSymbols.forEach(s => symbols.set(s, { score: 100, sources: ['watchlist'] }));
+    sourcesStatus.watchlist = watchlistSymbols.length > 0;
 
-    // 1. Trending tickers from social data (X/Twitter)
+    // 1. Trending tickers from social data (X/Twitter) - OPTIONAL, system continues if down
     const trending = await fetchJSON(`${APIS.intel}/api/x/tickers/trending?hours=24`);
-    if (trending?.success && trending.data) {
+    if (trending?.success && trending.data && trending.data.length > 0) {
+        socialDataAvailable = true;
+        sourcesStatus.x_trending = true;
+        console.log(`[X/Twitter] Found ${trending.data.length} trending tickers`);
         trending.data.forEach((item, idx) => {
             const rawTicker = item.ticker;
             const ticker = mapSymbol(rawTicker); // Map BTC→IBIT, SPX→SPY, etc.
@@ -762,19 +777,24 @@ async function discoverSymbols() {
             if (rawTicker !== ticker) existing.mappedFrom = rawTicker; // Track original
             symbols.set(ticker, existing);
         });
+    } else {
+        console.log(`[X/Twitter] Social data unavailable - using alternative discovery sources`);
     }
 
-    // 2. AI Market Outlook - key_tickers and narrative extraction
+    // 2. AI Market Outlook - key_tickers and narrative extraction (RELIABLE - not dependent on X)
     const outlook = await fetchJSON(`${APIS.intel}/api/market/outlook`);
     if (outlook?.success && outlook.data) {
+        sourcesStatus.ai_outlook = true;
         // Add key_tickers from AI outlook (high priority - AI identified these as important)
         const keyTickers = outlook.data.key_tickers || [];
+        // Boost AI outlook weight when social data is unavailable
+        const outlookBoost = socialDataAvailable ? 0 : 15;
         keyTickers.forEach((rawTicker, idx) => {
             if (!rawTicker || rawTicker === 'SPY' || rawTicker === 'QQQ') return; // Already in core
             const ticker = mapSymbol(rawTicker); // Map BTC→IBIT, etc.
             if (!ticker) return;
             const existing = symbols.get(ticker) || { score: 0, sources: [] };
-            existing.score += 40 - idx * 5; // High score for AI-identified tickers
+            existing.score += (40 - idx * 5) + outlookBoost; // Boosted when X is down
             existing.sources.push('ai_outlook');
             existing.narrative = true;
             if (rawTicker !== ticker) existing.mappedFrom = rawTicker;
@@ -806,8 +826,12 @@ async function discoverSymbols() {
     }
 
     // 2.5. Author Consensus - tickers where 3+ authors agree (high conviction)
+    // Note: This may use X data but represents curated author analysis, not raw social
     const consensus = await fetchJSON(`${APIS.intel}/api/garden/consensus?hours=24&min_authors=3`);
-    if (consensus?.success && consensus.data) {
+    if (consensus?.success && consensus.data && consensus.data.length > 0) {
+        sourcesStatus.author_consensus = true;
+        // Boost consensus weight when social data is unavailable
+        const consensusBoost = socialDataAvailable ? 0 : 10;
         consensus.data.forEach(item => {
             const rawTicker = item.ticker;
             const ticker = mapSymbol(rawTicker); // Map BTC→IBIT, ETH→ETHA, etc.
@@ -819,7 +843,7 @@ async function discoverSymbols() {
             const roiBoost = (item.avg_author_roi && item.avg_author_roi > 0) ? 10 : 0; // Bonus for positive ROI authors
 
             const existing = symbols.get(ticker) || { score: 0, sources: [] };
-            existing.score += authorBoost + establishedBoost + roiBoost;
+            existing.score += authorBoost + establishedBoost + roiBoost + consensusBoost;
             existing.sources.push('author_consensus');
             existing.consensus = {
                 sentiment: item.sentiment,
@@ -834,9 +858,13 @@ async function discoverSymbols() {
     }
 
     // 3. Sector rotation from XL* ETFs (find strongest/weakest sectors)
+    // This is RELIABLE market data - not dependent on social sources
     const latest = await fetchJSON(`${APIS.intel}/api/latest`);
     const sectorETFs = [];
+    // Boost market data weight when social data is unavailable
+    const marketDataBoost = socialDataAvailable ? 0 : 15;
     if (latest?.success && latest.data) {
+        sourcesStatus.market_data = true;
         latest.data.forEach(item => {
             if (!item.symbol) return;
 
@@ -863,10 +891,10 @@ async function discoverSymbols() {
                 ? item.todays_volume / item.volume_avg_30_day
                 : 1;
 
-            // Score boost for extremes
+            // Score boost for extremes (boosted when social data unavailable)
             let boost = 0;
-            if (pos52wk > 95) boost += 25; // Near 52-week high - breakout potential
-            if (pos52wk < 10) boost += 25; // Near 52-week low - reversal potential
+            if (pos52wk > 95) boost += 25 + marketDataBoost; // Near 52-week high - breakout potential
+            if (pos52wk < 10) boost += 25 + marketDataBoost; // Near 52-week low - reversal potential
             if (volRatio > 1.5) boost += 20; // High relative volume - something happening
             if (volRatio > 2.0) boost += 10; // Extra boost for volume spike
 
@@ -890,10 +918,10 @@ async function discoverSymbols() {
             const strongestSector = sectorETFs[0];
             const weakestSector = sectorETFs[sectorETFs.length - 1];
 
-            // Add strongest sector if showing momentum
+            // Add strongest sector if showing momentum (boosted when social data unavailable)
             if (strongestSector.pos52wk > 90 || strongestSector.volRatio > 1.3) {
                 const existing = symbols.get(strongestSector.symbol) || { score: 0, sources: [] };
-                existing.score += 30;
+                existing.score += 30 + marketDataBoost;
                 existing.sources.push('sector_leader');
                 existing.pos52wk = strongestSector.pos52wk;
                 symbols.set(strongestSector.symbol, existing);
@@ -902,11 +930,104 @@ async function discoverSymbols() {
             // Add weakest sector if showing reversal potential
             if (weakestSector.pos52wk < 30 && weakestSector.volRatio > 1.2) {
                 const existing = symbols.get(weakestSector.symbol) || { score: 0, sources: [] };
-                existing.score += 25;
+                existing.score += 25 + marketDataBoost;
                 existing.sources.push('sector_laggard');
                 existing.pos52wk = weakestSector.pos52wk;
                 symbols.set(weakestSector.symbol, existing);
             }
+        }
+    }
+
+    // 3.5. Unusual Options Activity - HIGH VALUE alternative to social sentiment
+    // Scans for unusual volume/OI ratios which indicate institutional interest
+    // This is COMPLETELY INDEPENDENT of X/Twitter data
+    const optionsSymbols = ['SPY', 'QQQ', 'NVDA', 'TSLA', 'AAPL', 'AMD', 'AMZN', 'META', 'GOOGL', 'MSFT'];
+    const optionsActivityBoost = socialDataAvailable ? 0 : 20; // Significant boost when social is down
+
+    // Only check options activity for symbols we're already tracking OR when social is down
+    const symbolsToCheckOptions = socialDataAvailable
+        ? Array.from(symbols.keys()).filter(s => optionsSymbols.includes(s))
+        : optionsSymbols;
+
+    if (symbolsToCheckOptions.length > 0) {
+        console.log(`[Options Activity] Checking ${symbolsToCheckOptions.length} symbols for unusual activity`);
+
+        // Fetch options analysis in parallel for efficiency
+        const optionsPromises = symbolsToCheckOptions.map(async (symbol) => {
+            try {
+                const analysis = await fetchJSON(`${APIS.options}/api/options/${symbol}/analysis`);
+                if (!analysis?.analysis) return null;
+
+                const data = analysis.analysis;
+                // Look for unusual activity indicators
+                const unusualCalls = data.unusual_calls || [];
+                const unusualPuts = data.unusual_puts || [];
+
+                // Calculate activity score based on vol/OI ratios
+                let activityScore = 0;
+                let signals = [];
+
+                // Check for high vol/OI ratio trades (>3x is significant)
+                const highVolOIcalls = unusualCalls.filter(c => c.vol_oi_ratio > 3);
+                const highVolOIputs = unusualPuts.filter(p => p.vol_oi_ratio > 3);
+
+                if (highVolOIcalls.length >= 3) {
+                    activityScore += 25;
+                    signals.push(`${highVolOIcalls.length} unusual calls`);
+                }
+                if (highVolOIputs.length >= 3) {
+                    activityScore += 25;
+                    signals.push(`${highVolOIputs.length} unusual puts`);
+                }
+
+                // Check for heavy premium (institutional size)
+                const totalCallPremium = unusualCalls.reduce((sum, c) => sum + (c.premium || 0), 0);
+                const totalPutPremium = unusualPuts.reduce((sum, p) => sum + (p.premium || 0), 0);
+                if (totalCallPremium > 10000000 || totalPutPremium > 10000000) {
+                    activityScore += 15;
+                    signals.push('heavy premium');
+                }
+
+                // Check call/put ratio for directional bias
+                const cpRatio = data.call_put_ratio || 1;
+                if (cpRatio > 1.3) signals.push('call heavy');
+                if (cpRatio < 0.7) signals.push('put heavy');
+
+                return {
+                    symbol,
+                    activityScore,
+                    signals,
+                    sentiment: data.sentiment,
+                    cpRatio
+                };
+            } catch (e) {
+                return null;
+            }
+        });
+
+        const optionsResults = await Promise.all(optionsPromises);
+        let optionsDiscovered = 0;
+
+        optionsResults.forEach(result => {
+            if (!result || result.activityScore === 0) return;
+
+            const existing = symbols.get(result.symbol) || { score: 0, sources: [] };
+            existing.score += result.activityScore + optionsActivityBoost;
+            if (!existing.sources.includes('options_activity')) {
+                existing.sources.push('options_activity');
+            }
+            existing.optionsActivity = {
+                signals: result.signals,
+                sentiment: result.sentiment,
+                cpRatio: result.cpRatio
+            };
+            symbols.set(result.symbol, existing);
+            optionsDiscovered++;
+        });
+
+        if (optionsDiscovered > 0) {
+            sourcesStatus.options_activity = true;
+            console.log(`[Options Activity] Found unusual activity in ${optionsDiscovered} symbols`);
         }
     }
 
@@ -944,7 +1065,19 @@ async function discoverSymbols() {
     // Attach context to result
     result._context = { themes, intradayBias, swingBias, marketSentiment };
 
-    console.log(`[Discovery] Sources: X trending, AI outlook, author consensus, market data, sector rotation`);
+    // Log discovery source status
+    const activeSources = Object.entries(sourcesStatus)
+        .filter(([_, active]) => active)
+        .map(([name, _]) => name);
+    const inactiveSources = Object.entries(sourcesStatus)
+        .filter(([_, active]) => !active)
+        .map(([name, _]) => name);
+
+    console.log(`[Discovery] Active sources: ${activeSources.join(', ') || 'none'}`);
+    if (inactiveSources.length > 0 && inactiveSources.includes('x_trending')) {
+        console.log(`[Discovery] X/Twitter OFFLINE - relying on alternative sources (weights boosted)`);
+    }
+    console.log(`[Discovery] Found ${result.length} symbols from ${activeSources.length} sources`);
 
     return result;
 }

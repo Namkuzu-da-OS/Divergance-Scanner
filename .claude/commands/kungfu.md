@@ -34,7 +34,15 @@ Ping both servers:
 ## BLOODHOUND SCANNER (CORE SYSTEM)
 
 Bloodhound is the autonomous opportunity detection system running via PM2. It:
-- Discovers symbols from 6 sources (watchlist, X trending, AI outlook, author consensus, market data, sector rotation)
+- Discovers symbols from 7 sources with **automatic failover**:
+  1. Watchlist (always active)
+  2. X/Twitter trending (OPTIONAL - system continues if down)
+  3. AI outlook key tickers
+  4. Author consensus (3+ agree)
+  5. Market data (52wk extremes, volume)
+  6. Sector rotation
+  7. **Options activity** (unusual vol/OI ratios - institutional interest)
+- When X is down, weights for alternative sources are boosted (+15-20 pts)
 - Maps crypto/indices to ETFs (BTC→IBIT, ETH→ETHA, SPX→SPY)
 - Scores confluence (0-100) and classifies into tiers:
   - **HIGH_CONVICTION**: Score ≥70 at wall, or ≥80 near wall → Telegram alert + paper trade
