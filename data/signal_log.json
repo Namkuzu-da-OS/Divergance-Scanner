@@ -1,0 +1,136 @@
+{
+  "meta": {
+    "total_signals": 4,
+    "validated": 0,
+    "pending": 4,
+    "last_updated": "2026-01-19T12:38:15.251Z"
+  },
+  "signals": [
+    {
+      "id": "SPY_1768824197489",
+      "timestamp": "2026-01-19T12:03:17.489Z",
+      "symbol": "SPY",
+      "entry_price": 691.66,
+      "direction": "bullish",
+      "score": 80,
+      "zone": "BUY_ZONE",
+      "signals": [
+        "📐 At Golden Pocket (0.618 @ $682.99)",
+        "📐 Golden Pocket + SMA 20 confluence",
+        "At put wall support ($690)",
+        "At VWAP ($692.32)",
+        "Confluence zone (6 levels)",
+        "PUT wall ACTIVE (17.1x vol/OI)",
+        "🔥 Unusual PUT $691 ATM (bearish, 33.2x, $12.3M)",
+        "$99M net bearish premium",
+        "Market: VIX 19.2",
+        "Swing BULLISH, intraday NEUTRAL"
+      ],
+      "context": {
+        "vix": 19.2,
+        "vix_regime": "normal",
+        "spy_trend": "bullish",
+        "gamma_regime": "UNKNOWN"
+      },
+      "validated": false,
+      "validated_at": null,
+      "current_price": null,
+      "pct_change": null,
+      "correct": null
+    },
+    {
+      "id": "QQQ_1768824198210",
+      "timestamp": "2026-01-19T12:03:18.210Z",
+      "symbol": "QQQ",
+      "entry_price": 621.26,
+      "direction": "bullish",
+      "score": 80,
+      "zone": "BUY_ZONE",
+      "signals": [
+        "📐 At Golden Pocket (0.618 @ $615.74)",
+        "📐 Golden Pocket + SMA 20 confluence",
+        "At VWAP ($621.89)",
+        "🎯 0.618 Fib ($616) = Put Wall ($615)",
+        "Confluence zone (4 levels)",
+        "🔥 Unusual CALL $622 01/20 (55.6x, $10.6M)",
+        "$21M net bearish premium",
+        "Market: VIX 19.2",
+        "Swing BULLISH, intraday NEUTRAL"
+      ],
+      "context": {
+        "vix": 19.2,
+        "vix_regime": "normal",
+        "spy_trend": "bullish",
+        "gamma_regime": "UNKNOWN"
+      },
+      "validated": false,
+      "validated_at": null,
+      "current_price": null,
+      "pct_change": null,
+      "correct": null
+    },
+    {
+      "id": "SPY_1768826294546",
+      "timestamp": "2026-01-19T12:38:14.546Z",
+      "symbol": "SPY",
+      "entry_price": 691.66,
+      "direction": "bullish",
+      "score": 80,
+      "zone": "BUY_ZONE",
+      "signals": [
+        "📐 At Golden Pocket (0.618 @ $682.99)",
+        "📐 Golden Pocket + SMA 20 confluence",
+        "At put wall support ($690)",
+        "At VWAP ($692.32)",
+        "Confluence zone (6 levels)",
+        "PUT wall ACTIVE (17.1x vol/OI)",
+        "🔥 Unusual PUT $691 ATM (bearish, 33.2x, $12.3M)",
+        "$99M net bearish premium",
+        "Market: VIX 19.06",
+        "Swing BULLISH, intraday NEUTRAL"
+      ],
+      "context": {
+        "vix": 19.06,
+        "vix_regime": "normal",
+        "spy_trend": "bullish",
+        "gamma_regime": "UNKNOWN"
+      },
+      "validated": false,
+      "validated_at": null,
+      "current_price": null,
+      "pct_change": null,
+      "correct": null
+    },
+    {
+      "id": "QQQ_1768826295251",
+      "timestamp": "2026-01-19T12:38:15.251Z",
+      "symbol": "QQQ",
+      "entry_price": 621.26,
+      "direction": "bullish",
+      "score": 80,
+      "zone": "BUY_ZONE",
+      "signals": [
+        "📐 At Golden Pocket (0.618 @ $615.74)",
+        "📐 Golden Pocket + SMA 20 confluence",
+        "At VWAP ($621.89)",
+        "🎯 0.618 Fib ($616) = Put Wall ($615)",
+        "Confluence zone (4 levels)",
+        "🔥 Unusual CALL $622 01/20 (55.6x, $10.6M)",
+        "$21M net bearish premium",
+        "Market: VIX 19.06",
+        "Swing BULLISH, intraday NEUTRAL"
+      ],
+      "context": {
+        "vix": 19.06,
+        "vix_regime": "normal",
+        "spy_trend": "bullish",
+        "gamma_regime": "UNKNOWN"
+      },
+      "validated": false,
+      "validated_at": null,
+      "current_price": null,
+      "pct_change": null,
+      "correct": null
+    }
+  ]
+}

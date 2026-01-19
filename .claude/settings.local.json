@@ -19,7 +19,18 @@
       "Bash(pm2 logs:*)",
       "Bash(git commit -m \"$\\(cat <<''EOF''\nRemove separate velocity Telegram alert\n\nVelocity info now only appears in the Bloodhound alert signals list.\nOne message instead of two - cleaner, less noise.\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(node -e:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(pm2 show:*)",
+      "Bash(node backtesting/signal-backtester.js:*)",
+      "Bash(node monitor/earnings-calendar-scraper.js:*)",
+      "Bash(grep:*)",
+      "Bash(python -c \" import sys,json d=json.load\\(sys.stdin\\) for s in d.get\\(''screeners'', []\\)[:5]: pct = s.get\\(''netPercentChange'', 0\\) print\\(f\"\"{s[''symbol'']}: {s[''lastPrice'']:.2f} \\({pct:+.2f}%\\) Vol: {s[''volume'']:,}\"\"\\)\")",
+      "Bash(python -c \" import sys,json d=json.load\\(sys.stdin\\) print\\(f\"\" RSI: {d.get\\(''rsi'', 0\\):.1f}\"\"\\) print\\(f\"\" Trend: {d.get\\(''trend'', ''N/A''\\)}\"\"\\) print\\(f\"\" Volume Ratio: {d.get\\(''volume_ratio'', 0\\):.2f}x avg\"\"\\) print\\(f\"\" BB Position: {d.get\\(''bb_position'', 0\\):.2f}\"\"\\) \")",
+      "Bash(python -c \" import sys,json d=json.load\\(sys.stdin\\) print\\(f\"\" IV Percentile: {d.get\\(''iv_percentile'', 0\\):.1f}%\"\"\\) print\\(f\"\" ATM IV: {d.get\\(''atm_iv'', 0\\):.1f}%\"\"\\) print\\(f\"\" Signal: {d.get\\(''iv_signal'', ''N/A''\\)}\"\"\\) \")",
+      "Bash(python -c \" import sys,json d=json.load\\(sys.stdin\\).get\\(''analysis'', {}\\) print\\(f\"\" Call Volume: {d.get\\(''call_volume'', 0\\):,}\"\"\\) print\\(f\"\" Put Volume: {d.get\\(''put_volume'', 0\\):,}\"\"\\) print\\(f\"\" Call OI: {d.get\\(''call_oi'', 0\\):,}\"\"\\) print\\(f\"\" Put OI: {d.get\\(''put_oi'', 0\\):,}\"\"\\) print\\(f\"\" Sentiment: {d.get\\(''sentiment'', ''N/A''\\)}\"\"\\) \")",
+      "Bash(pm2 list:*)",
+      "Bash(pm2 start:*)",
+      "Bash(dir /b \"c:\\\\Users\\\\Iccanui\\\\Documents\\\\Github\\\\BP\\\\wingman\\\\toolbox\\\\docs\\\\ThinkOrSwim\"\")"
     ],
     "deny": [],
     "ask": []

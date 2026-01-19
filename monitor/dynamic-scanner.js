@@ -3,10 +3,10 @@
  *
  * Scans for tradeable opportunities using dynamic watchlist sourced from:
  * - High conviction signals (port 3000)
- * - Author consensus / trending tickers from X
  * - AI market outlook themes
  *
  * Then applies zone filter logic (no mid-range trades).
+ * Note: Social sentiment sources (trending, author consensus) removed.
  */
 
 const http = require('http');
@@ -187,76 +187,6 @@ async function getHighConvictionSignals() {
   }
 }
 
-async function getTrendingTickers() {
-  try {
-    const data = await fetchJson(`${CONFIG.apis.intel}/api/x/tickers/trending`);
-    const symbols = [];
-    if (data && Array.isArray(data.tickers)) {
-      data.tickers.forEach(ticker => {
-        const sym = ticker.symbol || ticker.ticker || ticker;
-        if (typeof sym === 'string' && !symbols.find(s => s.symbol === sym)) {
-          symbols.push({
-            symbol: sym.toUpperCase(),
-            source: 'trending',
-            mentions: ticker.mentions || ticker.count || 0,
-            sentiment: ticker.sentiment
-          });
-        }
-      });
-    }
-    console.log(`[Source] Trending: ${symbols.length} symbols`);
-    return symbols;
-  } catch (e) {
-    console.log(`[Source] Trending: Failed - ${e.message}`);
-    return [];
-  }
-}
-
-async function getAuthorConsensus() {
-  // Try multiple possible endpoint patterns for author consensus
-  const endpoints = [
-    `${CONFIG.apis.intel}/api/x/authors/consensus`,
-    `${CONFIG.apis.intel}/api/signals/consensus`,
-    `${CONFIG.apis.intel}/api/x/consensus`,
-    `${CONFIG.apis.intel}/api/author-intelligence`
-  ];
-
-  for (const endpoint of endpoints) {
-    try {
-      const data = await fetchJson(endpoint);
-      const symbols = [];
-
-      // Handle various response formats
-      const consensusData = data.consensus || data.tickers || data.signals || data;
-
-      if (Array.isArray(consensusData)) {
-        consensusData.forEach(item => {
-          const sym = item.symbol || item.ticker;
-          if (sym && !symbols.find(s => s.symbol === sym)) {
-            symbols.push({
-              symbol: sym.toUpperCase(),
-              source: 'author_consensus',
-              authorCount: item.author_count || item.authors || item.count || 0,
-              direction: item.direction || item.bias || item.sentiment,
-              category: item.category || item.action
-            });
-          }
-        });
-      }
-
-      if (symbols.length > 0) {
-        console.log(`[Source] Author Consensus: ${symbols.length} symbols`);
-        return symbols;
-      }
-    } catch (e) {
-      // Try next endpoint
-    }
-  }
-
-  console.log(`[Source] Author Consensus: Not available`);
-  return [];
-}
-
 async function getMarketOutlookThemes() {
   try {
     const data = await fetchJson(`${CONFIG.apis.intel}/api/market/outlook`);
@@ -293,11 +223,9 @@ async function getMarketOutlookThemes() {
 async function buildDynamicWatchlist() {
   console.log('\n[Dynamic] Building watchlist from sources...');
 
-  // Gather from all sources in parallel
-  const [highConv, trending, consensus, outlook] = await Promise.all([
+  // Gather from all sources in parallel (sentiment sources removed)
+  const [highConv, outlook] = await Promise.all([
     getHighConvictionSignals(),
-    getTrendingTickers(),
-    getAuthorConsensus(),
     getMarketOutlookThemes()
   ]);
 
@@ -324,7 +252,6 @@ async function buildDynamicWatchlist() {
         existing.score += weight;
         if (item.conviction) existing.conviction = item.conviction;
         if (item.direction) existing.direction = item.direction;
-        if (item.authorCount) existing.authorCount = item.authorCount;
       } else {
         symbolMap.set(sym, {
           symbol: sym,
@@ -332,7 +259,6 @@ async function buildDynamicWatchlist() {
           score: weight,
           conviction: item.conviction,
           direction: item.direction,
-          authorCount: item.authorCount,
           category: item.category
         });
       }
@@ -340,9 +266,7 @@ async function buildDynamicWatchlist() {
   };
 
   // Weight by source importance
-  addSymbols(consensus, 40);      // Author consensus most important
   addSymbols(highConv, 30);       // High conviction signals
-  addSymbols(trending, 20);       // Trending on X
   addSymbols(outlook, 10);        // AI outlook themes
 
   // Convert to array and sort by score
@@ -492,7 +416,6 @@ async function sendZoneAlert(analysis, sourceInfo) {
   // Include source info
   const sourceStr = escapeHtml(sourceInfo?.sources?.join(' + ') || 'scan');
   const scoreStr = sourceInfo?.score ? ` | Score: ${sourceInfo.score}` : '';
-  const dirStr = sourceInfo?.direction ? ` | Consensus: ${escapeHtml(sourceInfo.direction)}` : '';
 
   // Escape dynamic content to prevent HTML parsing errors
   const trend = escapeHtml(analysis.technicals.trend);
@@ -503,7 +426,7 @@ async function sendZoneAlert(analysis, sourceInfo) {
 
 <b>Price:</b> $${analysis.price.toFixed(2)}
 <b>Action:</b> ${analysis.action}
-<b>Source:</b> ${sourceStr}${scoreStr}${dirStr}
+<b>Source:</b> ${sourceStr}${scoreStr}
 
 <b>Levels:</b>
 • Put Wall: $${analysis.levels.putWall.toFixed(2)} (${analysis.distances.toPutWall.toFixed(2)}% away)
@@ -606,8 +529,6 @@ async function runDynamicScan() {
     scanType: 'dynamic',
     sources: {
       highConviction: true,
-      trending: true,
-      authorConsensus: true,
       aiOutlook: true
     },
     scanCount: results.length,
@@ -651,7 +572,7 @@ async function main() {
   console.log(`Scan Interval: ${CONFIG.scanIntervalMs / 1000}s`);
   console.log(`Max Symbols: ${CONFIG.maxSymbols}`);
   console.log('========================================');
-  console.log('Sources: High Conviction + Trending + Author Consensus + AI Outlook');
+  console.log('Sources: High Conviction + AI Outlook');
   console.log('========================================\n');
 
   // Initial scan

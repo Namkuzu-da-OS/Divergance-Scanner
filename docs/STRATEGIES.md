@@ -85,17 +85,15 @@
 | Entry | Bottoming tail reclaims VWAP OR close above -1 SD after touch |
 | Stop | Below 61.8% Fib / -2 SD / inefficiency zone low |
 | Target | T1: Gamma flip, T2: 200 MA, T3: Call wall |
-| Skip if | VIX >25, no author consensus, counter-trend to SPY |
+| Skip if | VIX >25, counter-trend to SPY |
 
-**Confluence Checklist (need 5+ of 8):**
+**Confluence Checklist (need 4+ of 6):**
 - Golden pocket (50-61.8% Fib of recent swing)
 - At/near put wall or GEX -1 SD band
 - RSI oversold (<35) or recovering from <30
-- 3+ authors bullish (established preferred)
 - Unusual call activity (>5x vol/OI)
 - Key MA nearby (100/200 SMA flat or as support)
 - VWAP reclaimed after dip
-- Call wall above as magnet/target
 
 **The Trigger (TSLA Pattern Jan 2026):**
 When RSI hits oversold AND unusual call activity appears together = smart money buying the dip.
@@ -103,9 +101,8 @@ This combination caused a +35 point score jump in the scanner and preceded a 3%+
 
 **Signal Progression Example:**
 ```
-Score 60  → Technical only (BB lower, put wall)
-Score 95  → RSI oversold + unusual calls (TRIGGER)
-Score 100 → Author consensus confirms
+Score 48  → Technical only (BB lower, put wall)
+Score 72  → RSI oversold + unusual calls (TRIGGER)
 ```
 
 ## TARGET EXITS

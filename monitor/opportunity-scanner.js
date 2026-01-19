@@ -1,0 +1,911 @@
+/**
+ * OPPORTUNITY SCANNER
+ *
+ * Detects unusual options activity and smart money positioning.
+ * Primary focus: vol/OI ratio, premium flow, call/put imbalance.
+ * Secondary: gaps, volume spikes, IV extremes.
+ *
+ * Operating Hours: 5am-1pm PST (8am-4pm EST)
+ * Control API: Port 8083
+ */
+
+const fs = require('fs');
+const path = require('path');
+const http = require('http');
+const https = require('https');
+const opportunityDb = require('./opportunity-db');
+
+// Load config
+let CONFIG;
+try {
+    CONFIG = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8'));
+} catch (e) {
+    console.error('[Opportunity] Failed to load config.json:', e.message);
+    process.exit(1);
+}
+
+const APIS = {
+    intel: CONFIG.apis.intel,
+    options: CONFIG.apis.options
+};
+
+const SETTINGS = {
+    scanIntervalMs: 5 * 60 * 1000,      // 5 minutes
+    alertCooldownMs: 30 * 60 * 1000,    // 30 min cooldown per symbol
+    controlPort: 8083,
+    maxSymbols: 30,                      // Max symbols per scan
+    minPrice: 5,                         // Filter penny stocks
+    minVolume: 500000,                   // Minimum daily volume
+    marketHours: {
+        startHour: 8,   // 8 AM EST
+        endHour: 16,    // 4 PM EST
+        timezone: 'America/New_York'
+    }
+};
+
+// Core symbols - always scan for market context
+const CORE_SYMBOLS = ['SPY', 'QQQ', 'IWM'];
+
+// Watchlist path
+const WATCHLIST_PATH = path.join(__dirname, '..', 'data', 'watchlist.json');
+
+// ============================================
+// DYNAMIC SYMBOL DISCOVERY
+// ============================================
+
+function loadWatchlist() {
+    try {
+        const data = JSON.parse(fs.readFileSync(WATCHLIST_PATH, 'utf8'));
+        return data.symbols
+            .filter(s => s.enabled)
+            .map(s => s.symbol);
+    } catch (e) {
+        return [];
+    }
+}
+
+function addSymbol(map, symbol, score, source) {
+    if (!symbol) return;
+    // Filter out non-tradeable
+    if (['VIX', 'VXX', 'UVXY'].includes(symbol)) return;
+
+    const existing = map.get(symbol) || { score: 0, sources: [] };
+    existing.score += score;
+    if (!existing.sources.includes(source)) {
+        existing.sources.push(source);
+    }
+    map.set(symbol, existing);
+}
+
+async function discoverSymbols() {
+    const discovered = new Map();
+    const sourceCounts = { core: 0, watchlist: 0, volume: 0, gainers: 0, losers: 0, nasdaq: 0, extremes: 0 };
+
+    // SOURCE 1: Core symbols (always scan for market context)
+    CORE_SYMBOLS.forEach(s => {
+        addSymbol(discovered, s, 100, 'core');
+        sourceCounts.core++;
+    });
+
+    // SOURCE 2: Watchlist (user priorities)
+    const watchlist = loadWatchlist();
+    watchlist.forEach(s => {
+        addSymbol(discovered, s, 50, 'watchlist');
+        sourceCounts.watchlist++;
+    });
+
+    try {
+        // SOURCE 3: Market Movers from S&P 500
+        const [volumeMovers, gainers, losers] = await Promise.all([
+            httpGet(`${APIS.options}/api/movers/$SPX?sort=VOLUME`).catch(() => ({ screeners: [] })),
+            httpGet(`${APIS.options}/api/movers/$SPX?sort=PERCENT_CHANGE_UP`).catch(() => ({ screeners: [] })),
+            httpGet(`${APIS.options}/api/movers/$SPX?sort=PERCENT_CHANGE_DOWN`).catch(() => ({ screeners: [] }))
+        ]);
+
+        // Volume leaders (highest activity)
+        (volumeMovers.screeners || []).slice(0, 10).forEach(m => {
+            if (m.lastPrice >= SETTINGS.minPrice) {
+                addSymbol(discovered, m.symbol, 40, 'volume_leader');
+                sourceCounts.volume++;
+            }
+        });
+
+        // Big gainers (momentum up)
+        (gainers.screeners || []).slice(0, 10).forEach(m => {
+            if (Math.abs(m.netPercentChange || 0) >= 0.02 && m.lastPrice >= SETTINGS.minPrice) {
+                addSymbol(discovered, m.symbol, 35, 'gainer');
+                sourceCounts.gainers++;
+            }
+        });
+
+        // Big losers (momentum down / potential reversals)
+        (losers.screeners || []).slice(0, 10).forEach(m => {
+            if (Math.abs(m.netPercentChange || 0) >= 0.02 && m.lastPrice >= SETTINGS.minPrice) {
+                addSymbol(discovered, m.symbol, 35, 'loser');
+                sourceCounts.losers++;
+            }
+        });
+
+        // SOURCE 4: NASDAQ movers (catches tech/growth like SMCI)
+        const nasdaqMovers = await httpGet(`${APIS.options}/api/movers/$COMPX?sort=VOLUME`).catch(() => ({ screeners: [] }));
+        (nasdaqMovers.screeners || []).slice(0, 10).forEach(m => {
+            // Filter for optionable stocks (avoid penny stocks, need decent volume)
+            if (m.lastPrice >= SETTINGS.minPrice && (m.volume || 0) >= SETTINGS.minVolume) {
+                addSymbol(discovered, m.symbol, 35, 'nasdaq_mover');
+                sourceCounts.nasdaq++;
+            }
+        });
+
+        // SOURCE 5: 52-Week Extremes (breakouts/breakdowns)
+        const latest = await httpGet(`${APIS.intel}/api/latest`).catch(() => ({ data: [] }));
+        (latest.data || []).forEach(item => {
+            const pos = item.fifty_two_week_range_position || 50;
+            if (pos > 95 || pos < 5) {
+                addSymbol(discovered, item.symbol, 30, '52wk_extreme');
+                sourceCounts.extremes++;
+            }
+        });
+
+    } catch (e) {
+        console.error('[Opportunity] Error in discovery:', e.message);
+    }
+
+    // Sort by discovery score and limit
+    const sorted = Array.from(discovered.entries())
+        .sort((a, b) => b[1].score - a[1].score)
+        .slice(0, SETTINGS.maxSymbols);
+
+    // Log discovery stats
+    const uniqueSources = Object.entries(sourceCounts)
+        .filter(([_, count]) => count > 0)
+        .map(([source, count]) => `${source}:${count}`)
+        .join(', ');
+
+    console.log(`[Opportunity] Discovery: ${sorted.length} symbols from [${uniqueSources}]`);
+
+    return sorted.map(([symbol, data]) => ({
+        symbol,
+        discoveryScore: data.score,
+        sources: data.sources
+    }));
+}
+
+// State
+let isPaused = false;
+let lastScanTime = null;
+let nextScanTime = null;
+let scanCount = 0;
+const alertCooldowns = new Map();
+
+// ============================================
+// HTTP HELPERS
+// ============================================
+
+function httpGet(url, timeoutMs = 10000) {
+    return new Promise((resolve, reject) => {
+        const startTime = Date.now();
+        const protocol = url.startsWith('https') ? https : http;
+
+        const req = protocol.get(url, { timeout: timeoutMs }, (res) => {
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => {
+                try {
+                    resolve(JSON.parse(data));
+                } catch (e) {
+                    reject(new Error(`JSON parse error: ${e.message}`));
+                }
+            });
+        });
+
+        req.on('error', reject);
+        req.on('timeout', () => {
+            req.destroy();
+            reject(new Error('Request timeout'));
+        });
+    });
+}
+
+// ============================================
+// MARKET HOURS CHECK
+// ============================================
+
+function isMarketHours() {
+    const now = new Date();
+    const estOffset = -5; // EST offset from UTC (simplified)
+    const utcHour = now.getUTCHours();
+    const estHour = (utcHour + estOffset + 24) % 24;
+
+    const { startHour, endHour } = SETTINGS.marketHours;
+    const day = now.getUTCDay();
+
+    // Skip weekends
+    if (day === 0 || day === 6) return false;
+
+    return estHour >= startHour && estHour < endHour;
+}
+
+// ============================================
+// DATA FETCHING
+// ============================================
+
+async function fetchMarketContext() {
+    try {
+        const data = await httpGet(`${APIS.options}/api/market/context`);
+        return {
+            vix: data.vix,
+            vixRegime: data.vix_regime,
+            spyPrice: data.spy_price,
+            spyTrend: data.spy_trend,
+            riskAppetite: data.risk_appetite
+        };
+    } catch (e) {
+        console.error('[Opportunity] Failed to fetch market context:', e.message);
+        return null;
+    }
+}
+
+async function fetchOptionsAnalysis(symbol) {
+    try {
+        const data = await httpGet(`${APIS.options}/api/options/${symbol}/analysis`);
+        return data.analysis || data;
+    } catch (e) {
+        return null;
+    }
+}
+
+async function fetchTechnicals(symbol) {
+    try {
+        return await httpGet(`${APIS.options}/api/technicals/${symbol}`);
+    } catch (e) {
+        return null;
+    }
+}
+
+async function fetchQuote(symbol) {
+    try {
+        const data = await httpGet(`${APIS.options}/api/quotes/${symbol}`);
+        return data.quote;
+    } catch (e) {
+        return null;
+    }
+}
+
+async function fetchIV(symbol) {
+    try {
+        return await httpGet(`${APIS.options}/api/options/${symbol}/iv`);
+    } catch (e) {
+        return null;
+    }
+}
+
+// ============================================
+// SCORING SYSTEM
+// ============================================
+
+function scoreUnusualOptions(analysis) {
+    if (!analysis) return { score: 0, signals: [], direction: 'neutral' };
+
+    let score = 0;
+    const signals = [];
+    let bullishPoints = 0;
+    let bearishPoints = 0;
+
+    const {
+        call_volume = 0,
+        put_volume = 0,
+        call_put_ratio = 1,
+        net_premium = 0,
+        unusual_calls = [],
+        unusual_puts = []
+    } = analysis;
+
+    // Vol/OI Ratio scoring (from unusual_calls/puts)
+    const maxCallVolOI = unusual_calls.length > 0
+        ? Math.max(...unusual_calls.map(c => c.vol_oi_ratio || 0))
+        : 0;
+    const maxPutVolOI = unusual_puts.length > 0
+        ? Math.max(...unusual_puts.map(p => p.vol_oi_ratio || 0))
+        : 0;
+    const maxVolOI = Math.max(maxCallVolOI, maxPutVolOI);
+
+    if (maxVolOI >= 5) {
+        score += 30;
+        signals.push(`Vol/OI ${maxVolOI.toFixed(1)}x (major positioning)`);
+        if (maxCallVolOI > maxPutVolOI) bullishPoints += 30;
+        else bearishPoints += 30;
+    } else if (maxVolOI >= 3) {
+        score += 20;
+        signals.push(`Vol/OI ${maxVolOI.toFixed(1)}x (elevated)`);
+        if (maxCallVolOI > maxPutVolOI) bullishPoints += 20;
+        else bearishPoints += 20;
+    } else if (maxVolOI >= 2) {
+        score += 10;
+        signals.push(`Vol/OI ${maxVolOI.toFixed(1)}x (moderate)`);
+    }
+
+    // Premium flow scoring
+    const premiumM = Math.abs(net_premium) / 1000000;
+    if (premiumM >= 10) {
+        score += 25;
+        const dir = net_premium > 0 ? 'bullish' : 'bearish';
+        signals.push(`Net premium: $${premiumM.toFixed(1)}M ${dir}`);
+        if (net_premium > 0) bullishPoints += 25;
+        else bearishPoints += 25;
+    } else if (premiumM >= 5) {
+        score += 15;
+        const dir = net_premium > 0 ? 'bullish' : 'bearish';
+        signals.push(`Net premium: $${premiumM.toFixed(1)}M ${dir}`);
+        if (net_premium > 0) bullishPoints += 15;
+        else bearishPoints += 15;
+    } else if (premiumM >= 1) {
+        score += 5;
+        signals.push(`Net premium: $${premiumM.toFixed(1)}M`);
+    }
+
+    // Call/Put ratio scoring
+    if (call_put_ratio >= 3) {
+        score += 15;
+        signals.push(`Call/Put ratio: ${call_put_ratio.toFixed(2)} (strong bullish)`);
+        bullishPoints += 15;
+    } else if (call_put_ratio <= 0.33) {
+        score += 15;
+        signals.push(`Call/Put ratio: ${call_put_ratio.toFixed(2)} (strong bearish)`);
+        bearishPoints += 15;
+    }
+
+    // Multiple unusual strikes
+    const totalUnusual = unusual_calls.length + unusual_puts.length;
+    if (totalUnusual >= 3) {
+        score += 10;
+        signals.push(`${totalUnusual} unusual strikes (conviction)`);
+    }
+
+    // Top unusual strike details
+    if (unusual_calls.length > 0) {
+        const top = unusual_calls[0];
+        signals.push(`Top call: ${top.strike}C vol/OI ${(top.vol_oi_ratio || 0).toFixed(1)}x`);
+    }
+    if (unusual_puts.length > 0) {
+        const top = unusual_puts[0];
+        signals.push(`Top put: ${top.strike}P vol/OI ${(top.vol_oi_ratio || 0).toFixed(1)}x`);
+    }
+
+    // Determine direction
+    let direction = 'neutral';
+    if (bullishPoints > bearishPoints + 10) direction = 'bullish';
+    else if (bearishPoints > bullishPoints + 10) direction = 'bearish';
+
+    return { score, signals, direction, unusual_calls, unusual_puts };
+}
+
+function scoreSecondary(technicals, quote, iv) {
+    let score = 0;
+    const signals = [];
+    const opportunities = [];
+
+    // Gap scoring
+    if (quote && technicals) {
+        const gap = ((quote.lastPrice - quote.closePrice) / quote.closePrice) * 100;
+        if (Math.abs(gap) >= 3) {
+            score += 15;
+            signals.push(`Gap: ${gap > 0 ? '+' : ''}${gap.toFixed(2)}%`);
+            opportunities.push(gap > 0 ? 'gap_up' : 'gap_down');
+        } else if (Math.abs(gap) >= 2) {
+            score += 10;
+            signals.push(`Gap: ${gap > 0 ? '+' : ''}${gap.toFixed(2)}%`);
+            opportunities.push(gap > 0 ? 'gap_up' : 'gap_down');
+        }
+    }
+
+    // Volume spike scoring
+    if (technicals && technicals.volume_ratio >= 2) {
+        score += 15;
+        signals.push(`Volume: ${technicals.volume_ratio.toFixed(1)}x avg`);
+        opportunities.push('volume_spike');
+    }
+
+    // IV rank scoring
+    if (iv && iv.iv_percentile !== undefined) {
+        if (iv.iv_percentile >= 80) {
+            score += 10;
+            signals.push(`IV Rank: ${iv.iv_percentile.toFixed(0)}% (high - sell premium)`);
+            opportunities.push('iv_high');
+        } else if (iv.iv_percentile <= 20) {
+            score += 10;
+            signals.push(`IV Rank: ${iv.iv_percentile.toFixed(0)}% (low - buy premium)`);
+            opportunities.push('iv_low');
+        }
+    }
+
+    return { score, signals, opportunities };
+}
+
+function classifyTier(score) {
+    if (score >= 70) return 'HIGH_CONVICTION';
+    if (score >= 50) return 'TRADEABLE';
+    if (score >= 30) return 'WATCH';
+    return 'FILTERED';
+}
+
+// ============================================
+// MAIN SCAN
+// ============================================
+
+async function analyzeSymbol(symbol) {
+    const [analysis, technicals, quote, iv] = await Promise.all([
+        fetchOptionsAnalysis(symbol),
+        fetchTechnicals(symbol),
+        fetchQuote(symbol),
+        fetchIV(symbol)
+    ]);
+
+    // Score unusual options (primary)
+    const unusualResult = scoreUnusualOptions(analysis);
+
+    // Score secondary factors
+    const secondaryResult = scoreSecondary(technicals, quote, iv);
+
+    // Combine scores (cap at 100)
+    const totalScore = Math.min(100, unusualResult.score + secondaryResult.score);
+    const tier = classifyTier(totalScore);
+
+    // Build opportunities list
+    const opportunities = [];
+    if (unusualResult.score >= 20) {
+        if (unusualResult.direction === 'bullish') opportunities.push('unusual_calls');
+        else if (unusualResult.direction === 'bearish') opportunities.push('unusual_puts');
+        else opportunities.push('unusual_options');
+    }
+    opportunities.push(...secondaryResult.opportunities);
+
+    // Calculate gap
+    let gap = 0;
+    if (quote) {
+        gap = ((quote.lastPrice - quote.closePrice) / quote.closePrice) * 100;
+    }
+
+    return {
+        symbol,
+        price: quote?.lastPrice || technicals?.current || 0,
+        score: totalScore,
+        tier,
+        direction: unusualResult.direction,
+        opportunities,
+        unusual: {
+            callVolume: analysis?.call_volume || 0,
+            putVolume: analysis?.put_volume || 0,
+            callPutRatio: analysis?.call_put_ratio || 1,
+            netPremium: analysis?.net_premium || 0,
+            topStrikes: [
+                ...(unusualResult.unusual_calls || []).slice(0, 2).map(c => ({
+                    strike: c.strike,
+                    type: 'call',
+                    volume: c.volume,
+                    openInterest: c.open_interest,
+                    volOiRatio: c.vol_oi_ratio,
+                    premium: c.premium,
+                    expiration: c.expiration
+                })),
+                ...(unusualResult.unusual_puts || []).slice(0, 2).map(p => ({
+                    strike: p.strike,
+                    type: 'put',
+                    volume: p.volume,
+                    openInterest: p.open_interest,
+                    volOiRatio: p.vol_oi_ratio,
+                    premium: p.premium,
+                    expiration: p.expiration
+                }))
+            ]
+        },
+        technicals: {
+            gap,
+            volumeRatio: technicals?.volume_ratio || 0,
+            ivRank: iv?.iv_percentile || null,
+            rsi: technicals?.rsi || null
+        },
+        signals: [...unusualResult.signals, ...secondaryResult.signals],
+        timestamp: new Date().toISOString()
+    };
+}
+
+async function runScan() {
+    if (isPaused) {
+        console.log('[Opportunity] Scanner paused, skipping scan');
+        return;
+    }
+
+    // Check market hours
+    if (!isMarketHours()) {
+        console.log('[Opportunity] Outside market hours, skipping scan');
+        return;
+    }
+
+    console.log(`\n[Opportunity] ===== SCAN #${++scanCount} =====`);
+    console.log(`[Opportunity] Time: ${new Date().toISOString()}`);
+
+    lastScanTime = new Date();
+    nextScanTime = new Date(Date.now() + SETTINGS.scanIntervalMs);
+
+    // Fetch market context
+    const marketContext = await fetchMarketContext();
+    if (!marketContext) {
+        console.error('[Opportunity] Failed to fetch market context, aborting scan');
+        return;
+    }
+    console.log(`[Opportunity] VIX: ${marketContext.vix} (${marketContext.vixRegime}) | SPY: ${marketContext.spyPrice} (${marketContext.spyTrend})`);
+
+    // DYNAMIC SYMBOL DISCOVERY
+    const discoveredSymbols = await discoverSymbols();
+    console.log(`[Opportunity] Analyzing ${discoveredSymbols.length} dynamically discovered symbols...`);
+
+    const results = [];
+
+    for (const { symbol, sources } of discoveredSymbols) {
+        try {
+            const result = await analyzeSymbol(symbol);
+            result.discovery_sources = sources; // Track how we found it
+            results.push(result);
+
+            // Log high-scoring results
+            if (result.tier !== 'FILTERED') {
+                const srcTag = sources.join(',');
+                console.log(`[Opportunity] ${symbol}: Score ${result.score} (${result.tier}) - ${result.direction} [${srcTag}]`);
+            }
+        } catch (e) {
+            console.error(`[Opportunity] Error analyzing ${symbol}:`, e.message);
+        }
+
+        // Small delay to avoid API overload
+        await new Promise(r => setTimeout(r, 100));
+    }
+
+    // Sort by score
+    results.sort((a, b) => b.score - a.score);
+
+    // Calculate summary
+    const summary = {
+        highConviction: results.filter(r => r.tier === 'HIGH_CONVICTION').length,
+        tradeable: results.filter(r => r.tier === 'TRADEABLE').length,
+        watch: results.filter(r => r.tier === 'WATCH').length,
+        filtered: results.filter(r => r.tier === 'FILTERED').length
+    };
+
+    console.log(`[Opportunity] Results: ${summary.highConviction} HIGH_CONVICTION, ${summary.tradeable} TRADEABLE, ${summary.watch} WATCH`);
+
+    // Build output
+    const output = {
+        timestamp: new Date().toISOString(),
+        scannerStatus: 'running',
+        scannerMode: 'dynamic',
+        marketContext,
+        symbolsScanned: discoveredSymbols.length,
+        discoverySources: ['core', 'watchlist', 'volume_leaders', 'gainers', 'losers', 'nasdaq_movers', '52wk_extremes'],
+        results: results.filter(r => r.tier !== 'FILTERED'),
+        summary
+    };
+
+    // Write to file
+    const outputPath = path.join(__dirname, '..', 'data', 'opportunities.json');
+    fs.writeFileSync(outputPath, JSON.stringify(output, null, 2));
+    console.log(`[Opportunity] Wrote ${output.results.length} opportunities to ${outputPath}`);
+
+    // Save to SQLite for historical analysis
+    try {
+        opportunityDb.saveScanResults(results, marketContext);
+    } catch (e) {
+        console.error('[Opportunity] DB save error:', e.message);
+    }
+
+    // Send Telegram alerts for HIGH_CONVICTION
+    const highConviction = results.filter(r => r.tier === 'HIGH_CONVICTION');
+    for (const opp of highConviction) {
+        await sendTelegramAlert(opp, marketContext);
+    }
+
+    console.log(`[Opportunity] Scan complete. Next scan at ${nextScanTime.toISOString()}`);
+}
+
+// ============================================
+// TELEGRAM ALERTS
+// ============================================
+
+async function sendTelegramAlert(opportunity, marketContext) {
+    // Check cooldown
+    const cooldownKey = opportunity.symbol;
+    const lastAlert = alertCooldowns.get(cooldownKey);
+    if (lastAlert && Date.now() - lastAlert < SETTINGS.alertCooldownMs) {
+        console.log(`[Opportunity] Skipping alert for ${opportunity.symbol} (cooldown)`);
+        return;
+    }
+
+    const { botToken, chatId } = CONFIG.telegram;
+    if (!botToken || !chatId || botToken.includes('YOUR_')) {
+        console.log('[Opportunity] Telegram not configured, skipping alert');
+        return;
+    }
+
+    // Build message
+    const directionEmoji = opportunity.direction === 'bullish' ? '🟢' :
+                          opportunity.direction === 'bearish' ? '🔴' : '⚪';
+
+    const topStrike = opportunity.unusual.topStrikes[0];
+    const topStrikeText = topStrike
+        ? `${topStrike.strike}${topStrike.type === 'call' ? 'C' : 'P'} vol/OI ${topStrike.volOiRatio?.toFixed(1) || '?'}x`
+        : 'N/A';
+
+    const premiumM = Math.abs(opportunity.unusual.netPremium) / 1000000;
+    const premiumDir = opportunity.unusual.netPremium > 0 ? 'BULLISH' : 'BEARISH';
+
+    const message = `
+${directionEmoji} <b>UNUSUAL OPTIONS: ${opportunity.symbol}</b>
+Score: ${opportunity.score}/100 | ${opportunity.tier}
+
+💰 Price: $${opportunity.price.toFixed(2)}
+📊 Top Strike: ${topStrikeText}
+💵 Net Premium: $${premiumM.toFixed(1)}M ${premiumDir}
+📈 Call/Put: ${opportunity.unusual.callPutRatio.toFixed(2)}
+
+🎯 Signals:
+${opportunity.signals.slice(0, 5).map(s => `• ${s}`).join('\n')}
+
+📊 Context: SPY ${marketContext.spyTrend} | VIX ${marketContext.vix} (${marketContext.vixRegime})
+`.trim();
+
+    try {
+        const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+        const body = JSON.stringify({
+            chat_id: chatId,
+            text: message,
+            parse_mode: 'HTML'
+        });
+
+        await new Promise((resolve, reject) => {
+            const req = https.request(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(body)
+                }
+            }, (res) => {
+                let data = '';
+                res.on('data', chunk => data += chunk);
+                res.on('end', () => resolve(data));
+            });
+            req.on('error', reject);
+            req.write(body);
+            req.end();
+        });
+
+        alertCooldowns.set(cooldownKey, Date.now());
+        console.log(`[Opportunity] Sent Telegram alert for ${opportunity.symbol}`);
+    } catch (e) {
+        console.error(`[Opportunity] Failed to send Telegram alert:`, e.message);
+    }
+}
+
+// ============================================
+// CONTROL API (Port 8083)
+// ============================================
+
+function startControlServer() {
+    const server = http.createServer((req, res) => {
+        // CORS headers
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+        res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+        if (req.method === 'OPTIONS') {
+            res.writeHead(200);
+            res.end();
+            return;
+        }
+
+        const url = req.url.split('?')[0];
+
+        // GET /status
+        if (url === '/status' && req.method === 'GET') {
+            const now = Date.now();
+            const nextScanIn = nextScanTime ? Math.max(0, nextScanTime.getTime() - now) : 0;
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+                status: isPaused ? 'paused' : 'running',
+                mode: 'dynamic',
+                scanCount,
+                lastScanTime: lastScanTime?.toISOString() || null,
+                nextScanTime: nextScanTime?.toISOString() || null,
+                nextScanIn: Math.round(nextScanIn / 1000),
+                maxSymbols: SETTINGS.maxSymbols,
+                discoverySources: ['core', 'watchlist', 'volume_leaders', 'gainers', 'losers', 'nasdaq_movers', '52wk_extremes'],
+                marketHours: isMarketHours()
+            }));
+            return;
+        }
+
+        // POST /pause
+        if (url === '/pause' && req.method === 'POST') {
+            isPaused = true;
+            console.log('[Opportunity] Scanner PAUSED');
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ status: 'paused' }));
+            return;
+        }
+
+        // POST /resume
+        if (url === '/resume' && req.method === 'POST') {
+            isPaused = false;
+            console.log('[Opportunity] Scanner RESUMED');
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ status: 'running' }));
+            return;
+        }
+
+        // POST /scan
+        if (url === '/scan' && req.method === 'POST') {
+            console.log('[Opportunity] Manual scan triggered');
+            runScan().catch(e => console.error('[Opportunity] Scan error:', e));
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ status: 'scan_triggered' }));
+            return;
+        }
+
+        // POST /test-alert
+        if (url === '/test-alert' && req.method === 'POST') {
+            const testOpp = {
+                symbol: 'TEST',
+                score: 85,
+                tier: 'HIGH_CONVICTION',
+                direction: 'bullish',
+                price: 100.00,
+                unusual: {
+                    callPutRatio: 2.5,
+                    netPremium: 15000000,
+                    topStrikes: [{ strike: 105, type: 'call', volOiRatio: 6.5 }]
+                },
+                signals: ['Test alert', 'Vol/OI 6.5x', 'Net premium $15M bullish']
+            };
+            sendTelegramAlert(testOpp, { spyTrend: 'bullish', vix: 15, vixRegime: 'normal' });
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ status: 'test_alert_sent' }));
+            return;
+        }
+
+        // POST /clear-cooldowns
+        if (url === '/clear-cooldowns' && req.method === 'POST') {
+            alertCooldowns.clear();
+            console.log('[Opportunity] Alert cooldowns cleared');
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ status: 'cooldowns_cleared' }));
+            return;
+        }
+
+        // 404
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Not found' }));
+    });
+
+    server.listen(SETTINGS.controlPort, () => {
+        console.log(`[Opportunity] Control API listening on port ${SETTINGS.controlPort}`);
+    });
+}
+
+// ============================================
+// STALE DATA CLEANUP
+// ============================================
+
+function clearStaleDataOnStartup() {
+    const outputPath = path.join(__dirname, '..', 'data', 'opportunities.json');
+
+    try {
+        if (!fs.existsSync(outputPath)) {
+            console.log('[Opportunity] No existing data file found');
+            return;
+        }
+
+        const data = JSON.parse(fs.readFileSync(outputPath, 'utf8'));
+        if (!data.timestamp) {
+            console.log('[Opportunity] No timestamp in data file, clearing');
+            writeEmptyState(outputPath);
+            return;
+        }
+
+        const dataTime = new Date(data.timestamp);
+        const now = new Date();
+
+        // Check if data is from a different day
+        if (dataTime.toDateString() !== now.toDateString()) {
+            console.log(`[Opportunity] Data is from ${dataTime.toDateString()}, today is ${now.toDateString()} - CLEARING STALE DATA`);
+            writeEmptyState(outputPath);
+            return;
+        }
+
+        // Check if data is older than 15 minutes
+        const ageMinutes = (now - dataTime) / (1000 * 60);
+        if (ageMinutes > 15) {
+            console.log(`[Opportunity] Data is ${Math.floor(ageMinutes)} minutes old - CLEARING STALE DATA`);
+            writeEmptyState(outputPath);
+            return;
+        }
+
+        console.log(`[Opportunity] Existing data is fresh (${Math.floor(ageMinutes)} min old)`);
+    } catch (e) {
+        console.error('[Opportunity] Error checking stale data:', e.message);
+        writeEmptyState(outputPath);
+    }
+}
+
+function writeEmptyState(outputPath) {
+    const emptyState = {
+        timestamp: new Date().toISOString(),
+        scannerStatus: 'starting',
+        scannerMode: 'dynamic',
+        marketContext: null,
+        symbolsScanned: 0,
+        discoverySources: [],
+        results: [],
+        summary: {
+            highConviction: 0,
+            tradeable: 0,
+            watch: 0,
+            filtered: 0
+        },
+        message: 'Waiting for first scan...'
+    };
+    fs.writeFileSync(outputPath, JSON.stringify(emptyState, null, 2));
+    console.log('[Opportunity] Wrote empty state to clear stale data');
+}
+
+// ============================================
+// CLI COMMANDS
+// ============================================
+
+const args = process.argv.slice(2);
+if (args.includes('pause')) {
+    console.log('Pausing scanner...');
+    http.request(`http://localhost:${SETTINGS.controlPort}/pause`, { method: 'POST' }, (res) => {
+        console.log('Scanner paused');
+        process.exit(0);
+    }).end();
+} else if (args.includes('resume')) {
+    console.log('Resuming scanner...');
+    http.request(`http://localhost:${SETTINGS.controlPort}/resume`, { method: 'POST' }, (res) => {
+        console.log('Scanner resumed');
+        process.exit(0);
+    }).end();
+} else if (args.includes('status')) {
+    http.get(`http://localhost:${SETTINGS.controlPort}/status`, (res) => {
+        let data = '';
+        res.on('data', chunk => data += chunk);
+        res.on('end', () => {
+            console.log(JSON.parse(data));
+            process.exit(0);
+        });
+    });
+} else {
+    // Start scanner
+    console.log('[Opportunity] ========================================');
+    console.log('[Opportunity] OPPORTUNITY SCANNER starting...');
+    console.log('[Opportunity] Mode: DYNAMIC DISCOVERY');
+    console.log(`[Opportunity] Sources: movers, gainers/losers, nasdaq, 52wk extremes, watchlist`);
+    console.log(`[Opportunity] Max symbols: ${SETTINGS.maxSymbols}`);
+    console.log(`[Opportunity] Interval: ${SETTINGS.scanIntervalMs / 1000}s`);
+    console.log(`[Opportunity] Market hours: ${SETTINGS.marketHours.startHour}:00-${SETTINGS.marketHours.endHour}:00 EST`);
+    console.log('[Opportunity] ========================================');
+
+    // Clear stale data from previous day/session
+    clearStaleDataOnStartup();
+
+    // Start control server
+    startControlServer();
+
+    // Initial scan
+    setTimeout(() => {
+        runScan().catch(e => console.error('[Opportunity] Scan error:', e));
+    }, 2000);
+
+    // Scheduled scans
+    setInterval(() => {
+        runScan().catch(e => console.error('[Opportunity] Scan error:', e));
+    }, SETTINGS.scanIntervalMs);
+}

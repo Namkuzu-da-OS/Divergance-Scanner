@@ -117,7 +117,14 @@ function createPaperTrade(signalType, symbol, price, direction, context = {}) {
       // Market context
       spy_trend: context.spy_trend || null,
       intraday_bias: context.intraday_bias || null,
-      swing_bias: context.swing_bias || null
+      swing_bias: context.swing_bias || null,
+      // History context (Day 2/Streak tracking)
+      history_status: context.history_status || 'NEW',
+      consecutive_days: context.consecutive_days || 1,
+      days_since_first: context.days_since_first || 0,
+      history_trend: context.history_trend || null,
+      peak_score_ever: context.peak_score_ever || null,
+      current_vs_peak: context.current_vs_peak || null
     },
 
     exit: null,

@@ -2,7 +2,7 @@
 WINGMAN MARKET SCANNER
 ======================
 Real-time market structure display pulling from both data backends.
-- Port 3000: Market Intelligence (sentiment, VIX, ETF data)
+- Port 3000: Market Intelligence (VIX, ETF data)
 - Port 8000: Options Analytics (GEX, gamma walls, levels)
 
 Auto-refreshes every 30 seconds.
@@ -231,26 +231,6 @@ Auto-refreshes every 30 seconds.
             background: #ffc107;
         }
 
-        /* Sentiment Section */
-        .sentiment-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-        }
-
-        .sentiment-item {
-            text-align: center;
-            padding: 12px;
-            background: #0f1428;
-            border-radius: 6px;
-        }
-
-        .sentiment-label { font-size: 10px; color: #8b92a8; text-transform: uppercase; margin-bottom: 4px; }
-        .sentiment-value { font-size: 20px; font-weight: 700; }
-        .sentiment-value.bullish { color: #00d4aa; }
-        .sentiment-value.bearish { color: #ff6b6b; }
-        .sentiment-value.neutral { color: #8b92a8; }
-
         /* Alerts Section */
         .alerts-list {
             max-height: 300px;
@@ -342,7 +322,10 @@ Auto-refreshes every 30 seconds.
                 <div class="status-dot" id="status-dot"></div>
                 <span class="last-update">Last update: <span id="last-update">--:--:--</span></span>
                 <button class="refresh-btn" onclick="loadAllData()">REFRESH</button>
-                <a href="zone-scanner.html" class="refresh-btn" style="text-decoration: none; margin-left: 8px;">ZONES</a>
+                <a href="zone-scanner.html" class="refresh-btn" style="text-decoration: none; margin-left: 8px;">🎯 ZONES</a>
+                <a href="analytics.html" class="refresh-btn" style="text-decoration: none; margin-left: 8px;">📊 ANALYTICS</a>
+                <a href="earnings-scanner.html" class="refresh-btn" style="text-decoration: none; margin-left: 8px; color: #f59e0b;">📅 EARNINGS</a>
+                <a href="opportunity-scanner.html" class="refresh-btn" style="text-decoration: none; margin-left: 8px; color: #3b82f6;">🎯 OPPORTUNITY</a>
                 <a href="dashboard.html" class="refresh-btn" style="text-decoration: none; margin-left: 8px;">DASHBOARD</a>
             </div>
         </div>
@@ -452,27 +435,8 @@ Auto-refreshes every 30 seconds.
             </div>
         </div>
 
-        <!-- Secondary Grid: Sentiment & Alerts -->
+        <!-- Alerts Section -->
         <div class="main-grid">
-            <!-- Sentiment -->
-            <div class="card">
-                <h3>Sentiment (24h)</h3>
-                <div class="sentiment-grid" id="sentiment-grid">
-                    <div class="sentiment-item">
-                        <div class="sentiment-label">Bullish</div>
-                        <div class="sentiment-value bullish" id="sent-bullish">--%</div>
-                    </div>
-                    <div class="sentiment-item">
-                        <div class="sentiment-label">Bearish</div>
-                        <div class="sentiment-value bearish" id="sent-bearish">--%</div>
-                    </div>
-                    <div class="sentiment-item">
-                        <div class="sentiment-label">Neutral</div>
-                        <div class="sentiment-value neutral" id="sent-neutral">--%</div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Recent Alerts -->
             <div class="card">
                 <h3>Recent Alerts</h3>
@@ -535,11 +499,6 @@ Auto-refreshes every 30 seconds.
 
                 // Update context cards
                 updateContextCards(scannerData.market_context, scannerData.spy);
-
-                // Update sentiment
-                if (scannerData.sentiment) {
-                    updateSentiment(scannerData.sentiment);
-                }
 
                 // Update alerts
                 updateAlerts(alerts || []);
@@ -660,18 +619,6 @@ Auto-refreshes every 30 seconds.
                 document.getElementById('expected-move').textContent = `$${em.value?.toFixed(2) || '--'}`;
                 document.getElementById('em-range').textContent = `$${em.lower?.toFixed(0)} - $${em.upper?.toFixed(0)}`;
             }
-        }
-
-        function updateSentiment(sentiment) {
-            if (!sentiment) return;
-
-            const bullish = sentiment.bullish_pct || sentiment.bullish || 0;
-            const bearish = sentiment.bearish_pct || sentiment.bearish || 0;
-            const neutral = sentiment.neutral_pct || sentiment.neutral || (100 - bullish - bearish);
-
-            document.getElementById('sent-bullish').textContent = `${bullish.toFixed(0)}%`;
-            document.getElementById('sent-bearish').textContent = `${bearish.toFixed(0)}%`;
-            document.getElementById('sent-neutral').textContent = `${neutral.toFixed(0)}%`;
         }
 
         function updateAlerts(alerts) {

@@ -1,0 +1,421 @@
+// This Pine Script™ code is subject to the terms of the Mozilla Public License 2.0 at https://mozilla.org/MPL/2.0/
+// © Wingman Trading System
+
+//@version=5
+indicator("Wingman Master", overlay=true, max_labels_count=500, max_lines_count=500)
+
+// ╔══════════════════════════════════════════════════════════════════════════════╗
+// ║                           WINGMAN MASTER INDICATOR                            ║
+// ║  HTF Context | VWAP Zones | Position Sizing | Confluence Score | Stop Levels ║
+// ╚══════════════════════════════════════════════════════════════════════════════╝
+
+// ============================================================================
+// INPUTS
+// ============================================================================
+
+// Account & Risk Settings
+grp_risk = "═══ RISK MANAGEMENT ═══"
+i_accountSize = input.float(20000, "Account Size ($)", minval=1000, group=grp_risk)
+i_riskPercent = input.float(1.0, "Risk Per Trade (%)", minval=0.1, maxval=5.0, step=0.1, group=grp_risk)
+i_showPositionSize = input.bool(true, "Show Position Size Panel", group=grp_risk)
+
+// ATR Settings
+grp_atr = "═══ ATR & STOPS ═══"
+i_atrPeriodScalp = input.int(10, "ATR Period (Scalp - 5/15min)", minval=5, maxval=20, group=grp_atr)
+i_atrPeriodSwing = input.int(14, "ATR Period (Swing - Daily)", minval=10, maxval=30, group=grp_atr)
+i_showStopLevels = input.bool(true, "Show Stop Levels", group=grp_atr)
+i_stopColor = input.color(color.new(color.red, 70), "Stop Level Color", group=grp_atr)
+
+// VWAP Settings
+grp_vwap = "═══ VWAP & ENTRY ZONES ═══"
+i_showVWAP = input.bool(true, "Show VWAP", group=grp_vwap)
+i_showVWAPBands = input.bool(true, "Show VWAP ATR Bands", group=grp_vwap)
+i_vwapLowerMult = input.float(1.5, "Lower Band Multiplier", minval=1.0, maxval=3.0, step=0.1, group=grp_vwap)
+i_vwapUpperMult = input.float(2.5, "Upper Band Multiplier", minval=1.5, maxval=4.0, step=0.1, group=grp_vwap)
+i_highlightZones = input.bool(true, "Highlight Entry Zones", group=grp_vwap)
+i_zoneColor = input.color(color.new(color.green, 85), "Entry Zone Color", group=grp_vwap)
+
+// HTF Levels
+grp_htf = "═══ HIGHER TIMEFRAME LEVELS ═══"
+i_showPDHL = input.bool(true, "Show Previous Day High/Low", group=grp_htf)
+i_showWeeklyOpen = input.bool(true, "Show Weekly Open", group=grp_htf)
+i_showDailyEMA = input.bool(true, "Show Daily 20 EMA", group=grp_htf)
+i_pdhColor = input.color(color.new(color.orange, 30), "PDH Color", group=grp_htf)
+i_pdlColor = input.color(color.new(color.purple, 30), "PDL Color", group=grp_htf)
+i_weeklyOpenColor = input.color(color.new(color.blue, 30), "Weekly Open Color", group=grp_htf)
+i_emaColor = input.color(color.new(color.yellow, 50), "Daily EMA Color", group=grp_htf)
+
+// Confluence & Signals
+grp_conf = "═══ CONFLUENCE & SIGNALS ═══"
+i_showConfluence = input.bool(true, "Show Confluence Score", group=grp_conf)
+i_minConfluence = input.int(60, "Min Confluence for Signal", minval=30, maxval=90, group=grp_conf)
+i_showSignals = input.bool(true, "Show Entry Signals", group=grp_conf)
+
+// Display Settings
+grp_display = "═══ DISPLAY ═══"
+i_tablePosition = input.string("top_right", "Info Panel Position", options=["top_right", "top_left", "bottom_right", "bottom_left"], group=grp_display)
+i_showVIX = input.bool(true, "Show VIX Regime", group=grp_display)
+i_showHTFTrend = input.bool(true, "Show HTF Trend Status", group=grp_display)
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+// Detect chart timeframe for adaptive settings
+isIntraday() => timeframe.isintraday
+isScalpTF() => timeframe.period == "1" or timeframe.period == "5" or timeframe.period == "15"
+isSwingTF() => timeframe.period == "D" or timeframe.period == "W"
+
+// Get appropriate ATR period based on timeframe
+getATRPeriod() => isScalpTF() ? i_atrPeriodScalp : i_atrPeriodSwing
+
+// VIX Multiplier based on VIX level
+getVIXMultiplier(vixLevel) =>
+    vixLevel < 15 ? 1.5 :
+    vixLevel < 25 ? 2.0 :
+    vixLevel < 35 ? 2.5 : 3.0
+
+// ============================================================================
+// VIX DATA (Non-Repainting)
+// ============================================================================
+
+vixClose = request.security("CBOE:VIX", "D", close[1], lookahead=barmerge.lookahead_on)
+vixMultiplier = getVIXMultiplier(vixClose)
+
+vixRegime = vixClose < 15 ? "LOW" :
+            vixClose < 20 ? "NORMAL" :
+            vixClose < 25 ? "ELEVATED" :
+            vixClose < 35 ? "HIGH" : "EXTREME"
+
+vixRegimeColor = vixClose < 15 ? color.green :
+                 vixClose < 20 ? color.blue :
+                 vixClose < 25 ? color.yellow :
+                 vixClose < 35 ? color.orange : color.red
+
+// ============================================================================
+// HIGHER TIMEFRAME DATA (Non-Repainting)
+// ============================================================================
+
+// Previous Day High/Low
+[pdh, pdl, pdc] = request.security(syminfo.tickerid, "D", [high[1], low[1], close[1]], lookahead=barmerge.lookahead_on)
+
+// Weekly Open
+weeklyOpen = request.security(syminfo.tickerid, "W", open[1], lookahead=barmerge.lookahead_on)
+
+// Daily 20 EMA
+dailyEMA20 = request.security(syminfo.tickerid, "D", ta.ema(close, 20)[1], lookahead=barmerge.lookahead_on)
+
+// Daily 50 SMA for trend
+dailySMA50 = request.security(syminfo.tickerid, "D", ta.sma(close, 50)[1], lookahead=barmerge.lookahead_on)
+
+// Weekly 50 SMA for trend
+weeklySMA50 = request.security(syminfo.tickerid, "W", ta.sma(close, 50)[1], lookahead=barmerge.lookahead_on)
+
+// SPY trend for market context
+spyClose = request.security("SPY", "D", close[1], lookahead=barmerge.lookahead_on)
+spyEMA20 = request.security("SPY", "D", ta.ema(close, 20)[1], lookahead=barmerge.lookahead_on)
+spyBullish = spyClose > spyEMA20
+
+// ============================================================================
+// ATR CALCULATIONS
+// ============================================================================
+
+atrPeriod = getATRPeriod()
+atr = ta.atr(atrPeriod)
+
+// Stop calculations
+mentalStopLong = close - (atr * vixMultiplier)
+mentalStopShort = close + (atr * vixMultiplier)
+hardStopLong = close - (atr * vixMultiplier * 1.5)
+hardStopShort = close + (atr * vixMultiplier * 1.5)
+
+// ============================================================================
+// VWAP & BANDS
+// ============================================================================
+
+// Calculate VWAP
+vwapValue = ta.vwap(hlc3)
+
+// ATR-based bands around VWAP
+vwapUpperInner = vwapValue + (atr * i_vwapLowerMult)
+vwapLowerInner = vwapValue - (atr * i_vwapLowerMult)
+vwapUpperOuter = vwapValue + (atr * i_vwapUpperMult)
+vwapLowerOuter = vwapValue - (atr * i_vwapUpperMult)
+
+// Entry zone detection
+inBuyZone = close <= vwapLowerInner and close >= vwapLowerOuter
+inSellZone = close >= vwapUpperInner and close <= vwapUpperOuter
+inExtremeZone = close < vwapLowerOuter or close > vwapUpperOuter
+
+// Distance from VWAP in ATR units
+distFromVWAP = math.abs(close - vwapValue) / atr
+
+// ============================================================================
+// TREND ANALYSIS
+// ============================================================================
+
+// Daily trend
+dailyTrendBull = pdc > dailyEMA20
+dailyTrendDirection = dailyTrendBull ? "BULLISH" : "BEARISH"
+dailyTrendColor = dailyTrendBull ? color.green : color.red
+
+// Weekly trend
+weeklyTrendBull = close > weeklySMA50
+weeklyTrendDirection = weeklyTrendBull ? "BULLISH" : "BEARISH"
+weeklyTrendColor = weeklyTrendBull ? color.green : color.red
+
+// Combined trend alignment
+trendsAligned = (dailyTrendBull and weeklyTrendBull) or (not dailyTrendBull and not weeklyTrendBull)
+trendAlignmentStr = trendsAligned ? "ALIGNED" : "MIXED"
+
+// ============================================================================
+// TECHNICAL INDICATORS FOR CONFLUENCE
+// ============================================================================
+
+// RSI
+rsi = ta.rsi(close, 14)
+rsiOversold = rsi < 30
+rsiOverbought = rsi > 70
+rsiNeutral = rsi >= 40 and rsi <= 60
+
+// Bollinger Bands position
+[bbMiddle, bbUpper, bbLower] = ta.bb(close, 20, 2.0)
+atBBLower = close <= bbLower
+atBBUpper = close >= bbUpper
+
+// Volume
+volSMA = ta.sma(volume, 20)
+volumeSpike = volume > volSMA * 1.5
+volumeHigh = volume > volSMA * 2.0
+
+// MACD
+[macdLine, signalLine, histLine] = ta.macd(close, 12, 26, 9)
+macdBullish = macdLine > signalLine
+macdCrossUp = ta.crossover(macdLine, signalLine)
+macdCrossDown = ta.crossunder(macdLine, signalLine)
+
+// ============================================================================
+// CONFLUENCE SCORING (0-100)
+// ============================================================================
+
+var float confluenceScore = 0.0
+
+// Technical Score (25 points max)
+technicalScore = 0.0
+if rsiOversold
+    technicalScore += 10
+if atBBLower
+    technicalScore += 10
+if macdCrossUp
+    technicalScore += 5
+
+// Levels Score (25 points max)
+levelScore = 0.0
+nearPDL = math.abs(close - pdl) / atr < 0.5
+nearPDH = math.abs(close - pdh) / atr < 0.5
+nearVWAP = math.abs(close - vwapValue) / atr < 0.3
+nearWeeklyOpen = math.abs(close - weeklyOpen) / atr < 0.5
+nearDailyEMA = math.abs(close - dailyEMA20) / atr < 0.5
+
+if nearPDL or nearPDH
+    levelScore += 10
+if nearVWAP
+    levelScore += 5
+if nearWeeklyOpen
+    levelScore += 5
+if nearDailyEMA
+    levelScore += 5
+
+// Zone Score (20 points max)
+zoneScore = 0.0
+if inBuyZone
+    zoneScore += 15
+if inSellZone
+    zoneScore += 15
+if inExtremeZone
+    zoneScore += 20
+
+// Volume Score (15 points max)
+volumeScore = 0.0
+if volumeHigh
+    volumeScore += 15
+else if volumeSpike
+    volumeScore += 10
+
+// Context Score (15 points max)
+contextScore = 0.0
+if trendsAligned
+    contextScore += 10
+if spyBullish and dailyTrendBull
+    contextScore += 5
+if not spyBullish and not dailyTrendBull
+    contextScore += 5
+
+// Total Confluence Score
+confluenceScore := math.min(100, technicalScore + levelScore + zoneScore + volumeScore + contextScore)
+
+// Confluence level
+confluenceLevel = confluenceScore >= 80 ? "HIGH" :
+                  confluenceScore >= 60 ? "MODERATE" :
+                  confluenceScore >= 40 ? "LOW" : "NONE"
+
+confluenceLevelColor = confluenceScore >= 80 ? color.green :
+                       confluenceScore >= 60 ? color.yellow :
+                       confluenceScore >= 40 ? color.orange : color.gray
+
+// ============================================================================
+// POSITION SIZING CALCULATION
+// ============================================================================
+
+riskAmount = i_accountSize * (i_riskPercent / 100)
+riskPerShare = atr * vixMultiplier
+positionSize = riskPerShare > 0 ? math.floor(riskAmount / riskPerShare) : 0
+positionValue = positionSize * close
+
+// ============================================================================
+// SIGNAL GENERATION
+// ============================================================================
+
+// Buy signal conditions
+buySignal = inBuyZone and
+            confluenceScore >= i_minConfluence and
+            (dailyTrendBull or rsiOversold) and
+            volumeSpike
+
+// Sell signal conditions
+sellSignal = inSellZone and
+             confluenceScore >= i_minConfluence and
+             (not dailyTrendBull or rsiOverbought) and
+             volumeSpike
+
+// ============================================================================
+// PLOTTING - VWAP & BANDS
+// ============================================================================
+
+// VWAP
+plot(i_showVWAP ? vwapValue : na, "VWAP", color=color.new(color.white, 20), linewidth=2)
+
+// VWAP Bands
+p_upperInner = plot(i_showVWAPBands ? vwapUpperInner : na, "Upper Inner (1.5 ATR)", color=color.new(color.red, 60), linewidth=1)
+p_lowerInner = plot(i_showVWAPBands ? vwapLowerInner : na, "Lower Inner (1.5 ATR)", color=color.new(color.green, 60), linewidth=1)
+p_upperOuter = plot(i_showVWAPBands ? vwapUpperOuter : na, "Upper Outer (2.5 ATR)", color=color.new(color.red, 40), linewidth=1, style=plot.style_circles)
+p_lowerOuter = plot(i_showVWAPBands ? vwapLowerOuter : na, "Lower Outer (2.5 ATR)", color=color.new(color.green, 40), linewidth=1, style=plot.style_circles)
+
+// Entry zone fill
+fill(p_lowerInner, p_lowerOuter, color=i_highlightZones and inBuyZone ? i_zoneColor : color.new(color.green, 95), title="Buy Zone")
+fill(p_upperInner, p_upperOuter, color=i_highlightZones and inSellZone ? color.new(color.red, 85) : color.new(color.red, 95), title="Sell Zone")
+
+// ============================================================================
+// PLOTTING - HTF LEVELS
+// ============================================================================
+
+// Previous Day High/Low
+plot(i_showPDHL ? pdh : na, "PDH", color=i_pdhColor, linewidth=2, style=plot.style_linebr)
+plot(i_showPDHL ? pdl : na, "PDL", color=i_pdlColor, linewidth=2, style=plot.style_linebr)
+
+// Weekly Open
+plot(i_showWeeklyOpen ? weeklyOpen : na, "Weekly Open", color=i_weeklyOpenColor, linewidth=2, style=plot.style_linebr)
+
+// Daily 20 EMA
+plot(i_showDailyEMA ? dailyEMA20 : na, "Daily 20 EMA", color=i_emaColor, linewidth=2, style=plot.style_linebr)
+
+// ============================================================================
+// PLOTTING - STOP LEVELS
+// ============================================================================
+
+plot(i_showStopLevels ? mentalStopLong : na, "Mental Stop (Long)", color=color.new(color.red, 50), linewidth=1, style=plot.style_linebr)
+plot(i_showStopLevels ? hardStopLong : na, "Hard Stop (Long)", color=color.new(color.red, 70), linewidth=1, style=plot.style_cross)
+
+// ============================================================================
+// PLOTTING - SIGNALS
+// ============================================================================
+
+plotshape(i_showSignals and buySignal, "Buy Signal", shape.triangleup, location.belowbar, color.green, size=size.small)
+plotshape(i_showSignals and sellSignal, "Sell Signal", shape.triangledown, location.abovebar, color.red, size=size.small)
+
+// ============================================================================
+// INFO TABLE
+// ============================================================================
+
+var table infoTable = table.new(
+    i_tablePosition == "top_right" ? position.top_right :
+    i_tablePosition == "top_left" ? position.top_left :
+    i_tablePosition == "bottom_right" ? position.bottom_right : position.bottom_left,
+    2, 12, bgcolor=color.new(color.black, 80), border_width=1)
+
+if barstate.islast
+    // Header
+    table.cell(infoTable, 0, 0, "WINGMAN", bgcolor=color.new(color.blue, 70), text_color=color.white, text_size=size.small)
+    table.cell(infoTable, 1, 0, "MASTER", bgcolor=color.new(color.blue, 70), text_color=color.white, text_size=size.small)
+
+    // VIX Regime
+    if i_showVIX
+        table.cell(infoTable, 0, 1, "VIX", text_color=color.gray, text_size=size.tiny)
+        table.cell(infoTable, 1, 1, str.tostring(vixClose, "#.#") + " " + vixRegime, text_color=vixRegimeColor, text_size=size.tiny)
+
+    // HTF Trend
+    if i_showHTFTrend
+        table.cell(infoTable, 0, 2, "Daily", text_color=color.gray, text_size=size.tiny)
+        table.cell(infoTable, 1, 2, dailyTrendDirection, text_color=dailyTrendColor, text_size=size.tiny)
+
+        table.cell(infoTable, 0, 3, "Weekly", text_color=color.gray, text_size=size.tiny)
+        table.cell(infoTable, 1, 3, weeklyTrendDirection, text_color=weeklyTrendColor, text_size=size.tiny)
+
+        table.cell(infoTable, 0, 4, "SPY", text_color=color.gray, text_size=size.tiny)
+        table.cell(infoTable, 1, 4, spyBullish ? "BULLISH" : "BEARISH", text_color=spyBullish ? color.green : color.red, text_size=size.tiny)
+
+    // Confluence Score
+    if i_showConfluence
+        table.cell(infoTable, 0, 5, "Confluence", text_color=color.gray, text_size=size.tiny)
+        table.cell(infoTable, 1, 5, str.tostring(confluenceScore, "#") + "/100", text_color=confluenceLevelColor, text_size=size.tiny)
+
+    // Zone Status
+    zoneStatus = inBuyZone ? "BUY ZONE" : inSellZone ? "SELL ZONE" : inExtremeZone ? "EXTREME" : "NEUTRAL"
+    zoneStatusColor = inBuyZone ? color.green : inSellZone ? color.red : inExtremeZone ? color.orange : color.gray
+    table.cell(infoTable, 0, 6, "Zone", text_color=color.gray, text_size=size.tiny)
+    table.cell(infoTable, 1, 6, zoneStatus, text_color=zoneStatusColor, text_size=size.tiny)
+
+    // VWAP Distance
+    table.cell(infoTable, 0, 7, "VWAP Dist", text_color=color.gray, text_size=size.tiny)
+    table.cell(infoTable, 1, 7, str.tostring(distFromVWAP, "#.#") + " ATR", text_color=color.white, text_size=size.tiny)
+
+    // ATR Value
+    table.cell(infoTable, 0, 8, "ATR(" + str.tostring(atrPeriod) + ")", text_color=color.gray, text_size=size.tiny)
+    table.cell(infoTable, 1, 8, str.tostring(atr, "#.##"), text_color=color.white, text_size=size.tiny)
+
+    // Position Sizing
+    if i_showPositionSize
+        table.cell(infoTable, 0, 9, "═══════", bgcolor=color.new(color.gray, 80), text_color=color.gray, text_size=size.tiny)
+        table.cell(infoTable, 1, 9, "═══════", bgcolor=color.new(color.gray, 80), text_color=color.gray, text_size=size.tiny)
+
+        table.cell(infoTable, 0, 10, "Risk $", text_color=color.gray, text_size=size.tiny)
+        table.cell(infoTable, 1, 10, "$" + str.tostring(riskAmount, "#"), text_color=color.yellow, text_size=size.tiny)
+
+        table.cell(infoTable, 0, 11, "Shares", text_color=color.gray, text_size=size.tiny)
+        table.cell(infoTable, 1, 11, str.tostring(positionSize, "#"), text_color=color.cyan, text_size=size.tiny)
+
+// ============================================================================
+// LABELS FOR KEY LEVELS
+// ============================================================================
+
+// Label PDH/PDL on chart
+if i_showPDHL and barstate.islast
+    label.new(bar_index + 5, pdh, "PDH " + str.tostring(pdh, "#.##"), style=label.style_label_left, color=color.new(i_pdhColor, 50), textcolor=color.white, size=size.small)
+    label.new(bar_index + 5, pdl, "PDL " + str.tostring(pdl, "#.##"), style=label.style_label_left, color=color.new(i_pdlColor, 50), textcolor=color.white, size=size.small)
+
+if i_showWeeklyOpen and barstate.islast
+    label.new(bar_index + 5, weeklyOpen, "W Open " + str.tostring(weeklyOpen, "#.##"), style=label.style_label_left, color=color.new(i_weeklyOpenColor, 50), textcolor=color.white, size=size.small)
+
+// ============================================================================
+// ALERTS
+// ============================================================================
+
+alertcondition(buySignal, title="Buy Signal", message="Wingman: BUY signal - {{ticker}} at {{close}} | Confluence: " + str.tostring(confluenceScore))
+alertcondition(sellSignal, title="Sell Signal", message="Wingman: SELL signal - {{ticker}} at {{close}} | Confluence: " + str.tostring(confluenceScore))
+alertcondition(inBuyZone and not inBuyZone[1], title="Entered Buy Zone", message="{{ticker}} entered BUY ZONE at {{close}}")
+alertcondition(inSellZone and not inSellZone[1], title="Entered Sell Zone", message="{{ticker}} entered SELL ZONE at {{close}}")
+alertcondition(confluenceScore >= 80 and confluenceScore[1] < 80, title="High Confluence", message="{{ticker}} HIGH CONFLUENCE (80+) at {{close}}")
+
+// ============================================================================
+// END OF INDICATOR
+// ============================================================================

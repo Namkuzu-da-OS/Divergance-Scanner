@@ -13,7 +13,6 @@ The trader makes all final decisions. Wingman finds where to look.
 ### Not a Static Watchlist
 Traditional scanners watch fixed symbols. Wingman dynamically discovers where the action is based on:
 - What's moving (volume, price action)
-- What's being talked about (social sentiment, news)
 - What has unusual activity (options flow, institutional footprints)
 - What's at key levels (gamma walls, support/resistance, VWAP)
 
@@ -21,7 +20,6 @@ Traditional scanners watch fixed symbols. Wingman dynamically discovers where th
 A single signal means nothing. We're looking for multiple factors aligning:
 - Technical setup (RSI, patterns, levels)
 - Options flow (unusual activity, gamma positioning)
-- Sentiment (social buzz, news catalysts)
 - Market context (regime, SPY/QQQ direction)
 
 **Example:** A stock at a buy zone means little if SPY is breaking down. Context matters.
@@ -44,7 +42,6 @@ Individual stocks don't exist in isolation:
 | Volume Anomalies | Relative volume spikes | Something is happening |
 | Technical Patterns | RSI extremes, doji, breakouts | Price action setups |
 | Key Levels | Gamma walls, support/resistance, VWAP | Known decision points |
-| Social Sentiment | Twitter/StockTwits buzz, news | Catalyst awareness |
 | Gap Analysis | Pre-market gaps, gap fills | Gap-and-go setups |
 
 ### Context Filters
@@ -69,7 +66,6 @@ Background process that runs continuously:
 ### Dynamic Symbol Discovery
 Instead of "watch these 10 symbols," we ask:
 - What has unusual volume right now?
-- What's trending on social media?
 - What has options flow conviction?
 - What's at a critical technical level?
 - What has a catalyst today?
@@ -108,7 +104,6 @@ The system finds. The trader decides.
 ### Standard
 - **Zone Entry:** Symbol enters buy/sell zone
 - **Level Test:** Price at gamma wall, VWAP, key support/resistance
-- **Sentiment Spike:** Social buzz increasing
 
 ### Informational
 - **Market Context:** Morning regime summary
@@ -122,7 +117,6 @@ The system finds. The trader decides.
 ### Current (Port 3000 - Intel API)
 - ETF data (price, change, 52-week range)
 - VIX and regime classification
-- Sentiment scores
 - AI outlook and signals
 - High conviction picks
 
@@ -134,7 +128,6 @@ The system finds. The trader decides.
 
 ### Future Expansion
 - Real-time options flow (sweeps, blocks, unusual)
-- Social sentiment feeds (Twitter, StockTwits, Reddit)
 - News aggregation with NLP
 - Pre-market/after-hours data
 - Dark pool prints
@@ -172,14 +165,13 @@ The system finds. The trader decides.
 ### Components
 
 1. **Symbol Discovery**
-   - Pulls from trending, high conviction, unusual activity sources
+   - Pulls from watchlist, market data, unusual activity sources
    - Builds dynamic watchlist based on current conditions
    - Not limited to static list
 
 2. **Filter Engine**
    - Applies technical filters (RSI, patterns, levels)
    - Applies flow filters (volume, options activity)
-   - Applies sentiment filters (social, news)
 
 3. **Market Context**
    - Monitors SPY/QQQ for broad direction
@@ -206,8 +198,8 @@ The system finds. The trader decides.
 - Zone Scanner (static watchlist backup)
 - Wingman Monitor (market alerts, VIX regime, wall proximity)
 - Telegram integration
-- Confluence scoring (technical + levels + sentiment + volume + context)
-- Dynamic symbol discovery (trending, market data, core)
+- Confluence scoring (technical + levels + volume + context)
+- Dynamic symbol discovery (watchlist, market data, sector rotation)
 - Market context awareness (SPY/QQQ direction check)
 - Pinned detection (trapped between gamma walls)
 

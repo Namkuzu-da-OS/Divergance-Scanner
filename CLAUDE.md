@@ -9,7 +9,7 @@ Wingman Trading System - AI Instructions
 **READ FIRST:** [docs/VISION.md](docs/VISION.md) - The Bloodhound Scanner
 
 > Wingman is an autonomous opportunity detection system. It finds confluence across
-> multiple data sources (levels, flow, sentiment, technicals) and alerts the trader.
+> multiple data sources (levels, flow, technicals) and alerts the trader.
 > The trader makes all final decisions. Wingman finds where to look.
 >
 > **Key Principles:**
@@ -163,7 +163,6 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 4. Options Flow:        GET http://192.168.10.239:8000/api/flow/{SYMBOL}
 5. Market Context:      GET http://192.168.10.239:8000/api/market/context
 6. AI Outlook:          GET http://192.168.10.239:3000/api/market/outlook
-7. Sentiment:           GET http://192.168.10.239:3000/api/x/sentiment/ticker/{SYMBOL}
 ```
 
 **Web search is SUPPLEMENTAL, not primary.**
@@ -175,7 +174,7 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 ```
 ┌─────────────────┐     ┌──────────────────────────────────────┐
 │  Wingman CLI    │     │  Market Intelligence Server (3000)   │
-│  (Claude Code)  │◄───►│  - Sentiment, VIX, ETF data          │
+│  (Claude Code)  │◄───►│  - VIX, ETF data                     │
 └────────┬────────┘     │  - Trade Logging API (/api/trades)   │
          │              │  - AI outlook, signals               │
          │              └──────────────────────────────────────┘
@@ -196,6 +195,21 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 │  scanner.json   │────► Scanner Dashboard (scanner.html)
 └─────────────────┘
 ```
+
+### Port Map (HARDCODED - DO NOT CHANGE)
+
+| Port | Service | File | Purpose |
+|------|---------|------|---------|
+| 3000 | Intel API | External | Market intelligence, trade logging |
+| 8000 | Options API | External | Options analytics, technicals, gamma levels |
+| 8080 | Web Server | `monitor/web-server.js` | Serves HTML dashboards |
+| 8081 | Bloodhound | `monitor/bloodhound-scanner.js` | Bloodhound control API |
+| 8082 | Earnings | `monitor/earnings-scanner.js` | Earnings scanner control API |
+
+**Dashboard URLs:**
+- Zone Scanner: `http://localhost:8080/zone-scanner.html`
+- Earnings Scanner: `http://localhost:8080/earnings-scanner.html`
+- Analytics: `http://localhost:8080/analytics.html`
 
 ---
 
@@ -239,15 +253,35 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 
 ---
 
+## Starting All Scanners
+
+**One command to start everything:**
+
+```bash
+pm2 start ecosystem.config.js
+```
+
+This starts all 4 services: bloodhound, opportunity, earnings, webserver.
+
+**Common PM2 commands:**
+```bash
+pm2 list                     # Show all processes
+pm2 logs                     # View all logs
+pm2 logs bloodhound          # View specific logs
+pm2 restart all              # Restart everything
+pm2 stop all                 # Stop everything
+```
+
+---
+
 ## Bloodhound Scanner
 
 **The core autonomous opportunity detection system.** This is the primary scanner that implements the project vision - finding high-confluence trading opportunities across multiple data sources.
 
 ### Running Bloodhound
 
-Bloodhound runs persistently via PM2:
+Bloodhound runs persistently via PM2 (started automatically via ecosystem.config.js):
 ```bash
-pm2 start monitor/bloodhound-scanner.js --name bloodhound
 pm2 logs bloodhound          # View logs
 pm2 restart bloodhound       # Restart after changes
 ```
@@ -269,16 +303,15 @@ Control API: `http://localhost:8081`
 | `/watchlist/add` | POST | Add symbol `{"symbol":"AAPL"}` |
 | `/watchlist/remove` | POST | Remove symbol `{"symbol":"AAPL"}` |
 
-### 6 Discovery Sources
+### 3 Discovery Sources
 
 Bloodhound dynamically discovers symbols from:
 
 1. **Watchlist** (`data/watchlist.json`) - Always scanned, highest priority
-2. **X/Twitter Trending** (`/api/x/tickers/trending`) - Most mentioned tickers
-3. **AI Market Outlook** (`/api/market/outlook`) - AI-identified key tickers
-4. **Author Consensus** (`/api/garden/consensus`) - 3+ authors agree on direction
-5. **Market Data** (`/api/latest`) - 52-week extremes, volume spikes
-6. **Sector Rotation** - Strongest/weakest sector ETFs
+2. **Market Data** (`/api/latest`) - 52-week extremes, volume spikes
+3. **Sector Rotation** - Strongest/weakest sector ETFs
+
+Note: Social sentiment sources (X/Twitter trending, author consensus) were removed as unreliable.
 
 ### Symbol Mapping
 
@@ -296,9 +329,7 @@ Non-tradeable symbols are mapped to liquid ETF equivalents:
 | CL | USO | Crude Oil futures → ETF |
 | GC | GLD | Gold futures → ETF |
 
-When BTC is trending, IBIT gets the score boost. When authors are bullish on ETH, ETHA gets scanned.
-
-### Confluence Scoring (0-100)
+### Confluence Scoring (0-80)
 
 Each symbol is scored across multiple factors:
 
@@ -306,11 +337,12 @@ Each symbol is scored across multiple factors:
 |----------|------------|---------|
 | Technical | 25 | RSI oversold/overbought, Bollinger Band position, trend |
 | Levels | 25 | At gamma walls, VWAP, confluence zones, breakout/breakdown |
-| Sentiment | 15 | Social mentions, author consensus, AI outlook mention |
 | Volume | 15 | Volume spike (2x+), elevated volume (1.5x+) |
-| Context | 20 | Aligned with SPY trend, market regime |
+| Context | 15 | Aligned with SPY trend, market regime |
 
-**Alert threshold: 60/100** (configurable in SETTINGS)
+**Alert threshold: 48/80** (configurable in SETTINGS)
+
+Note: Sentiment scoring was removed (unreliable). Max score reduced from 100 to 80.
 
 ### Alert Types
 
@@ -319,7 +351,6 @@ Each symbol is scored across multiple factors:
 - 📍 **Pinned** - Trapped between gamma walls
 - 🚀 **Breakout** - Above call wall resistance
 - 💥 **Breakdown** - Below put wall support
-- 👥 **Consensus** - Multiple authors agree (e.g., "6 authors BULLISH")
 
 ### Tradeable Tiers (Score-Aware)
 
@@ -327,24 +358,24 @@ The tradeable decision uses both wall proximity AND confluence score:
 
 | Tier | Criteria | Paper Trade? |
 |------|----------|--------------|
-| **HIGH_CONVICTION** | Score >= 70 + at wall (0.5%), OR Score >= 80 + near wall (1.5%) | Yes |
-| **TRADEABLE** | Score >= 60 + at wall (0.5%) + trend-aligned | Yes |
-| **WATCH** | Score >= 50 + near wall (2%), OR EXTENDED_LOW + RSI < 35, OR Score >= 70 mid-range | No (alert only) |
+| **HIGH_CONVICTION** | Score >= 56 + at wall (0.5%), OR Score >= 64 + near wall (1.5%) | Yes |
+| **TRADEABLE** | Score >= 48 + at wall (0.5%) + trend-aligned | Yes |
+| **WATCH** | Score >= 40 + near wall (2%), OR EXTENDED_LOW + RSI < 35, OR Score >= 56 mid-range | No (alert only) |
 | **FILTERED** | Everything else | No |
 
 **Key Rules:**
 1. **Score gates tradeability** - Low-score symbols at walls are NOT tradeable
-2. **High scores loosen threshold** - Score 80+ can be 1.5% from wall instead of 0.5%
+2. **High scores loosen threshold** - Score 64+ can be 1.5% from wall instead of 0.5%
 3. **Trend alignment matters** - Counter-trend trades downgraded to WATCH
 4. **EXTENDED_LOW reversals** - Below put wall with RSI < 35 = potential bounce watch
 
 **Wall Threshold by Score:**
 | Score | Wall Threshold |
 |-------|---------------|
-| 80+ | 1.5% (looser - high conviction) |
-| 70-79 | 1.0% (moderate) |
-| 60-69 | 0.5% (strict - lower conviction) |
-| < 60 | Not tradeable at any distance |
+| 64+ | 1.5% (looser - high conviction) |
+| 56-63 | 1.0% (moderate) |
+| 48-55 | 0.5% (strict - lower conviction) |
+| < 48 | Not tradeable at any distance |
 
 **Trend Alignment:**
 - BUY action + bullish/neutral trend = aligned
@@ -404,6 +435,59 @@ Edit `monitor/bloodhound-scanner.js` SETTINGS for:
 - `minConfluenceScore` - Alert threshold (default: 60)
 - `maxSymbols` - Max symbols per scan (default: 20)
 - `alertCooldownMs` - Per-symbol cooldown (default: 30 min)
+
+---
+
+## Opportunity Scanner
+
+**Detects unusual options activity and smart money positioning.** Focuses on vol/OI ratios, premium flow, and call/put imbalances.
+
+### Running Opportunity Scanner
+
+Started automatically via `pm2 start ecosystem.config.js`. View logs:
+```bash
+pm2 logs opportunity
+```
+
+### Dynamic Symbol Discovery
+
+The scanner dynamically discovers symbols each cycle (no hardcoded list):
+
+| Source | Score | Description |
+|--------|-------|-------------|
+| Core | 100 | SPY, QQQ, IWM (always) |
+| Watchlist | 50 | User priorities |
+| Volume Leaders | 40 | $SPX top volume |
+| Gainers/Losers | 35 | 2%+ movers |
+| NASDAQ Movers | 35 | $COMPX top volume |
+| 52-Week Extremes | 30 | Breakouts/breakdowns |
+
+### SQLite Historical Data
+
+Every scan saves to `data/opportunity_history.db` for future analysis:
+
+```javascript
+// Query recent stats
+const db = require('./monitor/opportunity-db');
+console.log(db.getTierStats(7));      // Last 7 days by tier
+console.log(db.getTopSymbols(7, 10)); // Top 10 symbols
+```
+
+### Control API (Port 8083)
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/status` | GET | Scanner status, discovery sources |
+| `/pause` | POST | Pause scanner |
+| `/resume` | POST | Resume scanner |
+| `/scan` | POST | Trigger immediate scan |
+
+### Output Files
+
+| File | Content |
+|------|---------|
+| `data/opportunities.json` | Latest scan results (overwrites each cycle) |
+| `data/opportunity_history.db` | SQLite historical data for analysis |
 
 ---
 
@@ -508,7 +592,6 @@ On each trade entry/exit, the server captures:
 - VIX + regime (low/normal/elevated/high)
 - Gamma regime (BULLISH_SUPPORT/BEARISH_RESISTANCE/NEUTRAL)
 - Call wall, put wall, max pain
-- Sentiment score (-100 to +100)
 - IV, HV, put/call OI ratio
 
 ### Analytics Queries
@@ -587,7 +670,6 @@ Auto-refreshes every 30 seconds from `data/dynamic_scan.json`.
 Shows:
 - VIX regime banner with sizing advice
 - SPY/QQQ price vs gamma walls
-- Sentiment distribution
 - High conviction signals
 - Recent alerts
 
@@ -709,17 +791,6 @@ Auto-refreshes every 30 seconds from `data/paper_trades.json`.
 | `GET /api/market/outlook` | AI narrative, themes, levels, bias |
 | `GET /api/intelligence/daily-briefing` | Daily summary |
 
-**Sentiment & Social**
-| Endpoint | Purpose |
-|----------|---------|
-| `GET /api/x/tweets?limit=50` | Tweets with sentiment scores |
-| `GET /api/x/sentiment/distribution?hours=24` | Bullish/bearish breakdown |
-| `GET /api/x/sentiment/overview` | 24h sentiment distribution |
-| `GET /api/x/sentiment/ticker/{symbol}` | Ticker-specific sentiment |
-| `GET /api/x/tickers/trending?hours=24` | Most mentioned tickers |
-| `GET /api/garden/leaderboard?limit=20` | Top authors by accuracy |
-| `GET /api/garden/consensus?hours=24&min_authors=3` | **Tickers where 3+ authors agree** (used by Bloodhound) |
-
 **Trade Logging**
 | Endpoint | Purpose |
 |----------|---------|
@@ -753,15 +824,11 @@ When analyzing ANY symbol:
    curl http://192.168.10.239:8000/api/flow/{SYMBOL}
    → Recent flow, delta, unusual activity
 
-4. SENTIMENT (for major tickers)
-   curl http://192.168.10.239:3000/api/x/sentiment/ticker/{SYMBOL}
-   → Bullish/bearish/neutral split
-
-5. MARKET CONTEXT
+4. MARKET CONTEXT
    curl http://192.168.10.239:8000/api/market/context
    → VIX regime, position size modifier
 
-6. ONLY THEN: Web search for news/catalysts if needed
+5. ONLY THEN: Web search for news/catalysts if needed
 ```
 
 ---

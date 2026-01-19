@@ -23,7 +23,8 @@ const MIME_TYPES = {
 const server = http.createServer((req, res) => {
     // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     res.setHeader('Cache-Control', 'no-cache');
 
     if (req.method === 'OPTIONS') {
@@ -34,6 +35,26 @@ const server = http.createServer((req, res) => {
 
     // Strip query string from URL
     const urlPath = req.url.split('?')[0];
+
+    // API: Save paper trades
+    if (req.method === 'POST' && urlPath === '/api/save-paper-trades') {
+        let body = '';
+        req.on('data', chunk => { body += chunk; });
+        req.on('end', () => {
+            try {
+                const data = JSON.parse(body);
+                const filePath = path.join(ROOT, 'data', 'paper_trades.json');
+                fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: true }));
+                console.log('[Web Server] Saved paper_trades.json');
+            } catch (e) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: e.message }));
+            }
+        });
+        return;
+    }
     let filePath = path.join(ROOT, urlPath === '/' ? 'zone-scanner.html' : urlPath);
 
     // Security: prevent directory traversal

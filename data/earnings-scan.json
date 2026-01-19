@@ -1,0 +1,148 @@
+{
+  "last_updated": "2026-01-19T12:51:59.231Z",
+  "strategy": "PREM",
+  "total_scanned": 7,
+  "high_conviction": 0,
+  "tradeable": 0,
+  "results": [
+    {
+      "symbol": "UNH",
+      "earnings_date": "2026-01-27",
+      "days_to_earnings": 9,
+      "earnings_time": "before_open",
+      "score": 25,
+      "direction": "neutral",
+      "signals": [
+        "RSI 49 (healthy momentum)",
+        "In PREM window (9 days)"
+      ],
+      "details": {
+        "rsi": 49.38,
+        "trend": "downtrend",
+        "spyTrend": "bullish",
+        "vix": 18.89
+      },
+      "tier": "FILTERED",
+      "timestamp": "2026-01-19T12:51:21.622Z"
+    },
+    {
+      "symbol": "META",
+      "earnings_date": "2026-01-28",
+      "days_to_earnings": 10,
+      "earnings_time": "before_open",
+      "score": 20,
+      "direction": "neutral",
+      "signals": [
+        "RSI 29 (oversold bounce)",
+        "In PREM window (10 days)"
+      ],
+      "details": {
+        "rsi": 29.01,
+        "trend": "downtrend",
+        "spyTrend": "bullish",
+        "vix": 18.89
+      },
+      "tier": "FILTERED",
+      "timestamp": "2026-01-19T12:51:46.246Z"
+    },
+    {
+      "symbol": "MSFT",
+      "earnings_date": "2026-01-28",
+      "days_to_earnings": 10,
+      "earnings_time": "before_open",
+      "score": 20,
+      "direction": "neutral",
+      "signals": [
+        "RSI 26 (oversold bounce)",
+        "In PREM window (10 days)"
+      ],
+      "details": {
+        "rsi": 26.23,
+        "trend": "strong_downtrend",
+        "spyTrend": "bullish",
+        "vix": 18.89
+      },
+      "tier": "FILTERED",
+      "timestamp": "2026-01-19T12:51:51.398Z"
+    },
+    {
+      "symbol": "BA",
+      "earnings_date": "2026-01-27",
+      "days_to_earnings": 9,
+      "earnings_time": "before_open",
+      "score": 15,
+      "direction": "neutral",
+      "signals": [
+        "RSI 86 (extended)",
+        "In PREM window (9 days)"
+      ],
+      "details": {
+        "rsi": 86.39,
+        "trend": "strong_uptrend",
+        "spyTrend": "bullish",
+        "vix": 18.89
+      },
+      "tier": "FILTERED",
+      "timestamp": "2026-01-19T12:51:26.825Z"
+    },
+    {
+      "symbol": "UPS",
+      "earnings_date": "2026-01-27",
+      "days_to_earnings": 9,
+      "earnings_time": "before_open",
+      "score": 15,
+      "direction": "neutral",
+      "signals": [
+        "RSI 71 (extended)",
+        "In PREM window (9 days)"
+      ],
+      "details": {
+        "rsi": 70.61,
+        "trend": "strong_uptrend",
+        "spyTrend": "bullish",
+        "vix": 18.89
+      },
+      "tier": "FILTERED",
+      "timestamp": "2026-01-19T12:51:34.888Z"
+    },
+    {
+      "symbol": "SBUX",
+      "earnings_date": "2026-01-28",
+      "days_to_earnings": 10,
+      "earnings_time": "before_open",
+      "score": 15,
+      "direction": "neutral",
+      "signals": [
+        "RSI 73 (extended)",
+        "In PREM window (10 days)"
+      ],
+      "details": {
+        "rsi": 72.95,
+        "trend": "strong_uptrend",
+        "spyTrend": "bullish",
+        "vix": 18.89
+      },
+      "tier": "FILTERED",
+      "timestamp": "2026-01-19T12:51:57.218Z"
+    },
+    {
+      "symbol": "TSLA",
+      "earnings_date": "2026-01-28",
+      "days_to_earnings": 10,
+      "earnings_time": "before_open",
+      "score": 10,
+      "direction": "neutral",
+      "signals": [
+        "In PREM window (10 days)"
+      ],
+      "details": {
+        "rsi": 31.15,
+        "trend": "downtrend",
+        "spyTrend": "bullish",
+        "vix": 18.89
+      },
+      "tier": "FILTERED",
+      "timestamp": "2026-01-19T12:51:40.848Z"
+    }
+  ]
+}

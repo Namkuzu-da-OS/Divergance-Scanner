@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earnings Season Scanner</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #0a0e1a;
+            color: #e5e7eb;
+            padding: 16px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #2a3641;
+            padding-bottom: 16px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #f59e0b;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #f59e0b;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.paused {
+            background: #ef4444;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .last-update { color: #8b92a8; font-size: 12px; }
+
+        .btn {
+            background: transparent;
+            border: 1px solid #f59e0b;
+            color: #f59e0b;
+            padding: 8px 14px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background: #f59e0b;
+            color: #0a0e1a;
+        }
+
+        .btn.danger {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        .btn.danger:hover {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn.loading {
+            position: relative;
+            color: transparent;
+        }
+
+        .btn.loading::after {
+            content: '';
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #f59e0b;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Navigation Links */
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-link {
+            padding: 8px 14px;
+            border: 1px solid #2a3641;
+            background: transparent;
+            color: #8b92a8;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+
+        .nav-link.active {
+            border-color: #f59e0b;
+            color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .summary-card .label {
+            font-size: 11px;
+            color: #8b92a8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .summary-card .value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #f59e0b;
+        }
+
+        .summary-card.green .value { color: #00d4aa; }
+        .summary-card.red .value { color: #ef4444; }
+        .summary-card.blue .value { color: #3b82f6; }
+
+        /* Section Headers */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            margin-top: 24px;
+        }
+
+        .section-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #e5e7eb;
+        }
+
+        /* Calendar View */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .calendar-day {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 12px;
+            min-height: 100px;
+        }
+
+        .calendar-day.today {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .calendar-day .date {
+            font-size: 12px;
+            color: #8b92a8;
+            margin-bottom: 8px;
+        }
+
+        .calendar-day .earnings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .earnings-chip {
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: #2a3641;
+            display: flex;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .earnings-chip:hover {
+            background: #3a4651;
+        }
+
+        .earnings-chip.prem-window {
+            background: rgba(245, 158, 11, 0.2);
+            border: 1px solid #f59e0b;
+        }
+
+        .earnings-chip.imminent {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+        }
+
+        .earnings-chip .time {
+            color: #8b92a8;
+            font-size: 10px;
+        }
+
+        /* Signals Table */
+        .signals-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+        }
+
+        .signals-table th {
+            text-align: left;
+            padding: 12px;
+            background: #151821;
+            color: #8b92a8;
+            font-size: 11px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #2a3641;
+        }
+
+        .signals-table td {
+            padding: 12px;
+            border-bottom: 1px solid #2a3641;
+            font-size: 13px;
+        }
+
+        .signals-table tr:hover {
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        .symbol-cell {
+            font-weight: 600;
+            color: #f59e0b;
+        }
+
+        .tier-badge {
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .tier-badge.high {
+            background: rgba(0, 212, 170, 0.2);
+            color: #00d4aa;
+        }
+
+        .tier-badge.tradeable {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        .tier-badge.watch {
+            background: rgba(139, 146, 168, 0.2);
+            color: #8b92a8;
+        }
+
+        .score-bar {
+            width: 100px;
+            height: 6px;
+            background: #2a3641;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f59e0b, #00d4aa);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        .signals-list {
+            font-size: 11px;
+            color: #8b92a8;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .calendar-grid {
+                grid-template-columns: 1fr;
+            }
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #8b92a8;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f59e0b;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <h1>📈 Earnings Season Scanner</h1>
+                <nav class="nav-links">
+                    <a href="zone-scanner.html" class="nav-link">🎯 ZONES</a>
+                    <a href="analytics.html" class="nav-link">📊 ANALYTICS</a>
+                    <a href="earnings-scanner.html" class="nav-link active">📅 EARNINGS</a>
+                    <a href="opportunity-scanner.html" class="nav-link" style="border-color: #3b82f6; color: #3b82f6;">🎯 OPPORTUNITY</a>
+                    <a href="scanner.html" class="nav-link">MARKET</a>
+                    <a href="dashboard.html" class="nav-link">DASHBOARD</a>
+                </nav>
+            </div>
+            <div class="header-controls">
+                <div id="status-indicator" class="status-dot"></div>
+                <span id="scanner-status">Loading...</span>
+                <span class="last-update">Last update: <span id="last-update">--</span></span>
+                <button class="btn" id="scan-btn" onclick="triggerScan()">SCAN NOW</button>
+                <button class="btn" id="refresh-btn" onclick="refreshCalendar()">REFRESH CALENDAR</button>
+                <button class="btn danger" id="pause-btn" onclick="togglePause()">PAUSE</button>
+            </div>
+        </header>
+
+        <!-- Summary Cards -->
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="label">PREM Candidates</div>
+                <div class="value" id="prem-count">--</div>
+            </div>
+            <div class="summary-card green">
+                <div class="label">High Conviction</div>
+                <div class="value" id="high-conviction-count">--</div>
+            </div>
+            <div class="summary-card blue">
+                <div class="label">Tradeable</div>
+                <div class="value" id="tradeable-count">--</div>
+            </div>
+            <div class="summary-card red">
+                <div class="label">Reporting Today</div>
+                <div class="value" id="today-count">--</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">This Week</div>
+                <div class="value" id="week-count">--</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">Scan Count</div>
+                <div class="value" id="scan-count">--</div>
+            </div>
+        </div>
+
+        <!-- Calendar View -->
+        <div class="section-header">
+            <h2>📅 Earnings Calendar (Next 7 Days)</h2>
+        </div>
+        <div class="calendar-grid" id="calendar-grid">
+            <div class="loading">Loading calendar...</div>
+        </div>
+
+        <!-- Active Signals -->
+        <div class="section-header">
+            <h2>🎯 PREM Signals (5-10 Days Out)</h2>
+        </div>
+        <table class="signals-table">
+            <thead>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Score</th>
+                    <th>Tier</th>
+                    <th>Earnings Date</th>
+                    <th>Days Out</th>
+                    <th>Time</th>
+                    <th>Key Signals</th>
+                </tr>
+            </thead>
+            <tbody id="signals-body">
+                <tr><td colspan="7" class="loading">Loading signals...</td></tr>
+            </tbody>
+        </table>
+
+        <!-- Open Positions -->
+        <div class="section-header">
+            <h2>📊 Open Positions</h2>
+            <button class="btn" onclick="showAddPositionModal()">+ Add Position</button>
+        </div>
+        <table class="signals-table">
+            <thead>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Entry</th>
+                    <th>Current</th>
+                    <th>P&L</th>
+                    <th>Earnings</th>
+                    <th>Days Left</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="positions-body">
+                <tr><td colspan="7" style="color: #8b92a8; text-align: center;">No open positions</td></tr>
+            </tbody>
+        </table>
+
+        <!-- Performance Analytics -->
+        <div class="section-header">
+            <h2>📈 Performance Analytics</h2>
+        </div>
+        <div class="summary-grid" id="analytics-grid">
+            <div class="summary-card">
+                <div class="label">Total Trades</div>
+                <div class="value" id="total-trades">--</div>
+            </div>
+            <div class="summary-card green">
+                <div class="label">Win Rate</div>
+                <div class="value" id="win-rate">--</div>
+            </div>
+            <div class="summary-card">
+                <div class="label">Avg P&L</div>
+                <div class="value" id="avg-pnl">--</div>
+            </div>
+            <div class="summary-card green">
+                <div class="label">Avg Win</div>
+                <div class="value" id="avg-win">--</div>
+            </div>
+            <div class="summary-card red">
+                <div class="label">Avg Loss</div>
+                <div class="value" id="avg-loss">--</div>
+            </div>
+            <div class="summary-card blue">
+                <div class="label">Active Paper Trades</div>
+                <div class="value" id="active-paper">--</div>
+            </div>
+        </div>
+
+        <!-- Tier Performance -->
+        <div class="section-header">
+            <h2>📋 Performance by Tier</h2>
+        </div>
+        <div id="tier-analytics" style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px;">
+            <div style="color: #8b92a8; padding: 20px;">Collecting data...</div>
+        </div>
+    </div>
+
+    <!-- Add Position Modal -->
+    <div id="add-position-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background: #151821; border: 1px solid #2a3641; border-radius: 12px; padding: 24px; width: 400px;">
+            <h3 style="margin-bottom: 16px; color: #f59e0b;">Add Position</h3>
+            <div style="margin-bottom: 12px;">
+                <label style="display: block; color: #8b92a8; font-size: 12px; margin-bottom: 4px;">Symbol</label>
+                <input type="text" id="pos-symbol" style="width: 100%; padding: 8px; background: #0a0e1a; border: 1px solid #2a3641; border-radius: 4px; color: white;" placeholder="AAPL">
+            </div>
+            <div style="margin-bottom: 12px;">
+                <label style="display: block; color: #8b92a8; font-size: 12px; margin-bottom: 4px;">Entry Price</label>
+                <input type="number" id="pos-price" style="width: 100%; padding: 8px; background: #0a0e1a; border: 1px solid #2a3641; border-radius: 4px; color: white;" placeholder="150.00" step="0.01">
+            </div>
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; color: #8b92a8; font-size: 12px; margin-bottom: 4px;">Earnings Date</label>
+                <input type="date" id="pos-earnings" style="width: 100%; padding: 8px; background: #0a0e1a; border: 1px solid #2a3641; border-radius: 4px; color: white;">
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn" onclick="submitPosition()">Add Position</button>
+                <button class="btn danger" onclick="hideAddPositionModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SCANNER_API = 'http://localhost:8082';
+        let isPaused = false;
+
+        // Fetch scanner status
+        async function fetchStatus() {
+            try {
+                const res = await fetch(`${SCANNER_API}/status`);
+                const data = await res.json();
+
+                isPaused = data.paused;
+                document.getElementById('scanner-status').textContent = data.status;
+                document.getElementById('status-indicator').className = 'status-dot' + (data.paused ? ' paused' : '');
+                document.getElementById('pause-btn').textContent = data.paused ? 'Resume' : 'Pause';
+                document.getElementById('scan-count').textContent = data.scanCount || 0;
+
+                if (data.lastScanAt) {
+                    document.getElementById('last-update').textContent = new Date(data.lastScanAt).toLocaleTimeString();
+                }
+            } catch (e) {
+                document.getElementById('scanner-status').textContent = 'Offline';
+                document.getElementById('status-indicator').className = 'status-dot paused';
+            }
+        }
+
+        // Fetch and render calendar
+        async function fetchCalendar() {
+            try {
+                const res = await fetch(`${SCANNER_API}/calendar`);
+                const data = await res.json();
+
+                // Update summary counts
+                if (data.summary) {
+                    document.getElementById('prem-count').textContent = data.summary.prem_candidates || 0;
+                    document.getElementById('today-count').textContent = data.summary.reporting_today || 0;
+                    document.getElementById('week-count').textContent = data.summary.this_week || 0;
+                }
+
+                renderCalendar(data.earnings || []);
+            } catch (e) {
+                console.error('Calendar fetch failed:', e);
+                document.getElementById('calendar-grid').innerHTML = '<div style="color: #ef4444; padding: 20px;">Failed to load calendar. Is the scanner running?</div>';
+            }
+        }
+
+        // Render calendar grid
+        function renderCalendar(earnings) {
+            const grid = document.getElementById('calendar-grid');
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // Build 7 days
+            const days = [];
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(today);
+                date.setDate(date.getDate() + i);
+                days.push({
+                    date: date,
+                    dateStr: date.toISOString().split('T')[0],
+                    dayName: date.toLocaleDateString('en-US', { weekday: 'short' }),
+                    dayNum: date.getDate(),
+                    isToday: i === 0,
+                    earnings: []
+                });
+            }
+
+            // Assign earnings to days
+            for (const e of earnings) {
+                const day = days.find(d => d.dateStr === e.earnings_date);
+                if (day) {
+                    day.earnings.push(e);
+                }
+            }
+
+            // Render
+            grid.innerHTML = days.map(day => `
+                <div class="calendar-day ${day.isToday ? 'today' : ''}">
+                    <div class="date">${day.dayName} ${day.dayNum}</div>
+                    <div class="earnings-list">
+                        ${day.earnings.length === 0 ? '<span style="color: #555; font-size: 11px;">No earnings</span>' : ''}
+                        ${day.earnings.map(e => `
+                            <div class="earnings-chip ${e.prem_window ? 'prem-window' : ''} ${e.imminent ? 'imminent' : ''}"
+                                 onclick="showDetail('${e.symbol}')">
+                                <span>${e.symbol}</span>
+                                <span class="time">${e.earnings_time === 'before_market' ? 'BMO' : e.earnings_time === 'after_market' ? 'AMC' : '?'}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Fetch and render signals
+        async function fetchSignals() {
+            try {
+                const res = await fetch(`${SCANNER_API}/results`);
+                const data = await res.json();
+
+                // Update counts
+                document.getElementById('high-conviction-count').textContent = data.high_conviction || 0;
+                document.getElementById('tradeable-count').textContent = data.tradeable || 0;
+
+                renderSignals(data.results || []);
+            } catch (e) {
+                console.error('Signals fetch failed:', e);
+                document.getElementById('signals-body').innerHTML = '<tr><td colspan="7" style="color: #ef4444;">No scan results yet. Click "Scan Now"</td></tr>';
+            }
+        }
+
+        // Render signals table
+        function renderSignals(results) {
+            const tbody = document.getElementById('signals-body');
+
+            if (results.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="color: #8b92a8;">No PREM candidates found</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = results.map(r => `
+                <tr>
+                    <td class="symbol-cell">${r.symbol}</td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span>${r.score}</span>
+                            <div class="score-bar">
+                                <div class="score-fill" style="width: ${r.score}%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="tier-badge ${r.tier === 'HIGH_CONVICTION' ? 'high' : r.tier === 'TRADEABLE' ? 'tradeable' : 'watch'}">
+                            ${r.tier}
+                        </span>
+                    </td>
+                    <td>${r.earnings_date}</td>
+                    <td>${r.days_to_earnings}d</td>
+                    <td>${r.earnings_time === 'before_market' ? '🌅 BMO' : r.earnings_time === 'after_market' ? '🌙 AMC' : '❓'}</td>
+                    <td class="signals-list">${(r.signals || []).slice(0, 3).join(' • ')}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Control functions
+        async function togglePause() {
+            const btn = document.getElementById('pause-btn');
+            const endpoint = isPaused ? '/resume' : '/pause';
+            btn.disabled = true;
+            try {
+                await fetch(`${SCANNER_API}${endpoint}`, { method: 'POST' });
+                await fetchStatus();
+            } catch (e) {
+                console.error('Toggle pause failed:', e);
+                alert('Failed to toggle pause. Is the scanner running?');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        async function triggerScan() {
+            const btn = document.getElementById('scan-btn');
+            const originalText = btn.textContent;
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${SCANNER_API}/scan`, { method: 'POST' });
+                const data = await res.json();
+
+                if (data.success) {
+                    btn.textContent = 'SCANNING...';
+                    btn.classList.remove('loading');
+                    // Wait for scan to complete then refresh
+                    setTimeout(() => {
+                        fetchStatus();
+                        fetchSignals();
+                        btn.textContent = originalText;
+                        btn.disabled = false;
+                    }, 3000);
+                } else {
+                    throw new Error(data.error || 'Scan failed');
+                }
+            } catch (e) {
+                console.error('Scan trigger failed:', e);
+                alert('Failed to trigger scan: ' + e.message);
+                btn.textContent = originalText;
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        }
+
+        async function refreshCalendar() {
+            const btn = document.getElementById('refresh-btn');
+            const originalText = btn.textContent;
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            try {
+                // This can take 30-60 seconds as it fetches earnings for many symbols
+                const res = await fetch(`${SCANNER_API}/refresh-calendar`, { method: 'POST' });
+                const data = await res.json();
+
+                if (data.success) {
+                    btn.textContent = '✓ REFRESHED';
+                    btn.classList.remove('loading');
+                    fetchCalendar();
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.disabled = false;
+                    }, 2000);
+                } else {
+                    throw new Error(data.error || 'Refresh failed');
+                }
+            } catch (e) {
+                console.error('Calendar refresh failed:', e);
+                alert('Calendar refresh failed: ' + e.message);
+                btn.textContent = originalText;
+                btn.classList.remove('loading');
+                btn.disabled = false;
+            }
+        }
+
+        function showDetail(symbol) {
+            // Future: show modal with detailed analysis
+            alert(`Detail view for ${symbol} coming soon!`);
+        }
+
+        // Fetch positions
+        async function fetchPositions() {
+            try {
+                const res = await fetch(`${SCANNER_API}/positions`);
+                const data = await res.json();
+                renderPositions(data.positions || []);
+            } catch (e) {
+                console.error('Positions fetch failed:', e);
+            }
+        }
+
+        // Render positions table
+        function renderPositions(positions) {
+            const tbody = document.getElementById('positions-body');
+
+            if (!positions || positions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="color: #8b92a8; text-align: center;">No open positions</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = positions.map(p => {
+                const pnl = parseFloat(p.current_pnl_pct || 0);
+                const pnlColor = pnl >= 0 ? '#00d4aa' : '#ef4444';
+                const daysLeft = Math.ceil((new Date(p.earnings_date) - new Date()) / (1000 * 60 * 60 * 24));
+                const urgent = daysLeft <= 2;
+
+                return `
+                    <tr>
+                        <td class="symbol-cell">${p.symbol}</td>
+                        <td>$${p.entry_price?.toFixed(2) || '--'}</td>
+                        <td>$${p.current_price?.toFixed(2) || '--'}</td>
+                        <td style="color: ${pnlColor}; font-weight: 600;">${pnl >= 0 ? '+' : ''}${pnl}%</td>
+                        <td>${p.earnings_date}</td>
+                        <td style="${urgent ? 'color: #ef4444; font-weight: 600;' : ''}">${daysLeft}d ${urgent ? '⚠️' : ''}</td>
+                        <td>
+                            <button class="btn" style="padding: 4px 8px; font-size: 10px;" onclick="closePositionPrompt('${p.symbol}')">Close</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Fetch analytics
+        async function fetchAnalytics() {
+            try {
+                const res = await fetch(`${SCANNER_API}/analytics`);
+                const data = await res.json();
+                renderAnalytics(data);
+            } catch (e) {
+                console.error('Analytics fetch failed:', e);
+            }
+        }
+
+        // Render analytics
+        function renderAnalytics(data) {
+            document.getElementById('total-trades').textContent = data.total_trades || 0;
+            document.getElementById('win-rate').textContent = data.win_rate || '--';
+            document.getElementById('avg-pnl').textContent = data.avg_pnl || '--';
+            document.getElementById('avg-win').textContent = data.avg_win || '--';
+            document.getElementById('avg-loss').textContent = data.avg_loss || '--';
+            document.getElementById('active-paper').textContent = data.active_trades || 0;
+
+            // Render tier breakdown
+            const tierDiv = document.getElementById('tier-analytics');
+            if (data.by_tier && Object.keys(data.by_tier).length > 0) {
+                tierDiv.innerHTML = Object.entries(data.by_tier).map(([tier, stats]) => `
+                    <div class="summary-card" style="min-width: 200px;">
+                        <div class="label">${tier}</div>
+                        <div style="font-size: 14px; margin-top: 8px;">
+                            <div>Trades: ${stats.trades}</div>
+                            <div style="color: #00d4aa;">Win Rate: ${stats.win_rate}</div>
+                            <div>Avg P&L: ${stats.avg_pnl}</div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                tierDiv.innerHTML = '<div style="color: #8b92a8; padding: 20px;">No completed trades yet. Data will appear after paper trades close.</div>';
+            }
+        }
+
+        // Position modal functions
+        function showAddPositionModal() {
+            document.getElementById('add-position-modal').style.display = 'flex';
+        }
+
+        function hideAddPositionModal() {
+            document.getElementById('add-position-modal').style.display = 'none';
+        }
+
+        async function submitPosition() {
+            const symbol = document.getElementById('pos-symbol').value.toUpperCase();
+            const entryPrice = parseFloat(document.getElementById('pos-price').value);
+            const earningsDate = document.getElementById('pos-earnings').value;
+
+            if (!symbol || !entryPrice || !earningsDate) {
+                alert('Please fill all fields');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${SCANNER_API}/positions/add`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        symbol,
+                        entry_price: entryPrice,
+                        earnings_date: earningsDate
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    hideAddPositionModal();
+                    fetchPositions();
+                    // Clear form
+                    document.getElementById('pos-symbol').value = '';
+                    document.getElementById('pos-price').value = '';
+                    document.getElementById('pos-earnings').value = '';
+                } else {
+                    alert('Failed to add position: ' + data.error);
+                }
+            } catch (e) {
+                alert('Error adding position: ' + e.message);
+            }
+        }
+
+        function closePositionPrompt(symbol) {
+            const exitPrice = prompt(`Enter exit price for ${symbol}:`);
+            if (exitPrice) {
+                closePositionAPI(symbol, parseFloat(exitPrice));
+            }
+        }
+
+        async function closePositionAPI(symbol, exitPrice) {
+            try {
+                const res = await fetch(`${SCANNER_API}/positions/close`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        symbol,
+                        exit_price: exitPrice,
+                        reason: 'manual'
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    fetchPositions();
+                    fetchAnalytics();
+                } else {
+                    alert('Failed to close position: ' + data.error);
+                }
+            } catch (e) {
+                alert('Error closing position: ' + e.message);
+            }
+        }
+
+        // Initial load
+        fetchStatus();
+        fetchCalendar();
+        fetchSignals();
+        fetchPositions();
+        fetchAnalytics();
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            fetchStatus();
+            fetchSignals();
+            fetchPositions();
+            fetchAnalytics();
+        }, 30000);
+
+        // Refresh calendar every 5 minutes
+        setInterval(fetchCalendar, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
