@@ -225,15 +225,15 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 | `data/trades_journal.json` | Trade history | Trade closes |
 | `data/account_summary.json` | P&L metrics | EOD |
 | `data/scanner.json` | Live market data | Every 2 min (bloodhound) |
-| `data/alerts_log.json` | Alert history | On alert |
+| `data/signal_log.json` | Signal tracking & validation | Every alert |
 | `data/ACTIVE_SESSION.md` | Session state | Hourly |
 | `data/daily_log.md` | Today's journal | Throughout day |
 
 ### Monitor System
 | File | Purpose |
 |------|---------|
-| `monitor/bloodhound-scanner.js` | **Confluence scanner** - Dynamic symbol discovery + scoring |
-| `monitor/wingman-monitor.js` | Background alert service |
+| `monitor/bloodhound-scanner.js` | **Confluence scanner** - Dynamic discovery, scoring, VIX alerts |
+| `monitor/signal-logger.js` | Signal tracking & validation |
 | `monitor/trade-client.js` | Trade logging API client |
 | `scanner.html` | Visual market dashboard |
 
@@ -491,62 +491,27 @@ console.log(db.getTopSymbols(7, 10)); // Top 10 symbols
 
 ---
 
-## Monitor System (VIX Regime Watchdog)
+## VIX Regime Alerts (Consolidated into Bloodhound)
 
-The Monitor is a **VIX regime change detector** that sends Telegram alerts when volatility conditions change. It runs alongside Bloodhound but with a focused purpose.
+**VIX regime change detection is now built into Bloodhound.** The separate `wingman-monitor.js` is deprecated.
 
-### Unified Control System
+When VIX crosses regime thresholds (12/20/30/40), Bloodhound sends a Telegram alert:
 
-**When Bloodhound pauses, Monitor also pauses.** The monitor checks Bloodhound's `/status` endpoint before each alert cycle.
+| Regime | VIX Range | Alert |
+|--------|-----------|-------|
+| Complacent | < 12 | 😴 Spike probable |
+| Normal | 12-20 | ⚪ Standard |
+| Elevated | 20-30 | ⚠️ Watch for setups |
+| Fear | 30-40 | 😨 Quality entries |
+| Capitulation | > 40 | 🔥 Scale in |
 
-### Architecture
-```
-Bloodhound Scanner          Wingman Monitor
-──────────────────          ───────────────
-Confluence scanning     →   VIX regime detection ONLY
-Wall alerts, signals    →   No wall/signal alerts (removed)
-Writes scanner.json     →   Checks Bloodhound pause state
-```
+**No separate process needed.** Bloodhound handles:
+- Confluence scanning
+- HIGH_CONVICTION alerts
+- VIX regime change alerts
+- Signal logging to `signal_log.json`
 
-### Starting the Monitor
-```bash
-pm2 start monitor/wingman-monitor.js --name monitor
-pm2 logs monitor
-```
-
-The monitor runs in background and:
-- Polls VIX every 2 minutes
-- **Checks Bloodhound pause state** before alerting
-- Only sends **VIX regime change** alerts
-- Logs alerts to `data/alerts_log.json`
-
-### Alert Types
-| Alert | Trigger | Notes |
-|-------|---------|-------|
-| VIX Regime | VIX crosses 12/20/30/40 | Only alert type - Bloodhound handles wall/signal alerts |
-
-### Why Separate Processes?
-
-- **Bloodhound** = Confluence scanner (walls, signals, zones, scoring)
-- **Monitor** = VIX regime watchdog (simpler, focused on volatility)
-
-Both respect the same pause state - pause Bloodhound from the dashboard and both go silent.
-
-### Configuration
-Edit `monitor/wingman-monitor.js`:
-```javascript
-const CONFIG = {
-  telegram: {
-    botToken: 'YOUR_BOT_TOKEN',
-    chatId: 'YOUR_CHAT_ID'
-  },
-  apis: {
-    intel: 'http://192.168.10.239:3000',
-    options: 'http://192.168.10.239:8000'
-  },
-  checkIntervalMs: 2 * 60 * 1000
-};
-```
+**Legacy:** `wingman-monitor.js` and `alerts_log.json` are deprecated. Signal tracking uses `signal_log.json`.
 
 ---
 
@@ -871,4 +836,4 @@ When analyzing ANY symbol:
 - Goals in goals.json ($2,500/month target)
 - Full rules in `docs/RULES.md`
 - Full strategies in `docs/STRATEGIES.md`
-- Monitor logs to `data/alerts_log.json` (last 500 alerts)
+- Signals logged to `data/signal_log.json` (with validation tracking)

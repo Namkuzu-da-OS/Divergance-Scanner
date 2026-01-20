@@ -1926,7 +1926,8 @@ const scannerState = {
     lastScanDuration: null,
     nextScanAt: null,
     scanCount: 0,
-    isScanning: false
+    isScanning: false,
+    previousVixRegime: null  // Track for regime change alerts
 };
 
 function isPaused() {
@@ -2230,6 +2231,27 @@ async function runScan() {
     marketContext = await getMarketContext();
     if (marketContext) {
         console.log(`[Context] VIX: ${marketContext.vix} (${marketContext.vixRegime}) | SPY: ${marketContext.spyTrend}`);
+
+        // VIX Regime Change Detection (consolidated from wingman-monitor)
+        const currentRegime = marketContext.vixRegime;
+        if (scannerState.previousVixRegime && currentRegime !== scannerState.previousVixRegime) {
+            const regimeEmoji = {
+                'complacent': '😴',
+                'normal': '⚪',
+                'elevated': '⚠️',
+                'fear': '😨',
+                'capitulation': '🔥'
+            };
+            const emoji = regimeEmoji[currentRegime] || '📊';
+            const vixMsg = `${emoji} <b>VIX REGIME CHANGE</b>\n\n` +
+                `<b>From:</b> ${scannerState.previousVixRegime.toUpperCase()}\n` +
+                `<b>To:</b> ${currentRegime.toUpperCase()}\n` +
+                `<b>VIX:</b> ${marketContext.vix}\n\n` +
+                `<i>${formatTimePST()} PST</i>`;
+            await sendTelegram(vixMsg);
+            console.log(`[VIX] Regime change: ${scannerState.previousVixRegime} → ${currentRegime}`);
+        }
+        scannerState.previousVixRegime = currentRegime;
     } else {
         console.log('[Context] Could not fetch market context');
     }
