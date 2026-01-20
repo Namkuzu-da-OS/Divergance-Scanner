@@ -142,6 +142,16 @@
             background: rgba(245, 158, 11, 0.1);
         }
 
+        .nav-link.opportunity {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        .nav-link.opportunity:hover,
+        .nav-link.opportunity.active {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
         /* Summary Cards */
         .summary-grid {
             display: grid;
@@ -360,6 +370,156 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* Score Help */
+        .score-help {
+            cursor: pointer;
+            color: #8b92a8;
+            transition: color 0.2s;
+        }
+
+        .score-help:hover {
+            color: #f59e0b;
+        }
+
+        .help-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            border: 1px solid #8b92a8;
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 6px;
+            vertical-align: middle;
+        }
+
+        .score-help:hover .help-icon {
+            border-color: #f59e0b;
+        }
+
+        /* Modal styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #2a3641;
+        }
+
+        .modal-header h3 {
+            color: #f59e0b;
+            font-size: 18px;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: #8b92a8;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: #ef4444;
+        }
+
+        .score-category {
+            background: #0a0e1a;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .score-category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .score-category-name {
+            font-weight: 600;
+            color: #e5e7eb;
+        }
+
+        .score-category-points {
+            color: #f59e0b;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .score-category-details {
+            font-size: 12px;
+            color: #8b92a8;
+            line-height: 1.6;
+        }
+
+        .tier-explanation {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #2a3641;
+        }
+
+        .tier-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .tier-badge-lg {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .tier-badge-lg.high {
+            background: rgba(0, 212, 170, 0.2);
+            color: #00d4aa;
+        }
+
+        .tier-badge-lg.tradeable {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        .tier-badge-lg.watch {
+            background: rgba(139, 146, 168, 0.2);
+            color: #8b92a8;
+        }
     </style>
 </head>
 <body>
@@ -371,7 +531,7 @@
                     <a href="zone-scanner.html" class="nav-link">🎯 ZONES</a>
                     <a href="analytics.html" class="nav-link">📊 ANALYTICS</a>
                     <a href="earnings-scanner.html" class="nav-link active">📅 EARNINGS</a>
-                    <a href="opportunity-scanner.html" class="nav-link" style="border-color: #3b82f6; color: #3b82f6;">🎯 OPPORTUNITY</a>
+                    <a href="opportunity-scanner.html" class="nav-link opportunity">🎯 OPPORTUNITY</a>
                     <a href="scanner.html" class="nav-link">MARKET</a>
                     <a href="dashboard.html" class="nav-link">DASHBOARD</a>
                 </nav>
@@ -425,12 +585,16 @@
         <!-- Active Signals -->
         <div class="section-header">
             <h2>🎯 PREM Signals (5-10 Days Out)</h2>
+            <span class="score-help" onclick="showScoreExplainer()">
+                Score: RSI + Trend + Flow + IV + Timing (70+ = Tradeable, 80+ = High Conviction)
+                <span class="help-icon">?</span>
+            </span>
         </div>
         <table class="signals-table">
             <thead>
                 <tr>
                     <th>Symbol</th>
-                    <th>Score</th>
+                    <th title="PREM Score: RSI + Trend + Options Flow + IV Rank + Market Context + Timing">Score</th>
                     <th>Tier</th>
                     <th>Earnings Date</th>
                     <th>Days Out</th>
@@ -528,9 +692,146 @@
         </div>
     </div>
 
+    <!-- Score Explainer Modal -->
+    <div id="score-explainer-modal" class="modal-overlay" onclick="hideScoreExplainer(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>📊 PREM Score Breakdown</h3>
+                <button class="modal-close" onclick="hideScoreExplainer()">&times;</button>
+            </div>
+
+            <p style="color: #8b92a8; margin-bottom: 16px; font-size: 13px;">
+                The <strong style="color: #f59e0b;">PREM</strong> (Pre-Earnings Momentum) score evaluates stocks 5-10 days before earnings to find optimal entry points for earnings plays.
+            </p>
+
+            <div class="score-category">
+                <div class="score-category-header">
+                    <span class="score-category-name">📈 RSI Position</span>
+                    <span class="score-category-points">5-15 pts</span>
+                </div>
+                <div class="score-category-details">
+                    • RSI 40-70 (healthy momentum): +15 pts<br>
+                    • RSI < 30 (oversold bounce potential): +10 pts<br>
+                    • RSI > 70 (extended, caution): +5 pts
+                </div>
+            </div>
+
+            <div class="score-category">
+                <div class="score-category-header">
+                    <span class="score-category-name">📊 Trend Alignment</span>
+                    <span class="score-category-points">5-10 pts</span>
+                </div>
+                <div class="score-category-details">
+                    • Strong uptrend (bullish momentum): +10 pts<br>
+                    • Uptrend or neutral: +7 pts<br>
+                    • Downtrend (contrarian setup): +5 pts
+                </div>
+            </div>
+
+            <div class="score-category">
+                <div class="score-category-header">
+                    <span class="score-category-name">💰 Options Flow</span>
+                    <span class="score-category-points">0-15 pts</span>
+                </div>
+                <div class="score-category-details">
+                    • Strong bullish flow (net call delta): +15 pts<br>
+                    • Moderate bullish flow: +10 pts<br>
+                    • Neutral or mixed flow: +5 pts<br>
+                    • No flow data: +0 pts
+                </div>
+            </div>
+
+            <div class="score-category">
+                <div class="score-category-header">
+                    <span class="score-category-name">📉 IV Rank</span>
+                    <span class="score-category-points">5-15 pts</span>
+                </div>
+                <div class="score-category-details">
+                    • Low IV (room to expand into earnings): +15 pts<br>
+                    • Moderate IV: +10 pts<br>
+                    • High IV (already priced in): +5 pts
+                </div>
+            </div>
+
+            <div class="score-category">
+                <div class="score-category-header">
+                    <span class="score-category-name">🌍 Market Context</span>
+                    <span class="score-category-points">5-15 pts</span>
+                </div>
+                <div class="score-category-details">
+                    • SPY bullish + low VIX: +15 pts<br>
+                    • SPY neutral or moderate VIX: +10 pts<br>
+                    • SPY bearish or high VIX: +5 pts
+                </div>
+            </div>
+
+            <div class="score-category">
+                <div class="score-category-header">
+                    <span class="score-category-name">⏱️ Timing</span>
+                    <span class="score-category-points">5-10 pts</span>
+                </div>
+                <div class="score-category-details">
+                    • 6-8 days to earnings (optimal): +10 pts<br>
+                    • 5 or 9-10 days: +7 pts<br>
+                    • Outside PREM window: +5 pts
+                </div>
+            </div>
+
+            <div class="score-category">
+                <div class="score-category-header">
+                    <span class="score-category-name">🌙 Earnings Time</span>
+                    <span class="score-category-points">0-5 pts</span>
+                </div>
+                <div class="score-category-details">
+                    • AMC (After Market Close): +5 pts - preferred for overnight plays<br>
+                    • BMO (Before Market Open): +3 pts<br>
+                    • Unknown: +0 pts
+                </div>
+            </div>
+
+            <div class="tier-explanation">
+                <h4 style="color: #e5e7eb; margin-bottom: 12px;">Score Tiers</h4>
+                <div class="tier-item">
+                    <span class="tier-badge-lg high">HIGH CONVICTION</span>
+                    <span style="color: #8b92a8; font-size: 12px;">80+ points - Strong setup, multiple factors aligned</span>
+                </div>
+                <div class="tier-item">
+                    <span class="tier-badge-lg tradeable">TRADEABLE</span>
+                    <span style="color: #8b92a8; font-size: 12px;">70-79 points - Good setup, worth considering</span>
+                </div>
+                <div class="tier-item">
+                    <span class="tier-badge-lg watch">WATCH</span>
+                    <span style="color: #8b92a8; font-size: 12px;">&lt;70 points - Monitor but wait for better setup</span>
+                </div>
+            </div>
+
+            <p style="color: #64748b; margin-top: 16px; font-size: 11px; font-style: italic;">
+                Max possible score: ~85 pts. Scores are relative - use for comparison between candidates.
+            </p>
+        </div>
+    </div>
+
     <script>
         const SCANNER_API = 'http://localhost:8082';
         let isPaused = false;
+
+        // Helper: Format earnings time (handles different API formats)
+        function formatEarningsTime(time) {
+            if (!time) return '?';
+            // Handle various formats from different data sources
+            if (time === 'before_open' || time === 'before_market' || time === 'bmo') return 'BMO';
+            if (time === 'after_close' || time === 'after_market' || time === 'amc') return 'AMC';
+            if (time === 'during_market') return 'DMH';
+            return '?';
+        }
+
+        function formatEarningsTimeEmoji(time) {
+            if (!time) return '❓';
+            if (time === 'before_open' || time === 'before_market' || time === 'bmo') return '🌅 BMO';
+            if (time === 'after_close' || time === 'after_market' || time === 'amc') return '🌙 AMC';
+            if (time === 'during_market') return '📊 DMH';
+            return '❓';
+        }
 
         // Fetch scanner status
         async function fetchStatus() {
@@ -612,7 +913,7 @@
                             <div class="earnings-chip ${e.prem_window ? 'prem-window' : ''} ${e.imminent ? 'imminent' : ''}"
                                  onclick="showDetail('${e.symbol}')">
                                 <span>${e.symbol}</span>
-                                <span class="time">${e.earnings_time === 'before_market' ? 'BMO' : e.earnings_time === 'after_market' ? 'AMC' : '?'}</span>
+                                <span class="time">${formatEarningsTime(e.earnings_time)}</span>
                             </div>
                         `).join('')}
                     </div>
@@ -664,7 +965,7 @@
                     </td>
                     <td>${r.earnings_date}</td>
                     <td>${r.days_to_earnings}d</td>
-                    <td>${r.earnings_time === 'before_market' ? '🌅 BMO' : r.earnings_time === 'after_market' ? '🌙 AMC' : '❓'}</td>
+                    <td>${formatEarningsTimeEmoji(r.earnings_time)}</td>
                     <td class="signals-list">${(r.signals || []).slice(0, 3).join(' • ')}</td>
                 </tr>
             `).join('');
@@ -725,18 +1026,49 @@
             btn.disabled = true;
 
             try {
-                // This can take 30-60 seconds as it fetches earnings for many symbols
+                // Trigger refresh - returns immediately, runs in background
                 const res = await fetch(`${SCANNER_API}/refresh-calendar`, { method: 'POST' });
                 const data = await res.json();
 
                 if (data.success) {
-                    btn.textContent = '✓ REFRESHED';
+                    // Show progress - refresh runs in background for 60-90 seconds
                     btn.classList.remove('loading');
-                    fetchCalendar();
+                    btn.textContent = 'REFRESHING...';
+
+                    // Poll for completion by checking if calendar data has changed
+                    let pollCount = 0;
+                    const maxPolls = 12; // 12 * 10s = 120 seconds max wait
+                    const pollInterval = setInterval(async () => {
+                        pollCount++;
+                        btn.textContent = `REFRESHING... ${pollCount * 10}s`;
+
+                        // Try to fetch updated calendar
+                        try {
+                            await fetchCalendar();
+                        } catch (e) {
+                            // Ignore errors during polling
+                        }
+
+                        if (pollCount >= maxPolls) {
+                            clearInterval(pollInterval);
+                            btn.textContent = '✓ DONE';
+                            setTimeout(() => {
+                                btn.textContent = originalText;
+                                btn.disabled = false;
+                            }, 2000);
+                        }
+                    }, 10000);
+
+                    // Also refresh calendar immediately after 90 seconds and stop polling
                     setTimeout(() => {
-                        btn.textContent = originalText;
-                        btn.disabled = false;
-                    }, 2000);
+                        clearInterval(pollInterval);
+                        fetchCalendar();
+                        btn.textContent = '✓ REFRESHED';
+                        setTimeout(() => {
+                            btn.textContent = originalText;
+                            btn.disabled = false;
+                        }, 2000);
+                    }, 90000);
                 } else {
                     throw new Error(data.error || 'Refresh failed');
                 }
@@ -842,6 +1174,25 @@
         function hideAddPositionModal() {
             document.getElementById('add-position-modal').style.display = 'none';
         }
+
+        // Score explainer modal functions
+        function showScoreExplainer() {
+            document.getElementById('score-explainer-modal').style.display = 'flex';
+        }
+
+        function hideScoreExplainer(event) {
+            // If called from overlay click, only close if clicking the overlay itself
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('score-explainer-modal').style.display = 'none';
+        }
+
+        // Close modals on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                hideAddPositionModal();
+                hideScoreExplainer();
+            }
+        });
 
         async function submitPosition() {
             const symbol = document.getElementById('pos-symbol').value.toUpperCase();

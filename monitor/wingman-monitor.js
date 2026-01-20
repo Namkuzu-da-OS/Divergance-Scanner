@@ -58,6 +58,18 @@ let state = {
   initialized: false
 };
 
+// Timezone for display (PST)
+const DISPLAY_TIMEZONE = 'America/Los_Angeles';
+
+function formatTimePST(date = new Date()) {
+  return date.toLocaleString('en-US', {
+    timeZone: DISPLAY_TIMEZONE,
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  });
+}
+
 // ============================================
 // TELEGRAM FUNCTIONS
 // ============================================
@@ -151,21 +163,22 @@ async function getMarketData() {
 function checkVixThresholds(vix, alerts) {
   const vixPrice = parseFloat(vix.current_price);
 
-  // Determine current regime
+  // Determine current regime (entry-focused framework)
   let currentRegime;
-  if (vixPrice < 15) currentRegime = 'low';
+  if (vixPrice < 12) currentRegime = 'complacent';
   else if (vixPrice < 20) currentRegime = 'normal';
-  else if (vixPrice < 25) currentRegime = 'elevated';
-  else if (vixPrice < 35) currentRegime = 'high';
-  else currentRegime = 'extreme';
+  else if (vixPrice < 30) currentRegime = 'elevated';
+  else if (vixPrice < 40) currentRegime = 'fear';
+  else currentRegime = 'capitulation';
 
   // Check for regime change
   if (state.lastVixRegime && state.lastVixRegime !== currentRegime) {
     const direction = vixPrice > (state.lastVixValue || 0) ? '📈' : '📉';
+    const timeStr = formatTimePST();
     alerts.push({
       type: 'VIX_REGIME',
       priority: currentRegime === 'elevated' || currentRegime === 'high' ? 'HIGH' : 'MEDIUM',
-      message: `${direction} <b>VIX Regime Change</b>\n\nVIX: ${vixPrice.toFixed(2)}\n${state.lastVixRegime.toUpperCase()} → ${currentRegime.toUpperCase()}\n\n${getVixAdvice(currentRegime)}`
+      message: `${direction} <b>VIX Regime Change</b>\n<code>${timeStr} PST</code>\n\nVIX: ${vixPrice.toFixed(2)}\n${state.lastVixRegime.toUpperCase()} → ${currentRegime.toUpperCase()}\n\n${getVixAdvice(currentRegime)}`
     });
   }
 
@@ -175,11 +188,11 @@ function checkVixThresholds(vix, alerts) {
 
 function getVixAdvice(regime) {
   switch (regime) {
-    case 'low': return '✅ Standard sizing OK';
-    case 'normal': return '✅ Normal conditions';
-    case 'elevated': return '⚠️ Widen stops 50% OR reduce size';
-    case 'high': return '🛑 Reduce size 50%, expect large moves';
-    case 'extreme': return '🚨 DANGER - Consider sitting out';
+    case 'complacent': return '⚠️ Spike probable - tighten trailing stops';
+    case 'normal': return '⚪ Standard conditions';
+    case 'elevated': return '👀 Watch for setups forming';
+    case 'fear': return '🟢 Quality entries emerging';
+    case 'capitulation': return '🟢 Scale in - historically near bottoms';
     default: return '';
   }
 }
@@ -227,9 +240,10 @@ async function runCheck() {
   // Initialize state on first run (don't alert)
   if (!state.initialized) {
     console.log('[Monitor] Initializing state...');
-    state.lastVixRegime = parseFloat(data.vix.current_price) < 15 ? 'low' :
+    state.lastVixRegime = parseFloat(data.vix.current_price) < 12 ? 'complacent' :
                           parseFloat(data.vix.current_price) < 20 ? 'normal' :
-                          parseFloat(data.vix.current_price) < 25 ? 'elevated' : 'high';
+                          parseFloat(data.vix.current_price) < 30 ? 'elevated' :
+                          parseFloat(data.vix.current_price) < 40 ? 'fear' : 'capitulation';
     state.lastVixValue = parseFloat(data.vix.current_price);
     state.initialized = true;
     console.log('[Monitor] State initialized, monitoring started');

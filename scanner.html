@@ -312,6 +312,126 @@ Auto-refreshes every 30 seconds.
         }
 
         .loading { color: #8b92a8; text-align: center; padding: 40px; }
+
+        /* Navigation Links */
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            margin-left: 16px;
+        }
+
+        .nav-link {
+            padding: 8px 14px;
+            border: 1px solid #2a3641;
+            background: transparent;
+            color: #8b92a8;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            border-color: #00d4aa;
+            color: #00d4aa;
+        }
+
+        .nav-link.active {
+            border-color: #00d4aa;
+            color: #00d4aa;
+            background: rgba(0, 212, 170, 0.1);
+        }
+
+        .nav-link.earnings {
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+
+        .nav-link.earnings:hover,
+        .nav-link.earnings.active {
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .nav-link.opportunity {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        .nav-link.opportunity:hover,
+        .nav-link.opportunity.active {
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        /* VIX Reference Guide */
+        .vix-guide {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .vix-level {
+            padding: 10px 12px;
+            border-radius: 6px;
+            border-left: 3px solid;
+        }
+
+        .vix-level.complacent {
+            background: rgba(255, 152, 0, 0.1);
+            border-color: #ff9800;
+        }
+
+        .vix-level.normal {
+            background: rgba(58, 139, 186, 0.1);
+            border-color: #3a8bba;
+        }
+
+        .vix-level.elevated {
+            background: rgba(255, 193, 7, 0.1);
+            border-color: #ffc107;
+        }
+
+        .vix-level.fear {
+            background: rgba(0, 212, 170, 0.1);
+            border-color: #00d4aa;
+        }
+
+        .vix-level.capitulation {
+            background: rgba(0, 230, 118, 0.15);
+            border-color: #00e676;
+        }
+
+        .vix-level-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .vix-level-range {
+            font-size: 14px;
+            font-weight: 600;
+            color: #e5e7eb;
+        }
+
+        .vix-level-name {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .vix-level.complacent .vix-level-name { color: #ff9800; }
+        .vix-level.normal .vix-level-name { color: #3a8bba; }
+        .vix-level.elevated .vix-level-name { color: #ffc107; }
+        .vix-level.fear .vix-level-name { color: #00d4aa; }
+        .vix-level.capitulation .vix-level-name { color: #00e676; }
+
+        .vix-level-advice {
+            font-size: 12px;
+            color: #c5c9d4;
+        }
     </style>
 </head>
 <body>
@@ -322,11 +442,14 @@ Auto-refreshes every 30 seconds.
                 <div class="status-dot" id="status-dot"></div>
                 <span class="last-update">Last update: <span id="last-update">--:--:--</span></span>
                 <button class="refresh-btn" onclick="loadAllData()">REFRESH</button>
-                <a href="zone-scanner.html" class="refresh-btn" style="text-decoration: none; margin-left: 8px;">🎯 ZONES</a>
-                <a href="analytics.html" class="refresh-btn" style="text-decoration: none; margin-left: 8px;">📊 ANALYTICS</a>
-                <a href="earnings-scanner.html" class="refresh-btn" style="text-decoration: none; margin-left: 8px; color: #f59e0b;">📅 EARNINGS</a>
-                <a href="opportunity-scanner.html" class="refresh-btn" style="text-decoration: none; margin-left: 8px; color: #3b82f6;">🎯 OPPORTUNITY</a>
-                <a href="dashboard.html" class="refresh-btn" style="text-decoration: none; margin-left: 8px;">DASHBOARD</a>
+                <div class="nav-links">
+                    <a href="zone-scanner.html" class="nav-link">🎯 ZONES</a>
+                    <a href="analytics.html" class="nav-link">📊 ANALYTICS</a>
+                    <a href="earnings-scanner.html" class="nav-link earnings">📅 EARNINGS</a>
+                    <a href="opportunity-scanner.html" class="nav-link opportunity">🎯 OPPORTUNITY</a>
+                    <a href="scanner.html" class="nav-link active">MARKET</a>
+                    <a href="dashboard.html" class="nav-link">DASHBOARD</a>
+                </div>
             </div>
         </div>
 
@@ -442,6 +565,48 @@ Auto-refreshes every 30 seconds.
                 <h3>Recent Alerts</h3>
                 <div class="alerts-list" id="alerts-list">
                     <div class="loading">Loading alerts...</div>
+                </div>
+            </div>
+
+            <!-- VIX Reference Guide -->
+            <div class="card">
+                <h3>VIX Reference Guide</h3>
+                <div class="vix-guide">
+                    <div class="vix-level complacent">
+                        <div class="vix-level-header">
+                            <span class="vix-level-range">&lt; 12</span>
+                            <span class="vix-level-name">COMPLACENT</span>
+                        </div>
+                        <div class="vix-level-advice">⚠️ Spike probable - tighten trailing stops</div>
+                    </div>
+                    <div class="vix-level normal">
+                        <div class="vix-level-header">
+                            <span class="vix-level-range">12 - 20</span>
+                            <span class="vix-level-name">NORMAL</span>
+                        </div>
+                        <div class="vix-level-advice">⚪ Standard conditions</div>
+                    </div>
+                    <div class="vix-level elevated">
+                        <div class="vix-level-header">
+                            <span class="vix-level-range">20 - 30</span>
+                            <span class="vix-level-name">ELEVATED</span>
+                        </div>
+                        <div class="vix-level-advice">👀 Watch for setups forming</div>
+                    </div>
+                    <div class="vix-level fear">
+                        <div class="vix-level-header">
+                            <span class="vix-level-range">30 - 40</span>
+                            <span class="vix-level-name">FEAR</span>
+                        </div>
+                        <div class="vix-level-advice">🟢 Quality entries emerging</div>
+                    </div>
+                    <div class="vix-level capitulation">
+                        <div class="vix-level-header">
+                            <span class="vix-level-range">&gt; 40</span>
+                            <span class="vix-level-name">CAPITULATION</span>
+                        </div>
+                        <div class="vix-level-advice">🟢 Scale in - historically near bottoms</div>
+                    </div>
                 </div>
             </div>
         </div>

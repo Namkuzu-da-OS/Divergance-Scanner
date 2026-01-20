@@ -394,7 +394,7 @@ data/
 │  ┌──────────────────────────────────────────────────────────────────────┐  │
 │  │ Performance analysis by:                                              │  │
 │  │ • Tier (HIGH_CONVICTION vs TRADEABLE vs WATCH)                        │  │
-│  │ • VIX regime (low/normal/elevated/high)                               │  │
+│  │ • VIX regime (complacent/normal/elevated/fear/capitulation)           │  │
 │  │ • Score range (does higher score = better results?)                   │  │
 │  │ • SPY trend (bullish vs bearish market)                               │  │
 │  │ • Bias alignment (with vs against market direction)                   │  │

@@ -42,7 +42,21 @@ const SETTINGS = {
     velocityThreshold: 20,           // Points jump to trigger velocity alert
     autoTrackMinScore: 80,           // Minimum score to auto-track for outcomes
     signalExpirationDays: 5,         // Days before unresolved signal = EXPIRED
+    // Display timezone
+    displayTimezone: 'America/Los_Angeles', // PST/PDT for user display
 };
+
+// ============================================
+// TIMEZONE HELPER
+// ============================================
+function formatTimePST(date = new Date()) {
+    return date.toLocaleString('en-US', {
+        timeZone: SETTINGS.displayTimezone,
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+    });
+}
 
 // ============================================
 // ADAPTIVE BACKOFF FOR API RATE LIMITING
@@ -1871,7 +1885,10 @@ function formatAlert(analysis) {
     const scoreEmoji = analysis.totalScore >= 64 ? '🔥' :
                        analysis.totalScore >= 56 ? '⭐' : '📊';
 
-    let msg = `${scoreEmoji} <b>BLOODHOUND: ${escapeHtml(analysis.symbol)}</b> ${dirEmoji}\n\n`;
+    const timeStr = formatTimePST();
+
+    let msg = `${scoreEmoji} <b>BLOODHOUND: ${escapeHtml(analysis.symbol)}</b> ${dirEmoji}\n`;
+    msg += `<code>${timeStr} PST</code>\n\n`;
     msg += `<b>Confluence Score:</b> ${analysis.totalScore}/80\n`;
     msg += `<b>Direction:</b> ${analysis.direction.toUpperCase()}\n`;
     msg += `<b>Price:</b> $${analysis.price.toFixed(2)}\n\n`;

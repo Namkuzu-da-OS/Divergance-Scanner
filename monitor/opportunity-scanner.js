@@ -43,6 +43,18 @@ const SETTINGS = {
     }
 };
 
+// Display timezone for alerts (user's local time)
+const DISPLAY_TIMEZONE = 'America/Los_Angeles';
+
+function formatTimePST(date = new Date()) {
+    return date.toLocaleString('en-US', {
+        timeZone: DISPLAY_TIMEZONE,
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+    });
+}
+
 // Core symbols - always scan for market context
 const CORE_SYMBOLS = ['SPY', 'QQQ', 'IWM'];
 
@@ -637,8 +649,10 @@ async function sendTelegramAlert(opportunity, marketContext) {
     const premiumM = Math.abs(opportunity.unusual.netPremium) / 1000000;
     const premiumDir = opportunity.unusual.netPremium > 0 ? 'BULLISH' : 'BEARISH';
 
+    const timeStr = formatTimePST();
     const message = `
 ${directionEmoji} <b>UNUSUAL OPTIONS: ${opportunity.symbol}</b>
+<code>${timeStr} PST</code>
 Score: ${opportunity.score}/100 | ${opportunity.tier}
 
 💰 Price: $${opportunity.price.toFixed(2)}

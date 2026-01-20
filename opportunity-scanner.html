@@ -130,8 +130,19 @@
             color: #f59e0b;
         }
 
-        .nav-link.earnings:hover {
+        .nav-link.earnings:hover,
+        .nav-link.earnings.active {
             background: rgba(245, 158, 11, 0.1);
+        }
+
+        .nav-link.opportunity {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        .nav-link.opportunity:hover,
+        .nav-link.opportunity.active {
+            background: rgba(59, 130, 246, 0.1);
         }
 
         /* Market Context Banner */
@@ -573,8 +584,8 @@
             <nav class="nav-links">
                 <a href="zone-scanner.html" class="nav-link">🎯 ZONES</a>
                 <a href="analytics.html" class="nav-link">📊 ANALYTICS</a>
-                <a href="earnings-scanner.html" class="nav-link earnings" style="color: #f59e0b;">📅 EARNINGS</a>
-                <a href="opportunity-scanner.html" class="nav-link active" style="color: #3b82f6;">🎯 OPPORTUNITY</a>
+                <a href="earnings-scanner.html" class="nav-link earnings">📅 EARNINGS</a>
+                <a href="opportunity-scanner.html" class="nav-link opportunity active">🎯 OPPORTUNITY</a>
                 <a href="scanner.html" class="nav-link">MARKET</a>
                 <a href="dashboard.html" class="nav-link">DASHBOARD</a>
             </nav>

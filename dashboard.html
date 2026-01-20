@@ -626,6 +626,57 @@ LAST UPDATED: November 2, 2025
         .rules-toggle.expanded {
             transform: rotate(180deg);
         }
+
+        /* Navigation Links */
+        .nav-links {
+            display: flex;
+            gap: 8px;
+            margin-left: 8px;
+        }
+
+        .nav-link {
+            padding: 8px 14px;
+            border: 1px solid #2a3641;
+            background: transparent;
+            color: #8b92a8;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            border-color: #00d4aa;
+            color: #00d4aa;
+        }
+
+        .nav-link.active {
+            border-color: #00d4aa;
+            color: #00d4aa;
+            background: rgba(0, 212, 170, 0.1);
+        }
+
+        .nav-link.earnings {
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+
+        .nav-link.earnings:hover,
+        .nav-link.earnings.active {
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .nav-link.opportunity {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        .nav-link.opportunity:hover,
+        .nav-link.opportunity.active {
+            background: rgba(59, 130, 246, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -637,11 +688,14 @@ LAST UPDATED: November 2, 2025
             <div>
                 <span class="status-indicator"></span>
                 <button class="refresh-btn" onclick="loadData()">REFRESH</button>
-                <a href="zone-scanner.html" class="refresh-btn" style="text-decoration: none; margin-left: 8px;">🎯 ZONES</a>
-                <a href="analytics.html" class="refresh-btn" style="text-decoration: none; margin-left: 8px;">📊 ANALYTICS</a>
-                <a href="earnings-scanner.html" class="refresh-btn" style="text-decoration: none; margin-left: 8px; color: #f59e0b;">📅 EARNINGS</a>
-                <a href="opportunity-scanner.html" class="refresh-btn" style="text-decoration: none; margin-left: 8px; color: #3b82f6;">🎯 OPPORTUNITY</a>
-                <a href="scanner.html" class="refresh-btn" style="text-decoration: none; margin-left: 8px;">MARKET</a>
+                <div class="nav-links">
+                    <a href="zone-scanner.html" class="nav-link">🎯 ZONES</a>
+                    <a href="analytics.html" class="nav-link">📊 ANALYTICS</a>
+                    <a href="earnings-scanner.html" class="nav-link earnings">📅 EARNINGS</a>
+                    <a href="opportunity-scanner.html" class="nav-link opportunity">🎯 OPPORTUNITY</a>
+                    <a href="scanner.html" class="nav-link">MARKET</a>
+                    <a href="dashboard.html" class="nav-link active">DASHBOARD</a>
+                </div>
                 <div class="last-update">Last update: <span id="last-update">--:--:--</span></div>
             </div>
         </div>

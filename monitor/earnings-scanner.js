@@ -76,6 +76,18 @@ const alertCooldowns = new Map();
 // UTILITY FUNCTIONS
 // =============================================================================
 
+// Display timezone (PST)
+const DISPLAY_TIMEZONE = 'America/Los_Angeles';
+
+function formatTimePST(date = new Date()) {
+    return date.toLocaleString('en-US', {
+        timeZone: DISPLAY_TIMEZONE,
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+    });
+}
+
 /**
  * Sleep for rate limiting - be gentle to Yahoo Finance backend
  */
@@ -400,8 +412,10 @@ function formatExitReminderAlert(position, daysToEarnings) {
 
     const currentPnl = position.current_pnl_pct || 0;
     const pnlEmoji = currentPnl >= 0 ? '🟢' : '🔴';
+    const timeStr = formatTimePST();
 
-    let msg = `${urgency} <b>EXIT REMINDER: ${escapeHtml(position.symbol)}</b>\n\n`;
+    let msg = `${urgency} <b>EXIT REMINDER: ${escapeHtml(position.symbol)}</b>\n`;
+    msg += `<code>${timeStr} PST</code>\n\n`;
 
     msg += `<b>Days to Earnings:</b> ${daysToEarnings === 0 ? 'TODAY!' : daysToEarnings + ' day(s)'}\n`;
     msg += `<b>Earnings Date:</b> ${position.earnings_date}\n\n`;
@@ -711,8 +725,10 @@ function formatPremAlert(result) {
     const tierEmoji = result.tier === 'HIGH_CONVICTION' ? '🔥' : '📈';
     const timeEmoji = result.earnings_time === 'before_market' ? '🌅' :
                       result.earnings_time === 'after_market' ? '🌙' : '📅';
+    const timeStr = formatTimePST();
 
-    let msg = `${tierEmoji} <b>PREM SIGNAL: ${escapeHtml(result.symbol)}</b>\n\n`;
+    let msg = `${tierEmoji} <b>PREM SIGNAL: ${escapeHtml(result.symbol)}</b>\n`;
+    msg += `<code>${timeStr} PST</code>\n\n`;
 
     msg += `<b>Confluence Score:</b> ${result.score}/100\n`;
     msg += `<b>Tier:</b> ${result.tier}\n`;
@@ -823,15 +839,18 @@ function startControlServer() {
 
         // POST /refresh-calendar
         if (req.method === 'POST' && url === '/refresh-calendar') {
+            // Return immediately - refresh runs in background (can take 60+ seconds)
+            res.writeHead(200);
+            res.end(JSON.stringify({ success: true, message: 'Calendar refresh started. This takes 60-90 seconds.' }));
+
+            // Run in background
             const { main: refreshCalendar } = require('./earnings-calendar-scraper');
             refreshCalendar()
                 .then(result => {
-                    res.writeHead(200);
-                    res.end(JSON.stringify({ success: true, count: result.total_count }));
+                    console.log(`[Control] Calendar refresh complete: ${result.total_count} earnings fetched`);
                 })
                 .catch(err => {
-                    res.writeHead(500);
-                    res.end(JSON.stringify({ success: false, error: err.message }));
+                    console.error(`[Control] Calendar refresh failed: ${err.message}`);
                 });
             return;
         }

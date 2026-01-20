@@ -409,7 +409,7 @@ Bloodhound automatically creates paper trades for signals to validate their effe
 | `zone` | BUY_ZONE, SELL_ZONE, PINNED, etc. |
 | `signals` | Array of contributing signals |
 | `vix` | VIX level at entry |
-| `vix_regime` | low/normal/elevated/high |
+| `vix_regime` | complacent/normal/elevated/fear/capitulation |
 | `spy_trend` | bullish/bearish/neutral |
 | `intraday_bias` | Market intraday direction |
 | `swing_bias` | Market swing direction |
@@ -523,7 +523,7 @@ The monitor runs in background and:
 ### Alert Types
 | Alert | Trigger | Notes |
 |-------|---------|-------|
-| VIX Regime | VIX crosses 15/20/25/35 | Only alert type - Bloodhound handles wall/signal alerts |
+| VIX Regime | VIX crosses 12/20/30/40 | Only alert type - Bloodhound handles wall/signal alerts |
 
 ### Why Separate Processes?
 
@@ -589,7 +589,7 @@ curl -X PATCH http://192.168.10.239:3000/api/trades/{id}/close \
 
 ### Market Snapshot (Auto-Captured)
 On each trade entry/exit, the server captures:
-- VIX + regime (low/normal/elevated/high)
+- VIX + regime (complacent/normal/elevated/fear/capitulation)
 - Gamma regime (BULLISH_SUPPORT/BEARISH_RESISTANCE/NEUTRAL)
 - Call wall, put wall, max pain
 - IV, HV, put/call OI ratio
@@ -700,6 +700,27 @@ Analyzes paper trade performance to validate signal quality.
 - Auto-generated recommendations based on data
 
 Auto-refreshes every 30 seconds from `data/paper_trades.json`.
+
+---
+
+## VIX Reference Guide (Entry-Focused)
+
+This system uses an **entry-focused** VIX framework. High VIX = opportunity, not danger.
+
+| VIX | Regime | Entry Signal |
+|-----|--------|--------------|
+| < 12 | **COMPLACENT** | ⚠️ Spike probable - tighten trailing stops |
+| 12-20 | **NORMAL** | ⚪ Standard conditions |
+| 20-30 | **ELEVATED** | 👀 Watch for setups forming |
+| 30-40 | **FEAR** | 🟢 Quality entries emerging |
+| > 40 | **CAPITULATION** | 🟢 Scale in - historically near bottoms |
+
+**Key principle:** "When the VIX is high, it's time to buy. When the VIX is low, look out below."
+
+The framework treats high VIX as opportunity because:
+- VIX > 40 historically marks market bottoms
+- Fear creates mispriced assets and entry opportunities
+- Mean reversion is strongest at extremes
 
 ---
 
