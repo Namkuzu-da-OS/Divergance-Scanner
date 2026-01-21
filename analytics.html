@@ -163,6 +163,16 @@
         .nav-link.opportunity.active {
             background: rgba(59, 130, 246, 0.1);
         }
+
+        .nav-link.premarket {
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+
+        .nav-link.premarket:hover,
+        .nav-link.premarket.active {
+            background: rgba(245, 158, 11, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -171,20 +181,20 @@
             <div>
                 <h1>Signal Analytics</h1>
                 <p class="header-subtitle">
-                    4-hour validation window • Auto-tracked HIGH_CONVICTION alerts
+                    Multi-checkpoint validation (4h, 24h, 7d) • SQLite-backed signal history
                 </p>
             </div>
-            <div style="display: flex; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <div class="nav-links">
+                    <a href="zone-scanner.html" class="nav-link">ZONES</a>
+                    <a href="premarket.html" class="nav-link premarket">PRE-MARKET</a>
+                    <a href="analytics.html" class="nav-link active">ANALYTICS</a>
+                    <a href="earnings-scanner.html" class="nav-link earnings">EARNINGS</a>
+                    <a href="opportunity-scanner.html" class="nav-link opportunity">OPPORTUNITY</a>
+                    <a href="scanner.html" class="nav-link">MARKET</a>
+                </div>
                 <span class="last-updated" id="lastUpdated"></span>
                 <button class="btn" onclick="loadData()">REFRESH</button>
-                <div class="nav-links">
-                    <a href="zone-scanner.html" class="nav-link">🎯 ZONES</a>
-                    <a href="analytics.html" class="nav-link active">📊 ANALYTICS</a>
-                    <a href="earnings-scanner.html" class="nav-link earnings">📅 EARNINGS</a>
-                    <a href="opportunity-scanner.html" class="nav-link opportunity">🎯 OPPORTUNITY</a>
-                    <a href="scanner.html" class="nav-link">MARKET</a>
-                    <a href="dashboard.html" class="nav-link">DASHBOARD</a>
-                </div>
             </div>
         </div>
 
@@ -226,13 +236,18 @@
 
         async function loadData() {
             try {
-                const response = await fetch('/data/signal_log.json?_=' + Date.now());
+                // Try database API first, fall back to JSON file
+                let response = await fetch('/api/signals?_=' + Date.now());
+                if (!response.ok) {
+                    // Fallback to JSON file for backward compatibility
+                    response = await fetch('/data/signal_log.json?_=' + Date.now());
+                }
                 if (!response.ok) {
                     if (response.status === 404) {
                         showEmptyState();
                         return;
                     }
-                    throw new Error('Failed to load signal log');
+                    throw new Error('Failed to load signal data');
                 }
 
                 signalData = await response.json();

@@ -364,6 +364,16 @@ Auto-refreshes every 30 seconds.
             background: rgba(59, 130, 246, 0.1);
         }
 
+        .nav-link.premarket {
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+
+        .nav-link.premarket:hover,
+        .nav-link.premarket.active {
+            background: rgba(245, 158, 11, 0.1);
+        }
+
         /* VIX Reference Guide */
         .vix-guide {
             display: flex;
@@ -439,17 +449,17 @@ Auto-refreshes every 30 seconds.
         <div class="header">
             <h1>WINGMAN MARKET SCANNER</h1>
             <div class="status-row">
+                <div class="nav-links">
+                    <a href="zone-scanner.html" class="nav-link">ZONES</a>
+                    <a href="premarket.html" class="nav-link premarket">PRE-MARKET</a>
+                    <a href="analytics.html" class="nav-link">ANALYTICS</a>
+                    <a href="earnings-scanner.html" class="nav-link earnings">EARNINGS</a>
+                    <a href="opportunity-scanner.html" class="nav-link opportunity">OPPORTUNITY</a>
+                    <a href="scanner.html" class="nav-link active">MARKET</a>
+                </div>
                 <div class="status-dot" id="status-dot"></div>
                 <span class="last-update">Last update: <span id="last-update">--:--:--</span></span>
                 <button class="refresh-btn" onclick="loadAllData()">REFRESH</button>
-                <div class="nav-links">
-                    <a href="zone-scanner.html" class="nav-link">🎯 ZONES</a>
-                    <a href="analytics.html" class="nav-link">📊 ANALYTICS</a>
-                    <a href="earnings-scanner.html" class="nav-link earnings">📅 EARNINGS</a>
-                    <a href="opportunity-scanner.html" class="nav-link opportunity">🎯 OPPORTUNITY</a>
-                    <a href="scanner.html" class="nav-link active">MARKET</a>
-                    <a href="dashboard.html" class="nav-link">DASHBOARD</a>
-                </div>
             </div>
         </div>
 

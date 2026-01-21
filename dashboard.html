@@ -677,6 +677,16 @@ LAST UPDATED: November 2, 2025
         .nav-link.opportunity.active {
             background: rgba(59, 130, 246, 0.1);
         }
+
+        .nav-link.premarket {
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+
+        .nav-link.premarket:hover,
+        .nav-link.premarket.active {
+            background: rgba(245, 158, 11, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -685,18 +695,19 @@ LAST UPDATED: November 2, 2025
             <div>
                 <h1>⚡ WINGMAN TRADING DASHBOARD</h1>
             </div>
-            <div>
-                <span class="status-indicator"></span>
-                <button class="refresh-btn" onclick="loadData()">REFRESH</button>
+            <div style="display: flex; align-items: center; gap: 16px;">
                 <div class="nav-links">
-                    <a href="zone-scanner.html" class="nav-link">🎯 ZONES</a>
-                    <a href="analytics.html" class="nav-link">📊 ANALYTICS</a>
-                    <a href="earnings-scanner.html" class="nav-link earnings">📅 EARNINGS</a>
-                    <a href="opportunity-scanner.html" class="nav-link opportunity">🎯 OPPORTUNITY</a>
+                    <a href="zone-scanner.html" class="nav-link">ZONES</a>
+                    <a href="premarket.html" class="nav-link premarket">PRE-MARKET</a>
+                    <a href="analytics.html" class="nav-link">ANALYTICS</a>
+                    <a href="earnings-scanner.html" class="nav-link earnings">EARNINGS</a>
+                    <a href="opportunity-scanner.html" class="nav-link opportunity">OPPORTUNITY</a>
                     <a href="scanner.html" class="nav-link">MARKET</a>
                     <a href="dashboard.html" class="nav-link active">DASHBOARD</a>
                 </div>
+                <span class="status-indicator"></span>
                 <div class="last-update">Last update: <span id="last-update">--:--:--</span></div>
+                <button class="refresh-btn" onclick="loadData()">REFRESH</button>
             </div>
         </div>
 
