@@ -55,6 +55,17 @@ function formatTimePST(date = new Date()) {
     });
 }
 
+// Format expiration date compactly (e.g., "2025-01-24" -> "1/24")
+function formatExpiration(expStr) {
+    if (!expStr) return '';
+    try {
+        const d = new Date(expStr + 'T00:00:00');
+        return `${d.getMonth() + 1}/${d.getDate()}`;
+    } catch {
+        return expStr; // Return as-is if parsing fails
+    }
+}
+
 // Core symbols - always scan for market context
 const CORE_SYMBOLS = ['SPY', 'QQQ', 'IWM'];
 
@@ -373,14 +384,16 @@ function scoreUnusualOptions(analysis) {
         signals.push(`${totalUnusual} unusual strikes (conviction)`);
     }
 
-    // Top unusual strike details
+    // Top unusual strike details (include expiration for verification)
     if (unusual_calls.length > 0) {
         const top = unusual_calls[0];
-        signals.push(`Top call: ${top.strike}C vol/OI ${(top.vol_oi_ratio || 0).toFixed(1)}x`);
+        const exp = top.expiration ? ` ${formatExpiration(top.expiration)}` : '';
+        signals.push(`Top call: ${top.strike}C${exp} vol/OI ${(top.vol_oi_ratio || 0).toFixed(1)}x`);
     }
     if (unusual_puts.length > 0) {
         const top = unusual_puts[0];
-        signals.push(`Top put: ${top.strike}P vol/OI ${(top.vol_oi_ratio || 0).toFixed(1)}x`);
+        const exp = top.expiration ? ` ${formatExpiration(top.expiration)}` : '';
+        signals.push(`Top put: ${top.strike}P${exp} vol/OI ${(top.vol_oi_ratio || 0).toFixed(1)}x`);
     }
 
     // Determine direction

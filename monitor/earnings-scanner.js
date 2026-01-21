@@ -469,11 +469,11 @@ async function calculatePremScore(symbol, earningsData) {
         score += 15;
         signals.push(`RSI ${rsi.toFixed(0)} (healthy momentum)`);
     } else if (rsi > 70) {
-        score += 5; // Already extended, less upside
-        signals.push(`RSI ${rsi.toFixed(0)} (extended)`);
+        score += 5; // High momentum, less upside potential
+        signals.push(`RSI ${rsi.toFixed(0)} (high momentum)`);
     } else if (rsi < 30) {
-        score += 10; // Oversold bounce potential
-        signals.push(`RSI ${rsi.toFixed(0)} (oversold bounce)`);
+        score += 10; // Low momentum, bounce potential
+        signals.push(`RSI ${rsi.toFixed(0)} (momentum reset bounce)`);
     }
 
     // Trend alignment

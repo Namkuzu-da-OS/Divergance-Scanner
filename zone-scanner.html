@@ -171,8 +171,8 @@
 
         .symbol-card.BUY_ZONE { border-left-color: #00d4aa; }
         .symbol-card.SELL_ZONE { border-left-color: #ff6b6b; }
-        .symbol-card.OVERSOLD { border-left-color: #3b82f6; }
-        .symbol-card.OVERBOUGHT { border-left-color: #f97316; }
+        .symbol-card.LOW_MOMENTUM, .symbol-card.OVERSOLD { border-left-color: #3b82f6; }
+        .symbol-card.HIGH_MOMENTUM, .symbol-card.OVERBOUGHT { border-left-color: #f97316; }
         .symbol-card.EXTENDED_HIGH { border-left-color: #ffc107; }
         .symbol-card.EXTENDED_LOW { border-left-color: #ffc107; }
         .symbol-card.MID_RANGE { border-left-color: #8b92a8; }
@@ -212,8 +212,8 @@
         .zone-badge.BUY_ZONE { background: rgba(0, 212, 170, 0.2); color: #00d4aa; }
         .zone-badge.SELL_ZONE { background: rgba(255, 107, 107, 0.2); color: #ff6b6b; }
         .zone-badge.MID_RANGE { background: rgba(139, 146, 168, 0.2); color: #8b92a8; }
-        .zone-badge.OVERSOLD { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
-        .zone-badge.OVERBOUGHT { background: rgba(249, 115, 22, 0.2); color: #f97316; }
+        .zone-badge.LOW_MOMENTUM, .zone-badge.OVERSOLD { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .zone-badge.HIGH_MOMENTUM, .zone-badge.OVERBOUGHT { background: rgba(249, 115, 22, 0.2); color: #f97316; }
         .zone-badge.EXTENDED_HIGH { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
         .zone-badge.EXTENDED_LOW { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
         .zone-badge.PINNED { background: rgba(147, 51, 234, 0.2); color: #a855f7; }
@@ -820,6 +820,16 @@
         .nav-link.opportunity.active {
             background: rgba(59, 130, 246, 0.1);
         }
+
+        .nav-link.premarket {
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+
+        .nav-link.premarket:hover,
+        .nav-link.premarket.active {
+            background: rgba(245, 158, 11, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -827,17 +837,17 @@
         <div class="header">
             <h1>ZONE SCANNER</h1>
             <div class="header-controls">
+                <div class="nav-links">
+                    <a href="zone-scanner.html" class="nav-link active">ZONES</a>
+                    <a href="premarket.html" class="nav-link premarket">PRE-MARKET</a>
+                    <a href="analytics.html" class="nav-link">ANALYTICS</a>
+                    <a href="earnings-scanner.html" class="nav-link earnings">EARNINGS</a>
+                    <a href="opportunity-scanner.html" class="nav-link opportunity">OPPORTUNITY</a>
+                    <a href="scanner.html" class="nav-link">MARKET</a>
+                </div>
                 <div class="status-dot" id="status-dot"></div>
                 <span class="last-update">Updated: <span id="last-update">--:--:--</span></span>
                 <button class="btn" onclick="loadData()">REFRESH</button>
-                <div class="nav-links">
-                    <a href="zone-scanner.html" class="nav-link active">🎯 ZONES</a>
-                    <a href="analytics.html" class="nav-link">📊 ANALYTICS</a>
-                    <a href="earnings-scanner.html" class="nav-link earnings">📅 EARNINGS</a>
-                    <a href="opportunity-scanner.html" class="nav-link opportunity">🎯 OPPORTUNITY</a>
-                    <a href="scanner.html" class="nav-link">MARKET</a>
-                    <a href="dashboard.html" class="nav-link">DASHBOARD</a>
-                </div>
             </div>
         </div>
 
@@ -900,8 +910,8 @@
             <button class="filter-btn sell" data-filter="SELL_ZONE" onclick="setFilter('SELL_ZONE')">Sell Zone</button>
             <button class="filter-btn" data-filter="MID_RANGE" onclick="setFilter('MID_RANGE')">Mid-Range</button>
             <button class="filter-btn watch" data-filter="extended" onclick="setFilter('extended')">Extended</button>
-            <button class="filter-btn watch" data-filter="OVERSOLD" onclick="setFilter('OVERSOLD')">Oversold</button>
-            <button class="filter-btn watch" data-filter="OVERBOUGHT" onclick="setFilter('OVERBOUGHT')">Overbought</button>
+            <button class="filter-btn watch" data-filter="LOW_MOMENTUM" onclick="setFilter('LOW_MOMENTUM')">Low Momentum</button>
+            <button class="filter-btn watch" data-filter="HIGH_MOMENTUM" onclick="setFilter('HIGH_MOMENTUM')">High Momentum</button>
         </div>
 
         <!-- Symbols Grid -->
@@ -1002,9 +1012,8 @@
                 positionPct = Math.max(0, Math.min(100, data.distances.positionInRange * 100));
             }
 
-            // RSI color
-            const rsiClass = data.technicals?.rsi > 70 ? 'bearish' :
-                            data.technicals?.rsi < 30 ? 'bullish' : 'neutral';
+            // RSI color - neutral for all (RSI level doesn't imply direction)
+            const rsiClass = 'neutral';
 
             // Trend color
             const trendClass = (data.technicals?.trend || '').includes('up') ? 'bullish' :
@@ -1143,7 +1152,9 @@
 
         async function fetchJson(url) {
             try {
-                const response = await fetch(url);
+                // Add cache-busting parameter to prevent stale data
+                const cacheBuster = url.includes('?') ? `&_=${Date.now()}` : `?_=${Date.now()}`;
+                const response = await fetch(url + cacheBuster);
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 return await response.json();
             } catch (e) {
@@ -1180,7 +1191,7 @@
             const sellCount = results.filter(r => r.zone === 'SELL_ZONE').length;
             const midCount = results.filter(r => r.zone === 'MID_RANGE').length;
             const watchCount = results.filter(r =>
-                ['EXTENDED_HIGH', 'EXTENDED_LOW', 'OVERSOLD', 'OVERBOUGHT'].includes(r.zone)
+                ['EXTENDED_HIGH', 'EXTENDED_LOW', 'LOW_MOMENTUM', 'HIGH_MOMENTUM', 'OVERSOLD', 'OVERBOUGHT'].includes(r.zone)
             ).length;
 
             document.getElementById('buy-count').textContent = buyCount;
@@ -1196,11 +1207,15 @@
 
             let results = scanData.results;
 
-            // Apply filter
+            // Apply filter (with backward compatibility for old zone names)
             if (currentFilter === 'tradeable') {
                 results = results.filter(r => r.tradeable);
             } else if (currentFilter === 'extended') {
                 results = results.filter(r => ['EXTENDED_HIGH', 'EXTENDED_LOW'].includes(r.zone));
+            } else if (currentFilter === 'LOW_MOMENTUM') {
+                results = results.filter(r => r.zone === 'LOW_MOMENTUM' || r.zone === 'OVERSOLD');
+            } else if (currentFilter === 'HIGH_MOMENTUM') {
+                results = results.filter(r => r.zone === 'HIGH_MOMENTUM' || r.zone === 'OVERBOUGHT');
             } else if (currentFilter !== 'all') {
                 results = results.filter(r => r.zone === currentFilter);
             }
@@ -1255,9 +1270,8 @@
                 positionPct = Math.max(0, Math.min(100, data.distances.positionInRange * 100));
             }
 
-            // RSI color
-            const rsiClass = data.technicals?.rsi > 70 ? 'bearish' :
-                            data.technicals?.rsi < 30 ? 'bullish' : 'neutral';
+            // RSI color - neutral for all (RSI level doesn't imply direction)
+            const rsiClass = 'neutral';
 
             // Trend color
             const trendClass = (data.technicals?.trend || '').includes('up') ? 'bullish' :
@@ -1387,8 +1401,10 @@
                 'BUY_ZONE': 'Buy Zone',
                 'SELL_ZONE': 'Sell Zone',
                 'MID_RANGE': 'Mid-Range',
-                'OVERSOLD': 'Oversold',
-                'OVERBOUGHT': 'Overbought',
+                'LOW_MOMENTUM': 'Low Momentum',
+                'HIGH_MOMENTUM': 'High Momentum',
+                'OVERSOLD': 'Low Momentum',      // Backward compatibility
+                'OVERBOUGHT': 'High Momentum',   // Backward compatibility
                 'EXTENDED_HIGH': 'Extended High',
                 'EXTENDED_LOW': 'Extended Low',
                 'PINNED': 'Pinned'

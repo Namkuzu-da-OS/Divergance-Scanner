@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pre-Market Scanner</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #0a0e1a;
+            color: #e5e7eb;
+            padding: 16px;
+            line-height: 1.5;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #2a3641;
+            padding-bottom: 16px;
+        }
+        .header h1 { font-size: 24px; font-weight: 600; color: #f59e0b; }
+        .header-subtitle { color: #8b92a8; margin-top: 4px; font-size: 12px; }
+
+        .btn {
+            padding: 8px 14px;
+            background: transparent;
+            border: 1px solid #f59e0b;
+            color: #f59e0b;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s;
+            margin-left: 8px;
+        }
+        .btn:hover { background: #f59e0b; color: #0a0e1a; }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+        .nav-link {
+            padding: 8px 14px;
+            border: 1px solid #2a3641;
+            background: transparent;
+            color: #8b92a8;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .nav-link:hover { border-color: #00d4aa; color: #00d4aa; }
+        .nav-link.active { border-color: #f59e0b; color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+        .nav-link.premarket { border-color: #f59e0b; color: #f59e0b; }
+
+        .status-bar {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding: 12px 16px;
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            align-items: center;
+        }
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        .status-dot.active { background: #00d4aa; }
+        .status-dot.paused { background: #f59e0b; animation: none; }
+        .status-dot.outside { background: #8b92a8; animation: none; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .market-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .market-card {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        .market-card-label {
+            font-size: 11px;
+            color: #8b92a8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .market-card-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .market-card-change {
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        .positive { color: #00d4aa; }
+        .negative { color: #ff6b6b; }
+        .neutral { color: #8b92a8; }
+
+        .summary-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .summary-card {
+            flex: 1;
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+        .summary-card-title {
+            font-size: 11px;
+            color: #8b92a8;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .summary-card-value { font-size: 32px; font-weight: 700; }
+        .summary-card.high { border-color: #00d4aa; }
+        .summary-card.high .summary-card-value { color: #00d4aa; }
+        .summary-card.tradeable { border-color: #3b82f6; }
+        .summary-card.tradeable .summary-card-value { color: #3b82f6; }
+        .summary-card.watch { border-color: #f59e0b; }
+        .summary-card.watch .summary-card-value { color: #f59e0b; }
+
+        .section {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+
+        table { width: 100%; border-collapse: collapse; }
+        thead th {
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 11px;
+            color: #8b92a8;
+            border-bottom: 1px solid #2a3641;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        tbody td { padding: 12px; border-bottom: 1px solid #2a3641; font-size: 13px; }
+        tbody tr { background: #0f1428; transition: background 0.2s; }
+        tbody tr:hover { background: #1a2332; }
+
+        .gap-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .gap-badge.up { background: rgba(0, 212, 170, 0.2); color: #00d4aa; }
+        .gap-badge.down { background: rgba(255, 107, 107, 0.2); color: #ff6b6b; }
+
+        .tier-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .tier-badge.high { background: rgba(0, 212, 170, 0.2); color: #00d4aa; }
+        .tier-badge.tradeable { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .tier-badge.watch { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .tier-badge.filtered { background: rgba(139, 146, 168, 0.2); color: #8b92a8; }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8b92a8;
+        }
+        .empty-state-icon { font-size: 48px; margin-bottom: 12px; }
+        .empty-state-title { font-size: 18px; font-weight: 600; color: #e5e7eb; margin-bottom: 8px; }
+        .empty-state-text { font-size: 13px; max-width: 500px; margin: 0 auto; line-height: 1.6; }
+
+        .loading { text-align: center; padding: 30px; font-size: 13px; color: #8b92a8; }
+        .last-updated { font-size: 11px; color: #8b92a8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>Pre-Market Scanner</h1>
+                <p class="header-subtitle">
+                    Gap detection + futures direction + earnings | 6:00 AM - 9:30 AM ET
+                </p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <div class="nav-links">
+                    <a href="zone-scanner.html" class="nav-link">ZONES</a>
+                    <a href="premarket.html" class="nav-link active premarket">PRE-MARKET</a>
+                    <a href="analytics.html" class="nav-link">ANALYTICS</a>
+                    <a href="earnings-scanner.html" class="nav-link">EARNINGS</a>
+                    <a href="opportunity-scanner.html" class="nav-link">OPPORTUNITY</a>
+                    <a href="scanner.html" class="nav-link">MARKET</a>
+                </div>
+                <span class="last-updated" id="lastUpdated"></span>
+                <button class="btn" onclick="loadData()">REFRESH</button>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-indicator">
+                <div class="status-dot" id="statusDot"></div>
+                <span id="statusText">Loading...</span>
+            </div>
+            <div style="display: flex; gap: 8px; margin-left: auto; align-items: center;">
+                <span id="currentTime" style="color: #8b92a8; font-size: 12px;"></span>
+                <button class="btn" id="pauseBtn" onclick="togglePause()">PAUSE</button>
+                <button class="btn" onclick="triggerScan()">SCAN NOW</button>
+            </div>
+        </div>
+
+        <!-- Market Overview -->
+        <div class="market-cards">
+            <div class="market-card">
+                <div class="market-card-label">SPY</div>
+                <div class="market-card-value" id="spyPrice">-</div>
+                <div class="market-card-change" id="spyChange">-</div>
+            </div>
+            <div class="market-card">
+                <div class="market-card-label">QQQ</div>
+                <div class="market-card-value" id="qqqPrice">-</div>
+                <div class="market-card-change" id="qqqChange">-</div>
+            </div>
+            <div class="market-card">
+                <div class="market-card-label">VIX</div>
+                <div class="market-card-value" id="vixPrice">-</div>
+                <div class="market-card-change neutral" id="vixRegime">-</div>
+            </div>
+            <div class="market-card">
+                <div class="market-card-label">Market Bias</div>
+                <div class="market-card-value" id="marketBias">-</div>
+                <div class="market-card-change neutral">Pre-market direction</div>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-row">
+            <div class="summary-card">
+                <div class="summary-card-title">Total Gaps</div>
+                <div class="summary-card-value" id="totalGaps">-</div>
+            </div>
+            <div class="summary-card high">
+                <div class="summary-card-title">High Conviction</div>
+                <div class="summary-card-value" id="highConviction">-</div>
+            </div>
+            <div class="summary-card tradeable">
+                <div class="summary-card-title">Tradeable</div>
+                <div class="summary-card-value" id="tradeable">-</div>
+            </div>
+            <div class="summary-card watch">
+                <div class="summary-card-title">Watch</div>
+                <div class="summary-card-value" id="watch">-</div>
+            </div>
+        </div>
+
+        <!-- Movers Table -->
+        <div class="section">
+            <h2 class="section-title">Pre-Market Movers</h2>
+            <div id="moversContainer">
+                <div class="loading">Loading pre-market data...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let premarketData = null;
+
+        async function loadData() {
+            try {
+                // Try API first, fall back to JSON file
+                let response = await fetch('/api/premarket?_=' + Date.now());
+                if (!response.ok) {
+                    response = await fetch('/data/premarket.json?_=' + Date.now());
+                }
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        showEmptyState();
+                        return;
+                    }
+                    throw new Error('Failed to load data');
+                }
+
+                premarketData = await response.json();
+                updateDisplay();
+
+                document.getElementById('lastUpdated').textContent =
+                    'Updated: ' + new Date().toLocaleTimeString();
+            } catch (e) {
+                console.error('Load failed:', e);
+                showEmptyState();
+            }
+        }
+
+        function updateDisplay() {
+            if (!premarketData) return;
+
+            // Status
+            const statusDot = document.getElementById('statusDot');
+            const statusText = document.getElementById('statusText');
+            if (premarketData.in_premarket) {
+                statusDot.className = 'status-dot active';
+                statusText.textContent = 'Pre-Market Active';
+            } else {
+                statusDot.className = 'status-dot outside';
+                statusText.textContent = 'Outside Pre-Market Hours';
+            }
+
+            // Current time
+            document.getElementById('currentTime').textContent =
+                new Date(premarketData.timestamp).toLocaleString();
+
+            // Market data
+            const market = premarketData.market || {};
+
+            if (market.spy) {
+                document.getElementById('spyPrice').textContent = '$' + (market.spy.price?.toFixed(2) || '-');
+                const spyChange = market.spy.change_pct;
+                document.getElementById('spyChange').textContent =
+                    (spyChange >= 0 ? '+' : '') + spyChange?.toFixed(2) + '%';
+                document.getElementById('spyChange').className =
+                    'market-card-change ' + (spyChange >= 0 ? 'positive' : 'negative');
+            }
+
+            if (market.qqq) {
+                document.getElementById('qqqPrice').textContent = '$' + (market.qqq.price?.toFixed(2) || '-');
+                const qqqChange = market.qqq.change_pct;
+                document.getElementById('qqqChange').textContent =
+                    (qqqChange >= 0 ? '+' : '') + qqqChange?.toFixed(2) + '%';
+                document.getElementById('qqqChange').className =
+                    'market-card-change ' + (qqqChange >= 0 ? 'positive' : 'negative');
+            }
+
+            document.getElementById('vixPrice').textContent = market.vix?.toFixed(2) || '-';
+            document.getElementById('vixRegime').textContent = market.vix > 20 ? 'Elevated' : 'Normal';
+
+            const bias = market.bias || 'NEUTRAL';
+            document.getElementById('marketBias').textContent = bias;
+            document.getElementById('marketBias').className =
+                'market-card-value ' + (bias === 'BULLISH' ? 'positive' : bias === 'BEARISH' ? 'negative' : 'neutral');
+
+            // Summary
+            const summary = premarketData.summary || {};
+            document.getElementById('totalGaps').textContent = summary.total_gaps || 0;
+            document.getElementById('highConviction').textContent = summary.high_conviction || 0;
+            document.getElementById('tradeable').textContent = summary.tradeable || 0;
+            document.getElementById('watch').textContent = summary.watch || 0;
+
+            // Movers table
+            updateMoversTable();
+        }
+
+        function updateMoversTable() {
+            const movers = premarketData.movers || [];
+            const container = document.getElementById('moversContainer');
+
+            if (movers.length === 0) {
+                showEmptyState();
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Gap</th>
+                            <th>Prev Close</th>
+                            <th>Pre-Market</th>
+                            <th>Type</th>
+                            <th>Score</th>
+                            <th>Tier</th>
+                            <th>Catalyst</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            for (const mover of movers) {
+                const gapDir = mover.gap_pct >= 0 ? 'up' : 'down';
+                const gapIcon = mover.gap_pct >= 0 ? '↑' : '↓';
+
+                let tierClass = 'filtered';
+                if (mover.tier === 'HIGH_CONVICTION') tierClass = 'high';
+                else if (mover.tier === 'TRADEABLE') tierClass = 'tradeable';
+                else if (mover.tier === 'WATCH') tierClass = 'watch';
+
+                html += `
+                    <tr>
+                        <td style="font-weight: 700;">${mover.symbol}</td>
+                        <td>
+                            <span class="gap-badge ${gapDir}">
+                                ${gapIcon} ${Math.abs(mover.gap_pct).toFixed(2)}%
+                            </span>
+                        </td>
+                        <td>$${mover.prev_close?.toFixed(2) || '-'}</td>
+                        <td>$${mover.premarket_price?.toFixed(2) || '-'}</td>
+                        <td>${mover.gap_type || '-'}</td>
+                        <td>${mover.score || '-'}</td>
+                        <td><span class="tier-badge ${tierClass}">${mover.tier}</span></td>
+                        <td style="color: #8b92a8;">${mover.catalyst || '-'}</td>
+                    </tr>`;
+            }
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function showEmptyState() {
+            document.getElementById('moversContainer').innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-state-icon">🌅</div>
+                    <div class="empty-state-title">No pre-market data yet</div>
+                    <div class="empty-state-text">
+                        The pre-market scanner runs from 6:00 AM - 9:30 AM ET.<br>
+                        Check back during pre-market hours to see gaps and movers.
+                    </div>
+                </div>`;
+
+            // Reset summary
+            document.getElementById('totalGaps').textContent = '0';
+            document.getElementById('highConviction').textContent = '0';
+            document.getElementById('tradeable').textContent = '0';
+            document.getElementById('watch').textContent = '0';
+        }
+
+        let isPaused = false;
+
+        async function loadStatus() {
+            try {
+                const response = await fetch('http://localhost:8084/status');
+                if (response.ok) {
+                    const status = await response.json();
+                    isPaused = status.paused;
+                    updatePauseButton();
+
+                    // Update status indicator based on scanner state
+                    const statusDot = document.getElementById('statusDot');
+                    const statusText = document.getElementById('statusText');
+
+                    if (status.paused) {
+                        statusDot.className = 'status-dot paused';
+                        statusText.textContent = 'Scanner Paused';
+                    } else if (status.in_premarket) {
+                        statusDot.className = 'status-dot active';
+                        statusText.textContent = 'Pre-Market Active';
+                    } else {
+                        statusDot.className = 'status-dot outside';
+                        statusText.textContent = 'Outside Pre-Market Hours';
+                    }
+
+                    document.getElementById('currentTime').textContent = status.current_time_et || '';
+                }
+            } catch (e) {
+                console.log('Could not load scanner status');
+            }
+        }
+
+        function updatePauseButton() {
+            const btn = document.getElementById('pauseBtn');
+            btn.textContent = isPaused ? 'RESUME' : 'PAUSE';
+            btn.style.borderColor = isPaused ? '#00d4aa' : '#f59e0b';
+            btn.style.color = isPaused ? '#00d4aa' : '#f59e0b';
+        }
+
+        async function togglePause() {
+            try {
+                const endpoint = isPaused ? 'resume' : 'pause';
+                const response = await fetch(`http://localhost:8084/${endpoint}`, { method: 'POST' });
+                if (response.ok) {
+                    isPaused = !isPaused;
+                    updatePauseButton();
+                    loadStatus();
+                }
+            } catch (e) {
+                console.error('Failed to toggle pause:', e);
+            }
+        }
+
+        async function triggerScan() {
+            try {
+                const response = await fetch('http://localhost:8084/scan', { method: 'POST' });
+                if (response.ok) {
+                    // Wait a moment for scan to complete, then refresh
+                    setTimeout(() => {
+                        loadData();
+                        loadStatus();
+                    }, 2000);
+                }
+            } catch (e) {
+                console.error('Failed to trigger scan:', e);
+            }
+        }
+
+        // Auto-refresh every 60 seconds
+        loadData();
+        loadStatus();
+        setInterval(loadData, 60000);
+        setInterval(loadStatus, 30000);
+    </script>
+</body>
+</html>

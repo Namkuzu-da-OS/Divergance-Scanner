@@ -1,10 +1,12 @@
 /**
  * Simple static file server for Wingman dashboard
+ * Now with API endpoints for signal database
  */
 
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const signalLogger = require('./signal-logger');
 
 const PORT = 8080;
 const ROOT = path.join(__dirname, '..');
@@ -55,6 +57,101 @@ const server = http.createServer((req, res) => {
         });
         return;
     }
+
+    // API: Get signals from database
+    if (req.method === 'GET' && urlPath === '/api/signals') {
+        try {
+            const data = signalLogger.loadSignals();
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(data));
+        } catch (e) {
+            console.error('[Web Server] Error loading signals:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
+    // API: Get signal stats from database
+    if (req.method === 'GET' && urlPath === '/api/signals/stats') {
+        try {
+            const stats = signalLogger.calculateStats();
+            const detailed = signalLogger.getDetailedStats();
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ stats, detailed }));
+        } catch (e) {
+            console.error('[Web Server] Error loading stats:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
+    // API: Get pre-market data from database
+    if (req.method === 'GET' && urlPath === '/api/premarket') {
+        try {
+            const signalDb = require('./signal-db');
+            const rawData = signalDb.getLatestPremarketData();
+
+            // Transform database format to dashboard format
+            if (!rawData || !rawData.scan) {
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ movers: [], in_premarket: false }));
+                return;
+            }
+
+            const scan = rawData.scan;
+            const movers = rawData.movers || [];
+
+            // Count tiers
+            const highConviction = movers.filter(m => m.tier === 'HIGH_CONVICTION').length;
+            const tradeable = movers.filter(m => m.tier === 'TRADEABLE').length;
+            const watch = movers.filter(m => m.tier === 'WATCH').length;
+
+            const data = {
+                timestamp: scan.timestamp,
+                scan_id: scan.id,
+                in_premarket: !scan.market_open,
+                market: {
+                    spy: { price: scan.es_price, change_pct: scan.es_change_pct },
+                    qqq: { price: scan.nq_price, change_pct: scan.nq_change_pct },
+                    vix: scan.vix,
+                    bias: scan.market_bias
+                },
+                summary: {
+                    total_gaps: movers.length,
+                    high_conviction: highConviction,
+                    tradeable: tradeable,
+                    watch: watch
+                },
+                movers: movers
+            };
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(data));
+        } catch (e) {
+            console.error('[Web Server] Error loading premarket:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
+    // API: Get pre-market stats for today
+    if (req.method === 'GET' && urlPath === '/api/premarket/today') {
+        try {
+            const signalDb = require('./signal-db');
+            const stats = signalDb.getTodayPremarketStats();
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(stats));
+        } catch (e) {
+            console.error('[Web Server] Error loading premarket stats:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
     let filePath = path.join(ROOT, urlPath === '/' ? 'zone-scanner.html' : urlPath);
 
     // Security: prevent directory traversal

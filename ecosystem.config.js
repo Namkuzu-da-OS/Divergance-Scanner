@@ -38,6 +38,15 @@ module.exports = {
       restart_delay: 5000
     },
     {
+      name: 'premarket',
+      script: 'monitor/premarket-scanner.js',
+      cwd: __dirname,
+      watch: false,
+      autorestart: true,
+      max_restarts: 10,
+      restart_delay: 5000
+    },
+    {
       name: 'webserver',
       script: 'monitor/web-server.js',
       cwd: __dirname,

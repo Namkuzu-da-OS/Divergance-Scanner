@@ -17,6 +17,7 @@ const http = require('http');
 
 // Signal validation system
 const signalLogger = require('./signal-logger');
+const signalDb = require('./signal-db');
 
 // Load config
 let CONFIG;
@@ -754,6 +755,20 @@ function updateScannerHistory(analyses, marketContext) {
         if (yesterday && yesterday.volume.total > 0 && todaySnapshot.volume.total > 0) {
             todaySnapshot.volume.vs_yesterday = parseFloat((todaySnapshot.volume.total / yesterday.volume.total).toFixed(2));
         }
+
+        // Also write to database for permanent history
+        try {
+            signalDb.upsertScannerHistory(symbol, today, {
+                first_seen: history.symbols[symbol].first_seen,
+                score: todaySnapshot.peak_score,
+                zone: todaySnapshot.scanner_data?.peak_zone,
+                price: analysis.technicals?.price,
+                gap_pct: todaySnapshot.price_action?.gap_from_prev_pct || 0,
+                rsi: todaySnapshot.technicals_eod?.rsi
+            });
+        } catch (e) {
+            console.error(`[History] DB write failed for ${symbol}:`, e.message);
+        }
     }
 
     // Prune old data (keep only HISTORY_RETENTION_DAYS)
@@ -1118,16 +1133,36 @@ async function discoverSymbols() {
 
 async function getMarketContext() {
     // Fetch all context data in parallel
-    const [context, spyLevels, qqqLevels, outlook, spyPressure, spyIv] = await Promise.all([
+    const [context, spyLevels, qqqLevels, outlook, spyIv] = await Promise.all([
         fetchJSON(`${APIS.options}/api/market/context`),
         fetchJSON(`${APIS.options}/api/levels/SPY`),
         fetchJSON(`${APIS.options}/api/levels/QQQ`),
         fetchJSON(`${APIS.intel}/api/market/outlook`),  // Multi-timeframe bias
-        fetchJSON(`${APIS.intel}/api/options-walls/SPY/pressure`),  // Gamma regime
         fetchJSON(`${APIS.options}/api/options/SPY/iv`)  // IV rank
     ]);
 
     if (!context) return null;
+
+    // Calculate gamma regime from price vs gamma flip level
+    // Price above gamma flip = dealers short gamma = BULLISH_SUPPORT (they buy dips)
+    // Price below gamma flip = dealers long gamma = BEARISH_RESISTANCE (they sell rallies)
+    let gammaRegime = 'NEUTRAL';
+    const gammaFlip = spyLevels?.levels?.gamma_flip?.price;
+    const spyPrice = context.spy_price;
+    if (gammaFlip && spyPrice) {
+        const pctFromFlip = ((spyPrice - gammaFlip) / gammaFlip) * 100;
+        if (pctFromFlip > 1) {
+            gammaRegime = 'BULLISH_SUPPORT';  // Well above gamma flip
+        } else if (pctFromFlip > 0.3) {
+            gammaRegime = 'BULLISH_TILT';     // Slightly above
+        } else if (pctFromFlip < -1) {
+            gammaRegime = 'BEARISH_RESISTANCE'; // Well below gamma flip
+        } else if (pctFromFlip < -0.3) {
+            gammaRegime = 'BEARISH_TILT';     // Slightly below
+        } else {
+            gammaRegime = 'NEUTRAL';          // Near gamma flip - choppy
+        }
+    }
 
     return {
         vix: context.vix,
@@ -1142,8 +1177,8 @@ async function getMarketContext() {
         // Multi-timeframe bias from AI outlook
         intradayBias: outlook?.data?.intraday_bias || 'NEUTRAL',
         swingBias: outlook?.data?.swing_bias || 'NEUTRAL',
-        // Gamma regime from options-walls pressure (BULLISH_SUPPORT, BEARISH_RESISTANCE, etc.)
-        gammaRegime: spyPressure?.data?.net_bias || 'UNKNOWN',
+        // Gamma regime calculated from price vs gamma flip
+        gammaRegime: gammaRegime,
         // IV rank from options IV endpoint
         ivRank: spyIv?.iv_percentile || 0
     };
@@ -1188,11 +1223,11 @@ async function analyzeSymbol(symbol, discoveryData) {
 
     if (rsi <= 30) {
         scores.technical += 15;
-        signals.push(`RSI oversold (${rsi.toFixed(1)})`);
+        signals.push(`RSI low momentum (${rsi.toFixed(1)})`);
         direction = 'bullish';
     } else if (rsi >= 70) {
         scores.technical += 15;
-        signals.push(`RSI overbought (${rsi.toFixed(1)})`);
+        signals.push(`RSI high momentum (${rsi.toFixed(1)})`);
         direction = 'bearish';
     } else if (rsi <= 40 && trend === 'uptrend') {
         scores.technical += 10;
@@ -1609,8 +1644,8 @@ async function analyzeSymbol(symbol, discoveryData) {
     let action = null;
     let tier = 'FILTERED';  // New: tradeable tier
 
-    const rsiOverbought = 70;
-    const rsiOversold = 30;
+    const rsiHighMomentum = 70;
+    const rsiLowMomentum = 30;
 
     // Dynamic wall threshold based on score
     const getWallThreshold = (score) => {
@@ -1638,10 +1673,10 @@ async function analyzeSymbol(symbol, discoveryData) {
     };
 
     // Step 1: Determine BASE ZONE (same logic as before)
-    if (rsi >= rsiOverbought) {
-        zone = 'OVERBOUGHT';
-    } else if (rsi <= rsiOversold) {
-        zone = 'OVERSOLD';
+    if (rsi >= rsiHighMomentum) {
+        zone = 'HIGH_MOMENTUM';
+    } else if (rsi <= rsiLowMomentum) {
+        zone = 'LOW_MOMENTUM';
         if (nearPutWall) {
             zone = 'BUY_ZONE';
             action = 'BUY';
@@ -1672,8 +1707,8 @@ async function analyzeSymbol(symbol, discoveryData) {
     if (action) {
         const aligned = isTrendAligned(action, trend);
         // BACKTEST FIX: Exclude bad zones from HIGH_CONVICTION
-        // EXTENDED_HIGH = 4.5% win rate, OVERBOUGHT has similar issues
-        const badZones = ['EXTENDED_HIGH', 'OVERBOUGHT'];
+        // EXTENDED_HIGH = 4.5% win rate, HIGH_MOMENTUM has similar issues
+        const badZones = ['EXTENDED_HIGH', 'HIGH_MOMENTUM'];
         const notBadZone = !badZones.includes(zone);
 
         // HIGH_CONVICTION: Score >= 56 at wall, OR Score >= 64 near wall (scaled from 70/80 of 100 to 80 max)
@@ -1733,12 +1768,12 @@ async function analyzeSymbol(symbol, discoveryData) {
     // ============================================
 
     // Strategy #1: Smart Money Dip Buy
-    // When RSI oversold + unusual CALL activity + at put wall support = smart money buying the dip
-    const hasRsiOversold = signals.some(s => s.includes('RSI oversold'));
+    // When RSI low momentum + unusual CALL activity + at put wall support = smart money buying the dip
+    const hasRsiLowMomentum = signals.some(s => s.includes('RSI low momentum'));
     const hasUnusualCall = signals.some(s => s.includes('Unusual CALL'));
     const hasAtPutWall = signals.some(s => s.includes('put wall support'));
 
-    if (hasRsiOversold && hasUnusualCall && hasAtPutWall) {
+    if (hasRsiLowMomentum && hasUnusualCall && hasAtPutWall) {
         signals.unshift('🎯 TRIGGER: Smart Money Dip Buy');
     }
 
@@ -2425,11 +2460,17 @@ async function runScan() {
                 direction: analysis.direction,
                 score: analysis.totalScore,
                 zone: analysis.zone,
+                tier: analysis.tier,
                 signals: analysis.signals,
                 vix: marketContext?.vix,
                 vix_regime: marketContext?.vixRegime,
                 spy_trend: marketContext?.spyTrend,
-                gamma_regime: marketContext?.gammaRegime
+                spy_price: marketContext?.spyPrice,
+                gamma_regime: marketContext?.gammaRegime,
+                intraday_bias: marketContext?.intradayBias,
+                signal_type: analysis.tier,
+                history_status: analysis.history_status?.label,
+                consecutive_days: analysis.history_status?.consecutive_days
             });
         }
     } else {
@@ -2508,25 +2549,25 @@ async function runScan() {
         // Zone-specific reasoning
         if (a.zone === 'BUY_ZONE') {
             if (a.technicals.rsi <= 30) {
-                reasons.push(`RSI ${a.technicals.rsi.toFixed(1)} < 30 (oversold)`);
-                reasons.push('At put wall support + oversold = Strong buy');
+                reasons.push(`RSI ${a.technicals.rsi.toFixed(1)} < 30 (low momentum)`);
+                reasons.push('At put wall support + momentum reset = Strong buy');
             } else {
                 reasons.push(`Within 0.5% of put wall ($${a.levels.putWall?.toFixed(2) || 'N/A'})`);
-                reasons.push(`RSI ${a.technicals.rsi?.toFixed(1) || 'N/A'} - not overbought`);
+                reasons.push(`RSI ${a.technicals.rsi?.toFixed(1) || 'N/A'} - momentum not extended`);
             }
         } else if (a.zone === 'SELL_ZONE') {
             reasons.push(`Within 0.5% of call wall ($${a.levels.callWall?.toFixed(2) || 'N/A'})`);
-            reasons.push(`RSI ${a.technicals.rsi?.toFixed(1) || 'N/A'} - not oversold`);
+            reasons.push(`RSI ${a.technicals.rsi?.toFixed(1) || 'N/A'} - momentum not depleted`);
         } else if (a.zone === 'EXTENDED_HIGH') {
             reasons.push('Price above call wall (breakout or reversal)');
         } else if (a.zone === 'EXTENDED_LOW') {
             reasons.push('Price below put wall (breakdown or reversal)');
         } else if (a.zone === 'PINNED') {
             reasons.push(`Pinned between walls ($${a.levels.putWall} - $${a.levels.callWall})`);
-        } else if (a.zone === 'OVERBOUGHT') {
-            reasons.push(`RSI ${a.technicals.rsi?.toFixed(1) || 'N/A'} > 70 (overbought)`);
-        } else if (a.zone === 'OVERSOLD') {
-            reasons.push(`RSI ${a.technicals.rsi?.toFixed(1) || 'N/A'} < 30 (oversold)`);
+        } else if (a.zone === 'HIGH_MOMENTUM') {
+            reasons.push(`RSI ${a.technicals.rsi?.toFixed(1) || 'N/A'} > 70 (high momentum)`);
+        } else if (a.zone === 'LOW_MOMENTUM') {
+            reasons.push(`RSI ${a.technicals.rsi?.toFixed(1) || 'N/A'} < 30 (low momentum)`);
         } else {
             reasons.push(`Mid-range (${((a.distances.positionInRange || 0) * 100).toFixed(0)}% between walls)`);
             reasons.push('Wait for price to reach support or resistance');
@@ -2645,6 +2686,14 @@ async function runScan() {
 
     const backoffStatus = backoffState.active ? ` [BACKOFF ACTIVE: batch ${backoffState.batchSize}, delay ${backoffState.batchDelayMs}ms]` : '';
     console.log(`\n[Bloodhound] Scan complete (${scannerState.lastScanDuration}s).${backoffStatus} Next scan in ${SETTINGS.scanIntervalMs / 60000} minutes.`);
+
+    // Signal validation: update prices and check for checkpoint validations
+    try {
+        await signalLogger.updateActiveSignalPrices();
+        await signalLogger.validateOldSignals();
+    } catch (e) {
+        console.error('[Bloodhound] Signal validation error:', e.message);
+    }
 }
 
 // ============================================

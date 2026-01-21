@@ -205,9 +205,11 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 | 8080 | Web Server | `monitor/web-server.js` | Serves HTML dashboards |
 | 8081 | Bloodhound | `monitor/bloodhound-scanner.js` | Bloodhound control API |
 | 8082 | Earnings | `monitor/earnings-scanner.js` | Earnings scanner control API |
+| 8084 | Pre-Market | `monitor/premarket-scanner.js` | Pre-market scanner control API |
 
 **Dashboard URLs:**
 - Zone Scanner: `http://localhost:8080/zone-scanner.html`
+- Pre-Market Scanner: `http://localhost:8080/premarket.html`
 - Earnings Scanner: `http://localhost:8080/earnings-scanner.html`
 - Analytics: `http://localhost:8080/analytics.html`
 
@@ -225,15 +227,25 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 | `data/trades_journal.json` | Trade history | Trade closes |
 | `data/account_summary.json` | P&L metrics | EOD |
 | `data/scanner.json` | Live market data | Every 2 min (bloodhound) |
-| `data/signal_log.json` | Signal tracking & validation | Every alert |
+| `data/premarket.json` | Pre-market gaps and movers | Every 5 min (6-9:30 AM ET) |
+| `data/opportunity_history.db` | **SQLite database** - Signals, checkpoints, scanner history, premarket | Every scan |
 | `data/ACTIVE_SESSION.md` | Session state | Hourly |
 | `data/daily_log.md` | Today's journal | Throughout day |
+
+**Deprecated files (archived in data/archive/):**
+- `signal_log.json` - Replaced by SQLite signals table
+- `scanner_history.json` - Replaced by SQLite scanner_history table
+- `signal_tracking.json` - Replaced by signals table
+- `alerts_log.json` - Replaced by signals table
 
 ### Monitor System
 | File | Purpose |
 |------|---------|
 | `monitor/bloodhound-scanner.js` | **Confluence scanner** - Dynamic discovery, scoring, VIX alerts |
-| `monitor/signal-logger.js` | Signal tracking & validation |
+| `monitor/premarket-scanner.js` | **Pre-market scanner** - Gap detection 6-9:30 AM ET |
+| `monitor/signal-db.js` | **Signal database** - SQLite storage for signals, checkpoints, history, premarket |
+| `monitor/signal-logger.js` | Signal tracking wrapper (uses signal-db.js) |
+| `monitor/migrate-to-db.js` | One-time migration script for JSON to SQLite |
 | `monitor/trade-client.js` | Trade logging API client |
 | `scanner.html` | Visual market dashboard |
 
@@ -335,7 +347,7 @@ Each symbol is scored across multiple factors:
 
 | Category | Max Points | Signals |
 |----------|------------|---------|
-| Technical | 25 | RSI oversold/overbought, Bollinger Band position, trend |
+| Technical | 25 | RSI momentum extremes, Bollinger Band position, trend |
 | Levels | 25 | At gamma walls, VWAP, confluence zones, breakout/breakdown |
 | Volume | 15 | Volume spike (2x+), elevated volume (1.5x+) |
 | Context | 15 | Aligned with SPY trend, market regime |
@@ -346,8 +358,8 @@ Note: Sentiment scoring was removed (unreliable). Max score reduced from 100 to 
 
 ### Alert Types
 
-- 🟢 **Bullish** - At support, oversold, aligned with market
-- 🔴 **Bearish** - At resistance, overbought, or breakdown
+- 🟢 **Bullish** - At support, low momentum (RSI reset), aligned with market
+- 🔴 **Bearish** - At resistance, high momentum (extended), or breakdown
 - 📍 **Pinned** - Trapped between gamma walls
 - 🚀 **Breakout** - Above call wall resistance
 - 💥 **Breakdown** - Below put wall support
@@ -390,42 +402,51 @@ The tradeable decision uses both wall proximity AND confluence score:
 | `data/bloodhound.json` | Latest scan results with all opportunities |
 | `data/dynamic_scan.json` | Full technical data for dashboard |
 | `data/watchlist.json` | Symbols to always scan |
-| `data/paper_trades.json` | Paper trade tracking for signal validation |
+| `data/opportunity_history.db` | SQLite database with signals, checkpoints, scanner history |
 
-### Paper Trade System
+### Signal Validation System (Database-Backed)
 
-Bloodhound automatically creates paper trades for signals to validate their effectiveness.
+Bloodhound automatically logs HIGH_CONVICTION signals to SQLite for multi-checkpoint validation.
 
-**Which signals get paper trades:**
-- HIGH_CONVICTION tier - Yes
-- TRADEABLE tier - Yes
-- WATCH tier - Yes (for validation comparison)
-- FILTERED tier - No
+**Signal Logging:**
+- HIGH_CONVICTION alerts are logged to `signals` table
+- Each signal gets checkpoints at 4h, 24h, and 7d
+- Peak gain and max drawdown tracked throughout lifecycle
+- 72-hour time stop auto-closes stale signals
 
 **Data captured at entry:**
 | Field | Description |
 |-------|-------------|
-| `score` | Confluence score (0-100) |
+| `score` | Confluence score (0-80) |
 | `zone` | BUY_ZONE, SELL_ZONE, PINNED, etc. |
+| `tier` | HIGH_CONVICTION, TRADEABLE, WATCH |
 | `signals` | Array of contributing signals |
 | `vix` | VIX level at entry |
 | `vix_regime` | complacent/normal/elevated/fear/capitulation |
 | `spy_trend` | bullish/bearish/neutral |
+| `spy_price` | SPY price at entry |
+| `gamma_regime` | Market gamma regime |
 | `intraday_bias` | Market intraday direction |
-| `swing_bias` | Market swing direction |
+| `history_status` | NEW, DAY_2, STREAK, RETURNED |
 
-**Price tracking:**
+**Multi-Checkpoint Validation:**
+| Checkpoint | Timing | Purpose |
+|------------|--------|---------|
+| 4h | 4 hours after entry | Short-term signal accuracy |
+| 24h | 24 hours after entry | Overnight/intraday accuracy |
+| 7d | 7 days after entry | Swing trade accuracy |
+
+**Price Tracking:**
 - Updates every scan cycle (2 min)
-- Captures prices at 1h, 4h, 24h, 72h after entry
-- Tracks peak gain and max drawdown
+- Tracks current_price, peak_price, trough_price
+- Calculates peak_gain_pct and max_drawdown_pct
+- Direction-aware (bullish gains when up, bearish gains when down)
 
-**Exit conditions:**
-- Stop loss: -5%
-- Take profit: +5%
-- Time stop: 72 hours
-- Outcome classified as WIN (≥2%), LOSS (≤-2%), or BREAKEVEN
+**Exit Conditions:**
+- Time stop: 72 hours (auto-close)
+- Outcome: WIN (≥2% gain), LOSS (≤-2% drawdown), BREAKEVEN
 
-**File:** `monitor/paper-trade-manager.js`
+**Database Files:** `monitor/signal-db.js`, `monitor/signal-logger.js`
 
 ### Configuration
 
@@ -491,6 +512,81 @@ console.log(db.getTopSymbols(7, 10)); // Top 10 symbols
 
 ---
 
+## Pre-Market Scanner
+
+**Detects pre-market gaps and overnight movers.** Runs 6:00 AM - 9:30 AM ET to identify gap opportunities before market open.
+
+### Running Pre-Market Scanner
+
+Started automatically via `pm2 start ecosystem.config.js`. View logs:
+```bash
+pm2 logs premarket
+```
+
+### What It Tracks
+
+- **Gap Detection**: Stocks gapping 2%+ from previous close
+- **Market Context**: SPY/QQQ pre-market direction, VIX level
+- **Futures Alignment**: Whether gaps align with index direction
+- **Volume**: Pre-market volume for each mover
+
+### Gap Classification
+
+| Gap Size | Classification |
+|----------|----------------|
+| 5%+ | HUGE |
+| 3-5% | LARGE |
+| 2-3% | MODERATE |
+| 1-2% | SMALL |
+| <1% | FLAT (filtered) |
+
+### Scoring (0-100)
+
+| Factor | Points | Criteria |
+|--------|--------|----------|
+| Gap Size | 0-40 | Larger gaps score higher |
+| Pre-Market Volume | 0-20 | >1M = 20pts, >500K = 15pts, >100K = 10pts |
+| Catalyst | 0-20 | Earnings = 20pts, News = 15pts |
+| Futures Aligned | 0-20 | Gap direction matches SPY/QQQ |
+
+### Tier Classification
+
+| Tier | Score | Description |
+|------|-------|-------------|
+| HIGH_CONVICTION | 70+ | Strong gap with multiple factors |
+| TRADEABLE | 50-69 | Good gap setup |
+| WATCH | 30-49 | Monitor but wait |
+| FILTERED | <30 | Not significant |
+
+### Control API (Port 8084)
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/status` | GET | Scanner status, pre-market window |
+| `/pause` | POST | Pause scanner |
+| `/resume` | POST | Resume scanner |
+| `/scan` | POST | Trigger immediate scan |
+| `/latest` | GET | Latest scan data |
+| `/today` | GET | Today's stats and top gappers |
+
+### Output Files
+
+| File | Content |
+|------|---------|
+| `data/premarket.json` | Latest scan with gaps and market context |
+| `data/opportunity_history.db` | SQLite tables: `premarket_scans`, `premarket_movers` |
+
+### Configuration
+
+Edit `monitor/premarket-scanner.js` CONFIG for:
+- `SCAN_INTERVAL_MS` - Scan frequency (default: 5 min)
+- `MIN_GAP_PCT` - Minimum gap threshold (default: 2%)
+- `PREMARKET_START_HOUR` - Start hour ET (default: 6)
+- `PREMARKET_END_HOUR` - End hour ET (default: 9)
+- `PREMARKET_END_MINUTE` - End minute ET (default: 30)
+
+---
+
 ## VIX Regime Alerts (Consolidated into Bloodhound)
 
 **VIX regime change detection is now built into Bloodhound.** The separate `wingman-monitor.js` is deprecated.
@@ -509,9 +605,10 @@ When VIX crosses regime thresholds (12/20/30/40), Bloodhound sends a Telegram al
 - Confluence scanning
 - HIGH_CONVICTION alerts
 - VIX regime change alerts
-- Signal logging to `signal_log.json`
+- Signal logging to SQLite database (via signal-db.js)
+- Multi-checkpoint validation (4h, 24h, 7d)
 
-**Legacy:** `wingman-monitor.js` and `alerts_log.json` are deprecated. Signal tracking uses `signal_log.json`.
+**Legacy:** `wingman-monitor.js`, `alerts_log.json`, and `signal_log.json` are deprecated. All signal tracking now uses SQLite (`opportunity_history.db`).
 
 ---
 
@@ -644,7 +741,7 @@ Auto-refreshes every 30 seconds from `data/scanner.json`.
 
 **URL:** [http://localhost:8080/analytics.html](http://localhost:8080/analytics.html)
 
-Analyzes paper trade performance to validate signal quality.
+Analyzes signal validation performance from the SQLite database.
 
 **Metrics tracked:**
 | Section | Analysis |
@@ -653,18 +750,23 @@ Analyzes paper trade performance to validate signal quality.
 | Performance by VIX Regime | Which VIX levels produce best signals |
 | Performance by Score Range | Does higher score = better results? |
 | Performance by SPY Trend | Bullish vs bearish market context |
-| Bias Alignment | Trading with vs against market direction |
-| Exit Reason Breakdown | Stop loss vs target vs time stop distribution |
-| Optimal Exit Timing | Best time window (1h, 4h, 24h, 72h) |
+| Performance by Direction | Bullish vs bearish signal accuracy |
+| Checkpoint Comparison | 4h vs 24h vs 7d accuracy |
 | Risk Metrics | Peak gain, max drawdown, left on table |
 
+**API endpoints:**
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /api/signals` | All signals with checkpoint data |
+| `GET /api/signals/stats` | Aggregated stats by tier, VIX, direction |
+
 **Key insights:**
+- Multi-checkpoint validation shows how signals evolve over time
 - Compares tier performance to validate filtering logic
 - Shows if score threshold should be adjusted
 - Identifies which market conditions favor signals
-- Auto-generated recommendations based on data
 
-Auto-refreshes every 30 seconds from `data/paper_trades.json`.
+Auto-refreshes every 30 seconds from `/api/signals` (falls back to `signal_log.json` for compatibility).
 
 ---
 
@@ -836,4 +938,4 @@ When analyzing ANY symbol:
 - Goals in goals.json ($2,500/month target)
 - Full rules in `docs/RULES.md`
 - Full strategies in `docs/STRATEGIES.md`
-- Signals logged to `data/signal_log.json` (with validation tracking)
+- Signals stored in SQLite (`data/opportunity_history.db`) with multi-checkpoint validation

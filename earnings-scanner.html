@@ -152,6 +152,16 @@
             background: rgba(59, 130, 246, 0.1);
         }
 
+        .nav-link.premarket {
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+
+        .nav-link.premarket:hover,
+        .nav-link.premarket.active {
+            background: rgba(245, 158, 11, 0.1);
+        }
+
         /* Summary Cards */
         .summary-grid {
             display: grid;
@@ -528,12 +538,12 @@
             <div style="display: flex; align-items: center; gap: 20px;">
                 <h1>📈 Earnings Season Scanner</h1>
                 <nav class="nav-links">
-                    <a href="zone-scanner.html" class="nav-link">🎯 ZONES</a>
-                    <a href="analytics.html" class="nav-link">📊 ANALYTICS</a>
-                    <a href="earnings-scanner.html" class="nav-link active">📅 EARNINGS</a>
-                    <a href="opportunity-scanner.html" class="nav-link opportunity">🎯 OPPORTUNITY</a>
+                    <a href="zone-scanner.html" class="nav-link">ZONES</a>
+                    <a href="premarket.html" class="nav-link premarket">PRE-MARKET</a>
+                    <a href="analytics.html" class="nav-link">ANALYTICS</a>
+                    <a href="earnings-scanner.html" class="nav-link active">EARNINGS</a>
+                    <a href="opportunity-scanner.html" class="nav-link opportunity">OPPORTUNITY</a>
                     <a href="scanner.html" class="nav-link">MARKET</a>
-                    <a href="dashboard.html" class="nav-link">DASHBOARD</a>
                 </nav>
             </div>
             <div class="header-controls">
@@ -711,8 +721,8 @@
                 </div>
                 <div class="score-category-details">
                     • RSI 40-70 (healthy momentum): +15 pts<br>
-                    • RSI < 30 (oversold bounce potential): +10 pts<br>
-                    • RSI > 70 (extended, caution): +5 pts
+                    • RSI < 30 (momentum reset bounce): +10 pts<br>
+                    • RSI > 70 (high momentum, less upside): +5 pts
                 </div>
             </div>
 

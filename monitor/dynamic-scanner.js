@@ -52,8 +52,8 @@ const CONFIG = {
   zones: {
     buyZoneThresholdPct: 0.5,
     sellZoneThresholdPct: 0.5,
-    rsiOverbought: 75,
-    rsiOversold: 30
+    rsiHighMomentum: 75,
+    rsiLowMomentum: 30
   },
 
   // Core symbols always scanned (high liquidity guaranteed)
@@ -79,8 +79,8 @@ const ZONES = {
   BUY_ZONE: 'BUY_ZONE',
   SELL_ZONE: 'SELL_ZONE',
   MID_RANGE: 'MID_RANGE',
-  OVERBOUGHT: 'OVERBOUGHT',
-  OVERSOLD: 'OVERSOLD',
+  HIGH_MOMENTUM: 'HIGH_MOMENTUM',
+  LOW_MOMENTUM: 'LOW_MOMENTUM',
   EXTENDED_HIGH: 'EXTENDED_HIGH',
   EXTENDED_LOW: 'EXTENDED_LOW'
 };
@@ -317,7 +317,7 @@ async function analyzeSymbol(symbol) {
     const rangeSize = ((callWall - putWall) / price) * 100;
     const positionInRange = (price - putWall) / (callWall - putWall);
 
-    const { buyZoneThresholdPct, sellZoneThresholdPct, rsiOverbought, rsiOversold } = CONFIG.zones;
+    const { buyZoneThresholdPct, sellZoneThresholdPct, rsiHighMomentum, rsiLowMomentum } = CONFIG.zones;
 
     // Determine zone
     let zone;
@@ -325,17 +325,17 @@ async function analyzeSymbol(symbol) {
     let action = null;
     let reasoning = [];
 
-    if (rsi > rsiOverbought) {
-      zone = ZONES.OVERBOUGHT;
-      reasoning.push(`RSI ${rsi.toFixed(1)} > ${rsiOverbought} (overbought)`);
-    } else if (rsi < rsiOversold) {
-      zone = ZONES.OVERSOLD;
-      reasoning.push(`RSI ${rsi.toFixed(1)} < ${rsiOversold} (oversold)`);
+    if (rsi > rsiHighMomentum) {
+      zone = ZONES.HIGH_MOMENTUM;
+      reasoning.push(`RSI ${rsi.toFixed(1)} > ${rsiHighMomentum} (high momentum)`);
+    } else if (rsi < rsiLowMomentum) {
+      zone = ZONES.LOW_MOMENTUM;
+      reasoning.push(`RSI ${rsi.toFixed(1)} < ${rsiLowMomentum} (low momentum)`);
       if (distToPutWall <= buyZoneThresholdPct) {
         zone = ZONES.BUY_ZONE;
         tradeable = true;
         action = 'BUY';
-        reasoning.push(`At put wall + oversold = Strong buy`);
+        reasoning.push(`At put wall + momentum reset = Strong buy`);
       }
     } else if (price > callWall) {
       zone = ZONES.EXTENDED_HIGH;
@@ -348,7 +348,7 @@ async function analyzeSymbol(symbol) {
       tradeable = true;
       action = 'BUY';
       reasoning.push(`Within ${buyZoneThresholdPct}% of put wall ($${putWall.toFixed(2)})`);
-      reasoning.push(`RSI ${rsi.toFixed(1)} - not overbought`);
+      reasoning.push(`RSI ${rsi.toFixed(1)} - momentum not extended`);
       if (trend === 'uptrend' || trend === 'strong_uptrend') {
         reasoning.push(`Trend aligned: ${trend}`);
       }
@@ -357,7 +357,7 @@ async function analyzeSymbol(symbol) {
       tradeable = true;
       action = 'SELL';
       reasoning.push(`Within ${sellZoneThresholdPct}% of call wall ($${callWall.toFixed(2)})`);
-      reasoning.push(`RSI ${rsi.toFixed(1)} - not oversold`);
+      reasoning.push(`RSI ${rsi.toFixed(1)} - momentum not depleted`);
       if (trend === 'downtrend' || trend === 'strong_downtrend') {
         reasoning.push(`Trend aligned: ${trend}`);
       }
@@ -492,8 +492,8 @@ async function runDynamicScan() {
       [ZONES.BUY_ZONE]: '🟢',
       [ZONES.SELL_ZONE]: '🔴',
       [ZONES.MID_RANGE]: '⚪',
-      [ZONES.OVERBOUGHT]: '🔥',
-      [ZONES.OVERSOLD]: '❄️',
+      [ZONES.HIGH_MOMENTUM]: '🔥',
+      [ZONES.LOW_MOMENTUM]: '❄️',
       [ZONES.EXTENDED_HIGH]: '⬆️',
       [ZONES.EXTENDED_LOW]: '⬇️'
     }[analysis.zone] || '❓';

@@ -1,65 +1,19 @@
 /**
  * Signal Logger & Validator
- * Tracks HIGH_CONVICTION alerts and validates their accuracy after 4 hours
+ *
+ * Now backed by SQLite database (signal-db.js) instead of JSON files.
+ * Supports multi-checkpoint validation: 4h, 24h, 7d
+ *
+ * Backward compatible - same exports, same interfaces.
  */
 
-const fs = require('fs');
-const path = require('path');
 const axios = require('axios');
+const signalDb = require('./signal-db');
 
 const CONFIG = {
-  SIGNAL_LOG: path.join(__dirname, '../data/signal_log.json'),
   OPTIONS_API: 'http://192.168.10.239:8000',
-  VALIDATION_WINDOW_HOURS: 4,
   WIN_THRESHOLD_PCT: 0.5  // 0.5% move in predicted direction = correct
 };
-
-/**
- * Load signal log from file
- */
-function loadSignals() {
-  try {
-    if (!fs.existsSync(CONFIG.SIGNAL_LOG)) {
-      return {
-        meta: {
-          total_signals: 0,
-          validated: 0,
-          pending: 0,
-          last_updated: new Date().toISOString()
-        },
-        signals: []
-      };
-    }
-    return JSON.parse(fs.readFileSync(CONFIG.SIGNAL_LOG, 'utf8'));
-  } catch (e) {
-    console.error('[Signal Logger] Failed to load:', e.message);
-    return {
-      meta: {
-        total_signals: 0,
-        validated: 0,
-        pending: 0,
-        last_updated: new Date().toISOString()
-      },
-      signals: []
-    };
-  }
-}
-
-/**
- * Save signal log to file
- */
-function saveSignals(data) {
-  try {
-    data.meta.last_updated = new Date().toISOString();
-    data.meta.total_signals = data.signals.length;
-    data.meta.validated = data.signals.filter(s => s.validated).length;
-    data.meta.pending = data.signals.filter(s => !s.validated).length;
-
-    fs.writeFileSync(CONFIG.SIGNAL_LOG, JSON.stringify(data, null, 2));
-  } catch (e) {
-    console.error('[Signal Logger] Failed to save:', e.message);
-  }
-}
 
 /**
  * Log a new signal when alert fires
@@ -67,40 +21,34 @@ function saveSignals(data) {
  * @returns {string} Signal ID
  */
 function logSignal(alertData) {
-  const data = loadSignals();
   const timestamp = new Date().toISOString();
   const id = `${alertData.symbol}_${Date.now()}`;
 
-  const signal = {
+  const success = signalDb.insertSignal({
     id,
     timestamp,
     symbol: alertData.symbol,
+    direction: alertData.direction,
     entry_price: alertData.price,
-    direction: alertData.direction,  // bullish, bearish, pinned
     score: alertData.score,
     zone: alertData.zone,
+    tier: alertData.tier || 'HIGH_CONVICTION',
     signals: alertData.signals || [],
+    vix: alertData.vix,
+    vix_regime: alertData.vix_regime,
+    spy_trend: alertData.spy_trend,
+    spy_price: alertData.spy_price,
+    gamma_regime: alertData.gamma_regime,
+    intraday_bias: alertData.intraday_bias,
+    signal_type: alertData.signal_type,
+    history_status: alertData.history_status,
+    consecutive_days: alertData.consecutive_days
+  });
 
-    // Market context at entry
-    context: {
-      vix: alertData.vix,
-      vix_regime: alertData.vix_regime,
-      spy_trend: alertData.spy_trend,
-      gamma_regime: alertData.gamma_regime
-    },
+  if (success) {
+    console.log(`[Signal Logger] Logged ${id} @ $${alertData.price} (${alertData.direction}, score ${alertData.score})`);
+  }
 
-    // Validation data (filled later)
-    validated: false,
-    validated_at: null,
-    current_price: null,
-    pct_change: null,
-    correct: null
-  };
-
-  data.signals.push(signal);
-  saveSignals(data);
-
-  console.log(`[Signal Logger] Logged ${id} @ $${alertData.price} (${alertData.direction}, score ${alertData.score})`);
   return id;
 }
 
@@ -120,73 +68,75 @@ async function getCurrentPrice(symbol) {
 }
 
 /**
- * Check if signal direction was correct
+ * Update prices for all active signals
+ * Call this every scan cycle to track peak/trough
  */
-function isDirectionCorrect(direction, entryPrice, currentPrice) {
-  const pctChange = ((currentPrice - entryPrice) / entryPrice) * 100;
+async function updateActiveSignalPrices() {
+  const activeSignals = signalDb.getActiveSignals();
 
-  if (direction === 'bullish') {
-    return pctChange >= CONFIG.WIN_THRESHOLD_PCT;
-  } else if (direction === 'bearish') {
-    return pctChange <= -CONFIG.WIN_THRESHOLD_PCT;
-  } else if (direction === 'pinned') {
-    // Pinned is correct if price stayed within 1% range
-    return Math.abs(pctChange) <= 1.0;
+  if (activeSignals.length === 0) {
+    return;
   }
 
-  return null;
-}
-
-/**
- * Validate signals older than X hours
- * Called every scan cycle
- */
-async function validateOldSignals() {
-  const data = loadSignals();
-  const cutoffTime = Date.now() - (CONFIG.VALIDATION_WINDOW_HOURS * 60 * 60 * 1000);
-
-  const pendingSignals = data.signals.filter(s => {
-    if (s.validated) return false;  // Already validated
-    const signalTime = new Date(s.timestamp).getTime();
-    return signalTime <= cutoffTime;  // Old enough to validate
-  });
-
-  if (pendingSignals.length === 0) {
-    return;  // Nothing to validate
-  }
-
-  console.log(`[Signal Logger] Validating ${pendingSignals.length} signal(s)...`);
-
-  let validatedCount = 0;
-  for (const signal of pendingSignals) {
+  let updated = 0;
+  for (const signal of activeSignals) {
     try {
       const currentPrice = await getCurrentPrice(signal.symbol);
-      if (!currentPrice) {
-        console.log(`[Signal Logger] Skipping ${signal.id} - price fetch failed`);
-        continue;
+      if (currentPrice) {
+        signalDb.updatePriceTracking(signal.signal_id, currentPrice);
+        updated++;
       }
-
-      const pctChange = ((currentPrice - signal.entry_price) / signal.entry_price) * 100;
-      const correct = isDirectionCorrect(signal.direction, signal.entry_price, currentPrice);
-
-      signal.validated = true;
-      signal.validated_at = new Date().toISOString();
-      signal.current_price = currentPrice;
-      signal.pct_change = parseFloat(pctChange.toFixed(2));
-      signal.correct = correct;
-
-      const result = correct ? '✅ CORRECT' : '❌ WRONG';
-      console.log(`[Signal Logger] ${signal.id}: ${result} (${pctChange >= 0 ? '+' : ''}${pctChange.toFixed(2)}%)`);
-
-      validatedCount++;
     } catch (e) {
-      console.error(`[Signal Logger] Error validating ${signal.id}:`, e.message);
+      console.error(`[Signal Logger] Error updating ${signal.signal_id}:`, e.message);
     }
   }
 
-  if (validatedCount > 0) {
-    saveSignals(data);
-    console.log(`[Signal Logger] Validated ${validatedCount} signal(s). ${data.meta.pending} pending.`);
+  if (updated > 0) {
+    console.log(`[Signal Logger] Updated prices for ${updated} active signal(s)`);
+  }
+}
+
+/**
+ * Validate signals at checkpoint intervals (4h, 24h, 7d)
+ * Call this every scan cycle - it handles timing internally
+ */
+async function validateOldSignals() {
+  // Process all checkpoint types
+  const checkpointTypes = ['4h', '24h', '7d'];
+
+  for (const checkpointType of checkpointTypes) {
+    const pendingSignals = signalDb.getSignalsForCheckpoint(checkpointType);
+
+    if (pendingSignals.length === 0) {
+      continue;
+    }
+
+    console.log(`[Signal Logger] Validating ${pendingSignals.length} signal(s) for ${checkpointType} checkpoint...`);
+
+    for (const signal of pendingSignals) {
+      try {
+        const currentPrice = await getCurrentPrice(signal.symbol);
+        if (!currentPrice) {
+          console.log(`[Signal Logger] Skipping ${signal.signal_id} - price fetch failed`);
+          continue;
+        }
+
+        const result = signalDb.recordCheckpoint(signal.signal_id, checkpointType, currentPrice);
+
+        if (result) {
+          const emoji = result.directionCorrect ? '✅' : '❌';
+          console.log(`[Signal Logger] ${checkpointType} | ${signal.signal_id}: ${emoji} ${result.pctChange >= 0 ? '+' : ''}${result.pctChange.toFixed(2)}%`);
+        }
+      } catch (e) {
+        console.error(`[Signal Logger] Error validating ${signal.signal_id}:`, e.message);
+      }
+    }
+  }
+
+  // Close stale signals (72h time stop)
+  const closedCount = signalDb.closeStaleSignals();
+  if (closedCount > 0) {
+    console.log(`[Signal Logger] Closed ${closedCount} stale signal(s) (72h time stop)`);
   }
 }
 
@@ -195,63 +145,139 @@ async function validateOldSignals() {
  * @returns {object} Stats
  */
 function calculateStats() {
-  const data = loadSignals();
-  const validated = data.signals.filter(s => s.validated);
+  const dbStats = signalDb.getDatabaseStats();
+  const stats4h = signalDb.getStats({ checkpointType: '4h', days: 30 });
 
-  if (validated.length === 0) {
-    return {
-      total_signals: data.signals.length,
-      validated: 0,
-      pending: data.signals.length,
-      win_rate: 0,
-      correct: 0,
-      incorrect: 0,
-      avg_gain_when_correct: 0,
-      avg_loss_when_wrong: 0
-    };
-  }
-
-  const correct = validated.filter(s => s.correct === true);
-  const incorrect = validated.filter(s => s.correct === false);
-
-  const avgGain = correct.length > 0
-    ? correct.reduce((sum, s) => sum + Math.abs(s.pct_change), 0) / correct.length
-    : 0;
-
-  const avgLoss = incorrect.length > 0
-    ? incorrect.reduce((sum, s) => sum + Math.abs(s.pct_change), 0) / incorrect.length
-    : 0;
-
-  const winRate = (correct.length / validated.length) * 100;
+  // Also get pending count (active signals not yet validated at 4h)
+  const activeSignals = signalDb.getActiveSignals();
+  const pending = activeSignals.filter(s => !s.checkpoint_4h_done).length;
 
   return {
-    total_signals: data.signals.length,
-    validated: validated.length,
-    pending: data.meta.pending,
-    win_rate: parseFloat(winRate.toFixed(1)),
-    correct: correct.length,
-    incorrect: incorrect.length,
-    avg_gain_when_correct: parseFloat(avgGain.toFixed(2)),
-    avg_loss_when_wrong: parseFloat(avgLoss.toFixed(2))
+    total_signals: dbStats.total_signals,
+    validated: stats4h.total_validated,
+    pending: pending,
+    win_rate: stats4h.win_rate,
+    correct: stats4h.correct,
+    incorrect: stats4h.total_validated - stats4h.correct,
+    avg_gain_when_correct: stats4h.avg_peak_gain,
+    avg_loss_when_wrong: Math.abs(stats4h.avg_drawdown),
+    // Additional stats from DB
+    active_signals: dbStats.active_signals,
+    oldest_signal: dbStats.oldest_signal,
+    newest_signal: dbStats.newest_signal
+  };
+}
+
+/**
+ * Get detailed stats by dimension
+ */
+function getDetailedStats(options = {}) {
+  return {
+    byTier: signalDb.getStatsByTier(options.checkpointType || '4h', options.days || 30),
+    byVixRegime: signalDb.getStatsByVixRegime(options.checkpointType || '4h', options.days || 30),
+    byDirection: signalDb.getStatsByDirection(options.checkpointType || '4h', options.days || 30),
+    byCheckpoint: signalDb.compareCheckpoints(options.days || 30)
   };
 }
 
 /**
  * Get recent signals for display
  * @param {number} limit - Max signals to return
- * @returns {Array} Recent signals
+ * @returns {Array} Recent signals with checkpoint data
  */
 function getRecentSignals(limit = 50) {
-  const data = loadSignals();
-  return data.signals
-    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-    .slice(0, limit);
+  const signals = signalDb.getRecentSignals(limit);
+
+  // Transform to match old format for backward compatibility
+  return signals.map(s => ({
+    id: s.signal_id,
+    timestamp: s.timestamp,
+    symbol: s.symbol,
+    entry_price: s.entry_price,
+    direction: s.direction,
+    score: s.score,
+    zone: s.zone,
+    signals: JSON.parse(s.signals_json || '[]'),
+    context: {
+      vix: s.vix,
+      vix_regime: s.vix_regime,
+      spy_trend: s.spy_trend,
+      gamma_regime: s.gamma_regime
+    },
+    validated: !!s.validated,
+    validated_at: s.validated_at,
+    current_price: s.current_price,
+    pct_change: s.change_4h || ((s.current_price - s.entry_price) / s.entry_price) * 100,
+    correct: s.correct === 1,
+    // Additional DB fields
+    peak_gain_pct: s.peak_gain_pct,
+    max_drawdown_pct: s.max_drawdown_pct,
+    status: s.status,
+    change_4h: s.change_4h,
+    change_24h: s.change_24h,
+    change_7d: s.change_7d
+  }));
+}
+
+/**
+ * Load signals in the old format (for backward compatibility)
+ * @returns {object} Data in old JSON format
+ */
+function loadSignals() {
+  const signals = getRecentSignals(500);  // Get last 500 signals
+  const stats = calculateStats();
+
+  return {
+    meta: {
+      total_signals: stats.total_signals,
+      validated: stats.validated,
+      pending: stats.pending,
+      last_updated: new Date().toISOString()
+    },
+    signals: signals
+  };
+}
+
+/**
+ * Get signal by ID
+ */
+function getSignalById(signalId) {
+  const db = signalDb.getDb();
+  return db.prepare('SELECT * FROM signals WHERE signal_id = ?').get(signalId);
+}
+
+/**
+ * Get all checkpoints for a signal
+ */
+function getSignalCheckpoints(signalId) {
+  const db = signalDb.getDb();
+  return db.prepare(
+    'SELECT * FROM checkpoints WHERE signal_id = ? ORDER BY checkpoint_type'
+  ).all(signalId);
+}
+
+/**
+ * Get price history for a signal
+ */
+function getSignalPriceHistory(signalId) {
+  const db = signalDb.getDb();
+  return db.prepare(
+    'SELECT * FROM price_snapshots WHERE signal_id = ? ORDER BY timestamp'
+  ).all(signalId);
 }
 
 module.exports = {
+  // Original exports (backward compatible)
   logSignal,
   validateOldSignals,
   calculateStats,
   getRecentSignals,
-  loadSignals
+  loadSignals,
+  // New exports
+  updateActiveSignalPrices,
+  getDetailedStats,
+  getSignalById,
+  getSignalCheckpoints,
+  getSignalPriceHistory,
+  getCurrentPrice
 };
