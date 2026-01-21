@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-01-21T17:28:07.694Z",
+  "timestamp": "2026-01-21T17:38:11.263Z",
   "scanType": "bloodhound",
   "sources": {
     "highConviction": true,
@@ -8,28 +8,28 @@
     "aiOutlook": true
   },
   "marketContext": {
-    "vix": 19.02,
+    "vix": 19.18,
     "vixRegime": "normal",
     "spyTrend": "neutral",
-    "spyPrice": 679.61,
+    "spyPrice": 679.15,
     "riskAppetite": "moderate",
     "regime": "neutral",
     "positionSizeModifier": 1,
     "spyLevels": {
       "call_wall": {
         "price": 680,
-        "gex": 1012131772.6125281,
+        "gex": 1010434976.2390751,
         "oi": 18565,
         "strength": 1
       },
       "put_wall": {
         "price": 680,
-        "gex": -891918976.5656319,
+        "gex": -905515639.2119999,
         "oi": 16360,
-        "strength": 0.8919189765656319
+        "strength": 0.9055156392119998
       },
       "gamma_flip": {
-        "price": 682.28,
+        "price": 683.87,
         "above_underlying": true
       },
       "max_pain": {
@@ -69,11 +69,11 @@
         }
       ],
       "expected_move": {
-        "value": 2.25,
-        "upper": 681.97,
-        "lower": 677.47,
-        "straddle_price": 2.65,
-        "atm_strike": 680,
+        "value": 2.27,
+        "upper": 681.42,
+        "lower": 676.88,
+        "straddle_price": 2.67,
+        "atm_strike": 679,
         "pct_move": 0.33
       },
       "weekly_pivots": {
@@ -99,18 +99,18 @@
     "qqqLevels": {
       "call_wall": {
         "price": 608,
-        "gex": 293040714.56256,
+        "gex": 311142288.78589004,
         "oi": 8389,
-        "strength": 0.29304071456256003
+        "strength": 0.31114228878589006
       },
       "put_wall": {
         "price": 610,
-        "gex": -155352091.87584,
+        "gex": -155051523.0476249,
         "oi": 3907,
-        "strength": 0.15535209187584
+        "strength": 0.15505152304762487
       },
       "gamma_flip": {
-        "price": 614.21,
+        "price": 623.67,
         "above_underlying": true
       },
       "max_pain": {
@@ -150,12 +150,12 @@
         }
       ],
       "expected_move": {
-        "value": 2.49,
-        "upper": 612.09,
-        "lower": 607.11,
-        "straddle_price": 2.93,
-        "atm_strike": 610,
-        "pct_move": 0.41
+        "value": 2.54,
+        "upper": 611.55,
+        "lower": 606.47,
+        "straddle_price": 2.99,
+        "atm_strike": 609,
+        "pct_move": 0.42
       },
       "weekly_pivots": {
         "pivot": 621.94,
@@ -183,7 +183,7 @@
   "results": [
     {
       "symbol": "SPY",
-      "price": 679.72,
+      "price": 679.15,
       "zone": "PINNED",
       "tradeable": false,
       "action": "WATCH_BREAKOUT",
@@ -194,12 +194,12 @@
         "putWall": 680,
         "callWall": 680,
         "maxPain": 680,
-        "gammaFlip": 682.28,
+        "gammaFlip": 683.87,
         "vwap": 680.41
       },
       "distances": {
-        "toPutWall": -0.041193432589885934,
-        "toCallWall": 0.041193432589885934,
+        "toPutWall": -0.12515644555694952,
+        "toCallWall": 0.12515644555694952,
         "rangeSize": 0,
         "positionInRange": null
       },
@@ -230,7 +230,7 @@
         "ext1272": 701.42664,
         "ext1618": 708.2151600000001
       },
-      "timestamp": "2026-01-21T17:28:07.694Z",
+      "timestamp": "2026-01-21T17:38:11.263Z",
       "sourceInfo": {
         "sources": [
           "watchlist"
@@ -243,12 +243,12 @@
           "📐 Golden Pocket + SMA 20 confluence",
           "📍 PINNED between walls ($680-$680)",
           "At VWAP ($680.41)",
-          "Confluence zone (7 levels)",
-          "PUT wall ACTIVE (29.6x vol/OI)",
+          "Confluence zone (6 levels)",
+          "PUT wall ACTIVE (30.7x vol/OI)",
           "Elevated volume (1.5x avg)",
-          "🔥 Unusual PUT $679 ATM (bearish, 72.7x, $22.5M)",
-          "$557M net bearish premium",
-          "Market: VIX 19.02"
+          "🔥 Unusual PUT $679 ATM (bearish, 78.1x, $28.4M)",
+          "$669M net bearish premium",
+          "Market: VIX 19.18"
         ],
         "isWatchlist": true
       },
@@ -263,7 +263,7 @@
     },
     {
       "symbol": "QQQ",
-      "price": 609.6,
+      "price": 609.01,
       "zone": "PINNED",
       "tradeable": false,
       "action": "WATCH_BREAKOUT",
@@ -274,14 +274,14 @@
         "putWall": 610,
         "callWall": 608,
         "maxPain": 612,
-        "gammaFlip": 614.21,
+        "gammaFlip": 623.67,
         "vwap": 611.11
       },
       "distances": {
-        "toPutWall": -0.06561679790025873,
-        "toCallWall": -0.2624671916010536,
-        "rangeSize": -0.32808398950131235,
-        "positionInRange": 0.19999999999998863
+        "toPutWall": -0.162558907078703,
+        "toCallWall": -0.16584292540352227,
+        "rangeSize": -0.32840183248222526,
+        "positionInRange": 0.49500000000000455
       },
       "technicals": {
         "rsi": 37.79,
@@ -310,7 +310,7 @@
         "ext1272": 636.2424,
         "ext1618": 644.1831000000001
       },
-      "timestamp": "2026-01-21T17:28:07.696Z",
+      "timestamp": "2026-01-21T17:38:11.266Z",
       "sourceInfo": {
         "sources": [
           "watchlist"
@@ -322,13 +322,12 @@
           "📐 At Golden Pocket (0.618 @ $615.82)",
           "📐 Golden Pocket + SMA 20 confluence",
           "📍 PINNED between walls ($610-$608)",
-          "At VWAP ($611.11)",
-          "Confluence zone (3 levels)",
-          "PUT wall ACTIVE (36.0x vol/OI)",
+          "Confluence zone (4 levels)",
+          "PUT wall ACTIVE (38.3x vol/OI)",
           "Elevated volume (1.7x avg)",
-          "🔥 Unusual PUT $615 ITM (bearish, 54.1x, $65.1M)",
-          "$396M net bearish premium",
-          "Market: VIX 19.02"
+          "🔥 Unusual PUT $615 ITM (bearish, 54.2x, $70.5M)",
+          "$462M net bearish premium",
+          "Market: VIX 19.18"
         ],
         "isWatchlist": true
       },
@@ -343,7 +342,7 @@
     },
     {
       "symbol": "NVDA",
-      "price": 179.62,
+      "price": 179.56,
       "zone": "BUY_ZONE",
       "tradeable": true,
       "action": "BUY",
@@ -360,10 +359,10 @@
         "vwap": 179.66
       },
       "distances": {
-        "toPutWall": -0.21155773299186917,
-        "toCallWall": 2.9952121144638655,
-        "rangeSize": 2.7836543814719965,
-        "positionInRange": -0.0759999999999991
+        "toPutWall": -0.24504343951882251,
+        "toCallWall": 3.029627979505457,
+        "rangeSize": 2.784584539986634,
+        "positionInRange": -0.08799999999999955
       },
       "technicals": {
         "rsi": 32.07,
@@ -389,7 +388,7 @@
         "ext1272": 198.33288,
         "ext1618": 204.31521999999998
       },
-      "timestamp": "2026-01-21T17:28:07.699Z",
+      "timestamp": "2026-01-21T17:38:11.268Z",
       "sourceInfo": {
         "sources": [
           "watchlist"
@@ -397,15 +396,14 @@
         "score": 80,
         "direction": "bullish",
         "signals": [
-          "VELOCITY +20 pts",
           "At lower Bollinger Band",
           "At put wall support ($180)",
           "At VWAP ($179.66)",
           "Confluence zone (2 levels)",
-          "PUT wall engaged (2.0x vol/OI)",
-          "🔥 Unusual PUT $175 OTM (hedge, 21.5x, $2.8M)",
-          "$102M net bullish premium",
-          "Heavy call bias (2.37 C/P)",
+          "PUT wall engaged (2.1x vol/OI)",
+          "🔥 Unusual PUT $175 OTM (hedge, 21.6x, $2.8M)",
+          "$104M net bullish premium",
+          "Heavy call bias (2.40 C/P)",
           "⚠️ Against SPY neutral",
           "Swing BULLISH, intraday NEUTRAL"
         ],
@@ -422,7 +420,7 @@
     },
     {
       "symbol": "AAPL",
-      "price": 245.77,
+      "price": 245.64,
       "zone": "BUY_ZONE",
       "tradeable": true,
       "action": "BUY",
@@ -435,14 +433,14 @@
         "putWall": 245,
         "callWall": 250,
         "maxPain": 250,
-        "gammaFlip": 256.49,
+        "gammaFlip": 256.79,
         "vwap": 247.95
       },
       "distances": {
-        "toPutWall": 0.31330105383082163,
-        "toCallWall": 1.7211213736420188,
-        "rangeSize": 2.0344224274728404,
-        "positionInRange": 0.15400000000000205
+        "toPutWall": 0.2605438853606849,
+        "toCallWall": 1.7749552190197093,
+        "rangeSize": 2.0354991043803943,
+        "positionInRange": 0.12799999999999728
       },
       "technicals": {
         "rsi": 6.47,
@@ -463,7 +461,7 @@
         "ext1272": 287.20223999999996,
         "ext1618": 299.11155999999994
       },
-      "timestamp": "2026-01-21T17:28:07.701Z",
+      "timestamp": "2026-01-21T17:38:11.270Z",
       "sourceInfo": {
         "sources": [
           "watchlist"
@@ -476,10 +474,10 @@
           "At lower Bollinger Band",
           "At put wall support ($245)",
           "Confluence zone (2 levels)",
-          "PUT wall engaged (2.4x vol/OI)",
+          "PUT wall engaged (2.5x vol/OI)",
           "Elevated volume (1.7x avg)",
-          "🔥 Unusual CALL $247.5 02/20 (5.4x, $0.7M)",
-          "$21M net bullish premium",
+          "🔥 Unusual CALL $247.5 02/20 (5.5x, $0.7M)",
+          "$22M net bullish premium",
           "⚠️ Against SPY neutral",
           "Swing BULLISH, intraday NEUTRAL"
         ],
@@ -496,26 +494,26 @@
     },
     {
       "symbol": "TSLA",
-      "price": 423.03,
+      "price": 423.09,
       "zone": "MID_RANGE",
       "tradeable": false,
       "action": null,
       "reasoning": [
-        "Mid-range (30% between walls)",
+        "Mid-range (31% between walls)",
         "Wait for price to reach support or resistance"
       ],
       "levels": {
         "putWall": 420,
         "callWall": 430,
         "maxPain": 430,
-        "gammaFlip": 451.58,
+        "gammaFlip": 451.93,
         "vwap": 423.27
       },
       "distances": {
-        "toPutWall": 0.7162612580667973,
-        "toCallWall": 1.6476372834078028,
-        "rangeSize": 2.3638985414746,
-        "positionInRange": 0.30299999999999727
+        "toPutWall": 0.7303410621853448,
+        "toCallWall": 1.6332222458578614,
+        "rangeSize": 2.363563308043206,
+        "positionInRange": 0.3089999999999975
       },
       "technicals": {
         "rsi": 30.33,
@@ -536,7 +534,7 @@
         "ext1272": 520.96808,
         "ext1618": 549.12902
       },
-      "timestamp": "2026-01-21T17:28:07.703Z",
+      "timestamp": "2026-01-21T17:38:11.272Z",
       "sourceInfo": {
         "sources": [
           "watchlist"
@@ -546,8 +544,8 @@
         "signals": [
           "At lower Bollinger Band",
           "At VWAP ($423.27)",
-          "🔥 Unusual CALL $415 01/23 (19.9x, $17.7M)",
-          "$74M net bullish premium",
+          "🔥 Unusual CALL $415 01/23 (21.6x, $19.2M)",
+          "$76M net bullish premium",
           "⚠️ Against SPY neutral",
           "Swing BULLISH, intraday NEUTRAL"
         ],
@@ -564,7 +562,7 @@
     },
     {
       "symbol": "META",
-      "price": 610.2,
+      "price": 610.16,
       "zone": "LOW_MOMENTUM",
       "tradeable": false,
       "action": null,
@@ -579,8 +577,8 @@
         "vwap": 606.06
       },
       "distances": {
-        "toPutWall": -1.606030809570625,
-        "toCallWall": 1.606030809570625,
+        "toPutWall": -1.6126917529828293,
+        "toCallWall": 1.6126917529828293,
         "rangeSize": 0,
         "positionInRange": null
       },
@@ -608,7 +606,7 @@
         "ext1272": 693.5937600000001,
         "ext1618": 719.05244
       },
-      "timestamp": "2026-01-21T17:28:07.706Z",
+      "timestamp": "2026-01-21T17:38:11.275Z",
       "sourceInfo": {
         "sources": [
           "watchlist"
@@ -619,8 +617,8 @@
           "RSI low momentum (26.1)",
           "At lower Bollinger Band",
           "💥 BREAKDOWN below put wall ($620) -1.6%",
-          "🔥 Unusual CALL $605 01/23 (8.0x, $6.7M)",
-          "$77M net bullish premium",
+          "🔥 Unusual CALL $605 01/23 (8.0x, $6.6M)",
+          "$79M net bullish premium",
           "⚠️ Against SPY neutral",
           "⚠️ COUNTER-TREND: bearish vs swing BULLISH"
         ],
@@ -636,82 +634,8 @@
       }
     },
     {
-      "symbol": "XLB",
-      "price": 48.81,
-      "zone": "EXTENDED_HIGH",
-      "tradeable": false,
-      "action": null,
-      "reasoning": [
-        "Price above call wall (breakout or reversal)"
-      ],
-      "levels": {
-        "putWall": 48.5,
-        "callWall": 48,
-        "maxPain": 47.5,
-        "gammaFlip": 47.39,
-        "vwap": 48.22
-      },
-      "distances": {
-        "toPutWall": 0.6351157549682488,
-        "toCallWall": -1.6594960049170298,
-        "rangeSize": -1.024380249948781,
-        "positionInRange": -0.6200000000000045
-      },
-      "technicals": {
-        "rsi": 69.11,
-        "trend": "strong_uptrend",
-        "momentum5d": -0.68,
-        "momentum20d": 6.69,
-        "bbPosition": 0.73,
-        "volumeSignal": "normal"
-      },
-      "fibonacci": {
-        "swingHigh": 49.14,
-        "swingLow": 45.09,
-        "atLevel": {
-          "type": "extension",
-          "level": 1,
-          "price": 49.14,
-          "isGoldenPocket": false
-        },
-        "maConfluence": null,
-        "goldenPocket": 46.637100000000004,
-        "fib50": 47.115,
-        "fib382": 47.5929,
-        "ext1272": 50.2416,
-        "ext1618": 51.6429
-      },
-      "timestamp": "2026-01-21T17:28:07.709Z",
-      "sourceInfo": {
-        "sources": [
-          "sector_leader"
-        ],
-        "score": 35,
-        "direction": "pinned",
-        "signals": [
-          "🚀 BREAKOUT above call wall ($48) +1.7%",
-          "Above gamma flip ($47.39)",
-          "🎯 0.5 Fib ($47) = Put Wall ($48.5)",
-          "🎯 0.618 Fib ($47) = Put Wall ($48.5)",
-          "Heavy call bias (2.93 C/P)",
-          "⚠️ Against SPY neutral",
-          "Swing BULLISH, intraday NEUTRAL",
-          "📍 Extended high - reversal watch"
-        ],
-        "isWatchlist": false
-      },
-      "history_status": {
-        "label": "DAY_2",
-        "consecutive_days": 2,
-        "days_since_first": 7,
-        "trend": "STABLE",
-        "peak_score_ever": 85,
-        "current_vs_peak": -50
-      }
-    },
-    {
       "symbol": "IBIT",
-      "price": 49.67,
+      "price": 49.61,
       "zone": "EXTENDED_LOW",
       "tradeable": false,
       "action": null,
@@ -726,10 +650,10 @@
         "vwap": 51.04
       },
       "distances": {
-        "toPutWall": -0.6643849406080095,
-        "toCallWall": 2.6776726394201695,
-        "rangeSize": 2.01328769881216,
-        "positionInRange": -0.3299999999999983
+        "toPutWall": -0.7861318282604325,
+        "toCallWall": 2.801854464825641,
+        "rangeSize": 2.0157226365652083,
+        "positionInRange": -0.39000000000000057
       },
       "technicals": {
         "rsi": 54.26,
@@ -742,12 +666,7 @@
       "fibonacci": {
         "swingHigh": 55.6,
         "swingLow": 48.96,
-        "atLevel": {
-          "type": "retracement",
-          "level": 0.786,
-          "price": 50.38096,
-          "isGoldenPocket": false
-        },
+        "atLevel": null,
         "maConfluence": null,
         "goldenPocket": 51.49648,
         "fib50": 52.28,
@@ -755,7 +674,7 @@
         "ext1272": 57.40608,
         "ext1618": 59.703520000000005
       },
-      "timestamp": "2026-01-21T17:28:07.711Z",
+      "timestamp": "2026-01-21T17:38:11.277Z",
       "sourceInfo": {
         "sources": [
           "watchlist"
@@ -763,7 +682,7 @@
         "score": 25,
         "direction": "bearish",
         "signals": [
-          "💥 BREAKDOWN below put wall ($50) -0.7%",
+          "💥 BREAKDOWN below put wall ($50) -0.8%",
           "🎯 0.618 Fib ($51) = Put Wall ($50)",
           "Elevated volume (1.5x avg)",
           "🔥 Unusual PUT $45.5 OTM (hedge, 20.4x, $0.2M)",
@@ -783,26 +702,26 @@
     },
     {
       "symbol": "AMD",
-      "price": 245.57,
+      "price": 245.09,
       "zone": "MID_RANGE",
       "tradeable": false,
       "action": null,
       "reasoning": [
-        "Mid-range (78% between walls)",
+        "Mid-range (75% between walls)",
         "Wait for price to reach support or resistance"
       ],
       "levels": {
         "putWall": 230,
         "callWall": 250,
         "maxPain": 225,
-        "gammaFlip": 232.86,
+        "gammaFlip": 232.84,
         "vwap": 233.99
       },
       "distances": {
-        "toPutWall": 6.340351020075739,
-        "toCallWall": 1.8039662825263698,
-        "rangeSize": 8.14431730260211,
-        "positionInRange": 0.7784999999999996
+        "toPutWall": 6.156921947039865,
+        "toCallWall": 2.003345709739278,
+        "rangeSize": 8.160267656779142,
+        "positionInRange": 0.7545000000000002
       },
       "technicals": {
         "rsi": 63.63,
@@ -823,7 +742,7 @@
         "ext1272": 250.29840000000002,
         "ext1618": 264.0346
       },
-      "timestamp": "2026-01-21T17:28:07.714Z",
+      "timestamp": "2026-01-21T17:38:11.279Z",
       "sourceInfo": {
         "sources": [
           "watchlist"
@@ -833,8 +752,8 @@
         "signals": [
           "At upper Bollinger Band",
           "🎯 1.272 Fib ($250) = Call Wall ($250)",
-          "🔥 Unusual PUT $247.5 ITM (bearish, 71.7x, $9.0M)",
-          "$169M net bullish premium",
+          "🔥 Unusual PUT $247.5 ITM (bearish, 72.3x, $9.6M)",
+          "$160M net bullish premium",
           "⚠️ Against SPY neutral",
           "⚠️ COUNTER-TREND: bearish vs swing BULLISH"
         ],
@@ -847,6 +766,79 @@
         "trend": "RISING",
         "peak_score_ever": 100,
         "current_vs_peak": -20
+      }
+    },
+    {
+      "symbol": "XLE",
+      "price": 48.7,
+      "zone": "MID_RANGE",
+      "tradeable": false,
+      "action": null,
+      "reasoning": [
+        "Mid-range (90% between walls)",
+        "Wait for price to reach support or resistance"
+      ],
+      "levels": {
+        "putWall": 46,
+        "callWall": 49,
+        "maxPain": 47.5,
+        "gammaFlip": 47.5,
+        "vwap": 47.77
+      },
+      "distances": {
+        "toPutWall": 5.544147843942511,
+        "toCallWall": 0.6160164271047169,
+        "rangeSize": 6.160164271047227,
+        "positionInRange": 0.9000000000000009
+      },
+      "technicals": {
+        "rsi": 67.05,
+        "trend": "strong_uptrend",
+        "momentum5d": 2.72,
+        "momentum20d": 7.86,
+        "bbPosition": 0.84,
+        "volumeSignal": "normal"
+      },
+      "fibonacci": {
+        "swingHigh": 48.65,
+        "swingLow": 43.99,
+        "atLevel": {
+          "type": "extension",
+          "level": 1,
+          "price": 48.65,
+          "isGoldenPocket": false
+        },
+        "maConfluence": null,
+        "goldenPocket": 45.77012,
+        "fib50": 46.32,
+        "fib382": 46.86988,
+        "ext1272": 49.917519999999996,
+        "ext1618": 51.52988
+      },
+      "timestamp": "2026-01-21T17:38:11.281Z",
+      "sourceInfo": {
+        "sources": [
+          "sector_leader"
+        ],
+        "score": 5,
+        "direction": "bearish",
+        "signals": [
+          "🎯 1.272 Fib ($50) = Call Wall ($49)",
+          "🎯 0.5 Fib ($46) = Put Wall ($46)",
+          "🎯 0.618 Fib ($46) = Put Wall ($46)",
+          "🔥 Unusual PUT $48.5 ATM (bearish, 9.6x, $0.7M)",
+          "⚠️ Against SPY neutral",
+          "⚠️ COUNTER-TREND: bearish vs swing BULLISH"
+        ],
+        "isWatchlist": false
+      },
+      "history_status": {
+        "label": "RETURNED",
+        "consecutive_days": 1,
+        "days_since_first": 7,
+        "trend": "FADING",
+        "peak_score_ever": 100,
+        "current_vs_peak": -65
       }
     }
   ]

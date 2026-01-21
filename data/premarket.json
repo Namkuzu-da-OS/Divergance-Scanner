@@ -1,15 +1,15 @@
 {
-  "timestamp": "2026-01-21T17:28:37.942Z",
-  "scan_id": 40,
+  "timestamp": "2026-01-21T17:33:37.950Z",
+  "scan_id": 41,
   "in_premarket": false,
   "market": {
     "spy": {
-      "price": 679.575,
-      "change_pct": 0.2944301779863639
+      "price": 679.22,
+      "change_pct": 0.2420378405501913
     },
     "qqq": {
-      "price": 609.5101,
-      "change_pct": 0.23847975528731055
+      "price": 609.26,
+      "change_pct": 0.1973489458277219
     },
     "bias": "NEUTRAL"
   },
@@ -23,9 +23,9 @@
     {
       "symbol": "AMD",
       "prev_close": 231.92,
-      "premarket_price": 245.4,
-      "gap_pct": 5.812349085891695,
-      "premarket_volume": 38757139,
+      "premarket_price": 245.15,
+      "gap_pct": 5.7045532942394015,
+      "premarket_volume": 39222183,
       "gap_type": "HUGE_UP",
       "catalyst": null,
       "futures_aligned": true,
@@ -35,9 +35,9 @@
     {
       "symbol": "VXX",
       "prev_close": 29.38,
-      "premarket_price": 28.24,
-      "gap_pct": -3.880190605854325,
-      "premarket_volume": 10609621,
+      "premarket_price": 28.27,
+      "gap_pct": -3.778080326752891,
+      "premarket_volume": 10825562,
       "gap_type": "LARGE_DOWN",
       "catalyst": null,
       "futures_aligned": false,
@@ -45,28 +45,28 @@
       "tier": "TRADEABLE"
     },
     {
-      "symbol": "XLE",
-      "prev_close": 47.6,
-      "premarket_price": 48.715,
-      "gap_pct": 2.34243697478992,
-      "premarket_volume": 28585353,
-      "gap_type": "MODERATE_UP",
-      "catalyst": null,
-      "futures_aligned": true,
-      "score": 60,
-      "tier": "TRADEABLE"
-    },
-    {
       "symbol": "MSFT",
       "prev_close": 454.52,
-      "premarket_price": 443.95,
-      "gap_pct": -2.3255302296928617,
-      "premarket_volume": 13536785,
+      "premarket_price": 443.62,
+      "gap_pct": -2.3981342955205442,
+      "premarket_volume": 13764623,
       "gap_type": "MODERATE_DOWN",
       "catalyst": null,
       "futures_aligned": false,
       "score": 40,
       "tier": "WATCH"
+    },
+    {
+      "symbol": "XLE",
+      "prev_close": 47.6,
+      "premarket_price": 48.69,
+      "gap_pct": 2.289915966386547,
+      "premarket_volume": 28931507,
+      "gap_type": "MODERATE_UP",
+      "catalyst": null,
+      "futures_aligned": true,
+      "score": 60,
+      "tier": "TRADEABLE"
     }
   ]
 }
