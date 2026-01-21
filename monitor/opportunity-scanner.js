@@ -302,6 +302,14 @@ async function fetchIV(symbol) {
     }
 }
 
+async function fetchEarnings(symbol) {
+    try {
+        return await httpGet(`${APIS.options}/api/calendar/${symbol}`);
+    } catch (e) {
+        return null;
+    }
+}
+
 // ============================================
 // SCORING SYSTEM
 // ============================================
@@ -458,11 +466,12 @@ function classifyTier(score) {
 // ============================================
 
 async function analyzeSymbol(symbol) {
-    const [analysis, technicals, quote, iv] = await Promise.all([
+    const [analysis, technicals, quote, iv, earnings] = await Promise.all([
         fetchOptionsAnalysis(symbol),
         fetchTechnicals(symbol),
         fetchQuote(symbol),
-        fetchIV(symbol)
+        fetchIV(symbol),
+        fetchEarnings(symbol)
     ]);
 
     // Score unusual options (primary)
@@ -529,9 +538,52 @@ async function analyzeSymbol(symbol) {
             ivRank: iv?.iv_percentile || null,
             rsi: technicals?.rsi || null
         },
-        signals: [...unusualResult.signals, ...secondaryResult.signals],
+        earnings: earnings ? {
+            date: earnings.next_earnings,
+            daysTo: earnings.days_to_earnings,
+            time: earnings.earnings_time,
+            warningLevel: earnings.warning_level
+        } : null,
+        signals: buildSignalsWithEarningsContext(
+            [...unusualResult.signals, ...secondaryResult.signals],
+            earnings,
+            unusualResult.unusual_calls,
+            unusualResult.unusual_puts
+        ),
         timestamp: new Date().toISOString()
     };
+}
+
+// Add earnings context to signals when relevant
+function buildSignalsWithEarningsContext(signals, earnings, unusualCalls, unusualPuts) {
+    if (!earnings || !earnings.next_earnings || earnings.days_to_earnings > 14) {
+        return signals;
+    }
+
+    const earningsDate = new Date(earnings.next_earnings);
+    const topStrikes = [...(unusualCalls || []).slice(0, 1), ...(unusualPuts || []).slice(0, 1)];
+
+    let preEarnings = 0;
+    let postEarnings = 0;
+
+    for (const strike of topStrikes) {
+        if (strike.expiration) {
+            const expDate = new Date(strike.expiration);
+            if (expDate < earningsDate) preEarnings++;
+            else postEarnings++;
+        }
+    }
+
+    // Add context about what the strikes are betting on
+    if (preEarnings > 0 && postEarnings === 0) {
+        signals.push(`⏰ Strikes expire PRE-earnings (drift bet)`);
+    } else if (postEarnings > 0 && preEarnings === 0) {
+        signals.push(`🎲 Strikes capture earnings (event bet)`);
+    } else if (preEarnings > 0 && postEarnings > 0) {
+        signals.push(`📊 Mixed: some pre, some post earnings`);
+    }
+
+    return signals;
 }
 
 async function runScan() {
@@ -663,10 +715,21 @@ async function sendTelegramAlert(opportunity, marketContext) {
     const premiumDir = opportunity.unusual.netPremium > 0 ? 'BULLISH' : 'BEARISH';
 
     const timeStr = formatTimePST();
+
+    // Build earnings warning if within 14 days
+    let earningsLine = '';
+    if (opportunity.earnings && opportunity.earnings.daysTo !== null && opportunity.earnings.daysTo <= 14) {
+        const earningsEmoji = opportunity.earnings.daysTo <= 3 ? '🚨' :
+                              opportunity.earnings.daysTo <= 7 ? '⚠️' : '📅';
+        const timeLabel = opportunity.earnings.time === 'before_open' ? 'BMO' :
+                          opportunity.earnings.time === 'after_close' ? 'AMC' : '';
+        earningsLine = `\n${earningsEmoji} <b>EARNINGS: ${opportunity.earnings.date} ${timeLabel} (${opportunity.earnings.daysTo}d)</b>`;
+    }
+
     const message = `
 ${directionEmoji} <b>UNUSUAL OPTIONS: ${opportunity.symbol}</b>
 <code>${timeStr} PST</code>
-Score: ${opportunity.score}/100 | ${opportunity.tier}
+Score: ${opportunity.score}/100 | ${opportunity.tier}${earningsLine}
 
 💰 Price: $${opportunity.price.toFixed(2)}
 📊 Top Strike: ${topStrikeText}
