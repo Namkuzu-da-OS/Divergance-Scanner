@@ -1,0 +1,72 @@
+{
+  "timestamp": "2026-01-21T17:28:37.942Z",
+  "scan_id": 40,
+  "in_premarket": false,
+  "market": {
+    "spy": {
+      "price": 679.575,
+      "change_pct": 0.2944301779863639
+    },
+    "qqq": {
+      "price": 609.5101,
+      "change_pct": 0.23847975528731055
+    },
+    "bias": "NEUTRAL"
+  },
+  "summary": {
+    "total_gaps": 4,
+    "high_conviction": 1,
+    "tradeable": 2,
+    "watch": 1
+  },
+  "movers": [
+    {
+      "symbol": "AMD",
+      "prev_close": 231.92,
+      "premarket_price": 245.4,
+      "gap_pct": 5.812349085891695,
+      "premarket_volume": 38757139,
+      "gap_type": "HUGE_UP",
+      "catalyst": null,
+      "futures_aligned": true,
+      "score": 80,
+      "tier": "HIGH_CONVICTION"
+    },
+    {
+      "symbol": "VXX",
+      "prev_close": 29.38,
+      "premarket_price": 28.24,
+      "gap_pct": -3.880190605854325,
+      "premarket_volume": 10609621,
+      "gap_type": "LARGE_DOWN",
+      "catalyst": null,
+      "futures_aligned": false,
+      "score": 50,
+      "tier": "TRADEABLE"
+    },
+    {
+      "symbol": "XLE",
+      "prev_close": 47.6,
+      "premarket_price": 48.715,
+      "gap_pct": 2.34243697478992,
+      "premarket_volume": 28585353,
+      "gap_type": "MODERATE_UP",
+      "catalyst": null,
+      "futures_aligned": true,
+      "score": 60,
+      "tier": "TRADEABLE"
+    },
+    {
+      "symbol": "MSFT",
+      "prev_close": 454.52,
+      "premarket_price": 443.95,
+      "gap_pct": -2.3255302296928617,
+      "premarket_volume": 13536785,
+      "gap_type": "MODERATE_DOWN",
+      "catalyst": null,
+      "futures_aligned": false,
+      "score": 40,
+      "tier": "WATCH"
+    }
+  ]
+}

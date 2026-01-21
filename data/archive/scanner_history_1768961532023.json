@@ -1,13 +1,13 @@
 {
   "meta": {
-    "last_updated": "2026-01-21T17:28:06.894Z",
+    "last_updated": "2026-01-20T20:55:26.029Z",
     "retention_days": 14,
     "total_symbols_tracked": 42
   },
   "symbols": {
     "SPY": {
       "first_seen": "2026-01-12T15:36:47.351Z",
-      "last_seen": "2026-01-21T17:28:06.807Z",
+      "last_seen": "2026-01-20T20:55:26.029Z",
       "daily_snapshots": [
         {
           "date": "2026-01-12",
@@ -284,48 +284,12 @@
             "above_50sma": false,
             "bb_position": 0.68
           }
-        },
-        {
-          "date": "2026-01-21",
-          "first_scan": "2026-01-21T12:03:49.889Z",
-          "scans_today": 70,
-          "peak_score": 80,
-          "price_action": {
-            "vwap": 680.41,
-            "range_pct": 0,
-            "gap_from_prev_pct": null
-          },
-          "volume": {
-            "total": 0,
-            "avg_20d": null,
-            "ratio": null,
-            "vs_yesterday": null,
-            "first_hour": 0
-          },
-          "scanner_data": {
-            "peak_zone": "EXTENDED_LOW",
-            "peak_direction": "pinned",
-            "peak_signals": [
-              "At lower Bollinger Band",
-              "📐 At Golden Pocket (0.618 @ $683.96)",
-              "📐 Golden Pocket + SMA 20 confluence",
-              "📍 PINNED between walls ($680-$680)",
-              "Confluence zone (2 levels)"
-            ],
-            "time_in_scanner_mins": 324
-          },
-          "technicals_eod": {
-            "rsi": 38.62,
-            "above_20ema": false,
-            "above_50sma": false,
-            "bb_position": -0.09
-          }
         }
       ]
     },
     "QQQ": {
       "first_seen": "2026-01-12T15:36:47.351Z",
-      "last_seen": "2026-01-21T17:28:06.807Z",
+      "last_seen": "2026-01-20T20:55:26.029Z",
       "daily_snapshots": [
         {
           "date": "2026-01-12",
@@ -602,48 +566,12 @@
             "above_50sma": false,
             "bb_position": 0.54
           }
-        },
-        {
-          "date": "2026-01-21",
-          "first_scan": "2026-01-21T12:03:49.889Z",
-          "scans_today": 70,
-          "peak_score": 80,
-          "price_action": {
-            "vwap": 611.11,
-            "range_pct": 0,
-            "gap_from_prev_pct": null
-          },
-          "volume": {
-            "total": 0,
-            "avg_20d": null,
-            "ratio": null,
-            "vs_yesterday": null,
-            "first_hour": 0
-          },
-          "scanner_data": {
-            "peak_zone": "BUY_ZONE",
-            "peak_direction": "bullish",
-            "peak_signals": [
-              "At lower Bollinger Band",
-              "📐 At Golden Pocket (0.618 @ $615.82)",
-              "📐 Golden Pocket + SMA 20 confluence",
-              "At call wall resistance ($608)",
-              "Confluence zone (4 levels)"
-            ],
-            "time_in_scanner_mins": 324
-          },
-          "technicals_eod": {
-            "rsi": 37.79,
-            "above_20ema": false,
-            "above_50sma": false,
-            "bb_position": -0.17
-          }
         }
       ]
     },
     "AAPL": {
       "first_seen": "2026-01-12T15:36:47.351Z",
-      "last_seen": "2026-01-21T17:28:06.807Z",
+      "last_seen": "2026-01-20T20:55:26.029Z",
       "daily_snapshots": [
         {
           "date": "2026-01-12",
@@ -920,48 +848,12 @@
             "above_50sma": false,
             "bb_position": 0.08
           }
-        },
-        {
-          "date": "2026-01-21",
-          "first_scan": "2026-01-21T12:03:49.889Z",
-          "scans_today": 70,
-          "peak_score": 80,
-          "price_action": {
-            "vwap": 247.95,
-            "range_pct": 0,
-            "gap_from_prev_pct": null
-          },
-          "volume": {
-            "total": 0,
-            "avg_20d": null,
-            "ratio": null,
-            "vs_yesterday": null,
-            "first_hour": 0
-          },
-          "scanner_data": {
-            "peak_zone": "BUY_ZONE",
-            "peak_direction": "bullish",
-            "peak_signals": [
-              "RSI low momentum (6.5)",
-              "At lower Bollinger Band",
-              "At put wall support ($245)",
-              "Confluence zone (2 levels)",
-              "⚠️ PUT wall dormant (stale OI)"
-            ],
-            "time_in_scanner_mins": 324
-          },
-          "technicals_eod": {
-            "rsi": 6.47,
-            "above_20ema": false,
-            "above_50sma": false,
-            "bb_position": -0.1
-          }
         }
       ]
     },
     "GOOGL": {
       "first_seen": "2026-01-12T15:36:47.351Z",
-      "last_seen": "2026-01-21T16:38:15.248Z",
+      "last_seen": "2026-01-16T17:31:49.980Z",
       "daily_snapshots": [
         {
           "date": "2026-01-12",
@@ -1166,42 +1058,6 @@
             "above_50sma": false,
             "bb_position": 0.85
           }
-        },
-        {
-          "date": "2026-01-21",
-          "first_scan": "2026-01-21T16:04:28.120Z",
-          "scans_today": 8,
-          "peak_score": 53,
-          "price_action": {
-            "vwap": 322.95,
-            "range_pct": 0,
-            "gap_from_prev_pct": null
-          },
-          "volume": {
-            "total": 0,
-            "avg_20d": null,
-            "ratio": null,
-            "vs_yesterday": null,
-            "first_hour": 0
-          },
-          "scanner_data": {
-            "peak_zone": "BUY_ZONE",
-            "peak_direction": "bullish",
-            "peak_signals": [
-              "At put wall support ($330)",
-              "Confluence zone (2 levels)",
-              "⚠️ PUT wall dormant (stale OI)",
-              "Elevated call $325 01/23 (2.3x, $5.0M)",
-              "$48M net bullish premium"
-            ],
-            "time_in_scanner_mins": 33
-          },
-          "technicals_eod": {
-            "rsi": 59.93,
-            "above_20ema": false,
-            "above_50sma": false,
-            "bb_position": 0.54
-          }
         }
       ]
     },
@@ -1255,7 +1111,7 @@
     },
     "TSLA": {
       "first_seen": "2026-01-12T15:36:47.351Z",
-      "last_seen": "2026-01-21T17:28:06.807Z",
+      "last_seen": "2026-01-20T20:55:26.029Z",
       "daily_snapshots": [
         {
           "date": "2026-01-12",
@@ -1531,42 +1387,6 @@
             "above_50sma": false,
             "bb_position": 0.27
           }
-        },
-        {
-          "date": "2026-01-21",
-          "first_scan": "2026-01-21T12:03:49.889Z",
-          "scans_today": 70,
-          "peak_score": 80,
-          "price_action": {
-            "vwap": 423.27,
-            "range_pct": 0,
-            "gap_from_prev_pct": null
-          },
-          "volume": {
-            "total": 0,
-            "avg_20d": null,
-            "ratio": null,
-            "vs_yesterday": null,
-            "first_hour": 0
-          },
-          "scanner_data": {
-            "peak_zone": "EXTENDED_LOW",
-            "peak_direction": "pinned",
-            "peak_signals": [
-              "VELOCITY +40 pts",
-              "At lower Bollinger Band",
-              "📍 PINNED between walls ($430-$430)",
-              "Confluence zone (5 levels)",
-              "⚠️ PUT wall dormant (stale OI)"
-            ],
-            "time_in_scanner_mins": 324
-          },
-          "technicals_eod": {
-            "rsi": 30.33,
-            "above_20ema": false,
-            "above_50sma": false,
-            "bb_position": 0.09
-          }
         }
       ]
     },
@@ -1794,7 +1614,7 @@
     },
     "META": {
       "first_seen": "2026-01-12T15:36:47.351Z",
-      "last_seen": "2026-01-21T17:28:06.807Z",
+      "last_seen": "2026-01-20T20:55:26.029Z",
       "daily_snapshots": [
         {
           "date": "2026-01-12",
@@ -2071,48 +1891,12 @@
             "above_50sma": false,
             "bb_position": 0.03
           }
-        },
-        {
-          "date": "2026-01-21",
-          "first_scan": "2026-01-21T12:03:49.889Z",
-          "scans_today": 70,
-          "peak_score": 80,
-          "price_action": {
-            "vwap": 606.06,
-            "range_pct": 0,
-            "gap_from_prev_pct": null
-          },
-          "volume": {
-            "total": 0,
-            "avg_20d": null,
-            "ratio": null,
-            "vs_yesterday": null,
-            "first_hour": 0
-          },
-          "scanner_data": {
-            "peak_zone": "BUY_ZONE",
-            "peak_direction": "bullish",
-            "peak_signals": [
-              "RSI oversold (26.1)",
-              "At lower Bollinger Band",
-              "At VWAP ($606.06)",
-              "Confluence zone (2 levels)",
-              "🔥 Unusual CALL $605 01/23 (5.1x, $2.7M)"
-            ],
-            "time_in_scanner_mins": 324
-          },
-          "technicals_eod": {
-            "rsi": 26.08,
-            "above_20ema": false,
-            "above_50sma": false,
-            "bb_position": -0.09
-          }
         }
       ]
     },
     "NVDA": {
       "first_seen": "2026-01-12T15:36:47.351Z",
-      "last_seen": "2026-01-21T17:28:06.807Z",
+      "last_seen": "2026-01-20T20:55:26.029Z",
       "daily_snapshots": [
         {
           "date": "2026-01-12",
@@ -2389,42 +2173,6 @@
             "above_50sma": false,
             "bb_position": 0.52
           }
-        },
-        {
-          "date": "2026-01-21",
-          "first_scan": "2026-01-21T12:03:49.889Z",
-          "scans_today": 70,
-          "peak_score": 80,
-          "price_action": {
-            "vwap": 179.66,
-            "range_pct": 0,
-            "gap_from_prev_pct": null
-          },
-          "volume": {
-            "total": 0,
-            "avg_20d": null,
-            "ratio": null,
-            "vs_yesterday": null,
-            "first_hour": 0
-          },
-          "scanner_data": {
-            "peak_zone": "BUY_ZONE",
-            "peak_direction": "bullish",
-            "peak_signals": [
-              "At lower Bollinger Band",
-              "At put wall support ($180)",
-              "At VWAP ($179.66)",
-              "Confluence zone (2 levels)",
-              "⚠️ PUT wall dormant (stale OI)"
-            ],
-            "time_in_scanner_mins": 324
-          },
-          "technicals_eod": {
-            "rsi": 32.07,
-            "above_20ema": false,
-            "above_50sma": false,
-            "bb_position": -0.19
-          }
         }
       ]
     },
@@ -2520,7 +2268,7 @@
     },
     "XLI": {
       "first_seen": "2026-01-12T15:36:47.351Z",
-      "last_seen": "2026-01-21T13:08:44.943Z",
+      "last_seen": "2026-01-20T20:55:26.029Z",
       "daily_snapshots": [
         {
           "date": "2026-01-12",
@@ -2797,48 +2545,12 @@
             "above_50sma": false,
             "bb_position": 1
           }
-        },
-        {
-          "date": "2026-01-21",
-          "first_scan": "2026-01-21T13:03:46.598Z",
-          "scans_today": 2,
-          "peak_score": 65,
-          "price_action": {
-            "vwap": 164.2,
-            "range_pct": 0,
-            "gap_from_prev_pct": null
-          },
-          "volume": {
-            "total": 0,
-            "avg_20d": null,
-            "ratio": null,
-            "vs_yesterday": null,
-            "first_hour": 0
-          },
-          "scanner_data": {
-            "peak_zone": "EXTENDED_HIGH",
-            "peak_direction": "pinned",
-            "peak_signals": [
-              "🚀 BREAKOUT above call wall ($162.5) +0.6%",
-              "Above gamma flip ($153.36)",
-              "🎯 0.5 Fib ($161) = Put Wall ($160)",
-              "🎯 0.618 Fib ($159) = Put Wall ($160)",
-              "Confluence zone (2 levels)"
-            ],
-            "time_in_scanner_mins": 4
-          },
-          "technicals_eod": {
-            "rsi": 64.48,
-            "above_20ema": false,
-            "above_50sma": false,
-            "bb_position": 0.75
-          }
         }
       ]
     },
     "IBIT": {
       "first_seen": "2026-01-12T15:36:47.351Z",
-      "last_seen": "2026-01-21T17:28:06.807Z",
+      "last_seen": "2026-01-20T20:55:26.029Z",
       "daily_snapshots": [
         {
           "date": "2026-01-12",
@@ -3115,42 +2827,6 @@
             "above_50sma": false,
             "bb_position": 0.88
           }
-        },
-        {
-          "date": "2026-01-21",
-          "first_scan": "2026-01-21T12:03:49.889Z",
-          "scans_today": 70,
-          "peak_score": 80,
-          "price_action": {
-            "vwap": 51.04,
-            "range_pct": 0,
-            "gap_from_prev_pct": null
-          },
-          "volume": {
-            "total": 0,
-            "avg_20d": null,
-            "ratio": null,
-            "vs_yesterday": null,
-            "first_hour": 0
-          },
-          "scanner_data": {
-            "peak_zone": "BUY_ZONE",
-            "peak_direction": "bullish",
-            "peak_signals": [
-              "VELOCITY +30 pts",
-              "📐 At Golden Pocket (0.618 @ $51.50)",
-              "📐 Golden Pocket + SMA 20 confluence",
-              "At put wall support ($51)",
-              "At VWAP ($51.04)"
-            ],
-            "time_in_scanner_mins": 324
-          },
-          "technicals_eod": {
-            "rsi": 54.26,
-            "above_20ema": false,
-            "above_50sma": false,
-            "bb_position": 0.41
-          }
         }
       ]
     },
@@ -3341,7 +3017,7 @@
     },
     "AMD": {
       "first_seen": "2026-01-12T15:36:47.351Z",
-      "last_seen": "2026-01-21T17:28:06.807Z",
+      "last_seen": "2026-01-20T20:55:26.029Z",
       "daily_snapshots": [
         {
           "date": "2026-01-12",
@@ -3617,42 +3293,6 @@
             "above_20ema": false,
             "above_50sma": false,
             "bb_position": 1.03
-          }
-        },
-        {
-          "date": "2026-01-21",
-          "first_scan": "2026-01-21T12:03:49.889Z",
-          "scans_today": 70,
-          "peak_score": 80,
-          "price_action": {
-            "vwap": 233.99,
-            "range_pct": 0,
-            "gap_from_prev_pct": null
-          },
-          "volume": {
-            "total": 0,
-            "avg_20d": null,
-            "ratio": null,
-            "vs_yesterday": null,
-            "first_hour": 0
-          },
-          "scanner_data": {
-            "peak_zone": "EXTENDED_HIGH",
-            "peak_direction": "pinned",
-            "peak_signals": [
-              "VELOCITY +65 pts",
-              "At upper Bollinger Band",
-              "🚀 BREAKOUT above call wall ($240) +0.5%",
-              "Above gamma flip ($233.43)",
-              "Confluence zone (3 levels)"
-            ],
-            "time_in_scanner_mins": 324
-          },
-          "technicals_eod": {
-            "rsi": 63.63,
-            "above_20ema": false,
-            "above_50sma": false,
-            "bb_position": 0.98
           }
         }
       ]
@@ -5122,7 +4762,7 @@
     },
     "XLB": {
       "first_seen": "2026-01-14T01:31:18.862Z",
-      "last_seen": "2026-01-21T17:28:06.807Z",
+      "last_seen": "2026-01-20T13:27:58.417Z",
       "daily_snapshots": [
         {
           "date": "2026-01-14",
@@ -5236,42 +4876,6 @@
             "above_20ema": false,
             "above_50sma": false,
             "bb_position": 0.85
-          }
-        },
-        {
-          "date": "2026-01-21",
-          "first_scan": "2026-01-21T15:04:20.198Z",
-          "scans_today": 28,
-          "peak_score": 35,
-          "price_action": {
-            "vwap": 48.22,
-            "range_pct": 0,
-            "gap_from_prev_pct": null
-          },
-          "volume": {
-            "total": 0,
-            "avg_20d": null,
-            "ratio": null,
-            "vs_yesterday": null,
-            "first_hour": 0
-          },
-          "scanner_data": {
-            "peak_zone": "EXTENDED_HIGH",
-            "peak_direction": "pinned",
-            "peak_signals": [
-              "🚀 BREAKOUT above call wall ($48) +1.8%",
-              "Above gamma flip ($47.40)",
-              "🎯 0.5 Fib ($47) = Put Wall ($48.5)",
-              "🎯 0.618 Fib ($47) = Put Wall ($48.5)",
-              "Heavy call bias (11.54 C/P)"
-            ],
-            "time_in_scanner_mins": 143
-          },
-          "technicals_eod": {
-            "rsi": 69.11,
-            "above_20ema": false,
-            "above_50sma": false,
-            "bb_position": 0.73
           }
         }
       ]
@@ -5510,7 +5114,7 @@
     },
     "XLE": {
       "first_seen": "2026-01-14T16:30:00.114Z",
-      "last_seen": "2026-01-21T17:08:09.980Z",
+      "last_seen": "2026-01-15T18:04:26.076Z",
       "daily_snapshots": [
         {
           "date": "2026-01-14",
@@ -5594,42 +5198,6 @@
             "above_20ema": false,
             "above_50sma": false,
             "bb_position": 1.08
-          }
-        },
-        {
-          "date": "2026-01-21",
-          "first_scan": "2026-01-21T12:03:49.889Z",
-          "scans_today": 40,
-          "peak_score": 35,
-          "price_action": {
-            "vwap": 47.77,
-            "range_pct": 0,
-            "gap_from_prev_pct": null
-          },
-          "volume": {
-            "total": 0,
-            "avg_20d": null,
-            "ratio": null,
-            "vs_yesterday": null,
-            "first_hour": 0
-          },
-          "scanner_data": {
-            "peak_zone": "SELL_ZONE",
-            "peak_direction": "bearish",
-            "peak_signals": [
-              "At call wall resistance ($47.5)",
-              "🎯 0.5 Fib ($46) = Put Wall ($46)",
-              "🎯 0.618 Fib ($46) = Put Wall ($46)",
-              "Confluence zone (3 levels)",
-              "⚠️ Against SPY neutral"
-            ],
-            "time_in_scanner_mins": 304
-          },
-          "technicals_eod": {
-            "rsi": 67.05,
-            "above_20ema": false,
-            "above_50sma": false,
-            "bb_position": 0.84
           }
         }
       ]
