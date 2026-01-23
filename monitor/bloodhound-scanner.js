@@ -339,12 +339,9 @@ let marketContext = null;
 // ============================================
 
 /**
- * Check if market is currently open
- * US Stock Market Hours (Eastern Time):
- * - Pre-market: 4:00 AM - 9:30 AM
- * - Regular: 9:30 AM - 4:00 PM
- * - After-hours: 4:00 PM - 8:00 PM
- * - Closed: Weekends
+ * Check if regular market hours are active
+ * Returns true only during regular trading hours (9:30 AM - 4:00 PM ET)
+ * when options data is live. Pre-market gaps are handled by premarket-scanner.js.
  */
 function isMarketOpen() {
     const now = new Date();
@@ -363,9 +360,10 @@ function isMarketOpen() {
         return false;
     }
 
-    // Market hours: 7:00 AM - 4:00 PM ET (4:00 AM - 1:00 PM PST)
-    // Starts at 4 AM PST to catch pre-market activity
-    const marketOpen = 7 * 60;       // 7:00 AM ET (4:00 AM PST)
+    // Market hours: 9:30 AM - 4:00 PM ET (6:30 AM - 1:00 PM PST)
+    // Only runs during regular hours when options data is live
+    // Pre-market gaps are handled by premarket-scanner.js (6-9:30 AM ET)
+    const marketOpen = 9 * 60 + 30;  // 9:30 AM ET (6:30 AM PST)
     const marketClose = 16 * 60;     // 4:00 PM ET (1:00 PM PST)
 
     return timeInMinutes >= marketOpen && timeInMinutes < marketClose;
@@ -386,25 +384,25 @@ function getNextMarketOpen() {
 
     // If it's weekend
     if (day === 0) { // Sunday
-        return 'Monday 7:30 AM ET (4:30 AM PST)';
+        return 'Monday 9:30 AM ET (6:30 AM PST)';
     }
     if (day === 6) { // Saturday
-        return 'Monday 7:30 AM ET (4:30 AM PST)';
+        return 'Monday 9:30 AM ET (6:30 AM PST)';
     }
 
-    // If it's a weekday before scanner start
-    const marketOpen = 7 * 60 + 30;  // 7:30 AM ET
+    // If it's a weekday before market open
+    const marketOpen = 9 * 60 + 30;  // 9:30 AM ET
     if (timeInMinutes < marketOpen) {
-        return 'Today 7:30 AM ET (4:30 AM PST)';
+        return 'Today 9:30 AM ET (6:30 AM PST)';
     }
 
     // If it's after market close, next open is tomorrow (or Monday if Friday)
     const marketClose = 16 * 60;
     if (timeInMinutes >= marketClose) {
         if (day === 5) { // Friday
-            return 'Monday 7:30 AM ET (4:30 AM PST)';
+            return 'Monday 9:30 AM ET (6:30 AM PST)';
         }
-        return 'Tomorrow 7:30 AM ET (4:30 AM PST)';
+        return 'Tomorrow 9:30 AM ET (6:30 AM PST)';
     }
 
     return 'Now (scanner active)';
