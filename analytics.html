@@ -173,6 +173,16 @@
         .nav-link.premarket.active {
             background: rgba(245, 158, 11, 0.1);
         }
+
+        .nav-link.morning {
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+
+        .nav-link.morning:hover,
+        .nav-link.morning.active {
+            background: rgba(245, 158, 11, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -186,6 +196,7 @@
             </div>
             <div style="display: flex; align-items: center; gap: 16px;">
                 <div class="nav-links">
+                    <a href="morning.html" class="nav-link morning">MORNING</a>
                     <a href="zone-scanner.html" class="nav-link">ZONES</a>
                     <a href="premarket.html" class="nav-link premarket">GAPS</a>
                     <a href="analytics.html" class="nav-link active">ANALYTICS</a>
@@ -416,5 +427,92 @@
         loadData();
         setInterval(loadData, 30000);
     </script>
+
+    <!-- Documentation Section -->
+    <div class="container" style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #2a3641;">
+        <div style="background: #151821; border: 1px solid #2a3641; border-radius: 10px; overflow: hidden;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #1a1f2e; border-bottom: 1px solid #2a3641; cursor: pointer;" onclick="document.getElementById('analytics-docs').classList.toggle('collapsed')">
+                <span style="font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #8b92a8;">📖 HOW THE ANALYTICS DASHBOARD WORKS</span>
+                <span style="background: #2a3641; padding: 4px 10px; border-radius: 12px; font-size: 12px;">Reference</span>
+            </div>
+            <div id="analytics-docs" style="padding: 20px; font-size: 13px; line-height: 1.8; color: #b8bfcc;">
+
+                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">WHAT THIS DASHBOARD SHOWS</h3>
+                <p style="margin-bottom: 16px;">The Analytics Dashboard analyzes <strong>signal validation performance</strong> from the SQLite database. It shows how accurate the scanner's HIGH_CONVICTION signals have been over time, helping you understand which conditions produce the best results.</p>
+
+                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">DATA SOURCE</h3>
+                <p style="margin-bottom: 8px;"><strong>Database:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">data/opportunity_history.db</code> (SQLite)</p>
+                <p style="margin-bottom: 8px;"><strong>API:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">/api/signals</code> and <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">/api/signals/stats</code></p>
+                <p style="margin-bottom: 16px;"><strong>Update Frequency:</strong> Every 30 seconds</p>
+
+                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">MULTI-CHECKPOINT VALIDATION</h3>
+                <p style="margin-bottom: 8px;">Each HIGH_CONVICTION signal gets checkpoints at multiple intervals:</p>
+                <table style="width: 100%; margin-bottom: 16px; font-size: 12px;">
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>4h Checkpoint</strong></td>
+                        <td style="padding: 8px;">Short-term signal accuracy - how the signal performs intraday</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>24h Checkpoint</strong></td>
+                        <td style="padding: 8px;">Overnight/next-day accuracy - did the move continue?</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px;"><strong>7d Checkpoint</strong></td>
+                        <td style="padding: 8px;">Swing trade accuracy - longer-term signal validation</td>
+                    </tr>
+                </table>
+
+                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">OUTCOME DEFINITIONS</h3>
+                <table style="width: 100%; margin-bottom: 16px; font-size: 12px;">
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><span style="color: #00d4aa; font-weight: 600;">WIN</span></td>
+                        <td style="padding: 8px;">Signal moved ≥2% in predicted direction</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><span style="color: #ff6b6b; font-weight: 600;">LOSS</span></td>
+                        <td style="padding: 8px;">Signal moved ≤-2% against predicted direction (drawdown)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px;"><span style="color: #8b92a8; font-weight: 600;">BREAKEVEN</span></td>
+                        <td style="padding: 8px;">Signal closed within ±2% of entry (72-hour time stop)</td>
+                    </tr>
+                </table>
+
+                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">METRICS TRACKED</h3>
+                <table style="width: 100%; margin-bottom: 16px; font-size: 12px;">
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>Peak Gain</strong></td>
+                        <td style="padding: 8px;">Maximum % gain reached during signal lifecycle</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>Max Drawdown</strong></td>
+                        <td style="padding: 8px;">Maximum adverse move against signal direction</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px;"><strong>Left on Table</strong></td>
+                        <td style="padding: 8px;">Difference between peak gain and actual exit</td>
+                    </tr>
+                </table>
+
+                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">ANALYSIS VIEWS</h3>
+                <ul style="margin-left: 20px; margin-bottom: 16px;">
+                    <li><strong>By Tier:</strong> HIGH_CONVICTION vs TRADEABLE vs WATCH win rates</li>
+                    <li><strong>By VIX Regime:</strong> Which volatility levels produce best signals</li>
+                    <li><strong>By Score Range:</strong> Does higher score = better results?</li>
+                    <li><strong>By SPY Trend:</strong> Bullish vs bearish market context</li>
+                    <li><strong>By Direction:</strong> Bullish vs bearish signal accuracy</li>
+                </ul>
+
+                <h3 style="color: #8b92a8; margin-bottom: 12px; font-size: 14px;">KEY INSIGHTS</h3>
+                <p style="margin-bottom: 8px;">Use this dashboard to answer questions like:</p>
+                <ul style="margin-left: 20px;">
+                    <li>Should I adjust the score threshold for alerts?</li>
+                    <li>Do signals work better in low or high VIX environments?</li>
+                    <li>Are bullish or bearish signals more accurate?</li>
+                    <li>How much am I leaving on the table by exiting early?</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

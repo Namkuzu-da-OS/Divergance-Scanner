@@ -69,6 +69,29 @@ function formatExpiration(expStr) {
 // Core symbols - always scan for market context
 const CORE_SYMBOLS = ['SPY', 'QQQ', 'IWM'];
 
+// ETF categories not captured by index movers
+// Added 2026-01-22: These ETFs have high options activity but aren't in S&P 500/NASDAQ indices
+// Updated 2026-01-22: Complete sector list, expanded commodities/crypto, removed leveraged (use core assets)
+// To revert: Remove this constant and SOURCE 6 in discoverSymbols()
+const ETF_CATEGORIES = {
+    crypto: ['IBIT', 'ETHA', 'SOLZ', 'GTAO'], // Bitcoin, Ethereum, Solana, TAO ETFs
+    volatility: ['UVXY', 'VXX'],             // VIX ETFs - hedging activity
+    sectors: [                               // All 11 SPDR sector ETFs
+        'XLB',   // Materials
+        'XLC',   // Communication Services
+        'XLE',   // Energy
+        'XLF',   // Financials
+        'XLI',   // Industrials
+        'XLK',   // Technology
+        'XLP',   // Consumer Staples
+        'XLRE',  // Real Estate
+        'XLU',   // Utilities
+        'XLV',   // Health Care
+        'XLY'    // Consumer Discretionary
+    ],
+    commodities: ['GLD', 'SLV', 'USO', 'UNG'] // Gold, Silver, Oil, Natural Gas
+};
+
 // Watchlist path
 const WATCHLIST_PATH = path.join(__dirname, '..', 'data', 'watchlist.json');
 
@@ -89,8 +112,9 @@ function loadWatchlist() {
 
 function addSymbol(map, symbol, score, source) {
     if (!symbol) return;
-    // Filter out non-tradeable
-    if (['VIX', 'VXX', 'UVXY'].includes(symbol)) return;
+    // Filter out non-tradeable (VIX index only - VXX/UVXY are tradeable ETFs)
+    // Changed 2026-01-22: Removed VXX/UVXY from filter to enable volatility ETF scanning
+    if (symbol === 'VIX') return;
 
     const existing = map.get(symbol) || { score: 0, sources: [] };
     existing.score += score;
@@ -172,6 +196,15 @@ async function discoverSymbols() {
     } catch (e) {
         console.error('[Opportunity] Error in discovery:', e.message);
     }
+
+    // SOURCE 6: ETF Categories (crypto, leveraged, volatility, sectors, commodities)
+    // Added 2026-01-22: Catches IBIT sweeps and other non-index ETF activity
+    Object.entries(ETF_CATEGORIES).forEach(([category, symbols]) => {
+        symbols.forEach(symbol => {
+            addSymbol(discovered, symbol, 45, `etf_${category}`);
+        });
+    });
+    sourceCounts.etf_categories = Object.values(ETF_CATEGORIES).flat().length;
 
     // Sort by discovery score and limit
     const sorted = Array.from(discovered.entries())
@@ -417,28 +450,10 @@ function scoreSecondary(technicals, quote, iv) {
     const signals = [];
     const opportunities = [];
 
-    // Gap scoring
-    if (quote && technicals) {
-        const gap = ((quote.lastPrice - quote.closePrice) / quote.closePrice) * 100;
-        if (Math.abs(gap) >= 3) {
-            score += 15;
-            signals.push(`Gap: ${gap > 0 ? '+' : ''}${gap.toFixed(2)}%`);
-            opportunities.push(gap > 0 ? 'gap_up' : 'gap_down');
-        } else if (Math.abs(gap) >= 2) {
-            score += 10;
-            signals.push(`Gap: ${gap > 0 ? '+' : ''}${gap.toFixed(2)}%`);
-            opportunities.push(gap > 0 ? 'gap_up' : 'gap_down');
-        }
-    }
+    // NOTE: Gap and volume scoring removed - those are handled by the GAPS scanner
+    // This scanner now focuses purely on options flow data
 
-    // Volume spike scoring
-    if (technicals && technicals.volume_ratio >= 2) {
-        score += 15;
-        signals.push(`Volume: ${technicals.volume_ratio.toFixed(1)}x avg`);
-        opportunities.push('volume_spike');
-    }
-
-    // IV rank scoring
+    // IV rank scoring (options-related)
     if (iv && iv.iv_percentile !== undefined) {
         if (iv.iv_percentile >= 80) {
             score += 10;
@@ -657,7 +672,7 @@ async function runScan() {
         scannerMode: 'dynamic',
         marketContext,
         symbolsScanned: discoveredSymbols.length,
-        discoverySources: ['core', 'watchlist', 'volume_leaders', 'gainers', 'losers', 'nasdaq_movers', '52wk_extremes'],
+        discoverySources: ['core', 'watchlist', 'volume_leaders', 'gainers', 'losers', 'nasdaq_movers', '52wk_extremes', 'etf_categories'],
         results: results.filter(r => r.tier !== 'FILTERED'),
         summary
     };
@@ -807,7 +822,7 @@ function startControlServer() {
                 nextScanTime: nextScanTime?.toISOString() || null,
                 nextScanIn: Math.round(nextScanIn / 1000),
                 maxSymbols: SETTINGS.maxSymbols,
-                discoverySources: ['core', 'watchlist', 'volume_leaders', 'gainers', 'losers', 'nasdaq_movers', '52wk_extremes'],
+                discoverySources: ['core', 'watchlist', 'volume_leaders', 'gainers', 'losers', 'nasdaq_movers', '52wk_extremes', 'etf_categories'],
                 marketHours: isMarketHours()
             }));
             return;

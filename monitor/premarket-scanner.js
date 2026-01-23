@@ -37,6 +37,15 @@ let scanCount = 0;
 let lastScanTime = null;
 let nextScanTime = null;
 
+// Core symbols always checked
+const CORE_SYMBOLS = ['SPY', 'QQQ', 'IWM', 'DIA'];
+
+// Settings
+const SETTINGS = {
+    minPrice: 10,      // Skip penny stocks
+    maxSymbols: 50     // Max symbols to check per scan
+};
+
 // ============================================
 // UTILITY FUNCTIONS
 // ============================================
@@ -86,36 +95,153 @@ function getETTimeString() {
     return etTime.toISOString().replace('T', ' ').substring(0, 19) + ' ET';
 }
 
+/**
+ * Helper for HTTP GET requests
+ */
+async function httpGet(url) {
+    const response = await axios.get(url, { timeout: 10000 });
+    return response.data;
+}
+
+/**
+ * Load watchlist from file
+ */
+function loadWatchlist() {
+    try {
+        const watchlistPath = path.join(__dirname, '..', 'data', 'watchlist.json');
+        const content = fs.readFileSync(watchlistPath, 'utf8');
+        const data = JSON.parse(content);
+        return data.symbols || [];
+    } catch (e) {
+        return [];
+    }
+}
+
+/**
+ * Helper to add/update symbol in discovery map
+ */
+function addSymbol(map, symbol, score, source) {
+    if (!symbol || typeof symbol !== 'string') return;
+    const existing = map.get(symbol) || { score: 0, sources: [] };
+    existing.score += score;
+    existing.sources.push(source);
+    map.set(symbol, existing);
+}
+
+// ============================================
+// DYNAMIC SYMBOL DISCOVERY
+// ============================================
+
+/**
+ * Discover symbols dynamically from multiple market data sources
+ * This finds gaps across the entire market, not just a fixed watchlist
+ */
+async function discoverSymbols() {
+    const discovered = new Map();
+    const sourceCounts = { core: 0, watchlist: 0, volume: 0, gainers: 0, losers: 0, nasdaq: 0 };
+
+    // SOURCE 1: Core symbols (always scan for market context)
+    CORE_SYMBOLS.forEach(s => {
+        addSymbol(discovered, s, 100, 'core');
+        sourceCounts.core++;
+    });
+
+    // SOURCE 2: Watchlist (user priorities)
+    const watchlist = loadWatchlist();
+    watchlist.forEach(s => {
+        addSymbol(discovered, s, 50, 'watchlist');
+        sourceCounts.watchlist++;
+    });
+
+    try {
+        // SOURCE 3: Market Movers from S&P 500
+        // These endpoints return today's biggest movers - perfect for finding gaps
+        const [volumeMovers, gainers, losers] = await Promise.all([
+            httpGet(`${CONFIG.OPTIONS_API}/api/movers/$SPX?sort=VOLUME`).catch(() => ({ screeners: [] })),
+            httpGet(`${CONFIG.OPTIONS_API}/api/movers/$SPX?sort=PERCENT_CHANGE_UP`).catch(() => ({ screeners: [] })),
+            httpGet(`${CONFIG.OPTIONS_API}/api/movers/$SPX?sort=PERCENT_CHANGE_DOWN`).catch(() => ({ screeners: [] }))
+        ]);
+
+        // Volume leaders (high activity = something happening)
+        (volumeMovers.screeners || []).slice(0, 15).forEach(m => {
+            if (m.lastPrice >= SETTINGS.minPrice) {
+                addSymbol(discovered, m.symbol, 40, 'volume_leader');
+                sourceCounts.volume++;
+            }
+        });
+
+        // Big gainers (gapping UP - these are what we're looking for!)
+        (gainers.screeners || []).slice(0, 15).forEach(m => {
+            const changePct = Math.abs(m.netPercentChange || 0) * 100; // Convert to percentage
+            if (changePct >= CONFIG.MIN_GAP_PCT && m.lastPrice >= SETTINGS.minPrice) {
+                addSymbol(discovered, m.symbol, 60, 'gainer'); // High priority - this IS a gap
+                sourceCounts.gainers++;
+            }
+        });
+
+        // Big losers (gapping DOWN)
+        (losers.screeners || []).slice(0, 15).forEach(m => {
+            const changePct = Math.abs(m.netPercentChange || 0) * 100;
+            if (changePct >= CONFIG.MIN_GAP_PCT && m.lastPrice >= SETTINGS.minPrice) {
+                addSymbol(discovered, m.symbol, 60, 'loser'); // High priority - this IS a gap
+                sourceCounts.losers++;
+            }
+        });
+
+        // SOURCE 4: NASDAQ movers (catches tech/growth stocks)
+        const nasdaqMovers = await httpGet(`${CONFIG.OPTIONS_API}/api/movers/$COMPX?sort=VOLUME`).catch(() => ({ screeners: [] }));
+        (nasdaqMovers.screeners || []).slice(0, 15).forEach(m => {
+            if (m.lastPrice >= SETTINGS.minPrice) {
+                addSymbol(discovered, m.symbol, 35, 'nasdaq_mover');
+                sourceCounts.nasdaq++;
+            }
+        });
+
+    } catch (e) {
+        logError(`Error in discovery: ${e.message}`);
+    }
+
+    // Sort by discovery score and limit
+    const sorted = Array.from(discovered.entries())
+        .sort((a, b) => b[1].score - a[1].score)
+        .slice(0, SETTINGS.maxSymbols);
+
+    // Log discovery stats
+    const uniqueSources = Object.entries(sourceCounts)
+        .filter(([_, count]) => count > 0)
+        .map(([source, count]) => `${source}:${count}`)
+        .join(', ');
+
+    log(`Discovery: ${sorted.length} symbols from [${uniqueSources}]`);
+
+    return sorted.map(([symbol, data]) => ({
+        symbol,
+        discoveryScore: data.score,
+        sources: data.sources
+    }));
+}
+
 // ============================================
 // DATA FETCHING
 // ============================================
 
 /**
- * Fetch market data from Intel API to get list of symbols
- * Then fetch quotes from Options API for accurate pricing
+ * Fetch market data using DYNAMIC DISCOVERY
+ * Pulls from movers APIs to find gaps across entire market
  */
 async function fetchMarketData() {
     try {
-        // Step 1: Get symbols from Intel API
-        const intelResponse = await axios.get(`${CONFIG.INTEL_API}/api/latest`, { timeout: 10000 });
-        const rawData = intelResponse.data;
+        // Step 1: DYNAMIC DISCOVERY - find symbols that are moving
+        const discoveredSymbols = await discoverSymbols();
+        const symbols = discoveredSymbols.map(d => d.symbol);
 
-        let symbols = [];
-        if (rawData && rawData.data && Array.isArray(rawData.data)) {
-            symbols = rawData.data.map(item => item.symbol).filter(Boolean);
-        }
-
-        // Always include key indices
-        const coreSymbols = ['SPY', 'QQQ', 'IWM', 'DIA'];
-        for (const sym of coreSymbols) {
-            if (!symbols.includes(sym)) symbols.push(sym);
-        }
+        log(`Fetching quotes for ${symbols.length} discovered symbols...`);
 
         // Step 2: Fetch quotes from Options API (has closePrice for gap calculation)
         const marketData = {};
 
         // Fetch in batches to avoid overwhelming the API
-        for (const symbol of symbols.slice(0, 50)) {
+        for (const symbol of symbols) {
             try {
                 const quoteResponse = await axios.get(
                     `${CONFIG.OPTIONS_API}/api/quotes/${symbol}`,
@@ -123,13 +249,19 @@ async function fetchMarketData() {
                 );
                 const quote = quoteResponse.data?.quote;
                 if (quote) {
+                    // Find discovery info for this symbol
+                    const discoveryInfo = discoveredSymbols.find(d => d.symbol === symbol);
+
                     marketData[symbol] = {
                         price: quote.lastPrice || quote.mark,
                         previousClose: quote.closePrice,
                         close: quote.closePrice,
                         volume: quote.totalVolume || 0,
                         change: quote.netChange,
-                        changePct: quote.netPercentChange
+                        changePct: quote.netPercentChange,
+                        // Include discovery metadata
+                        discoveryScore: discoveryInfo?.discoveryScore || 0,
+                        discoverySources: discoveryInfo?.sources || []
                     };
                 }
             } catch (e) {
@@ -137,7 +269,7 @@ async function fetchMarketData() {
             }
         }
 
-        // Add VIX separately (different endpoint format may be needed)
+        // Add VIX separately
         try {
             const vixResponse = await axios.get(
                 `${CONFIG.OPTIONS_API}/api/quotes/VIX`,
@@ -350,7 +482,10 @@ async function runScan() {
                 premarket_volume: data.volume || 0,
                 gap_type: `${gapType}_${direction}`,
                 catalyst,
-                futures_aligned: futuresAligned
+                futures_aligned: futuresAligned,
+                // Discovery metadata - shows WHERE we found this symbol
+                discovery_score: data.discoveryScore || 0,
+                discovery_sources: data.discoverySources || []
             };
 
             mover.score = scoreMover(mover);
@@ -378,7 +513,8 @@ async function runScan() {
         log('Top Gaps:');
         movers.slice(0, 10).forEach(m => {
             const dir = m.gap_pct > 0 ? '↑' : '↓';
-            log(`  ${m.symbol}: ${dir} ${Math.abs(m.gap_pct).toFixed(2)}% (${m.tier})`);
+            const sources = m.discovery_sources?.join(',') || 'unknown';
+            log(`  ${m.symbol}: ${dir} ${Math.abs(m.gap_pct).toFixed(2)}% (${m.tier}) [from: ${sources}]`);
         });
     }
 

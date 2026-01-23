@@ -152,7 +152,152 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    let filePath = path.join(ROOT, urlPath === '/' ? 'zone-scanner.html' : urlPath);
+    // API: Morning Briefing - aggregates all scanner data
+    if (req.method === 'GET' && urlPath === '/api/morning-briefing') {
+        try {
+            const dataDir = path.join(ROOT, 'data');
+
+            // Load all data sources
+            const loadJson = (file) => {
+                try {
+                    const content = fs.readFileSync(path.join(dataDir, file), 'utf8');
+                    return JSON.parse(content);
+                } catch (e) {
+                    return null;
+                }
+            };
+
+            const premarket = loadJson('premarket.json');
+            const dynamicScan = loadJson('dynamic_scan.json');
+            const opportunities = loadJson('opportunities.json');
+            const earningsScan = loadJson('earnings-scan.json');
+
+            // Extract market context
+            const marketContext = {
+                vix: dynamicScan?.marketContext?.vix || premarket?.market?.vix || null,
+                vixRegime: dynamicScan?.marketContext?.vixRegime || 'unknown',
+                spyPrice: dynamicScan?.marketContext?.spyPrice || premarket?.market?.spy?.price || null,
+                spyTrend: dynamicScan?.marketContext?.spyTrend || 'unknown',
+                qqq: premarket?.market?.qqq || null,
+                spy: premarket?.market?.spy || null,
+                bias: premarket?.market?.bias || dynamicScan?.marketContext?.intradayBias || 'unknown',
+                riskAppetite: dynamicScan?.marketContext?.riskAppetite || 'unknown',
+                inPremarket: premarket?.in_premarket || false
+            };
+
+            // Extract high conviction setups (score >= 56 AND tradeable)
+            const highConviction = [];
+            if (dynamicScan?.results) {
+                for (const ticker of dynamicScan.results) {
+                    const score = ticker.sourceInfo?.score || 0;
+                    if (score >= 56 && (ticker.tradeable || ticker.sourceInfo?.tier === 'HIGH_CONVICTION')) {
+                        highConviction.push({
+                            symbol: ticker.symbol,
+                            zone: ticker.zone,
+                            price: ticker.price,
+                            toWall: ticker.distances?.toPutWall || ticker.distances?.toCallWall || null,
+                            rsi: ticker.technicals?.rsi || null,
+                            trend: ticker.technicals?.trend || null,
+                            score: score,
+                            action: ticker.action,
+                            signals: ticker.sourceInfo?.signals || [],
+                            historyStatus: ticker.history_status?.label || 'NEW'
+                        });
+                    }
+                }
+                highConviction.sort((a, b) => b.score - a.score);
+            }
+
+            // Extract gaps (from premarket)
+            const gaps = [];
+            if (premarket?.movers) {
+                for (const mover of premarket.movers) {
+                    if (mover.tier !== 'FILTERED') {
+                        gaps.push({
+                            symbol: mover.symbol,
+                            gapPct: mover.gap_pct,
+                            volume: mover.premarket_volume || mover.pre_market_volume,
+                            tier: mover.tier,
+                            direction: mover.direction,
+                            earnings: mover.earnings_date || null,
+                            daysToEarnings: mover.days_to_earnings || null
+                        });
+                    }
+                }
+            }
+
+            // Extract options flow (score >= 50)
+            const optionsFlow = [];
+            if (opportunities?.results) {
+                for (const opp of opportunities.results) {
+                    if (opp.score >= 50) {
+                        optionsFlow.push({
+                            symbol: opp.symbol,
+                            score: opp.score,
+                            tier: opp.tier,
+                            ivRank: opp.technicals?.ivRank || null,
+                            callPutRatio: opp.unusual?.callPutRatio || null,
+                            netPremium: opp.unusual?.netPremium || null,
+                            signals: opp.signals || [],
+                            direction: opp.direction
+                        });
+                    }
+                }
+                optionsFlow.sort((a, b) => b.score - a.score);
+            }
+
+            // Extract upcoming earnings (next 10 days)
+            const earnings = [];
+            if (earningsScan?.results) {
+                for (const item of earningsScan.results) {
+                    // earnings-scan.json uses flat structure: earnings_date, days_to_earnings, earnings_time
+                    if (item.earnings_date) {
+                        const daysTo = item.days_to_earnings ?? Math.ceil((new Date(item.earnings_date) - new Date()) / (1000 * 60 * 60 * 24));
+                        if (daysTo >= 0 && daysTo <= 10) {
+                            earnings.push({
+                                symbol: item.symbol,
+                                date: item.earnings_date,
+                                daysTo: daysTo,
+                                time: item.earnings_time || 'unknown',
+                                ivRank: item.details?.ivPercentile || null,
+                                score: item.score || 0,
+                                direction: item.direction,
+                                signals: item.signals || [],
+                                rsi: item.details?.rsi || null,
+                                trend: item.details?.trend || null
+                            });
+                        }
+                    }
+                }
+                earnings.sort((a, b) => a.daysTo - b.daysTo);
+            }
+
+            const briefing = {
+                timestamp: new Date().toISOString(),
+                marketContext,
+                highConviction,
+                gaps,
+                optionsFlow,
+                earnings,
+                summary: {
+                    highConvictionCount: highConviction.length,
+                    gapsCount: gaps.length,
+                    optionsFlowCount: optionsFlow.length,
+                    earningsCount: earnings.length
+                }
+            };
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(briefing));
+        } catch (e) {
+            console.error('[Web Server] Error building morning briefing:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
+    let filePath = path.join(ROOT, urlPath === '/' ? 'morning.html' : urlPath);
 
     // Security: prevent directory traversal
     if (!filePath.startsWith(ROOT)) {

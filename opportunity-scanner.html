@@ -155,6 +155,16 @@
             background: rgba(245, 158, 11, 0.1);
         }
 
+        .nav-link.morning {
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+
+        .nav-link.morning:hover,
+        .nav-link.morning.active {
+            background: rgba(245, 158, 11, 0.1);
+        }
+
         /* Market Context Banner */
         .market-context {
             display: flex;
@@ -582,6 +592,228 @@
                 flex-wrap: wrap;
             }
         }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #0a0e1a;
+            border: 1px solid #2a3641;
+            border-radius: 12px;
+            max-width: 420px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #2a3641;
+            border: none;
+            color: #e5e7eb;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            background: #ff6b6b;
+        }
+
+        /* Compressed Card Styles */
+        .compact-card {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 12px 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .compact-card:hover {
+            border-color: #00d4aa;
+            transform: translateY(-1px);
+        }
+
+        .compact-card.high-conviction {
+            border-left: 3px solid #00d4aa;
+        }
+
+        .compact-card.tradeable {
+            border-left: 3px solid #ffc107;
+        }
+
+        .compact-card.watch {
+            border-left: 3px solid #8b92a8;
+        }
+
+        .compact-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .compact-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .compact-symbol {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .compact-dir {
+            font-size: 0.9rem;
+        }
+
+        .compact-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .compact-price {
+            font-size: 0.95rem;
+            color: #e5e7eb;
+        }
+
+        .compact-score {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #8b92a8;
+        }
+
+        .compact-tier {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .compact-tier.high-conviction {
+            background: rgba(0, 212, 170, 0.2);
+            color: #00d4aa;
+        }
+
+        .compact-tier.tradeable {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+
+        .compact-tier.watch {
+            background: rgba(139, 146, 168, 0.2);
+            color: #8b92a8;
+        }
+
+        .compact-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 6px;
+        }
+
+        .compact-tag {
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .compact-tag.unusual_calls {
+            background: rgba(0, 212, 170, 0.2);
+            color: #00d4aa;
+        }
+
+        .compact-tag.unusual_puts {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+        }
+
+        .compact-tag.iv_high {
+            background: rgba(168, 85, 247, 0.2);
+            color: #a855f7;
+        }
+
+        .compact-tag.iv_low {
+            background: rgba(168, 85, 247, 0.2);
+            color: #a855f7;
+        }
+
+        .compact-tag.gap_up {
+            background: rgba(0, 212, 170, 0.2);
+            color: #00d4aa;
+        }
+
+        .compact-tag.gap_down {
+            background: rgba(255, 107, 107, 0.2);
+            color: #ff6b6b;
+        }
+
+        .compact-tag.volume_spike {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+
+        .compact-metrics {
+            display: flex;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: #8b92a8;
+        }
+
+        .compact-metric {
+            display: flex;
+            gap: 4px;
+        }
+
+        .compact-metric-value {
+            font-weight: 600;
+            color: #e5e7eb;
+        }
+
+        .compact-metric-value.bullish {
+            color: #00d4aa;
+        }
+
+        .compact-metric-value.bearish {
+            color: #ff6b6b;
+        }
+
+        /* Compact grid - more cards per row */
+        .symbols-grid.compact {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 10px;
+        }
     </style>
 </head>
 <body>
@@ -592,6 +824,7 @@
                 OPTIONS FLOW SCANNER
             </h1>
             <nav class="nav-links">
+                <a href="morning.html" class="nav-link morning">MORNING</a>
                 <a href="zone-scanner.html" class="nav-link">ZONES</a>
                 <a href="premarket.html" class="nav-link premarket">GAPS</a>
                 <a href="analytics.html" class="nav-link">ANALYTICS</a>
@@ -667,10 +900,18 @@
         <button class="filter-btn" data-filter="iv" onclick="setFilter('iv')">IV Extremes</button>
     </div>
 
-    <div class="symbols-grid" id="symbols-grid">
+    <div class="symbols-grid compact" id="symbols-grid">
         <div class="loading">
             <div class="spinner"></div>
             <p>Loading opportunities...</p>
+        </div>
+    </div>
+
+    <!-- Modal for full card view -->
+    <div class="modal-overlay" id="card-modal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div id="modal-card-content"></div>
         </div>
     </div>
 
@@ -973,7 +1214,7 @@
             return results;
         }
 
-        // Render symbols
+        // Render symbols as compact cards
         function renderSymbols() {
             const grid = document.getElementById('symbols-grid');
             if (!currentData || !currentData.results) {
@@ -993,8 +1234,82 @@
                 return;
             }
 
-            grid.innerHTML = filtered.map(renderSymbolCard).join('');
+            grid.innerHTML = filtered.map((data, index) => renderCompactCard(data, index)).join('');
         }
+
+        // Render compact card
+        function renderCompactCard(data, index) {
+            const tierClass = data.tier.toLowerCase().replace('_', '-');
+            const tierLabel = data.tier === 'HIGH_CONVICTION' ? 'HIGH CONV' : data.tier.replace('_', ' ');
+
+            // Direction emoji
+            const dirEmoji = data.direction === 'bullish' ? '🟢' :
+                             data.direction === 'bearish' ? '🔴' : '⚪';
+
+            // Opportunity tags (max 3)
+            const tags = data.opportunities.slice(0, 3).map(opp =>
+                `<span class="compact-tag ${opp}">${opp.replace('_', ' ')}</span>`
+            ).join('');
+
+            // Key metrics
+            const cpRatio = data.unusual?.callPutRatio || 0;
+            const cpClass = cpRatio > 1.5 ? 'bullish' : cpRatio < 0.7 ? 'bearish' : '';
+            const ivRank = data.technicals?.ivRank;
+
+            return `
+                <div class="compact-card ${tierClass}" onclick="showModal(${index})">
+                    <div class="compact-header">
+                        <div class="compact-left">
+                            <span class="compact-symbol">${data.symbol}</span>
+                            <span class="compact-dir">${dirEmoji}</span>
+                            <span class="compact-tier ${tierClass}">${tierLabel}</span>
+                        </div>
+                        <div class="compact-right">
+                            <span class="compact-score">${data.score}/100</span>
+                            <span class="compact-price">$${formatNumber(data.price, 0)}</span>
+                        </div>
+                    </div>
+                    <div class="compact-tags">${tags}</div>
+                    <div class="compact-metrics">
+                        <div class="compact-metric">
+                            <span>C/P:</span>
+                            <span class="compact-metric-value ${cpClass}">${formatNumber(cpRatio, 1)}x</span>
+                        </div>
+                        <div class="compact-metric">
+                            <span>IV:</span>
+                            <span class="compact-metric-value">${ivRank ? ivRank.toFixed(0) + '%' : '--'}</span>
+                        </div>
+                        <div class="compact-metric">
+                            <span>Vol:</span>
+                            <span class="compact-metric-value">${formatNumber(data.technicals?.volumeRatio, 1)}x</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Show modal with full card
+        function showModal(index) {
+            const filtered = filterResults(currentData.results);
+            const data = filtered[index];
+            if (!data) return;
+
+            document.getElementById('modal-card-content').innerHTML = renderSymbolCard(data);
+            document.getElementById('card-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close modal
+        function closeModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('card-modal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
 
         // Render symbol card
         function renderSymbolCard(data) {
@@ -1109,5 +1424,83 @@
         setInterval(loadData, 30000);
         setInterval(loadStatus, 5000);
     </script>
+
+    <!-- Documentation Section -->
+    <div style="max-width: 1400px; margin: 40px auto 0; padding: 0 20px;">
+        <div style="background: #151821; border: 1px solid #2a3641; border-radius: 10px; overflow: hidden;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #1a1f2e; border-bottom: 1px solid #2a3641; cursor: pointer;" onclick="document.getElementById('flow-docs').classList.toggle('collapsed')">
+                <span style="font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #3b82f6;">📖 HOW THE OPTIONS FLOW SCANNER WORKS</span>
+                <span style="background: #2a3641; padding: 4px 10px; border-radius: 12px; font-size: 12px; color: #8b92a8;">Reference</span>
+            </div>
+            <div id="flow-docs" style="padding: 20px; font-size: 13px; line-height: 1.8; color: #b8bfcc;">
+
+                <h3 style="color: #3b82f6; margin-bottom: 12px; font-size: 14px;">WHAT THIS DASHBOARD SHOWS</h3>
+                <p style="margin-bottom: 16px;">The Options Flow Scanner detects <strong>unusual options activity</strong> that may signal institutional positioning. It focuses purely on options-specific data: volume/OI ratios, premium flow, IV rank, and call/put imbalances. <strong>Note:</strong> Options don't trade pre-market (6-9:30 AM ET) - this scanner is most useful during market hours.</p>
+
+                <h3 style="color: #3b82f6; margin-bottom: 12px; font-size: 14px;">DATA SOURCE</h3>
+                <p style="margin-bottom: 8px;"><strong>File:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">data/opportunities.json</code></p>
+                <p style="margin-bottom: 8px;"><strong>Scanner:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">monitor/opportunity-scanner.js</code></p>
+                <p style="margin-bottom: 16px;"><strong>Update Frequency:</strong> Every 5 minutes</p>
+
+                <h3 style="color: #3b82f6; margin-bottom: 12px; font-size: 14px;">KEY METRICS EXPLAINED</h3>
+                <table style="width: 100%; margin-bottom: 16px; font-size: 12px;">
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>IV Rank</strong></td>
+                        <td style="padding: 8px;">Where current implied volatility sits vs. the last year (0-100%). High IV = expensive options, good for selling. Low IV = cheap options, good for buying.</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>Vol/OI Ratio</strong></td>
+                        <td style="padding: 8px;">Today's options volume vs. open interest. Ratio &gt; 1.0 = unusual activity (more contracts traded today than existed). Can signal big moves coming.</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>C/P Ratio</strong></td>
+                        <td style="padding: 8px;">Call volume divided by put volume. &gt; 1.0 = bullish bias, &lt; 1.0 = bearish bias. Extreme values (2x+) signal strong directional bets.</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px;"><strong>Net Premium</strong></td>
+                        <td style="padding: 8px;">Net dollar flow into calls vs. puts. Positive = more $ going into calls (bullish). Negative = more $ going into puts (bearish).</td>
+                    </tr>
+                </table>
+
+                <h3 style="color: #3b82f6; margin-bottom: 12px; font-size: 14px;">WHAT WAS REMOVED</h3>
+                <p style="margin-bottom: 16px;">This scanner previously detected gaps and volume spikes, but those signals overlapped with the GAPS scanner. Now it focuses <strong>purely on options flow data</strong> to avoid duplication.</p>
+
+                <h3 style="color: #3b82f6; margin-bottom: 12px; font-size: 14px;">SIGNAL TYPES</h3>
+                <table style="width: 100%; margin-bottom: 16px; font-size: 12px;">
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>IV_HIGH</strong></td>
+                        <td style="padding: 8px;">IV Rank &gt; 70% - Options are expensive, consider selling premium</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>IV_LOW</strong></td>
+                        <td style="padding: 8px;">IV Rank &lt; 30% - Options are cheap, consider buying</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>UNUSUAL_VOL</strong></td>
+                        <td style="padding: 8px;">Vol/OI ratio unusually high - big positioning happening</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>CALL_HEAVY</strong></td>
+                        <td style="padding: 8px;">C/P ratio &gt; 2.0 - Strong bullish options bias</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px;"><strong>PUT_HEAVY</strong></td>
+                        <td style="padding: 8px;">C/P ratio &lt; 0.5 - Strong bearish options bias</td>
+                    </tr>
+                </table>
+
+                <h3 style="color: #3b82f6; margin-bottom: 12px; font-size: 14px;">DYNAMIC DISCOVERY</h3>
+                <p style="margin-bottom: 16px;">Like the Gaps scanner, this scanner dynamically discovers symbols from S&P 500 movers, NASDAQ movers, and 52-week extremes. It's not limited to a fixed watchlist.</p>
+
+                <h3 style="color: #8b92a8; margin-bottom: 12px; font-size: 14px;">CONTROL API (Port 8083)</h3>
+                <pre style="background: #0a0e1a; padding: 12px; border-radius: 8px; font-size: 11px;">
+POST http://localhost:8083/pause       # Pause scanner
+POST http://localhost:8083/resume      # Resume scanner
+POST http://localhost:8083/scan        # Trigger immediate scan
+GET  http://localhost:8083/status      # Scanner status
+                </pre>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

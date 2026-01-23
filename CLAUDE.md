@@ -333,7 +333,7 @@ Non-tradeable symbols are mapped to liquid ETF equivalents:
 |--------|---------|-------------|
 | BTC | IBIT | BlackRock Bitcoin ETF |
 | ETH | ETHA | BlackRock Ethereum ETF |
-| SOL | SOLQ | Solana ETF |
+| SOL | SOLZ | Solana ETF (US futures-based) |
 | TAO | GTAO | Grayscale TAO |
 | SPX | SPY | S&P 500 Index → ETF |
 | NDX | QQQ | Nasdaq 100 → ETF |
@@ -478,10 +478,26 @@ The scanner dynamically discovers symbols each cycle (no hardcoded list):
 |--------|-------|-------------|
 | Core | 100 | SPY, QQQ, IWM (always) |
 | Watchlist | 50 | User priorities |
+| **ETF Categories** | 45 | Crypto, leveraged, volatility, sector, commodity ETFs |
 | Volume Leaders | 40 | $SPX top volume |
 | Gainers/Losers | 35 | 2%+ movers |
 | NASDAQ Movers | 35 | $COMPX top volume |
 | 52-Week Extremes | 30 | Breakouts/breakdowns |
+
+### ETF Categories (Added 2026-01-22)
+
+These ETFs aren't in S&P 500/NASDAQ indices but have high options activity:
+
+| Category | Symbols | Purpose |
+|----------|---------|---------|
+| Crypto | IBIT, ETHA, SOLZ, GTAO | Bitcoin, Ethereum, Solana, TAO ETFs |
+| Volatility | UVXY, VXX | VIX hedging activity |
+| Sectors | XLB, XLC, XLE, XLF, XLI, XLK, XLP, XLRE, XLU, XLV, XLY | All 11 SPDR sectors |
+| Commodities | GLD, SLV, USO, UNG | Gold, Silver, Oil, Natural Gas |
+
+**Total: 21 ETFs** (4 crypto + 2 volatility + 11 sectors + 4 commodities)
+
+**To revert:** Remove `ETF_CATEGORIES` constant and SOURCE 6 in `discoverSymbols()` function in `monitor/opportunity-scanner.js`.
 
 ### SQLite Historical Data
 

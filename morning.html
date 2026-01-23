@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morning Briefing</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #0a0e1a;
+            color: #e5e7eb;
+            padding: 16px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container { max-width: 1600px; margin: 0 auto; }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #2a3641;
+            padding-bottom: 16px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #f59e0b;
+        }
+
+        .header-subtitle {
+            color: #8b92a8;
+            margin-top: 4px;
+            font-size: 12px;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #00d4aa;
+            box-shadow: 0 0 8px rgba(0, 212, 170, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.premarket { background: #f59e0b; box-shadow: 0 0 8px rgba(245, 158, 11, 0.4); }
+        .status-dot.market-open { background: #00d4aa; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .last-update { color: #8b92a8; font-size: 12px; }
+
+        .btn {
+            background: transparent;
+            border: 1px solid #f59e0b;
+            color: #f59e0b;
+            padding: 8px 14px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #f59e0b;
+            color: #0a0e1a;
+        }
+
+        /* Navigation Links */
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-link {
+            padding: 8px 14px;
+            border: 1px solid #2a3641;
+            background: transparent;
+            color: #8b92a8;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .nav-link:hover {
+            border-color: #00d4aa;
+            color: #00d4aa;
+        }
+
+        .nav-link.active {
+            border-color: #f59e0b;
+            color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .nav-link.morning {
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+
+        .nav-link.earnings {
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+
+        .nav-link.opportunity {
+            border-color: #3b82f6;
+            color: #3b82f6;
+        }
+
+        .nav-link.premarket {
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+
+        /* Market Context Bar */
+        .context-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .context-item {
+            text-align: center;
+        }
+
+        .context-label {
+            font-size: 10px;
+            color: #8b92a8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .context-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .context-value.positive { color: #00d4aa; }
+        .context-value.negative { color: #ff6b6b; }
+        .context-value.neutral { color: #8b92a8; }
+        .context-value.bullish { color: #00d4aa; }
+        .context-value.bearish { color: #ff6b6b; }
+
+        /* Sections */
+        .section {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            background: #1a1f2e;
+            border-bottom: 1px solid #2a3641;
+            cursor: pointer;
+        }
+
+        .section-header:hover {
+            background: #1f2538;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title.conviction { color: #00d4aa; }
+        .section-title.gaps { color: #f59e0b; }
+        .section-title.flow { color: #3b82f6; }
+        .section-title.earnings { color: #a855f7; }
+
+        .section-count {
+            background: #2a3641;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .section-body {
+            padding: 0;
+        }
+
+        .section-body.collapsed {
+            display: none;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 10px;
+            color: #8b92a8;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #2a3641;
+            background: #0f1428;
+        }
+
+        tbody td {
+            padding: 12px 16px;
+            font-size: 13px;
+            border-bottom: 1px solid #1a2332;
+        }
+
+        tbody tr {
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: #1a2332;
+        }
+
+        .symbol-cell {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .positive { color: #00d4aa; }
+        .negative { color: #ff6b6b; }
+        .neutral { color: #8b92a8; }
+
+        /* Tier Badges */
+        .tier-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .tier-badge.high-conviction {
+            background: rgba(0, 212, 170, 0.2);
+            color: #00d4aa;
+        }
+
+        .tier-badge.tradeable {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        .tier-badge.watch {
+            background: rgba(139, 146, 168, 0.2);
+            color: #8b92a8;
+        }
+
+        /* Zone Badges */
+        .zone-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .zone-badge.buy { background: rgba(0, 212, 170, 0.2); color: #00d4aa; }
+        .zone-badge.sell { background: rgba(255, 107, 107, 0.2); color: #ff6b6b; }
+        .zone-badge.pinned { background: rgba(139, 146, 168, 0.2); color: #8b92a8; }
+
+        /* Action Badges */
+        .action-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .action-badge.buy {
+            background: #00d4aa;
+            color: #0a0e1a;
+        }
+
+        .action-badge.sell {
+            background: #ff6b6b;
+            color: #0a0e1a;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #8b92a8;
+        }
+
+        .empty-state-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        /* Signals List */
+        .signals-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .signal-tag {
+            background: #2a3641;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            color: #8b92a8;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #8b92a8;
+        }
+
+        /* Premarket Status Banner */
+        .premarket-banner {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .premarket-banner.market-open {
+            background: rgba(0, 212, 170, 0.1);
+            border-color: #00d4aa;
+        }
+
+        .premarket-banner-text {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .premarket-banner-time {
+            font-size: 12px;
+            color: #8b92a8;
+        }
+
+        /* Flow table clickable rows */
+        .flow-row {
+            cursor: pointer;
+        }
+        .flow-row:hover {
+            background: #1e2a3a !important;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            background: #0f1428;
+            border: 1px solid #2a3641;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid #2a3641;
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            color: #8b92a8;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+        .modal-close:hover {
+            color: #fff;
+        }
+        .modal-body {
+            padding: 20px;
+        }
+        .modal-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #1a2332;
+        }
+        .modal-row:last-child {
+            border-bottom: none;
+        }
+        .modal-label {
+            color: #8b92a8;
+            font-size: 12px;
+        }
+        .modal-value {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .modal-signals {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #2a3641;
+        }
+        .modal-signals-title {
+            color: #8b92a8;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1>MORNING BRIEFING</h1>
+                <p class="header-subtitle" id="subtitle">Aggregated view of all scanner data</p>
+            </div>
+            <div class="header-controls">
+                <div class="nav-links">
+                    <a href="morning.html" class="nav-link morning active">MORNING</a>
+                    <a href="zone-scanner.html" class="nav-link">ZONES</a>
+                    <a href="premarket.html" class="nav-link premarket">GAPS</a>
+                    <a href="analytics.html" class="nav-link">ANALYTICS</a>
+                    <a href="earnings-scanner.html" class="nav-link earnings">EARNINGS</a>
+                    <a href="opportunity-scanner.html" class="nav-link opportunity">OPTIONS FLOW</a>
+                    <a href="scanner.html" class="nav-link">MARKET</a>
+                </div>
+                <div class="status-dot" id="status-dot"></div>
+                <span class="last-update">Updated: <span id="last-update">--:--</span></span>
+                <button class="btn" onclick="loadData()">REFRESH</button>
+            </div>
+        </div>
+
+        <!-- Premarket Status Banner -->
+        <div class="premarket-banner" id="premarket-banner">
+            <span class="premarket-banner-text" id="banner-text">Loading market status...</span>
+            <span class="premarket-banner-time" id="banner-time"></span>
+        </div>
+
+        <!-- Market Context Bar -->
+        <div class="context-bar" id="context-bar">
+            <div class="context-item">
+                <div class="context-label">VIX</div>
+                <div class="context-value" id="ctx-vix">--</div>
+            </div>
+            <div class="context-item">
+                <div class="context-label">ES (SPY)</div>
+                <div class="context-value" id="ctx-es">--</div>
+            </div>
+            <div class="context-item">
+                <div class="context-label">NQ (QQQ)</div>
+                <div class="context-value" id="ctx-nq">--</div>
+            </div>
+            <div class="context-item">
+                <div class="context-label">Bias</div>
+                <div class="context-value" id="ctx-bias">--</div>
+            </div>
+            <div class="context-item">
+                <div class="context-label">VIX Regime</div>
+                <div class="context-value" id="ctx-regime">--</div>
+            </div>
+            <div class="context-item">
+                <div class="context-label">Risk</div>
+                <div class="context-value" id="ctx-risk">--</div>
+            </div>
+        </div>
+
+        <!-- High Conviction Setups -->
+        <div class="section" id="section-conviction">
+            <div class="section-header" onclick="toggleSection('conviction')">
+                <span class="section-title conviction">HIGH CONVICTION SETUPS</span>
+                <span class="section-count" id="count-conviction">0</span>
+            </div>
+            <div class="section-body" id="body-conviction">
+                <div class="loading">Loading...</div>
+            </div>
+        </div>
+
+        <!-- Pre-Market Gaps -->
+        <div class="section" id="section-gaps">
+            <div class="section-header" onclick="toggleSection('gaps')">
+                <span class="section-title gaps">PRE-MARKET GAPS</span>
+                <span class="section-count" id="count-gaps">0</span>
+            </div>
+            <div class="section-body" id="body-gaps">
+                <div class="loading">Loading...</div>
+            </div>
+        </div>
+
+        <!-- Options Flow -->
+        <div class="section" id="section-flow">
+            <div class="section-header" onclick="toggleSection('flow')">
+                <span class="section-title flow">UNUSUAL OPTIONS FLOW</span>
+                <span class="section-count" id="count-flow">0</span>
+            </div>
+            <div class="section-body" id="body-flow">
+                <div class="loading">Loading...</div>
+            </div>
+        </div>
+
+        <!-- Earnings This Week -->
+        <div class="section" id="section-earnings">
+            <div class="section-header" onclick="toggleSection('earnings')">
+                <span class="section-title earnings">EARNINGS THIS WEEK</span>
+                <span class="section-count" id="count-earnings">0</span>
+            </div>
+            <div class="section-body" id="body-earnings">
+                <div class="loading">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flow Detail Modal -->
+    <div class="modal-overlay" id="flow-modal" onclick="closeFlowModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <span class="modal-title" id="modal-symbol">--</span>
+                <button class="modal-close" onclick="closeFlowModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-row">
+                    <span class="modal-label">Score</span>
+                    <span class="modal-value" id="modal-score">--</span>
+                </div>
+                <div class="modal-row">
+                    <span class="modal-label">Tier</span>
+                    <span class="modal-value" id="modal-tier">--</span>
+                </div>
+                <div class="modal-row">
+                    <span class="modal-label">Direction</span>
+                    <span class="modal-value" id="modal-direction">--</span>
+                </div>
+                <div class="modal-row">
+                    <span class="modal-label">IV Rank</span>
+                    <span class="modal-value" id="modal-ivrank">--</span>
+                </div>
+                <div class="modal-row">
+                    <span class="modal-label">Call/Put Ratio</span>
+                    <span class="modal-value" id="modal-cpratio">--</span>
+                </div>
+                <div class="modal-row">
+                    <span class="modal-label">Net Premium</span>
+                    <span class="modal-value" id="modal-premium">--</span>
+                </div>
+                <div class="modal-signals">
+                    <div class="modal-signals-title">Signals</div>
+                    <div class="signals-list" id="modal-signals"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let data = null;
+
+        async function loadData() {
+            try {
+                const response = await fetch('/api/morning-briefing?_=' + Date.now());
+                if (!response.ok) throw new Error('Failed to load briefing');
+                data = await response.json();
+                render();
+                document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+            } catch (e) {
+                console.error('Load error:', e);
+            }
+        }
+
+        function render() {
+            if (!data) return;
+
+            // Update market context
+            const ctx = data.marketContext;
+
+            // VIX
+            const vixEl = document.getElementById('ctx-vix');
+            vixEl.textContent = ctx.vix ? ctx.vix.toFixed(1) : '--';
+            vixEl.className = 'context-value ' + (ctx.vix > 20 ? 'negative' : ctx.vix < 15 ? 'positive' : 'neutral');
+
+            // ES/SPY
+            const esEl = document.getElementById('ctx-es');
+            const esChange = ctx.spy?.change_pct;
+            if (esChange !== null && esChange !== undefined) {
+                esEl.textContent = (esChange > 0 ? '+' : '') + esChange.toFixed(2) + '%';
+                esEl.className = 'context-value ' + (esChange > 0 ? 'positive' : esChange < 0 ? 'negative' : 'neutral');
+            } else {
+                esEl.textContent = '--';
+            }
+
+            // NQ/QQQ
+            const nqEl = document.getElementById('ctx-nq');
+            const nqChange = ctx.qqq?.change_pct;
+            if (nqChange !== null && nqChange !== undefined) {
+                nqEl.textContent = (nqChange > 0 ? '+' : '') + nqChange.toFixed(2) + '%';
+                nqEl.className = 'context-value ' + (nqChange > 0 ? 'positive' : nqChange < 0 ? 'negative' : 'neutral');
+            } else {
+                nqEl.textContent = '--';
+            }
+
+            // Bias
+            const biasEl = document.getElementById('ctx-bias');
+            biasEl.textContent = ctx.bias || '--';
+            biasEl.className = 'context-value ' + (ctx.bias === 'BULLISH' ? 'bullish' : ctx.bias === 'BEARISH' ? 'bearish' : 'neutral');
+
+            // VIX Regime
+            const regimeEl = document.getElementById('ctx-regime');
+            regimeEl.textContent = ctx.vixRegime || '--';
+            regimeEl.className = 'context-value ' + (ctx.vixRegime === 'fear' || ctx.vixRegime === 'elevated' ? 'negative' : 'neutral');
+
+            // Risk
+            const riskEl = document.getElementById('ctx-risk');
+            riskEl.textContent = ctx.riskAppetite || '--';
+
+            // Premarket banner
+            const banner = document.getElementById('premarket-banner');
+            const bannerText = document.getElementById('banner-text');
+            const statusDot = document.getElementById('status-dot');
+
+            if (ctx.inPremarket) {
+                banner.className = 'premarket-banner';
+                bannerText.textContent = 'PRE-MARKET ACTIVE (6:00 AM - 9:30 AM ET)';
+                statusDot.className = 'status-dot premarket';
+            } else {
+                banner.className = 'premarket-banner market-open';
+                bannerText.textContent = 'MARKET OPEN';
+                statusDot.className = 'status-dot market-open';
+            }
+
+            document.getElementById('banner-time').textContent = new Date().toLocaleTimeString('en-US', {
+                timeZone: 'America/New_York',
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZoneName: 'short'
+            });
+
+            // Render sections
+            renderConviction();
+            renderGaps();
+            renderFlow();
+            renderEarnings();
+
+            // Update counts
+            document.getElementById('count-conviction').textContent = data.highConviction?.length || 0;
+            document.getElementById('count-gaps').textContent = data.gaps?.length || 0;
+            document.getElementById('count-flow').textContent = data.optionsFlow?.length || 0;
+            document.getElementById('count-earnings').textContent = data.earnings?.length || 0;
+        }
+
+        function renderConviction() {
+            const container = document.getElementById('body-conviction');
+            const items = data.highConviction || [];
+
+            if (items.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">--</div>No high conviction setups</div>';
+                return;
+            }
+
+            let html = `<table>
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Zone</th>
+                        <th>Price</th>
+                        <th>To Wall</th>
+                        <th>RSI</th>
+                        <th>Score</th>
+                        <th>Action</th>
+                        <th>Signals</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            for (const item of items) {
+                const zoneClass = item.zone?.includes('BUY') ? 'buy' : item.zone?.includes('SELL') ? 'sell' : 'pinned';
+                const toWall = item.toWall !== null ? Math.abs(item.toWall).toFixed(1) + '%' : '--';
+                const rsiClass = item.rsi > 70 ? 'negative' : item.rsi < 30 ? 'positive' : '';
+
+                html += `<tr>
+                    <td class="symbol-cell">${item.symbol}</td>
+                    <td><span class="zone-badge ${zoneClass}">${item.zone || '--'}</span></td>
+                    <td>$${item.price?.toFixed(2) || '--'}</td>
+                    <td>${toWall}</td>
+                    <td class="${rsiClass}">${item.rsi?.toFixed(0) || '--'}</td>
+                    <td><strong>${item.score}/80</strong></td>
+                    <td>${item.action ? `<span class="action-badge ${item.action.toLowerCase()}">${item.action}</span>` : '--'}</td>
+                    <td><div class="signals-list">${(item.signals || []).slice(0, 3).map(s => `<span class="signal-tag">${s}</span>`).join('')}</div></td>
+                </tr>`;
+            }
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function renderGaps() {
+            const container = document.getElementById('body-gaps');
+            const items = data.gaps || [];
+
+            if (items.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">--</div>No gaps detected</div>';
+                return;
+            }
+
+            let html = `<table>
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Gap</th>
+                        <th>Volume</th>
+                        <th>Tier</th>
+                        <th>Direction</th>
+                        <th>Earnings</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            for (const item of items) {
+                const gapClass = item.gapPct > 0 ? 'positive' : 'negative';
+                const tierClass = item.tier === 'HIGH_CONVICTION' ? 'high-conviction' : item.tier === 'TRADEABLE' ? 'tradeable' : 'watch';
+                const volume = item.volume ? (item.volume > 1000000 ? (item.volume / 1000000).toFixed(1) + 'M' : (item.volume / 1000).toFixed(0) + 'K') : '--';
+                const earnings = item.earnings ? `${item.earnings} (${item.daysToEarnings}d)` : '--';
+
+                html += `<tr>
+                    <td class="symbol-cell">${item.symbol}</td>
+                    <td class="${gapClass}">${item.gapPct > 0 ? '+' : ''}${item.gapPct?.toFixed(2)}%</td>
+                    <td>${volume}</td>
+                    <td><span class="tier-badge ${tierClass}">${item.tier}</span></td>
+                    <td class="${item.direction === 'bullish' ? 'positive' : item.direction === 'bearish' ? 'negative' : ''}">${item.direction || '--'}</td>
+                    <td>${earnings}</td>
+                </tr>`;
+            }
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function renderFlow() {
+            const container = document.getElementById('body-flow');
+            const items = data.optionsFlow || [];
+
+            if (items.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">--</div>No unusual options flow</div>';
+                return;
+            }
+
+            // Compressed table - click row for details
+            let html = `<table>
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Score</th>
+                        <th>Tier</th>
+                        <th>Direction</th>
+                        <th>Key Signal</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                const tierClass = item.tier === 'HIGH_CONVICTION' ? 'high-conviction' : item.tier === 'TRADEABLE' ? 'tradeable' : 'watch';
+                const dirClass = item.direction === 'bullish' ? 'positive' : item.direction === 'bearish' ? 'negative' : '';
+                // Pick the most interesting signal as a hint
+                const keySignal = item.signals?.[0] ? item.signals[0].substring(0, 20) + (item.signals[0].length > 20 ? '...' : '') : '--';
+
+                html += `<tr class="flow-row" onclick="showFlowModal(${i})">
+                    <td class="symbol-cell">${item.symbol}</td>
+                    <td><strong>${item.score}</strong></td>
+                    <td><span class="tier-badge ${tierClass}">${item.tier}</span></td>
+                    <td class="${dirClass}">${item.direction || '--'}</td>
+                    <td style="color: #8b92a8; font-size: 11px;">${keySignal}</td>
+                </tr>`;
+            }
+
+            html += '</tbody></table>';
+            html += '<div style="text-align: center; padding: 8px; color: #8b92a8; font-size: 11px;">Click row for details</div>';
+            container.innerHTML = html;
+        }
+
+        function showFlowModal(index) {
+            const items = data.optionsFlow || [];
+            const item = items[index];
+            if (!item) return;
+
+            document.getElementById('modal-symbol').textContent = item.symbol;
+            document.getElementById('modal-score').textContent = item.score;
+
+            const tierEl = document.getElementById('modal-tier');
+            tierEl.innerHTML = `<span class="tier-badge ${item.tier === 'HIGH_CONVICTION' ? 'high-conviction' : item.tier === 'TRADEABLE' ? 'tradeable' : 'watch'}">${item.tier}</span>`;
+
+            const dirEl = document.getElementById('modal-direction');
+            dirEl.textContent = item.direction || '--';
+            dirEl.className = 'modal-value ' + (item.direction === 'bullish' ? 'positive' : item.direction === 'bearish' ? 'negative' : '');
+
+            document.getElementById('modal-ivrank').textContent = item.ivRank ? item.ivRank.toFixed(0) + '%' : '--';
+            document.getElementById('modal-cpratio').textContent = item.callPutRatio ? item.callPutRatio.toFixed(2) + 'x' : '--';
+
+            const premiumEl = document.getElementById('modal-premium');
+            const premium = item.netPremium ? (item.netPremium > 0 ? '+' : '') + '$' + (Math.abs(item.netPremium) / 1000000).toFixed(2) + 'M' : '--';
+            premiumEl.textContent = premium;
+            premiumEl.className = 'modal-value ' + (item.netPremium > 0 ? 'positive' : item.netPremium < 0 ? 'negative' : '');
+
+            const signalsEl = document.getElementById('modal-signals');
+            if (item.signals && item.signals.length > 0) {
+                signalsEl.innerHTML = item.signals.map(s => `<span class="signal-tag">${s}</span>`).join('');
+            } else {
+                signalsEl.innerHTML = '<span style="color: #8b92a8;">No signals</span>';
+            }
+
+            document.getElementById('flow-modal').classList.add('active');
+        }
+
+        function closeFlowModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('flow-modal').classList.remove('active');
+        }
+
+        function renderEarnings() {
+            const container = document.getElementById('body-earnings');
+            const items = data.earnings || [];
+
+            if (items.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">--</div>No earnings this week</div>';
+                return;
+            }
+
+            let html = `<table>
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Date</th>
+                        <th>Days</th>
+                        <th>Time</th>
+                        <th>IV Rank</th>
+                        <th>RSI</th>
+                        <th>Trend</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            for (const item of items) {
+                const dateStr = new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                const daysClass = item.daysTo <= 1 ? 'negative' : item.daysTo <= 3 ? 'neutral' : '';
+                const rsiClass = item.rsi < 30 ? 'positive' : item.rsi > 70 ? 'negative' : '';
+                const trendShort = item.trend ? item.trend.replace('strong_', '').replace('_', ' ') : '--';
+                const trendClass = item.trend?.includes('uptrend') ? 'positive' : item.trend?.includes('downtrend') ? 'negative' : '';
+
+                html += `<tr>
+                    <td class="symbol-cell">${item.symbol}</td>
+                    <td>${dateStr}</td>
+                    <td class="${daysClass}">${item.daysTo}d</td>
+                    <td>${item.time === 'before_open' ? 'BMO' : item.time === 'after_close' ? 'AMC' : item.time || '--'}</td>
+                    <td>${item.ivRank ? item.ivRank.toFixed(0) + '%' : '--'}</td>
+                    <td class="${rsiClass}">${item.rsi ? item.rsi.toFixed(0) : '--'}</td>
+                    <td class="${trendClass}">${trendShort}</td>
+                    <td>${item.score || '--'}</td>
+                </tr>`;
+            }
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function toggleSection(name) {
+            const body = document.getElementById('body-' + name);
+            body.classList.toggle('collapsed');
+        }
+
+        // Initial load and auto-refresh
+        loadData();
+        setInterval(loadData, 60000); // Refresh every 60 seconds
+    </script>
+
+    <!-- Documentation Section -->
+    <div class="container" style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #2a3641;">
+        <div class="section">
+            <div class="section-header" onclick="document.getElementById('docs-body').classList.toggle('collapsed')">
+                <span class="section-title" style="color: #8b92a8;">📖 HOW THIS DASHBOARD WORKS</span>
+                <span class="section-count">Reference</span>
+            </div>
+            <div class="section-body" id="docs-body" style="padding: 20px; font-size: 13px; line-height: 1.8; color: #b8bfcc;">
+
+                <h3 style="color: #f59e0b; margin-bottom: 12px; font-size: 14px;">DATA FLOW DIAGRAM</h3>
+                <pre style="background: #0a0e1a; padding: 16px; border-radius: 8px; font-size: 11px; overflow-x: auto; margin-bottom: 24px; color: #8b92a8;">
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                              MORNING BRIEFING                                    │
+│                                                                                  │
+│  This dashboard AGGREGATES data from 4 separate scanner outputs:                │
+│                                                                                  │
+│  ┌──────────────────┐    ┌──────────────────┐    ┌──────────────────┐          │
+│  │ BLOODHOUND       │    │ PREMARKET        │    │ OPPORTUNITY      │          │
+│  │ Scanner          │    │ Scanner          │    │ Scanner          │          │
+│  │ (2 min cycle)    │    │ (5 min cycle)    │    │ (5 min cycle)    │          │
+│  └────────┬─────────┘    └────────┬─────────┘    └────────┬─────────┘          │
+│           │                       │                       │                      │
+│           ▼                       ▼                       ▼                      │
+│  ┌──────────────────┐    ┌──────────────────┐    ┌──────────────────┐          │
+│  │ dynamic_scan.json│    │ premarket.json   │    │ opportunities.json│          │
+│  │                  │    │                  │    │                  │          │
+│  │ • Gamma walls    │    │ • Gap %          │    │ • Vol/OI ratios  │          │
+│  │ • RSI/trend      │    │ • Pre-mkt volume │    │ • Premium flow   │          │
+│  │ • Confluence     │    │ • Discovery src  │    │ • IV rank        │          │
+│  │   score (0-80)   │    │ • Market context │    │ • C/P ratio      │          │
+│  └────────┬─────────┘    └────────┬─────────┘    └────────┬─────────┘          │
+│           │                       │                       │                      │
+│           └───────────────────────┼───────────────────────┘                      │
+│                                   ▼                                              │
+│                        ┌──────────────────────┐                                  │
+│                        │ /api/morning-briefing│                                  │
+│                        │ (web-server.js)      │                                  │
+│                        └──────────┬───────────┘                                  │
+│                                   │                                              │
+│                                   ▼                                              │
+│                        ┌──────────────────────┐                                  │
+│                        │   THIS DASHBOARD     │                                  │
+│                        │   (morning.html)     │                                  │
+│                        └──────────────────────┘                                  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+                </pre>
+
+                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">HIGH CONVICTION SETUPS</h3>
+                <p style="margin-bottom: 8px;"><strong>Source:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">dynamic_scan.json</code> from Bloodhound Scanner</p>
+                <p style="margin-bottom: 8px;"><strong>Criteria:</strong> Score ≥ 56/80 AND (tradeable OR tier = HIGH_CONVICTION)</p>
+                <p style="margin-bottom: 16px;"><strong>What it means:</strong> These are stocks at gamma walls (support/resistance) with multiple technical signals aligned. The score represents confluence across technicals, gamma levels, volume, and market context.</p>
+
+                <h3 style="color: #f59e0b; margin-bottom: 12px; font-size: 14px;">PRE-MARKET GAPS</h3>
+                <p style="margin-bottom: 8px;"><strong>Source:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">premarket.json</code> from Pre-Market Scanner</p>
+                <p style="margin-bottom: 8px;"><strong>Criteria:</strong> Gap ≥ 2% from previous close, tier ≠ FILTERED</p>
+                <p style="margin-bottom: 8px;"><strong>Discovery Sources:</strong></p>
+                <ul style="margin-left: 20px; margin-bottom: 16px;">
+                    <li><strong>volume_leader</strong> - Top volume stocks from S&P 500 movers API</li>
+                    <li><strong>gainer</strong> - Stocks up 2%+ from yesterday's close</li>
+                    <li><strong>loser</strong> - Stocks down 2%+ from yesterday's close</li>
+                    <li><strong>nasdaq_mover</strong> - Top NASDAQ volume movers</li>
+                    <li><strong>watchlist</strong> - Your personal watchlist (data/watchlist.json)</li>
+                    <li><strong>core</strong> - Always checked: SPY, QQQ, IWM, DIA</li>
+                </ul>
+                <p style="margin-bottom: 16px;"><strong>How it works:</strong> The scanner queries <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">/api/movers/$SPX</code> and <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">/api/movers/$COMPX</code> to DYNAMICALLY discover what's moving across the entire market. This is NOT a fixed watchlist - it finds new opportunities each scan.</p>
+
+                <h3 style="color: #3b82f6; margin-bottom: 12px; font-size: 14px;">UNUSUAL OPTIONS FLOW</h3>
+                <p style="margin-bottom: 8px;"><strong>Source:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">opportunities.json</code> from Opportunity Scanner</p>
+                <p style="margin-bottom: 8px;"><strong>Criteria:</strong> Score ≥ 50 (only options-specific signals)</p>
+                <p style="margin-bottom: 8px;"><strong>Signals tracked:</strong></p>
+                <ul style="margin-left: 20px; margin-bottom: 16px;">
+                    <li><strong>IV Rank</strong> - Where current IV sits vs. last year (high = expensive options)</li>
+                    <li><strong>Vol/OI Ratio</strong> - Today's volume vs. open interest (high = unusual activity)</li>
+                    <li><strong>C/P Ratio</strong> - Call volume vs. put volume (>1 = bullish bias)</li>
+                    <li><strong>Net Premium</strong> - Net $ flow into calls vs. puts</li>
+                </ul>
+                <p style="margin-bottom: 16px;"><strong>Note:</strong> Options don't trade pre-market (6-9:30 AM ET). This section only shows data during market hours.</p>
+
+                <h3 style="color: #a855f7; margin-bottom: 12px; font-size: 14px;">EARNINGS THIS WEEK</h3>
+                <p style="margin-bottom: 8px;"><strong>Source:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">earnings-scan.json</code> from Earnings Scanner</p>
+                <p style="margin-bottom: 8px;"><strong>Criteria:</strong> Earnings date within next 10 days, sorted by date</p>
+                <p style="margin-bottom: 12px;"><strong>What it means:</strong> Stocks with upcoming earnings events. IV typically spikes before earnings (premium selling opportunity) and crushes after (avoid holding through unless playing the move).</p>
+                <table style="width: 100%; margin-bottom: 16px; font-size: 12px;">
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>Days</strong></td>
+                        <td style="padding: 8px;">Days until earnings report. <span style="color: #ff6b6b;">&lt;3d = caution</span> (IV crush imminent)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>Time</strong></td>
+                        <td style="padding: 8px;">before_open (BMO) = pre-market gap risk. after_close (AMC) = overnight move risk.</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>IV Rank</strong></td>
+                        <td style="padding: 8px;">IV percentile. <span style="color: #ff6b6b;">&gt;70% = expensive premium</span> (sell strategies favored)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px;"><strong>Score</strong></td>
+                        <td style="padding: 8px;">PREM strategy score based on RSI + timing window. Higher = better pre-earnings momentum setup.</td>
+                    </tr>
+                </table>
+
+                <h3 style="color: #8b92a8; margin-bottom: 12px; font-size: 14px;">MARKET CONTEXT BAR</h3>
+                <table style="width: 100%; margin-bottom: 16px; font-size: 12px;">
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>VIX</strong></td>
+                        <td style="padding: 8px;">Volatility index. <span style="color: #00d4aa;">&lt;15 = complacent</span>, 15-20 = normal, <span style="color: #ff6b6b;">&gt;20 = elevated/fear</span></td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>ES/NQ</strong></td>
+                        <td style="padding: 8px;">SPY/QQQ % change from previous close. Shows market direction.</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>Bias</strong></td>
+                        <td style="padding: 8px;">Market direction based on index movement. BULLISH if avg change > 0.5%, BEARISH if < -0.5%.</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>VIX Regime</strong></td>
+                        <td style="padding: 8px;">complacent/normal/elevated/fear/capitulation - affects position sizing</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px;"><strong>Risk</strong></td>
+                        <td style="padding: 8px;">Risk appetite from Bloodhound scanner context</td>
+                    </tr>
+                </table>
+
+                <h3 style="color: #8b92a8; margin-bottom: 12px; font-size: 14px;">TIER MEANINGS</h3>
+                <table style="width: 100%; margin-bottom: 16px; font-size: 12px;">
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><span class="tier-badge high-conviction">HIGH_CONVICTION</span></td>
+                        <td style="padding: 8px;">Score ≥ 56 + at wall (0.5%), OR Score ≥ 64 + near wall (1.5%) - paper trade candidate</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><span class="tier-badge tradeable">TRADEABLE</span></td>
+                        <td style="padding: 8px;">Score ≥ 48 + at wall + trend-aligned - paper trade candidate</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px;"><span class="tier-badge watch">WATCH</span></td>
+                        <td style="padding: 8px;">Interesting but not actionable yet - monitor for improvement</td>
+                    </tr>
+                </table>
+
+                <h3 style="color: #8b92a8; margin-bottom: 12px; font-size: 14px;">PM2 PROCESSES</h3>
+                <pre style="background: #0a0e1a; padding: 12px; border-radius: 8px; font-size: 11px; margin-bottom: 16px;">
+pm2 list                    # Show all scanner status
+pm2 logs bloodhound         # View Bloodhound scanner logs
+pm2 logs premarket          # View Pre-Market scanner logs
+pm2 logs opportunity        # View Opportunity scanner logs
+pm2 restart all             # Restart all scanners
+                </pre>
+
+                <h3 style="color: #8b92a8; margin-bottom: 12px; font-size: 14px;">API ENDPOINTS</h3>
+                <table style="width: 100%; font-size: 12px;">
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><code>/api/morning-briefing</code></td>
+                        <td style="padding: 8px;">Aggregated data for this dashboard (web-server.js)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><code>/api/premarket</code></td>
+                        <td style="padding: 8px;">Latest pre-market scan data</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><code>/api/signals</code></td>
+                        <td style="padding: 8px;">All tracked signals from SQLite database</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px;"><code>/api/signals/stats</code></td>
+                        <td style="padding: 8px;">Signal performance analytics</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

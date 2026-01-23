@@ -374,6 +374,16 @@ Auto-refreshes every 30 seconds.
             background: rgba(245, 158, 11, 0.1);
         }
 
+        .nav-link.morning {
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+
+        .nav-link.morning:hover,
+        .nav-link.morning.active {
+            background: rgba(245, 158, 11, 0.1);
+        }
+
         /* VIX Reference Guide */
         .vix-guide {
             display: flex;
@@ -450,6 +460,7 @@ Auto-refreshes every 30 seconds.
             <h1>WINGMAN MARKET SCANNER</h1>
             <div class="status-row">
                 <div class="nav-links">
+                    <a href="morning.html" class="nav-link morning">MORNING</a>
                     <a href="zone-scanner.html" class="nav-link">ZONES</a>
                     <a href="premarket.html" class="nav-link premarket">GAPS</a>
                     <a href="analytics.html" class="nav-link">ANALYTICS</a>
@@ -851,5 +862,80 @@ Auto-refreshes every 30 seconds.
         // Auto-refresh every 30 seconds
         setInterval(loadAllData, 30000);
     </script>
+
+    <!-- Documentation Section -->
+    <div class="container" style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #2a3641;">
+        <div style="background: #151821; border: 1px solid #2a3641; border-radius: 10px; overflow: hidden;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #1a1f2e; border-bottom: 1px solid #2a3641; cursor: pointer;" onclick="document.getElementById('market-docs').classList.toggle('collapsed')">
+                <span style="font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #8b92a8;">📖 HOW THE MARKET DASHBOARD WORKS</span>
+                <span style="background: #2a3641; padding: 4px 10px; border-radius: 12px; font-size: 12px;">Reference</span>
+            </div>
+            <div id="market-docs" style="padding: 20px; font-size: 13px; line-height: 1.8; color: #b8bfcc;">
+
+                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">WHAT THIS DASHBOARD SHOWS</h3>
+                <p style="margin-bottom: 16px;">The Market Dashboard shows <strong>real-time market context</strong> from the Bloodhound scanner. It displays VIX regime, gamma regime, market bias, and recent high-conviction alerts. This is the legacy dashboard - for most purposes, use the <strong>Zone Scanner</strong> instead.</p>
+
+                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">DATA SOURCE</h3>
+                <p style="margin-bottom: 8px;"><strong>File:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">data/scanner.json</code></p>
+                <p style="margin-bottom: 8px;"><strong>Scanner:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">monitor/bloodhound-scanner.js</code></p>
+                <p style="margin-bottom: 16px;"><strong>Update Frequency:</strong> Every 2 minutes (from Bloodhound)</p>
+
+                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">VIX REGIME (Entry-Focused Framework)</h3>
+                <p style="margin-bottom: 8px;">This system uses an <strong>entry-focused</strong> VIX framework. High VIX = opportunity, not danger.</p>
+                <table style="width: 100%; margin-bottom: 16px; font-size: 12px;">
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>< 12</strong></td>
+                        <td style="padding: 8px;"><span style="color: #8b92a8;">COMPLACENT</span> - Spike probable, tighten trailing stops</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>12-20</strong></td>
+                        <td style="padding: 8px;"><span style="color: #00d4aa;">NORMAL</span> - Standard conditions</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>20-30</strong></td>
+                        <td style="padding: 8px;"><span style="color: #f59e0b;">ELEVATED</span> - Watch for setups forming</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>30-40</strong></td>
+                        <td style="padding: 8px;"><span style="color: #00d4aa;">FEAR</span> - Quality entries emerging</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px;"><strong>> 40</strong></td>
+                        <td style="padding: 8px;"><span style="color: #00d4aa;">CAPITULATION</span> - Scale in, historically near bottoms</td>
+                    </tr>
+                </table>
+
+                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">GAMMA REGIME</h3>
+                <table style="width: 100%; margin-bottom: 16px; font-size: 12px;">
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>BULLISH_SUPPORT</strong></td>
+                        <td style="padding: 8px;">SPY at/near put wall - dealers buying dips, expect support</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>BEARISH_RESISTANCE</strong></td>
+                        <td style="padding: 8px;">SPY at/near call wall - dealers selling rallies, expect resistance</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px;"><strong>NEUTRAL</strong></td>
+                        <td style="padding: 8px;">SPY mid-range - no strong gamma effect</td>
+                    </tr>
+                </table>
+
+                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">SPY WALL POSITIONS</h3>
+                <p style="margin-bottom: 16px;">The dashboard shows where SPY price sits relative to gamma walls:</p>
+                <ul style="margin-left: 20px; margin-bottom: 16px;">
+                    <li><strong>Call Wall:</strong> Strike with highest call gamma - acts as resistance</li>
+                    <li><strong>Put Wall:</strong> Strike with highest put gamma - acts as support</li>
+                    <li><strong>Max Pain:</strong> Strike where most options expire worthless - price tends to gravitate here</li>
+                </ul>
+
+                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">PINNED ALERT</h3>
+                <p style="margin-bottom: 16px;">When SPY is trapped between call and put walls with a small spread (<0.3%), expect range-bound movement. Good for selling premium, bad for directional plays.</p>
+
+                <h3 style="color: #8b92a8; margin-bottom: 12px; font-size: 14px;">RECOMMENDED DASHBOARD</h3>
+                <p style="margin-bottom: 8px;">For most use cases, the <strong>Zone Scanner</strong> provides a better view with ticker cards, scores, and filtering. This Market dashboard is the legacy view showing raw market context data.</p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

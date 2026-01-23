@@ -425,6 +425,137 @@
             margin-top: 8px;
         }
 
+        /* Compact Card Styles */
+        .compact-card {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 12px 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .compact-card:hover {
+            border-color: #00d4aa;
+            transform: translateY(-1px);
+        }
+
+        .compact-card.BUY_ZONE { border-left: 3px solid #00d4aa; }
+        .compact-card.SELL_ZONE { border-left: 3px solid #ff6b6b; }
+        .compact-card.LOW_MOMENTUM, .compact-card.OVERSOLD { border-left: 3px solid #3b82f6; }
+        .compact-card.HIGH_MOMENTUM, .compact-card.OVERBOUGHT { border-left: 3px solid #f97316; }
+        .compact-card.EXTENDED_HIGH, .compact-card.EXTENDED_LOW { border-left: 3px solid #ffc107; }
+        .compact-card.MID_RANGE { border-left: 3px solid #8b92a8; }
+        .compact-card.PINNED { border-left: 3px solid #a855f7; }
+
+        .compact-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .compact-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .compact-symbol {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .compact-dir {
+            font-size: 0.9rem;
+        }
+
+        .compact-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .compact-price {
+            font-size: 0.95rem;
+            color: #e5e7eb;
+        }
+
+        .compact-score {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #8b92a8;
+        }
+
+        .compact-zone {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .compact-zone.BUY_ZONE { background: rgba(0, 212, 170, 0.2); color: #00d4aa; }
+        .compact-zone.SELL_ZONE { background: rgba(255, 107, 107, 0.2); color: #ff6b6b; }
+        .compact-zone.LOW_MOMENTUM, .compact-zone.OVERSOLD { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .compact-zone.HIGH_MOMENTUM, .compact-zone.OVERBOUGHT { background: rgba(249, 115, 22, 0.2); color: #f97316; }
+        .compact-zone.EXTENDED_HIGH, .compact-zone.EXTENDED_LOW { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
+        .compact-zone.MID_RANGE { background: rgba(139, 146, 168, 0.2); color: #8b92a8; }
+        .compact-zone.PINNED { background: rgba(147, 51, 234, 0.2); color: #a855f7; }
+
+        .compact-action {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .compact-action.BUY { background: #00d4aa; color: #0a0e1a; }
+        .compact-action.SELL { background: #ff6b6b; color: #0a0e1a; }
+
+        .compact-metrics {
+            display: flex;
+            gap: 12px;
+            font-size: 0.75rem;
+            color: #8b92a8;
+            margin-bottom: 6px;
+        }
+
+        .compact-metric {
+            display: flex;
+            gap: 4px;
+        }
+
+        .compact-metric-value {
+            font-weight: 600;
+            color: #e5e7eb;
+        }
+
+        .compact-metric-value.bullish { color: #00d4aa; }
+        .compact-metric-value.bearish { color: #ff6b6b; }
+        .compact-metric-value.neutral { color: #8b92a8; }
+
+        .compact-signals {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .compact-signal {
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 0.65rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: #c0c8d4;
+        }
+
+        /* Compact grid layout */
+        .symbols-grid.compact {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 10px;
+        }
+
         /* Modal Overlay */
         .modal-overlay {
             display: none;
@@ -830,6 +961,16 @@
         .nav-link.premarket.active {
             background: rgba(245, 158, 11, 0.1);
         }
+
+        .nav-link.morning {
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+
+        .nav-link.morning:hover,
+        .nav-link.morning.active {
+            background: rgba(245, 158, 11, 0.1);
+        }
     </style>
 </head>
 <body>
@@ -838,6 +979,7 @@
             <h1>ZONE SCANNER</h1>
             <div class="header-controls">
                 <div class="nav-links">
+                    <a href="morning.html" class="nav-link morning">MORNING</a>
                     <a href="zone-scanner.html" class="nav-link active">ZONES</a>
                     <a href="premarket.html" class="nav-link premarket">GAPS</a>
                     <a href="analytics.html" class="nav-link">ANALYTICS</a>
@@ -915,7 +1057,7 @@
         </div>
 
         <!-- Symbols Grid -->
-        <div class="symbols-grid" id="symbols-grid">
+        <div class="symbols-grid compact" id="symbols-grid">
             <div class="no-results">Loading scanner data...</div>
         </div>
     </div>
@@ -1226,8 +1368,81 @@
                 return;
             }
 
-            const html = results.map(r => renderSymbolCard(r)).join('');
+            const html = results.map(r => renderCompactCard(r)).join('');
             document.getElementById('symbols-grid').innerHTML = html;
+        }
+
+        // Render compact card for grid view
+        function renderCompactCard(data) {
+            if (data.error) {
+                return `
+                    <div class="compact-card" onclick="openModal('${data.symbol}')">
+                        <div class="compact-header">
+                            <span class="compact-symbol">${data.symbol}</span>
+                        </div>
+                        <div style="color: #ff6b6b; font-size: 11px;">Error: ${data.error}</div>
+                    </div>
+                `;
+            }
+
+            const zoneClass = data.zone || '';
+
+            // Direction emoji
+            const dirEmoji = data.sourceInfo?.direction === 'bullish' ? '🟢' :
+                            data.sourceInfo?.direction === 'bearish' ? '🔴' :
+                            data.sourceInfo?.direction === 'pinned' ? '📍' : '⚪';
+
+            // Score
+            const score = data.sourceInfo?.score || 0;
+            const scoreColor = score >= 80 ? '#00d4aa' : score >= 60 ? '#ffc107' : '#8b92a8';
+
+            // Trend class
+            const trend = data.technicals?.trend || '';
+            const trendClass = trend.includes('up') ? 'bullish' : trend.includes('down') ? 'bearish' : 'neutral';
+            const trendText = formatTrend(trend);
+
+            // RSI
+            const rsi = data.technicals?.rsi;
+
+            // Signals (max 2)
+            const signals = data.sourceInfo?.signals?.slice(0, 2) || [];
+            const signalsHtml = signals.length > 0 ? `
+                <div class="compact-signals">
+                    ${signals.map(s => `<span class="compact-signal">${s}</span>`).join('')}
+                </div>
+            ` : '';
+
+            // History badge
+            const historyBadge = renderHistoryBadge(data.history_status);
+
+            return `
+                <div class="compact-card ${zoneClass}" onclick="openModal('${data.symbol}')">
+                    <div class="compact-header">
+                        <div class="compact-left">
+                            <span class="compact-symbol">${data.symbol}</span>
+                            <span class="compact-dir">${dirEmoji}</span>
+                            <span class="compact-zone ${zoneClass}">${formatZone(data.zone)}</span>
+                            ${data.action ? `<span class="compact-action ${data.action}">${data.action}</span>` : ''}
+                        </div>
+                        <div class="compact-right">
+                            <span class="compact-score" style="color: ${scoreColor}">${score}/100</span>
+                            <span class="compact-price">$${data.price?.toFixed(2) || '--'}</span>
+                        </div>
+                    </div>
+                    <div class="compact-metrics">
+                        <div class="compact-metric">
+                            <span>RSI:</span>
+                            <span class="compact-metric-value neutral">${rsi?.toFixed(0) || '--'}</span>
+                        </div>
+                        <div class="compact-metric">
+                            <span>Trend:</span>
+                            <span class="compact-metric-value ${trendClass}">${trendText}</span>
+                        </div>
+                        ${historyBadge ? `<div style="margin-left: auto;">${historyBadge}</div>` : ''}
+                    </div>
+                    ${signalsHtml}
+                </div>
+            `;
         }
 
         function renderHistoryBadge(historyStatus) {
@@ -1637,5 +1852,110 @@
         // Update scanner status every 5 seconds
         setInterval(checkScannerStatus, 5000);
     </script>
+
+    <!-- Documentation Section -->
+    <div class="container" style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #2a3641;">
+        <div style="background: #151821; border: 1px solid #2a3641; border-radius: 10px; overflow: hidden;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #1a1f2e; border-bottom: 1px solid #2a3641; cursor: pointer;" onclick="document.getElementById('zone-docs').classList.toggle('collapsed')">
+                <span style="font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #8b92a8;">📖 HOW THE ZONE SCANNER WORKS</span>
+                <span style="background: #2a3641; padding: 4px 10px; border-radius: 12px; font-size: 12px;">Reference</span>
+            </div>
+            <div id="zone-docs" style="padding: 20px; font-size: 13px; line-height: 1.8; color: #b8bfcc;">
+
+                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">WHAT THIS DASHBOARD SHOWS</h3>
+                <p style="margin-bottom: 16px;">The Zone Scanner displays results from the <strong>Bloodhound Scanner</strong> - an autonomous opportunity detection system that finds high-confluence trading setups. It scans every 2 minutes and identifies where price sits relative to gamma walls (support/resistance from options positioning).</p>
+
+                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">DATA SOURCE</h3>
+                <p style="margin-bottom: 8px;"><strong>File:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">data/dynamic_scan.json</code></p>
+                <p style="margin-bottom: 8px;"><strong>Scanner:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">monitor/bloodhound-scanner.js</code></p>
+                <p style="margin-bottom: 16px;"><strong>Update Frequency:</strong> Every 2 minutes</p>
+
+                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">ZONE TYPES</h3>
+                <table style="width: 100%; margin-bottom: 16px; font-size: 12px;">
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><span style="background: rgba(0, 212, 170, 0.2); color: #00d4aa; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;">BUY_ZONE</span></td>
+                        <td style="padding: 8px;">Price at or near the PUT wall (support). Bullish setup - consider longs.</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><span style="background: rgba(255, 107, 107, 0.2); color: #ff6b6b; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;">SELL_ZONE</span></td>
+                        <td style="padding: 8px;">Price at or near the CALL wall (resistance). Bearish setup - consider shorts.</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><span style="background: rgba(139, 146, 168, 0.2); color: #8b92a8; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;">PINNED</span></td>
+                        <td style="padding: 8px;">Price trapped between call and put walls. Expect range-bound movement.</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><span style="background: rgba(0, 212, 170, 0.2); color: #00d4aa; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;">BREAKOUT</span></td>
+                        <td style="padding: 8px;">Price above call wall. Momentum up - can run.</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px;"><span style="background: rgba(255, 107, 107, 0.2); color: #ff6b6b; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;">BREAKDOWN</span></td>
+                        <td style="padding: 8px;">Price below put wall. Momentum down - can fall further.</td>
+                    </tr>
+                </table>
+
+                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">CONFLUENCE SCORE (0-80)</h3>
+                <p style="margin-bottom: 8px;">Each symbol gets a score based on multiple factors aligning:</p>
+                <table style="width: 100%; margin-bottom: 16px; font-size: 12px;">
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>Technical (25 pts)</strong></td>
+                        <td style="padding: 8px;">RSI oversold/overbought, Bollinger Band position, trend alignment</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>Levels (25 pts)</strong></td>
+                        <td style="padding: 8px;">At gamma walls, VWAP, confluence zones, breakout/breakdown</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>Volume (15 pts)</strong></td>
+                        <td style="padding: 8px;">Volume spike (2x+), elevated volume (1.5x+)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px;"><strong>Context (15 pts)</strong></td>
+                        <td style="padding: 8px;">Aligned with SPY trend, market regime</td>
+                    </tr>
+                </table>
+
+                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">HISTORY BADGES</h3>
+                <table style="width: 100%; margin-bottom: 16px; font-size: 12px;">
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;">🆕 <strong>NEW</strong></td>
+                        <td style="padding: 8px;">First time this symbol appeared at this zone</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;">📈 <strong>Day 2</strong></td>
+                        <td style="padding: 8px;">Second consecutive day at same zone - higher conviction</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px;">🔥 <strong>Streak</strong></td>
+                        <td style="padding: 8px;">3+ days at same zone - very high conviction setup</td>
+                    </tr>
+                </table>
+
+                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">TIER MEANINGS</h3>
+                <table style="width: 100%; margin-bottom: 16px; font-size: 12px;">
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><span style="background: rgba(0, 212, 170, 0.2); color: #00d4aa; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;">HIGH_CONVICTION</span></td>
+                        <td style="padding: 8px;">Score ≥ 56 + at wall (0.5%), OR Score ≥ 64 + near wall (1.5%)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><span style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;">TRADEABLE</span></td>
+                        <td style="padding: 8px;">Score ≥ 48 + at wall + trend-aligned</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px;"><span style="background: rgba(139, 146, 168, 0.2); color: #8b92a8; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600;">WATCH</span></td>
+                        <td style="padding: 8px;">Interesting but not actionable yet</td>
+                    </tr>
+                </table>
+
+                <h3 style="color: #8b92a8; margin-bottom: 12px; font-size: 14px;">CONTROL API (Port 8081)</h3>
+                <pre style="background: #0a0e1a; padding: 12px; border-radius: 8px; font-size: 11px;">
+POST http://localhost:8081/pause       # Pause scanner
+POST http://localhost:8081/resume      # Resume scanner
+POST http://localhost:8081/scan        # Trigger immediate scan
+GET  http://localhost:8081/status      # Scanner status
+                </pre>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

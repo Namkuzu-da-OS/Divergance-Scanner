@@ -162,6 +162,16 @@
             background: rgba(245, 158, 11, 0.1);
         }
 
+        .nav-link.morning {
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+
+        .nav-link.morning:hover,
+        .nav-link.morning.active {
+            background: rgba(245, 158, 11, 0.1);
+        }
+
         /* Summary Cards */
         .summary-grid {
             display: grid;
@@ -538,6 +548,7 @@
             <div style="display: flex; align-items: center; gap: 20px;">
                 <h1>📈 Earnings Season Scanner</h1>
                 <nav class="nav-links">
+                    <a href="morning.html" class="nav-link morning">MORNING</a>
                     <a href="zone-scanner.html" class="nav-link">ZONES</a>
                     <a href="premarket.html" class="nav-link premarket">GAPS</a>
                     <a href="analytics.html" class="nav-link">ANALYTICS</a>
@@ -1288,5 +1299,82 @@
         // Refresh calendar every 5 minutes
         setInterval(fetchCalendar, 5 * 60 * 1000);
     </script>
+
+    <!-- Documentation Section -->
+    <div class="container" style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #2a3641;">
+        <div style="background: #151821; border: 1px solid #2a3641; border-radius: 10px; overflow: hidden;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #1a1f2e; border-bottom: 1px solid #2a3641; cursor: pointer;" onclick="document.getElementById('earnings-docs').classList.toggle('collapsed')">
+                <span style="font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #a855f7;">📖 HOW THE EARNINGS SCANNER WORKS</span>
+                <span style="background: #2a3641; padding: 4px 10px; border-radius: 12px; font-size: 12px; color: #8b92a8;">Reference</span>
+            </div>
+            <div id="earnings-docs" style="padding: 20px; font-size: 13px; line-height: 1.8; color: #b8bfcc;">
+
+                <h3 style="color: #a855f7; margin-bottom: 12px; font-size: 14px;">WHAT THIS DASHBOARD SHOWS</h3>
+                <p style="margin-bottom: 16px;">The Earnings Scanner tracks stocks with <strong>upcoming earnings events</strong> and analyzes their options activity leading into the announcement. Use this to identify pre-earnings setups, avoid holding positions through earnings, or find premium-selling opportunities.</p>
+
+                <h3 style="color: #a855f7; margin-bottom: 12px; font-size: 14px;">DATA SOURCE</h3>
+                <p style="margin-bottom: 8px;"><strong>File:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">data/earnings-scan.json</code></p>
+                <p style="margin-bottom: 8px;"><strong>Scanner:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">monitor/earnings-scanner.js</code></p>
+                <p style="margin-bottom: 16px;"><strong>Update Frequency:</strong> Every 5 minutes</p>
+
+                <h3 style="color: #a855f7; margin-bottom: 12px; font-size: 14px;">KEY EARNINGS CONCEPTS</h3>
+                <table style="width: 100%; margin-bottom: 16px; font-size: 12px;">
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>IV Crush</strong></td>
+                        <td style="padding: 8px;">Implied volatility drops 30-50% immediately after earnings. Options lose value even if stock moves in your direction. This is why holding options through earnings is risky.</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>IV Rank</strong></td>
+                        <td style="padding: 8px;">Where current IV sits vs. the past year (0-100%). Typically spikes before earnings. High IV Rank = expensive options, good for selling premium.</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>Expected Move</strong></td>
+                        <td style="padding: 8px;">What the options market implies the stock will move post-earnings. Compare to historical moves to find edge.</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px;"><strong>AMC / BMO</strong></td>
+                        <td style="padding: 8px;">After Market Close / Before Market Open - when earnings are announced</td>
+                    </tr>
+                </table>
+
+                <h3 style="color: #a855f7; margin-bottom: 12px; font-size: 14px;">EARNINGS STRATEGIES</h3>
+                <table style="width: 100%; margin-bottom: 16px; font-size: 12px;">
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>Pre-Earnings Run</strong></td>
+                        <td style="padding: 8px;">Buy calls/puts BEFORE earnings when IV is lower, sell before announcement to avoid IV crush</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #2a3641;">
+                        <td style="padding: 8px;"><strong>Premium Selling</strong></td>
+                        <td style="padding: 8px;">Sell strangles/iron condors when IV Rank is high (>50%), profit from IV crush even if stock moves</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px;"><strong>Post-Earnings Move</strong></td>
+                        <td style="padding: 8px;">Wait for earnings reaction, then trade the follow-through move (gap and go, or fade the gap)</td>
+                    </tr>
+                </table>
+
+                <h3 style="color: #a855f7; margin-bottom: 12px; font-size: 14px;">WHAT TO WATCH</h3>
+                <ul style="margin-left: 20px; margin-bottom: 16px;">
+                    <li><strong>Days to Earnings:</strong> 0-3 days = highest IV, watch for premium selling setups</li>
+                    <li><strong>IV Rank > 50%:</strong> Options are expensive, consider selling premium</li>
+                    <li><strong>Historical Moves:</strong> Does the stock typically beat/miss? How much does it move?</li>
+                    <li><strong>Sector Peers:</strong> If similar companies already reported, what was the reaction?</li>
+                </ul>
+
+                <h3 style="color: #a855f7; margin-bottom: 12px; font-size: 14px;">RISK WARNING</h3>
+                <p style="margin-bottom: 16px; padding: 12px; background: rgba(255, 107, 107, 0.1); border: 1px solid rgba(255, 107, 107, 0.3); border-radius: 6px;">
+                    ⚠️ <strong>Holding options through earnings is gambling, not trading.</strong> IV crush can wipe out your position even if you're right on direction. Either close before earnings or use defined-risk strategies (spreads).
+                </p>
+
+                <h3 style="color: #8b92a8; margin-bottom: 12px; font-size: 14px;">CONTROL API (Port 8082)</h3>
+                <pre style="background: #0a0e1a; padding: 12px; border-radius: 8px; font-size: 11px;">
+POST http://localhost:8082/pause       # Pause scanner
+POST http://localhost:8082/resume      # Resume scanner
+POST http://localhost:8082/scan        # Trigger immediate scan
+GET  http://localhost:8082/status      # Scanner status
+                </pre>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
