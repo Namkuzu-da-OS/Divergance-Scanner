@@ -17,10 +17,40 @@ const CONFIG = {
 
 /**
  * Log a new signal when alert fires
+ * Deduplicates: only one active signal per symbol allowed
+ * Logs condition changes when they occur on existing signals
  * @param {object} alertData - Alert data from Bloodhound
- * @returns {string} Signal ID
+ * @returns {string} Signal ID (existing or new)
  */
 function logSignal(alertData) {
+  // Check if symbol already has an active signal
+  const activeSignals = signalDb.getActiveSignals();
+  const existingSignal = activeSignals.find(s => s.symbol === alertData.symbol);
+
+  if (existingSignal) {
+    // Log if conditions changed significantly
+    const scoreChange = alertData.score - existingSignal.score;
+    const zoneChanged = alertData.zone !== existingSignal.zone;
+    const directionChanged = alertData.direction !== existingSignal.direction;
+
+    if (Math.abs(scoreChange) >= 10 || zoneChanged || directionChanged) {
+      console.log(`[Signal Logger] ${alertData.symbol} conditions changed on existing signal:`);
+      if (scoreChange !== 0) {
+        console.log(`  Score: ${existingSignal.score} → ${alertData.score} (${scoreChange >= 0 ? '+' : ''}${scoreChange})`);
+      }
+      if (zoneChanged) {
+        console.log(`  Zone: ${existingSignal.zone} → ${alertData.zone}`);
+      }
+      if (directionChanged) {
+        console.log(`  Direction: ${existingSignal.direction} → ${alertData.direction}`);
+      }
+    }
+
+    // Return existing signal ID - price tracking continues via updateActiveSignalPrices()
+    return existingSignal.signal_id;
+  }
+
+  // No existing active signal for this symbol - create new one
   const timestamp = new Date().toISOString();
   const id = `${alertData.symbol}_${Date.now()}`;
 
@@ -70,6 +100,7 @@ async function getCurrentPrice(symbol) {
 /**
  * Update prices for all active signals
  * Call this every scan cycle to track peak/trough
+ * Optimized: fetches price ONCE per unique symbol to avoid API hammering
  */
 async function updateActiveSignalPrices() {
   const activeSignals = signalDb.getActiveSignals();
@@ -78,21 +109,36 @@ async function updateActiveSignalPrices() {
     return;
   }
 
-  let updated = 0;
+  // Group signals by symbol to avoid duplicate API calls
+  const symbolGroups = {};
   for (const signal of activeSignals) {
+    if (!symbolGroups[signal.symbol]) {
+      symbolGroups[signal.symbol] = [];
+    }
+    symbolGroups[signal.symbol].push(signal);
+  }
+
+  let updated = 0;
+  const uniqueSymbols = Object.keys(symbolGroups).length;
+
+  // Fetch price ONCE per unique symbol
+  for (const [symbol, signals] of Object.entries(symbolGroups)) {
     try {
-      const currentPrice = await getCurrentPrice(signal.symbol);
+      const currentPrice = await getCurrentPrice(symbol);
       if (currentPrice) {
-        signalDb.updatePriceTracking(signal.signal_id, currentPrice);
-        updated++;
+        // Update ALL signals for this symbol with same price
+        for (const signal of signals) {
+          signalDb.updatePriceTracking(signal.signal_id, currentPrice);
+          updated++;
+        }
       }
     } catch (e) {
-      console.error(`[Signal Logger] Error updating ${signal.signal_id}:`, e.message);
+      console.error(`[Signal Logger] Error updating ${symbol}:`, e.message);
     }
   }
 
   if (updated > 0) {
-    console.log(`[Signal Logger] Updated prices for ${updated} active signal(s)`);
+    console.log(`[Signal Logger] Updated prices for ${updated} signal(s) (${uniqueSymbols} API call(s))`);
   }
 }
 
