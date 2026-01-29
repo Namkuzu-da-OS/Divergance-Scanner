@@ -1,72 +1,278 @@
 {
-  "timestamp": "2026-01-21T17:33:37.950Z",
-  "scan_id": 41,
+  "timestamp": "2026-01-29T20:36:04.807Z",
+  "scan_id": 2316,
   "in_premarket": false,
   "market": {
     "spy": {
-      "price": 679.22,
-      "change_pct": 0.2420378405501913
+      "price": 692,
+      "change_pct": -0.4917891346236748
     },
     "qqq": {
-      "price": 609.26,
-      "change_pct": 0.1973489458277219
+      "price": 626.64,
+      "change_pct": -1.03913331859386
     },
-    "bias": "NEUTRAL"
+    "bias": "BEARISH"
   },
   "summary": {
-    "total_gaps": 4,
+    "total_gaps": 1,
     "high_conviction": 1,
-    "tradeable": 2,
-    "watch": 1
+    "tradeable": 0,
+    "watch": 0,
+    "session_total": 19
   },
   "movers": [
     {
-      "symbol": "AMD",
-      "prev_close": 231.92,
-      "premarket_price": 245.15,
-      "gap_pct": 5.7045532942394015,
-      "premarket_volume": 39222183,
-      "gap_type": "HUGE_UP",
+      "symbol": "MSFT",
+      "prev_close": 481.63,
+      "premarket_price": 428.4,
+      "gap_pct": -11.052052405373423,
+      "premarket_volume": 103386477,
+      "gap_type": "HUGE_DOWN",
       "catalyst": null,
       "futures_aligned": true,
+      "discovery_score": 195,
+      "discovery_sources": [
+        "volume_leader",
+        "gainer",
+        "loser",
+        "nasdaq_mover"
+      ],
       "score": 80,
       "tier": "HIGH_CONVICTION"
-    },
-    {
-      "symbol": "VXX",
-      "prev_close": 29.38,
-      "premarket_price": 28.27,
-      "gap_pct": -3.778080326752891,
-      "premarket_volume": 10825562,
-      "gap_type": "LARGE_DOWN",
-      "catalyst": null,
-      "futures_aligned": false,
-      "score": 50,
-      "tier": "TRADEABLE"
-    },
-    {
-      "symbol": "MSFT",
-      "prev_close": 454.52,
-      "premarket_price": 443.62,
-      "gap_pct": -2.3981342955205442,
-      "premarket_volume": 13764623,
-      "gap_type": "MODERATE_DOWN",
-      "catalyst": null,
-      "futures_aligned": false,
-      "score": 40,
-      "tier": "WATCH"
-    },
-    {
-      "symbol": "XLE",
-      "prev_close": 47.6,
-      "premarket_price": 48.69,
-      "gap_pct": 2.289915966386547,
-      "premarket_volume": 28931507,
-      "gap_type": "MODERATE_UP",
-      "catalyst": null,
-      "futures_aligned": true,
-      "score": 60,
-      "tier": "TRADEABLE"
     }
-  ]
+  ],
+  "session": {
+    "date": "2026-01-29",
+    "symbols_discovered": 19,
+    "watchlist": [
+      {
+        "symbol": "VTIX",
+        "first_seen": "2026-01-29T09:06:18.340Z",
+        "last_seen": "2026-01-29T12:01:14.980Z",
+        "scan_count": 36,
+        "peak_gap_pct": 96.81349578256795,
+        "current_gap_pct": 35.42642924086222,
+        "current_tier": "HIGH_CONVICTION",
+        "current_score": 75,
+        "gap_type": "HUGE_UP",
+        "premarket_volume": 992052
+      },
+      {
+        "symbol": "MSFT",
+        "first_seen": "2026-01-29T09:01:17.810Z",
+        "last_seen": "2026-01-29T20:37:04.163Z",
+        "scan_count": 100,
+        "peak_gap_pct": 12.353881610364803,
+        "current_gap_pct": -11.052052405373423,
+        "current_tier": "HIGH_CONVICTION",
+        "current_score": 80,
+        "gap_type": "HUGE_DOWN",
+        "premarket_volume": 103386477
+      },
+      {
+        "symbol": "NOW",
+        "first_seen": "2026-01-29T09:41:18.432Z",
+        "last_seen": "2026-01-29T20:02:00.316Z",
+        "scan_count": 72,
+        "peak_gap_pct": 12.19719179139022,
+        "current_gap_pct": -12.031322326801417,
+        "current_tier": "HIGH_CONVICTION",
+        "current_score": 80,
+        "gap_type": "HUGE_DOWN",
+        "premarket_volume": 43911227
+      },
+      {
+        "symbol": "INTC",
+        "first_seen": "2026-01-29T05:01:10.962Z",
+        "last_seen": "2026-01-29T18:57:06.633Z",
+        "scan_count": 45,
+        "peak_gap_pct": 10.607785112679272,
+        "current_gap_pct": -2.1422714227142308,
+        "current_tier": "WATCH",
+        "current_score": 40,
+        "gap_type": "MODERATE_DOWN",
+        "premarket_volume": 83419476
+      },
+      {
+        "symbol": "META",
+        "first_seen": "2026-01-29T09:01:17.810Z",
+        "last_seen": "2026-01-29T19:37:04.683Z",
+        "scan_count": 75,
+        "peak_gap_pct": 10.38311426136108,
+        "current_gap_pct": 9.933755028187752,
+        "current_tier": "HIGH_CONVICTION",
+        "current_score": 80,
+        "gap_type": "HUGE_UP",
+        "premarket_volume": 47494617
+      },
+      {
+        "symbol": "CRML",
+        "first_seen": "2026-01-29T09:01:17.810Z",
+        "last_seen": "2026-01-29T09:01:17.810Z",
+        "scan_count": 1,
+        "peak_gap_pct": 10.082063305978892,
+        "current_gap_pct": -10.082063305978892,
+        "current_tier": "WATCH",
+        "current_score": 40,
+        "gap_type": "HUGE_DOWN",
+        "premarket_volume": 17398
+      },
+      {
+        "symbol": "USAR",
+        "first_seen": "2026-01-29T09:01:17.810Z",
+        "last_seen": "2026-01-29T09:06:18.340Z",
+        "scan_count": 2,
+        "peak_gap_pct": 10.047656870532172,
+        "current_gap_pct": -10.047656870532172,
+        "current_tier": "TRADEABLE",
+        "current_score": 60,
+        "gap_type": "HUGE_DOWN",
+        "premarket_volume": 93639
+      },
+      {
+        "symbol": "FCX",
+        "first_seen": "2026-01-29T09:01:17.810Z",
+        "last_seen": "2026-01-29T18:22:01.713Z",
+        "scan_count": 22,
+        "peak_gap_pct": 8.85745717428886,
+        "current_gap_pct": 2.1687883074021728,
+        "current_tier": "WATCH",
+        "current_score": 40,
+        "gap_type": "MODERATE_UP",
+        "premarket_volume": 32744804
+      },
+      {
+        "symbol": "ONDS",
+        "first_seen": "2026-01-29T15:36:58.559Z",
+        "last_seen": "2026-01-29T19:27:00.440Z",
+        "scan_count": 16,
+        "peak_gap_pct": 8.272208638956796,
+        "current_gap_pct": -7.091279543602274,
+        "current_tier": "HIGH_CONVICTION",
+        "current_score": 100,
+        "gap_type": "HUGE_DOWN",
+        "premarket_volume": 69267020
+      },
+      {
+        "symbol": "MU",
+        "first_seen": "2026-01-29T05:01:10.962Z",
+        "last_seen": "2026-01-29T13:06:47.324Z",
+        "scan_count": 51,
+        "peak_gap_pct": 8.058697347893915,
+        "current_gap_pct": 2.738467193530605,
+        "current_tier": "HIGH_CONVICTION",
+        "current_score": 75,
+        "gap_type": "MODERATE_UP",
+        "premarket_volume": 806934
+      },
+      {
+        "symbol": "PLTR",
+        "first_seen": "2026-01-29T05:01:10.962Z",
+        "last_seen": "2026-01-29T19:37:04.683Z",
+        "scan_count": 54,
+        "peak_gap_pct": 6.116936765173181,
+        "current_gap_pct": -4.969812519860181,
+        "current_tier": "HIGH_CONVICTION",
+        "current_score": 70,
+        "gap_type": "LARGE_DOWN",
+        "premarket_volume": 45964439
+      },
+      {
+        "symbol": "CMCSA",
+        "first_seen": "2026-01-29T14:56:59.636Z",
+        "last_seen": "2026-01-29T19:07:22.832Z",
+        "scan_count": 7,
+        "peak_gap_pct": 5.262231608588529,
+        "current_gap_pct": 3.107148891235478,
+        "current_tier": "TRADEABLE",
+        "current_score": 50,
+        "gap_type": "LARGE_UP",
+        "premarket_volume": 41618970
+      },
+      {
+        "symbol": "T",
+        "first_seen": "2026-01-29T05:01:10.962Z",
+        "last_seen": "2026-01-29T20:32:01.302Z",
+        "scan_count": 28,
+        "peak_gap_pct": 4.521739130434779,
+        "current_gap_pct": 4.279185708350649,
+        "current_tier": "TRADEABLE",
+        "current_score": 50,
+        "gap_type": "LARGE_UP",
+        "premarket_volume": 51937647
+      },
+      {
+        "symbol": "SNDK",
+        "first_seen": "2026-01-29T09:06:18.340Z",
+        "last_seen": "2026-01-29T10:46:17.318Z",
+        "scan_count": 13,
+        "peak_gap_pct": 3.2712317343593034,
+        "current_gap_pct": 2.5472395428614854,
+        "current_tier": "TRADEABLE",
+        "current_score": 60,
+        "gap_type": "MODERATE_UP",
+        "premarket_volume": 81398
+      },
+      {
+        "symbol": "TSLA",
+        "first_seen": "2026-01-29T05:01:10.962Z",
+        "last_seen": "2026-01-29T19:56:54.542Z",
+        "scan_count": 97,
+        "peak_gap_pct": 3.081398043851101,
+        "current_gap_pct": -2.915681639085891,
+        "current_tier": "WATCH",
+        "current_score": 40,
+        "gap_type": "MODERATE_DOWN",
+        "premarket_volume": 62631631
+      },
+      {
+        "symbol": "HAL",
+        "first_seen": "2026-01-29T09:06:18.340Z",
+        "last_seen": "2026-01-29T10:16:17.401Z",
+        "scan_count": 12,
+        "peak_gap_pct": 2.8776978417266212,
+        "current_gap_pct": 2.577937649880094,
+        "current_tier": "WATCH",
+        "current_score": 40,
+        "gap_type": "MODERATE_UP",
+        "premarket_volume": 69333
+      },
+      {
+        "symbol": "NVDA",
+        "first_seen": "2026-01-29T15:42:02.620Z",
+        "last_seen": "2026-01-29T16:22:00.992Z",
+        "scan_count": 8,
+        "peak_gap_pct": 2.725563909774435,
+        "current_gap_pct": -2.0232873851294904,
+        "current_tier": "WATCH",
+        "current_score": 40,
+        "gap_type": "MODERATE_DOWN",
+        "premarket_volume": 70057826
+      },
+      {
+        "symbol": "CCL",
+        "first_seen": "2026-01-29T11:41:17.770Z",
+        "last_seen": "2026-01-29T14:06:36.527Z",
+        "scan_count": 16,
+        "peak_gap_pct": 2.6810584958217256,
+        "current_gap_pct": 2.0320334261838457,
+        "current_tier": "TRADEABLE",
+        "current_score": 55,
+        "gap_type": "MODERATE_UP",
+        "premarket_volume": 874235
+      },
+      {
+        "symbol": "PFE",
+        "first_seen": "2026-01-29T05:01:10.962Z",
+        "last_seen": "2026-01-29T06:26:12.130Z",
+        "scan_count": 18,
+        "peak_gap_pct": 2.4150943396226436,
+        "current_gap_pct": -2.4150943396226436,
+        "current_tier": "WATCH",
+        "current_score": 40,
+        "gap_type": "MODERATE_DOWN",
+        "premarket_volume": 44976694
+      }
+    ]
+  }
 }

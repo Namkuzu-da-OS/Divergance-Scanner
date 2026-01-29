@@ -212,6 +212,7 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 - Pre-Market Scanner: `http://localhost:8080/premarket.html`
 - Earnings Scanner: `http://localhost:8080/earnings-scanner.html`
 - Analytics: `http://localhost:8080/analytics.html`
+- Strategies: `http://localhost:8080/strategies.html`
 
 ---
 
@@ -253,8 +254,10 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 | File | Purpose |
 |------|---------|
 | `docs/RULES.md` | All trading rules |
-| `docs/STRATEGIES.md` | All strategies |
+| `docs/STRATEGIES.md` | All strategies (summary + matrix) |
 | `docs/SCANNER_HISTORY.md` | Scanner history & Day 2 detection system |
+| `Strategies/` | Detailed strategy files with case studies |
+| `strategies.html` | Visual strategy browser dashboard |
 
 ### Commands
 | Command | Purpose |

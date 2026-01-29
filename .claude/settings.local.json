@@ -30,7 +30,9 @@
       "Bash(python -c \" import sys,json d=json.load\\(sys.stdin\\).get\\(''analysis'', {}\\) print\\(f\"\" Call Volume: {d.get\\(''call_volume'', 0\\):,}\"\"\\) print\\(f\"\" Put Volume: {d.get\\(''put_volume'', 0\\):,}\"\"\\) print\\(f\"\" Call OI: {d.get\\(''call_oi'', 0\\):,}\"\"\\) print\\(f\"\" Put OI: {d.get\\(''put_oi'', 0\\):,}\"\"\\) print\\(f\"\" Sentiment: {d.get\\(''sentiment'', ''N/A''\\)}\"\"\\) \")",
       "Bash(pm2 list:*)",
       "Bash(pm2 start:*)",
-      "Bash(dir /b \"c:\\\\Users\\\\Iccanui\\\\Documents\\\\Github\\\\BP\\\\wingman\\\\toolbox\\\\docs\\\\ThinkOrSwim\"\")"
+      "Bash(dir /b \"c:\\\\Users\\\\Iccanui\\\\Documents\\\\Github\\\\BP\\\\wingman\\\\toolbox\\\\docs\\\\ThinkOrSwim\"\")",
+      "Bash(sqlite3:*)",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []

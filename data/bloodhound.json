@@ -1,195 +1,212 @@
 {
-  "timestamp": "2026-01-21T17:38:11.285Z",
+  "timestamp": "2026-01-29T20:39:05.175Z",
   "marketContext": {
-    "vix": 19.18,
+    "vix": 17.12,
     "vixRegime": "normal",
-    "spyTrend": "neutral",
-    "spyPrice": 679.15,
+    "spyTrend": "bullish",
+    "spyPrice": 692.28,
     "riskAppetite": "moderate",
-    "regime": "neutral",
+    "regime": "risk_on",
     "positionSizeModifier": 1,
     "spyLevels": {
       "call_wall": {
-        "price": 680,
-        "gex": 1010434976.2390751,
-        "oi": 18565,
-        "strength": 1
+        "price": 693,
+        "gex": 282224550.3960687,
+        "oi": 2901,
+        "strength": 0.2822245503960687
       },
       "put_wall": {
-        "price": 680,
-        "gex": -905515639.2119999,
-        "oi": 16360,
-        "strength": 0.9055156392119998
+        "price": 692,
+        "gex": -478293654.526787,
+        "oi": 4642,
+        "strength": 0.47829365452678696
       },
       "gamma_flip": {
-        "price": 683.87,
-        "above_underlying": true
+        "price": 678,
+        "above_underlying": false,
+        "estimated": true
       },
       "max_pain": {
-        "price": 680,
-        "expiration": "2026-01-21",
-        "total_oi_value": 27488400,
+        "price": 695,
+        "expiration": "2026-01-29",
+        "total_oi_value": 16368500,
         "dte": 0
       },
-      "vwap": 680.41,
+      "vwap": 695.71,
       "vwap_bands": {
-        "upper_1": 682.94,
-        "lower_1": 677.88,
-        "upper_2": 685.47,
-        "lower_2": 675.35
+        "upper_1": 696.62,
+        "lower_1": 694.79,
+        "upper_2": 697.53,
+        "lower_2": 693.88
       },
       "high_oi_strikes": [
         {
-          "price": 685,
-          "call_oi": 28291,
-          "put_oi": 16731,
-          "total_oi": 45022,
+          "price": 700,
+          "call_oi": 13975,
+          "put_oi": 3961,
+          "total_oi": 17936,
           "bias": "call"
         },
         {
-          "price": 680,
-          "call_oi": 18565,
-          "put_oi": 16360,
-          "total_oi": 34925,
+          "price": 696,
+          "call_oi": 11703,
+          "put_oi": 4772,
+          "total_oi": 16475,
           "bias": "call"
         },
         {
-          "price": 692,
-          "call_oi": 16193,
-          "put_oi": 390,
-          "total_oi": 16583,
-          "bias": "call"
+          "price": 695,
+          "call_oi": 7796,
+          "put_oi": 8460,
+          "total_oi": 16256,
+          "bias": "put"
         }
       ],
       "expected_move": {
-        "value": 2.27,
-        "upper": 681.42,
-        "lower": 676.88,
-        "straddle_price": 2.67,
-        "atm_strike": 679,
-        "pct_move": 0.33
+        "value": 1.26,
+        "upper": 693.53,
+        "lower": 691.01,
+        "straddle_price": 1.48,
+        "atm_strike": 692,
+        "pct_move": 0.18
       },
       "weekly_pivots": {
-        "pivot": 691.26,
-        "r1": 696.49,
-        "r2": 701.31,
-        "s1": 686.44,
-        "s2": 681.21,
-        "week_high": 696.09,
-        "week_low": 686.04
-      },
-      "developing_pivots": {
-        "pivot": 679.64,
-        "r1": 682.71,
-        "r2": 687.84,
-        "s1": 674.51,
-        "s2": 671.44,
-        "week_high": 684.77,
+        "pivot": 687.81,
+        "r1": 699.05,
+        "r2": 705.37,
+        "s1": 681.49,
+        "s2": 670.25,
+        "week_high": 694.13,
         "week_low": 676.57
       },
-      "sma_200": 634.38
+      "developing_pivots": {
+        "pivot": 695.61,
+        "r1": 697.65,
+        "r2": 699.88,
+        "s1": 693.38,
+        "s2": 691.34,
+        "week_high": 697.84,
+        "week_low": 693.57
+      },
+      "sma_200": 639.53
     },
     "qqqLevels": {
       "call_wall": {
-        "price": 608,
-        "gex": 311142288.78589004,
-        "oi": 8389,
-        "strength": 0.31114228878589006
+        "price": 629,
+        "gex": 81504291.48503523,
+        "oi": 1788,
+        "strength": 0.08150429148503523
       },
       "put_wall": {
-        "price": 610,
-        "gex": -155051523.0476249,
-        "oi": 3907,
-        "strength": 0.15505152304762487
+        "price": 627,
+        "gex": -312899175.03162503,
+        "oi": 4375,
+        "strength": 0.312899175031625
       },
       "gamma_flip": {
-        "price": 623.67,
-        "above_underlying": true
+        "price": 612,
+        "above_underlying": false,
+        "estimated": true
       },
       "max_pain": {
-        "price": 612,
-        "expiration": "2026-01-21",
-        "total_oi_value": 20211100,
+        "price": 631,
+        "expiration": "2026-01-29",
+        "total_oi_value": 14224600,
         "dte": 0
       },
-      "vwap": 611.11,
+      "vwap": 633.86,
       "vwap_bands": {
-        "upper_1": 613.32,
-        "lower_1": 608.91,
-        "upper_2": 615.53,
-        "lower_2": 606.7
+        "upper_1": 635.09,
+        "lower_1": 632.63,
+        "upper_2": 636.32,
+        "lower_2": 631.39
       },
       "high_oi_strikes": [
         {
-          "price": 600,
-          "call_oi": 164,
-          "put_oi": 12866,
-          "total_oi": 13030,
-          "bias": "put"
-        },
-        {
-          "price": 608,
-          "call_oi": 8389,
-          "put_oi": 3608,
-          "total_oi": 11997,
+          "price": 633,
+          "call_oi": 12222,
+          "put_oi": 5213,
+          "total_oi": 17435,
           "bias": "call"
         },
         {
-          "price": 614,
-          "call_oi": 7603,
-          "put_oi": 2696,
-          "total_oi": 10299,
+          "price": 640,
+          "call_oi": 10489,
+          "put_oi": 319,
+          "total_oi": 10808,
+          "bias": "call"
+        },
+        {
+          "price": 635,
+          "call_oi": 8033,
+          "put_oi": 1959,
+          "total_oi": 9992,
           "bias": "call"
         }
       ],
       "expected_move": {
-        "value": 2.54,
-        "upper": 611.55,
-        "lower": 606.47,
-        "straddle_price": 2.99,
-        "atm_strike": 609,
-        "pct_move": 0.42
+        "value": 1.5,
+        "upper": 628.37,
+        "lower": 625.37,
+        "straddle_price": 1.77,
+        "atm_strike": 627,
+        "pct_move": 0.24
       },
       "weekly_pivots": {
-        "pivot": 621.94,
-        "r1": 629.32,
-        "r2": 637.38,
-        "s1": 613.88,
-        "s2": 606.5,
-        "week_high": 630,
-        "week_low": 614.56
-      },
-      "developing_pivots": {
-        "pivot": 610.05,
-        "r1": 613.06,
-        "r2": 618.06,
-        "s1": 605.05,
-        "s2": 602.05,
-        "week_high": 615.05,
+        "pivot": 620.04,
+        "r1": 633.03,
+        "r2": 640.6,
+        "s1": 612.47,
+        "s2": 599.48,
+        "week_high": 627.61,
         "week_low": 607.05
       },
-      "sma_200": 566.28
+      "developing_pivots": {
+        "pivot": 632.39,
+        "r1": 637.43,
+        "r2": 641.65,
+        "s1": 628.17,
+        "s2": 623.13,
+        "week_high": 636.6,
+        "week_low": 627.34
+      },
+      "sma_200": 571.91
     }
   },
-  "symbolsScanned": 9,
+  "symbolsScanned": 16,
   "topOpportunities": [
+    {
+      "symbol": "MSFT",
+      "score": 80,
+      "direction": "bullish",
+      "tier": "HIGH_CONVICTION",
+      "signals": [
+        "VELOCITY +30 pts",
+        "At put wall support ($430)",
+        "PUT wall engaged (2.1x vol/OI)",
+        "Volume spike (4.0x avg)",
+        "🔥 Unusual CALL $425 01/30 (291.0x, $14.3M)",
+        "$305M net bullish premium",
+        "Aligned with SPY bullish",
+        "Swing BULLISH, intraday NEUTRAL"
+      ],
+      "atWall": true,
+      "wallActivity": "ENGAGED"
+    },
     {
       "symbol": "SPY",
       "score": 80,
       "direction": "pinned",
       "tier": "WATCH",
       "signals": [
-        "At lower Bollinger Band",
-        "📐 At Golden Pocket (0.618 @ $683.96)",
+        "📐 At Golden Pocket (0.618 @ $684.70)",
         "📐 Golden Pocket + SMA 20 confluence",
-        "📍 PINNED between walls ($680-$680)",
-        "At VWAP ($680.41)",
+        "📍 PINNED between walls ($692-$693)",
         "Confluence zone (6 levels)",
-        "PUT wall ACTIVE (30.7x vol/OI)",
-        "Elevated volume (1.5x avg)",
-        "🔥 Unusual PUT $679 ATM (bearish, 78.1x, $28.4M)",
-        "$669M net bearish premium",
-        "Market: VIX 19.18"
+        "PUT wall ACTIVE (32.5x vol/OI)",
+        "🔥 Unusual CALL $691 01/29 (238.9x, $53.7M)",
+        "$533M net bullish premium",
+        "Market: VIX 17.12"
       ],
       "atWall": true,
       "wallActivity": "ACTIVE"
@@ -200,143 +217,230 @@
       "direction": "pinned",
       "tier": "WATCH",
       "signals": [
-        "At lower Bollinger Band",
-        "📐 At Golden Pocket (0.618 @ $615.82)",
+        "At upper Bollinger Band",
+        "📐 At Golden Pocket (0.618 @ $618.34)",
         "📐 Golden Pocket + SMA 20 confluence",
-        "📍 PINNED between walls ($610-$608)",
-        "Confluence zone (4 levels)",
-        "PUT wall ACTIVE (38.3x vol/OI)",
-        "Elevated volume (1.7x avg)",
-        "🔥 Unusual PUT $615 ITM (bearish, 54.2x, $70.5M)",
-        "$462M net bearish premium",
-        "Market: VIX 19.18"
+        "📍 PINNED between walls ($627-$629)",
+        "Confluence zone (2 levels)",
+        "PUT wall ACTIVE (17.2x vol/OI)",
+        "🔥 Unusual CALL $623 01/29 (357.2x, $42.7M)",
+        "$459M net bullish premium",
+        "Market: VIX 17.12"
       ],
       "atWall": true,
       "wallActivity": "ACTIVE"
     },
     {
-      "symbol": "NVDA",
+      "symbol": "AMD",
       "score": 80,
-      "direction": "bullish",
-      "tier": "HIGH_CONVICTION",
+      "direction": "pinned",
+      "tier": "FILTERED",
       "signals": [
-        "At lower Bollinger Band",
-        "At put wall support ($180)",
-        "At VWAP ($179.66)",
-        "Confluence zone (2 levels)",
-        "PUT wall engaged (2.1x vol/OI)",
-        "🔥 Unusual PUT $175 OTM (hedge, 21.6x, $2.8M)",
-        "$104M net bullish premium",
-        "Heavy call bias (2.40 C/P)",
-        "⚠️ Against SPY neutral",
-        "Swing BULLISH, intraday NEUTRAL"
+        "RSI high momentum (79.2)",
+        "📍 PINNED between walls ($250-$250)",
+        "Confluence zone (4 levels)",
+        "⚠️ PUT wall dormant (stale OI)",
+        "🔥 Unusual CALL $262.5 02/06 (10.2x, $2.8M)",
+        "$107M net bullish premium",
+        "Market: SPY bullish, VIX 17.12"
       ],
       "atWall": true,
-      "wallActivity": "ENGAGED"
+      "wallActivity": "DORMANT"
     },
     {
       "symbol": "AAPL",
       "score": 80,
+      "direction": "pinned",
+      "tier": "FILTERED",
+      "signals": [
+        "📐 At Golden Pocket (0.618 @ $256.57)",
+        "📐 Golden Pocket + SMA 20 confluence",
+        "💥 BREAKDOWN below put wall ($260) -0.7%",
+        "🎯 0.5 Fib ($261) = Put Wall ($260)",
+        "Confluence zone (4 levels)",
+        "🔥 Unusual CALL $237.5 01/30 (34.7x, $31.9M)",
+        "$147M net bullish premium",
+        "⚠️ Against SPY bullish",
+        "📍 Downgraded to PINNED (counter-trend)"
+      ],
+      "atWall": false,
+      "wallActivity": null
+    },
+    {
+      "symbol": "EEM",
+      "score": 80,
+      "direction": "pinned",
+      "tier": "FILTERED",
+      "signals": [
+        "RSI high momentum (80.8)",
+        "At upper Bollinger Band",
+        "📍 PINNED between walls ($60-$60)",
+        "Confluence zone (3 levels)",
+        "⚠️ PUT wall dormant (stale OI)",
+        "Elevated volume (1.5x avg)",
+        "🔥 Unusual PUT $58.5 OTM (hedge, 406.8x, $1.3M)",
+        "$28M net bullish premium",
+        "Market: SPY bullish, VIX 17.12"
+      ],
+      "atWall": true,
+      "wallActivity": "DORMANT"
+    },
+    {
+      "symbol": "GLD",
+      "score": 80,
+      "direction": "pinned",
+      "tier": "FILTERED",
+      "signals": [
+        "RSI high momentum (94.5)",
+        "At upper Bollinger Band",
+        "At call wall resistance ($490)",
+        "At VWAP ($489.25)",
+        "Confluence zone (3 levels)",
+        "⚠️ CALL wall dormant (stale OI)",
+        "Volume spike (3.3x avg)",
+        "🔥 Unusual PUT $500 ITM (bearish, 28.2x, $6.4M)",
+        "$622M net bullish premium",
+        "Heavy call bias (2.68 C/P)",
+        "⚠️ Against SPY bullish",
+        "📍 Downgraded to PINNED (counter-trend)"
+      ],
+      "atWall": true,
+      "wallActivity": "DORMANT"
+    },
+    {
+      "symbol": "GOOGL",
+      "score": 80,
       "direction": "bullish",
       "tier": "HIGH_CONVICTION",
       "signals": [
-        "🎯 TRIGGER: Smart Money Dip Buy",
-        "RSI low momentum (6.5)",
-        "At lower Bollinger Band",
-        "At put wall support ($245)",
-        "Confluence zone (2 levels)",
-        "PUT wall engaged (2.5x vol/OI)",
-        "Elevated volume (1.7x avg)",
-        "🔥 Unusual CALL $247.5 02/20 (5.5x, $0.7M)",
-        "$22M net bullish premium",
-        "⚠️ Against SPY neutral",
+        "At VWAP ($335.58)",
+        "Confluence zone (3 levels)",
+        "🔥 Unusual CALL $332.5 02/02 (23.4x, $1.4M)",
+        "$113M net bullish premium",
+        "Heavy call bias (2.71 C/P)",
+        "Aligned with SPY bullish",
         "Swing BULLISH, intraday NEUTRAL"
       ],
-      "atWall": true,
-      "wallActivity": "ENGAGED"
+      "atWall": false,
+      "wallActivity": null
     },
     {
-      "symbol": "TSLA",
-      "score": 45,
-      "direction": "bullish",
+      "symbol": "NVDA",
+      "score": 65,
+      "direction": "pinned",
+      "tier": "WATCH",
+      "signals": [
+        "At upper Bollinger Band",
+        "At VWAP ($191.5)",
+        "Confluence zone (3 levels)",
+        "🔥 Unusual PUT $205 ITM (bearish, 18.3x, $5.9M)",
+        "$368M net bullish premium",
+        "⚠️ Against SPY bullish",
+        "📍 Downgraded to PINNED (counter-trend)"
+      ],
+      "atWall": false,
+      "wallActivity": null
+    },
+    {
+      "symbol": "GM",
+      "score": 60,
+      "direction": "pinned",
       "tier": "FILTERED",
       "signals": [
-        "At lower Bollinger Band",
-        "At VWAP ($423.27)",
-        "🔥 Unusual CALL $415 01/23 (21.6x, $19.2M)",
-        "$76M net bullish premium",
-        "⚠️ Against SPY neutral",
-        "Swing BULLISH, intraday NEUTRAL"
+        "🚀 BREAKOUT above call wall ($85) +1.3%",
+        "Above gamma flip ($84.38)",
+        "🔥 Unusual CALL $105 03/20 (14.3x, $0.1M)",
+        "Heavy call bias (4.59 C/P)",
+        "Aligned with SPY bullish",
+        "Swing BULLISH, intraday NEUTRAL",
+        "📍 Extended high - reversal watch"
+      ],
+      "atWall": false,
+      "wallActivity": null
+    },
+    {
+      "symbol": "GOOG",
+      "score": 60,
+      "direction": "neutral",
+      "tier": "WATCH",
+      "signals": [
+        "At VWAP ($335.76)",
+        "🎯 0.5 Fib ($326) = Put Wall ($325)",
+        "Confluence zone (2 levels)",
+        "🔥 Unusual PUT $320 OTM (hedge, 55.5x, $18.6M)",
+        "$109M net bullish premium"
+      ],
+      "atWall": false,
+      "wallActivity": null
+    },
+    {
+      "symbol": "XLC",
+      "score": 50,
+      "direction": "pinned",
+      "tier": "TRADEABLE",
+      "signals": [
+        "VELOCITY +35 pts",
+        "🎯 At 1.272 extension ($120.16) - TP1",
+        "At call wall resistance ($120)",
+        "🎯 1.272 Fib ($120) = Call Wall ($120)",
+        "🎯 0.5 Fib ($116) = Put Wall ($116)",
+        "🎯 0.618 Fib ($115) = Put Wall ($116)",
+        "Confluence zone (2 levels)",
+        "⚠️ Against SPY bullish",
+        "📍 Downgraded to PINNED (counter-trend)"
+      ],
+      "atWall": true,
+      "wallActivity": "UNKNOWN"
+    },
+    {
+      "symbol": "MARA",
+      "score": 50,
+      "direction": "pinned",
+      "tier": "FILTERED",
+      "signals": [
+        "💥 BREAKDOWN below put wall ($10) -3.7%",
+        "Below gamma flip ($11.45)",
+        "🎯 1.272 Fib ($12) = Call Wall ($10.5)",
+        "🎯 0.5 Fib ($10) = Put Wall ($10)",
+        "🎯 0.618 Fib ($10) = Put Wall ($10)",
+        "🔥 Unusual CALL $10 02/06 (8.2x, $0.7M)",
+        "Heavy call bias (4.17 C/P)",
+        "⚠️ Against SPY bullish",
+        "📍 Downgraded to PINNED (counter-trend)"
       ],
       "atWall": false,
       "wallActivity": null
     },
     {
       "symbol": "META",
-      "score": 45,
-      "direction": "bearish",
+      "score": 40,
+      "direction": "neutral",
       "tier": "FILTERED",
       "signals": [
-        "RSI low momentum (26.1)",
-        "At lower Bollinger Band",
-        "💥 BREAKDOWN below put wall ($620) -1.6%",
-        "🔥 Unusual CALL $605 01/23 (8.0x, $6.6M)",
-        "$79M net bullish premium",
-        "⚠️ Against SPY neutral",
-        "⚠️ COUNTER-TREND: bearish vs swing BULLISH"
+        "Volume spike (3.5x avg)",
+        "🔥 Unusual PUT $720 OTM (hedge, 54.6x, $2.5M)",
+        "$940M net bullish premium",
+        "Heavy call bias (3.46 C/P)"
       ],
       "atWall": false,
       "wallActivity": null
     },
     {
-      "symbol": "IBIT",
-      "score": 25,
-      "direction": "bearish",
+      "symbol": "TSLA",
+      "score": 40,
+      "direction": "pinned",
       "tier": "FILTERED",
       "signals": [
-        "💥 BREAKDOWN below put wall ($50) -0.8%",
-        "🎯 0.618 Fib ($51) = Put Wall ($50)",
-        "Elevated volume (1.5x avg)",
-        "🔥 Unusual PUT $45.5 OTM (hedge, 20.4x, $0.2M)",
-        "⚠️ Against SPY neutral",
-        "⚠️ COUNTER-TREND: bearish vs swing BULLISH"
-      ],
-      "atWall": false,
-      "wallActivity": null
-    },
-    {
-      "symbol": "AMD",
-      "score": 15,
-      "direction": "bearish",
-      "tier": "FILTERED",
-      "signals": [
-        "At upper Bollinger Band",
-        "🎯 1.272 Fib ($250) = Call Wall ($250)",
-        "🔥 Unusual PUT $247.5 ITM (bearish, 72.3x, $9.6M)",
-        "$160M net bullish premium",
-        "⚠️ Against SPY neutral",
-        "⚠️ COUNTER-TREND: bearish vs swing BULLISH"
-      ],
-      "atWall": false,
-      "wallActivity": null
-    },
-    {
-      "symbol": "XLE",
-      "score": 5,
-      "direction": "bearish",
-      "tier": "FILTERED",
-      "signals": [
-        "🎯 1.272 Fib ($50) = Call Wall ($49)",
-        "🎯 0.5 Fib ($46) = Put Wall ($46)",
-        "🎯 0.618 Fib ($46) = Put Wall ($46)",
-        "🔥 Unusual PUT $48.5 ATM (bearish, 9.6x, $0.7M)",
-        "⚠️ Against SPY neutral",
-        "⚠️ COUNTER-TREND: bearish vs swing BULLISH"
+        "💥 BREAKDOWN below put wall ($420) -0.8%",
+        "🔥 Unusual CALL $425 02/02 (37.8x, $7.5M)",
+        "$446M net bearish premium",
+        "⚠️ Against SPY bullish",
+        "📍 Downgraded to PINNED (counter-trend)"
       ],
       "atWall": false,
       "wallActivity": null
     }
   ],
-  "alertsSent": 0,
-  "watchListCount": 2
+  "alertsSent": 1,
+  "watchListCount": 4
 }

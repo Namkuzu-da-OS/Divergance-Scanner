@@ -1,197 +1,238 @@
 {
-  "last_updated": "2026-01-21T17:29:11.615Z",
+  "last_updated": "2026-01-29T20:17:57.988Z",
   "strategy": "PREM",
-  "total_scanned": 9,
+  "total_scanned": 11,
   "high_conviction": 0,
   "tradeable": 0,
   "results": [
     {
-      "symbol": "UNH",
-      "earnings_date": "2026-01-27",
-      "days_to_earnings": 8,
+      "symbol": "GOOGL",
+      "earnings_date": "2026-02-04",
+      "days_to_earnings": 6,
+      "earnings_time": "before_open",
+      "score": 30,
+      "direction": "neutral",
+      "signals": [
+        "RSI 65 (healthy momentum)",
+        "Optimal timing (6 days to earnings)"
+      ],
+      "details": {
+        "rsi": 64.87,
+        "trend": "strong_uptrend",
+        "ivPercentile": 82.9,
+        "spyTrend": "bullish",
+        "vix": 17.23
+      },
+      "tier": "FILTERED",
+      "timestamp": "2026-01-29T20:17:27.660Z"
+    },
+    {
+      "symbol": "GOOG",
+      "earnings_date": "2026-02-04",
+      "days_to_earnings": 6,
+      "earnings_time": "before_open",
+      "score": 30,
+      "direction": "neutral",
+      "signals": [
+        "RSI 65 (healthy momentum)",
+        "Optimal timing (6 days to earnings)"
+      ],
+      "details": {
+        "rsi": 64.67,
+        "trend": "strong_uptrend",
+        "ivPercentile": 88.8,
+        "spyTrend": "bullish",
+        "vix": 17.23
+      },
+      "tier": "FILTERED",
+      "timestamp": "2026-01-29T20:17:32.997Z"
+    },
+    {
+      "symbol": "AMZN",
+      "earnings_date": "2026-02-05",
+      "days_to_earnings": 7,
+      "earnings_time": "before_open",
+      "score": 30,
+      "direction": "neutral",
+      "signals": [
+        "RSI 52 (healthy momentum)",
+        "Optimal timing (7 days to earnings)"
+      ],
+      "details": {
+        "rsi": 51.65,
+        "trend": "strong_uptrend",
+        "ivPercentile": 41.5,
+        "spyTrend": "bullish",
+        "vix": 17.25
+      },
+      "tier": "FILTERED",
+      "timestamp": "2026-01-29T20:17:50.033Z"
+    },
+    {
+      "symbol": "COP",
+      "earnings_date": "2026-02-05",
+      "days_to_earnings": 7,
+      "earnings_time": "before_open",
+      "score": 30,
+      "direction": "neutral",
+      "signals": [
+        "RSI 65 (healthy momentum)",
+        "Optimal timing (7 days to earnings)"
+      ],
+      "details": {
+        "rsi": 65.48,
+        "trend": "strong_uptrend",
+        "ivPercentile": 80.5,
+        "spyTrend": "bullish",
+        "vix": 17.25
+      },
+      "tier": "FILTERED",
+      "timestamp": "2026-01-29T20:17:55.980Z"
+    },
+    {
+      "symbol": "PFE",
+      "earnings_date": "2026-02-03",
+      "days_to_earnings": 5,
       "earnings_time": "before_open",
       "score": 25,
       "direction": "neutral",
       "signals": [
         "RSI 57 (healthy momentum)",
-        "Optimal timing (8 days to earnings)"
+        "In PREM window (5 days)"
       ],
       "details": {
-        "rsi": 56.79,
+        "rsi": 56.97,
         "trend": "strong_uptrend",
-        "ivPercentile": 83.2,
-        "spyTrend": "neutral",
-        "vix": 18.96
+        "ivPercentile": 11.8,
+        "spyTrend": "bullish",
+        "vix": 17.23
       },
       "tier": "FILTERED",
-      "timestamp": "2026-01-21T17:28:17.838Z"
+      "timestamp": "2026-01-29T20:16:57.222Z"
     },
     {
-      "symbol": "CAT",
-      "earnings_date": "2026-01-29",
-      "days_to_earnings": 10,
+      "symbol": "MRK",
+      "earnings_date": "2026-02-03",
+      "days_to_earnings": 5,
+      "earnings_time": "before_open",
+      "score": 25,
+      "direction": "neutral",
+      "signals": [
+        "RSI 45 (healthy momentum)",
+        "In PREM window (5 days)"
+      ],
+      "details": {
+        "rsi": 45.16,
+        "trend": "downtrend",
+        "ivPercentile": 64.1,
+        "spyTrend": "bullish",
+        "vix": 17.23
+      },
+      "tier": "FILTERED",
+      "timestamp": "2026-01-29T20:17:16.450Z"
+    },
+    {
+      "symbol": "PYPL",
+      "earnings_date": "2026-02-03",
+      "days_to_earnings": 5,
       "earnings_time": "before_open",
       "score": 20,
       "direction": "neutral",
       "signals": [
-        "RSI 67 (healthy momentum)",
-        "In PREM window (10 days)"
+        "RSI 30 (momentum reset bounce)",
+        "In PREM window (5 days)"
       ],
       "details": {
-        "rsi": 66.64,
-        "trend": "strong_uptrend",
-        "ivPercentile": 62.6,
-        "spyTrend": "neutral",
-        "vix": 19.02
-      },
-      "tier": "FILTERED",
-      "timestamp": "2026-01-21T17:29:09.613Z"
-    },
-    {
-      "symbol": "BA",
-      "earnings_date": "2026-01-27",
-      "days_to_earnings": 8,
-      "earnings_time": "before_open",
-      "score": 15,
-      "direction": "neutral",
-      "signals": [
-        "RSI 87 (high momentum)",
-        "Optimal timing (8 days to earnings)"
-      ],
-      "details": {
-        "rsi": 86.55,
-        "trend": "strong_uptrend",
-        "ivPercentile": 71.1,
-        "spyTrend": "neutral",
-        "vix": 18.96
-      },
-      "tier": "FILTERED",
-      "timestamp": "2026-01-21T17:28:23.079Z"
-    },
-    {
-      "symbol": "UPS",
-      "earnings_date": "2026-01-27",
-      "days_to_earnings": 8,
-      "earnings_time": "before_open",
-      "score": 15,
-      "direction": "neutral",
-      "signals": [
-        "RSI 73 (high momentum)",
-        "Optimal timing (8 days to earnings)"
-      ],
-      "details": {
-        "rsi": 72.93,
-        "trend": "strong_uptrend",
-        "ivPercentile": 77.3,
-        "spyTrend": "neutral",
-        "vix": 18.96
-      },
-      "tier": "FILTERED",
-      "timestamp": "2026-01-21T17:28:28.593Z"
-    },
-    {
-      "symbol": "META",
-      "earnings_date": "2026-01-28",
-      "days_to_earnings": 9,
-      "earnings_time": "before_open",
-      "score": 15,
-      "direction": "neutral",
-      "signals": [
-        "RSI 26 (momentum reset bounce)",
-        "In PREM window (9 days)"
-      ],
-      "details": {
-        "rsi": 26.08,
-        "trend": "downtrend",
-        "ivPercentile": 43.6,
-        "spyTrend": "neutral",
-        "vix": 18.96
-      },
-      "tier": "FILTERED",
-      "timestamp": "2026-01-21T17:28:38.283Z"
-    },
-    {
-      "symbol": "MSFT",
-      "earnings_date": "2026-01-28",
-      "days_to_earnings": 9,
-      "earnings_time": "before_open",
-      "score": 15,
-      "direction": "neutral",
-      "signals": [
-        "RSI 24 (momentum reset bounce)",
-        "In PREM window (9 days)"
-      ],
-      "details": {
-        "rsi": 24.27,
+        "rsi": 29.99,
         "trend": "strong_downtrend",
-        "ivPercentile": 59,
-        "spyTrend": "neutral",
-        "vix": 18.98
+        "ivPercentile": 81.8,
+        "spyTrend": "bullish",
+        "vix": 17.24
       },
       "tier": "FILTERED",
-      "timestamp": "2026-01-21T17:28:45.432Z"
+      "timestamp": "2026-01-29T20:16:42.985Z"
     },
     {
-      "symbol": "AAPL",
-      "earnings_date": "2026-01-29",
-      "days_to_earnings": 10,
+      "symbol": "AMD",
+      "earnings_date": "2026-02-03",
+      "days_to_earnings": 5,
       "earnings_time": "before_open",
       "score": 15,
       "direction": "neutral",
       "signals": [
-        "RSI 6 (momentum reset bounce)",
-        "In PREM window (10 days)"
+        "RSI 79 (high momentum)",
+        "In PREM window (5 days)"
       ],
       "details": {
-        "rsi": 6.47,
-        "trend": "strong_downtrend",
-        "ivPercentile": 29.3,
-        "spyTrend": "neutral",
-        "vix": 19
-      },
-      "tier": "FILTERED",
-      "timestamp": "2026-01-21T17:29:02.954Z"
-    },
-    {
-      "symbol": "SBUX",
-      "earnings_date": "2026-01-28",
-      "days_to_earnings": 9,
-      "earnings_time": "before_open",
-      "score": 10,
-      "direction": "neutral",
-      "signals": [
-        "RSI 73 (high momentum)",
-        "In PREM window (9 days)"
-      ],
-      "details": {
-        "rsi": 73.23,
+        "rsi": 79.2,
         "trend": "strong_uptrend",
-        "ivPercentile": 54.1,
-        "spyTrend": "neutral",
-        "vix": 19
+        "ivPercentile": 89.1,
+        "spyTrend": "bullish",
+        "vix": 17.24
       },
       "tier": "FILTERED",
-      "timestamp": "2026-01-21T17:28:54.042Z"
+      "timestamp": "2026-01-29T20:16:30.197Z"
     },
     {
-      "symbol": "TSLA",
-      "earnings_date": "2026-01-28",
-      "days_to_earnings": 9,
+      "symbol": "PEP",
+      "earnings_date": "2026-02-03",
+      "days_to_earnings": 5,
       "earnings_time": "before_open",
-      "score": 5,
+      "score": 15,
       "direction": "neutral",
       "signals": [
-        "In PREM window (9 days)"
+        "RSI 80 (high momentum)",
+        "In PREM window (5 days)"
       ],
       "details": {
-        "rsi": 30.33,
-        "trend": "downtrend",
-        "ivPercentile": 56.2,
-        "spyTrend": "neutral",
-        "vix": 18.96
+        "rsi": 80.13,
+        "trend": "uptrend",
+        "ivPercentile": 58.3,
+        "spyTrend": "bullish",
+        "vix": 17.23
       },
       "tier": "FILTERED",
-      "timestamp": "2026-01-21T17:28:33.548Z"
+      "timestamp": "2026-01-29T20:17:21.997Z"
+    },
+    {
+      "symbol": "ABBV",
+      "earnings_date": "2026-02-04",
+      "days_to_earnings": 6,
+      "earnings_time": "before_open",
+      "score": 15,
+      "direction": "neutral",
+      "signals": [
+        "Optimal timing (6 days to earnings)"
+      ],
+      "details": {
+        "rsi": 30.71,
+        "trend": "strong_downtrend",
+        "ivPercentile": 82.4,
+        "spyTrend": "bullish",
+        "vix": 17.24
+      },
+      "tier": "FILTERED",
+      "timestamp": "2026-01-29T20:17:38.502Z"
+    },
+    {
+      "symbol": "LLY",
+      "earnings_date": "2026-02-04",
+      "days_to_earnings": 6,
+      "earnings_time": "before_open",
+      "score": 15,
+      "direction": "neutral",
+      "signals": [
+        "Optimal timing (6 days to earnings)"
+      ],
+      "details": {
+        "rsi": 31.51,
+        "trend": "downtrend",
+        "ivPercentile": 83.9,
+        "spyTrend": "bullish",
+        "vix": 17.24
+      },
+      "tier": "FILTERED",
+      "timestamp": "2026-01-29T20:17:43.862Z"
     }
   ]
 }
