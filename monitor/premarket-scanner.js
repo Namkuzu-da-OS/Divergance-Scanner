@@ -37,6 +37,10 @@ let scanCount = 0;
 let lastScanTime = null;
 let nextScanTime = null;
 
+// Session watchlist - accumulates all discoveries for the day
+let sessionDate = null;  // Format: 'YYYY-MM-DD'
+let sessionWatchlist = new Map();  // symbol -> { first_seen, last_seen, peak_gap, data }
+
 // Core symbols always checked
 const CORE_SYMBOLS = ['SPY', 'QQQ', 'IWM', 'DIA'];
 
@@ -93,6 +97,108 @@ function getETTimeString() {
     const etOffset = isDST(now) ? -4 : -5;
     const etTime = new Date(now.getTime() + etOffset * 60 * 60 * 1000);
     return etTime.toISOString().replace('T', ' ').substring(0, 19) + ' ET';
+}
+
+/**
+ * Get current ET date string (YYYY-MM-DD)
+ */
+function getETDateString() {
+    const now = new Date();
+    const etOffset = isDST(now) ? -4 : -5;
+    const etTime = new Date(now.getTime() + etOffset * 60 * 60 * 1000);
+    return etTime.toISOString().substring(0, 10);
+}
+
+/**
+ * Check and reset session watchlist if new day
+ */
+function checkSessionReset() {
+    const today = getETDateString();
+    if (sessionDate !== today) {
+        log(`New session date: ${today} (was: ${sessionDate || 'none'})`);
+        sessionDate = today;
+        sessionWatchlist.clear();
+        log('Session watchlist reset');
+    }
+}
+
+/**
+ * Restore session watchlist from SQLite database
+ * Called on startup to recover from restarts
+ */
+function restoreSessionFromDb() {
+    try {
+        const movers = signalDb.getTodaySessionMovers();
+        if (movers && movers.length > 0) {
+            log(`[DB] Restoring ${movers.length} movers from today's session...`);
+            for (const m of movers) {
+                sessionWatchlist.set(m.symbol, {
+                    symbol: m.symbol,
+                    first_seen: m.first_seen,
+                    last_seen: m.last_seen,
+                    scan_count: m.scan_count,
+                    peak_gap_pct: m.peak_gap_pct,
+                    data: {
+                        symbol: m.symbol,
+                        prev_close: m.prev_close,
+                        premarket_price: m.premarket_price,
+                        gap_pct: m.gap_pct,
+                        premarket_volume: m.premarket_volume,
+                        gap_type: m.gap_type,
+                        catalyst: m.catalyst,
+                        tier: m.tier,
+                        score: m.score,
+                        discovery_score: 0,
+                        discovery_sources: ['restored_from_db']
+                    }
+                });
+            }
+            log(`[DB] Restored session: ${Array.from(sessionWatchlist.keys()).join(', ')}`);
+        } else {
+            log('[DB] No session data to restore');
+        }
+    } catch (e) {
+        logError(`Failed to restore session from DB: ${e.message}`);
+    }
+}
+
+/**
+ * Add or update symbol in session watchlist
+ */
+function updateSessionWatchlist(mover) {
+    const symbol = mover.symbol;
+    const now = new Date().toISOString();
+    const gapPct = Math.abs(mover.gap_pct || 0);
+
+    if (sessionWatchlist.has(symbol)) {
+        const existing = sessionWatchlist.get(symbol);
+        existing.last_seen = now;
+        existing.scan_count++;
+        // Track peak gap
+        if (gapPct > existing.peak_gap_pct) {
+            existing.peak_gap_pct = gapPct;
+        }
+        // Update to latest data
+        existing.data = mover;
+    } else {
+        sessionWatchlist.set(symbol, {
+            symbol,
+            first_seen: now,
+            last_seen: now,
+            scan_count: 1,
+            peak_gap_pct: gapPct,
+            data: mover
+        });
+        log(`[Session] Added ${symbol} to watchlist (gap: ${mover.gap_pct?.toFixed(2)}%)`);
+    }
+}
+
+/**
+ * Get session watchlist as array, sorted by peak gap
+ */
+function getSessionWatchlistArray() {
+    return Array.from(sessionWatchlist.values())
+        .sort((a, b) => b.peak_gap_pct - a.peak_gap_pct);
 }
 
 /**
@@ -329,6 +435,45 @@ async function fetchEarningsCalendar() {
     }
 }
 
+/**
+ * Check if a symbol has earnings today
+ * Uses the Options API calendar endpoint
+ */
+async function checkEarningsToday(symbol) {
+    try {
+        const response = await axios.get(`${CONFIG.OPTIONS_API}/api/calendar/${symbol}`, { timeout: 5000 });
+        const data = response.data;
+        // Check if earnings are today (days_to_earnings === 0) or tomorrow before open
+        if (data.has_earnings && data.days_to_earnings === 0) {
+            return { hasEarnings: true, time: data.earnings_time, date: data.next_earnings };
+        }
+        return { hasEarnings: false };
+    } catch (e) {
+        return { hasEarnings: false };
+    }
+}
+
+/**
+ * Build earnings lookup for a list of symbols
+ * Returns a Map of symbol -> earnings info
+ */
+async function buildEarningsLookup(symbols) {
+    const earningsMap = new Map();
+
+    // Batch check symbols (with rate limiting)
+    for (const symbol of symbols) {
+        const result = await checkEarningsToday(symbol);
+        if (result.hasEarnings) {
+            earningsMap.set(symbol, result);
+            log(`[Earnings] ${symbol} reports ${result.time === 'before_open' ? 'BMO' : result.time === 'after_close' ? 'AMC' : result.time}`);
+        }
+        // Small delay to avoid hammering the API
+        await new Promise(r => setTimeout(r, 50));
+    }
+
+    return earningsMap;
+}
+
 // ============================================
 // ANALYSIS FUNCTIONS
 // ============================================
@@ -404,6 +549,9 @@ async function runScan() {
         return;
     }
 
+    // Check if we need to reset session watchlist (new day)
+    checkSessionReset();
+
     scanCount++;
     const timestamp = new Date().toISOString();
     log(`===== SCAN #${scanCount} =====`);
@@ -454,6 +602,22 @@ async function runScan() {
 
     log(`Checking ${symbols.length} symbols for gaps...`);
 
+    // First pass: find symbols with significant gaps
+    const gappingSymbols = symbols.filter(symbol => {
+        const data = marketData[symbol];
+        if (!data || !data.price) return false;
+        const prevClose = data.previousClose || data.close;
+        const gapPct = calculateGap(prevClose, data.price);
+        return Math.abs(gapPct) >= CONFIG.MIN_GAP_PCT;
+    });
+
+    // Build earnings lookup for gapping symbols (checks calendar API)
+    log(`Building earnings lookup for ${gappingSymbols.length} gapping symbols...`);
+    const earningsLookup = await buildEarningsLookup(gappingSymbols);
+    if (earningsLookup.size > 0) {
+        log(`Found ${earningsLookup.size} symbols with earnings today`);
+    }
+
     for (const symbol of symbols) {
         const data = marketData[symbol];
         if (!data || !data.price) continue;
@@ -469,10 +633,15 @@ async function runScan() {
             // Check if aligned with market
             const futuresAligned = (gapPct > 0 && avgChange > 0) || (gapPct < 0 && avgChange < 0);
 
-            // Detect catalyst (basic - could be enhanced)
+            // Detect catalyst - check earnings lookup first
             let catalyst = null;
-            if (data.earningsToday) catalyst = 'earnings_today';
-            else if (data.news) catalyst = 'news';
+            const earningsInfo = earningsLookup.get(symbol);
+            if (earningsInfo) {
+                catalyst = earningsInfo.time === 'before_open' ? 'earnings_bmo' :
+                           earningsInfo.time === 'after_close' ? 'earnings_amc' : 'earnings_today';
+            } else if (data.news) {
+                catalyst = 'news';
+            }
 
             const mover = {
                 symbol,
@@ -492,6 +661,9 @@ async function runScan() {
             mover.tier = determineTier(mover.score);
 
             movers.push(mover);
+
+            // Add to session watchlist (persists for the day)
+            updateSessionWatchlist(mover);
         }
     }
 
@@ -549,6 +721,42 @@ async function runScan() {
 
     log(`[DB] Saved scan #${scanId} with ${movers.length} movers`);
 
+    // Get session watchlist
+    const sessionList = getSessionWatchlistArray();
+
+    // When outside pre-market, use session watchlist as movers so gaps persist all day
+    let displayMovers = movers;
+    let displayHighConviction = highConviction;
+    let displayTradeable = tradeable;
+    let displayWatch = watch;
+
+    if (!inPremarket && movers.length === 0 && sessionList.length > 0) {
+        // Convert session watchlist back to movers format for display
+        displayMovers = sessionList.map(s => ({
+            symbol: s.symbol,
+            prev_close: s.data.prev_close,
+            premarket_price: s.data.premarket_price,
+            gap_pct: s.data.gap_pct,
+            premarket_volume: s.data.premarket_volume,
+            gap_type: s.data.gap_type,
+            catalyst: s.data.catalyst,
+            futures_aligned: s.data.futures_aligned,
+            discovery_score: s.data.discovery_score,
+            discovery_sources: s.data.discovery_sources,
+            score: s.data.score,
+            tier: s.data.tier,
+            // Add session metadata
+            first_seen: s.first_seen,
+            peak_gap_pct: s.peak_gap_pct,
+            scan_count: s.scan_count,
+            from_session: true  // Flag that this is persisted data
+        }));
+        displayHighConviction = displayMovers.filter(m => m.tier === 'HIGH_CONVICTION');
+        displayTradeable = displayMovers.filter(m => m.tier === 'TRADEABLE');
+        displayWatch = displayMovers.filter(m => m.tier === 'WATCH');
+        log(`[Session] Restored ${displayMovers.length} gaps from morning session`);
+    }
+
     // Write JSON for dashboard
     const output = {
         timestamp,
@@ -561,12 +769,29 @@ async function runScan() {
             bias: marketBias
         },
         summary: {
-            total_gaps: movers.length,
-            high_conviction: highConviction.length,
-            tradeable: tradeable.length,
-            watch: watch.length
+            total_gaps: displayMovers.length,
+            high_conviction: displayHighConviction.length,
+            tradeable: displayTradeable.length,
+            watch: displayWatch.length,
+            session_total: sessionList.length
         },
-        movers: movers.slice(0, 50)  // Top 50
+        movers: displayMovers.slice(0, 50),  // Top 50 (from current scan or session)
+        session: {
+            date: sessionDate,
+            symbols_discovered: sessionList.length,
+            watchlist: sessionList.map(s => ({
+                symbol: s.symbol,
+                first_seen: s.first_seen,
+                last_seen: s.last_seen,
+                scan_count: s.scan_count,
+                peak_gap_pct: s.peak_gap_pct,
+                current_gap_pct: s.data.gap_pct,
+                current_tier: s.data.tier,
+                current_score: s.data.score,
+                gap_type: s.data.gap_type,
+                premarket_volume: s.data.premarket_volume
+            }))
+        }
     };
 
     fs.writeFileSync(CONFIG.OUTPUT_FILE, JSON.stringify(output, null, 2));
@@ -626,14 +851,40 @@ function startControlServer() {
             const stats = signalDb.getTodayPremarketStats();
             res.writeHead(200);
             res.end(JSON.stringify(stats));
+        } else if (req.method === 'GET' && url === '/session') {
+            // Get session watchlist
+            const sessionList = getSessionWatchlistArray();
+            res.writeHead(200);
+            res.end(JSON.stringify({
+                date: sessionDate,
+                symbols_discovered: sessionList.length,
+                watchlist: sessionList.map(s => ({
+                    symbol: s.symbol,
+                    first_seen: s.first_seen,
+                    last_seen: s.last_seen,
+                    scan_count: s.scan_count,
+                    peak_gap_pct: s.peak_gap_pct,
+                    current_gap_pct: s.data.gap_pct,
+                    current_tier: s.data.tier,
+                    current_score: s.data.score,
+                    gap_type: s.data.gap_type
+                }))
+            }));
+        } else if (req.method === 'POST' && url === '/session/clear') {
+            // Manual session reset
+            sessionWatchlist.clear();
+            sessionDate = getETDateString();
+            log('Session watchlist manually cleared');
+            res.writeHead(200);
+            res.end(JSON.stringify({ success: true, message: 'Session cleared', date: sessionDate }));
         } else {
             res.writeHead(404);
             res.end(JSON.stringify({ error: 'Not found' }));
         }
     });
 
-    server.listen(CONFIG.CONTROL_PORT, () => {
-        log(`Control API running on http://localhost:${CONFIG.CONTROL_PORT}`);
+    server.listen(CONFIG.CONTROL_PORT, '0.0.0.0', () => {
+        log(`Control API running on http://0.0.0.0:${CONFIG.CONTROL_PORT} (accessible from network)`);
     });
 
     server.on('error', (err) => {
@@ -658,6 +909,12 @@ async function main() {
     log(`Scan interval: ${CONFIG.SCAN_INTERVAL_MS / 60000} minutes`);
     log(`Min gap threshold: ${CONFIG.MIN_GAP_PCT}%`);
     log('');
+
+    // Initialize session date
+    sessionDate = getETDateString();
+
+    // Restore session watchlist from database (survives restarts)
+    restoreSessionFromDb();
 
     // Start control server
     startControlServer();

@@ -241,9 +241,14 @@ function getPremCandidates(calendar) {
     if (!calendar?.earnings) return [];
 
     return calendar.earnings.filter(e => {
-        const days = e.days_to_earnings;
+        // Recalculate days fresh instead of using stale cached value
+        const days = calculateDaysToEarnings(e.earnings_date);
         return days >= SETTINGS.premWindowDays.min && days <= SETTINGS.premWindowDays.max;
-    });
+    }).map(e => ({
+        ...e,
+        // Update days_to_earnings with fresh calculation
+        days_to_earnings: calculateDaysToEarnings(e.earnings_date)
+    }));
 }
 
 // =============================================================================
@@ -966,8 +971,8 @@ function startControlServer() {
         res.end(JSON.stringify({ error: 'Not found' }));
     });
 
-    server.listen(SETTINGS.controlPort, () => {
-        console.log(`[Control] Listening on http://localhost:${SETTINGS.controlPort}`);
+    server.listen(SETTINGS.controlPort, '0.0.0.0', () => {
+        console.log(`[Control] Listening on http://0.0.0.0:${SETTINGS.controlPort} (accessible from network)`);
         console.log('');
         console.log('  Scanner:');
         console.log(`    GET  /status            - System status`);

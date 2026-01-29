@@ -554,6 +554,7 @@
                     <a href="analytics.html" class="nav-link">ANALYTICS</a>
                     <a href="earnings-scanner.html" class="nav-link active">EARNINGS</a>
                     <a href="opportunity-scanner.html" class="nav-link opportunity">OPTIONS FLOW</a>
+                    <a href="strategies.html" class="nav-link">STRATEGIES</a>
                     <a href="scanner.html" class="nav-link">MARKET</a>
                 </nav>
             </div>
@@ -833,7 +834,7 @@
     </div>
 
     <script>
-        const SCANNER_API = 'http://localhost:8082';
+        const SCANNER_API = `http://${window.location.hostname}:8082`;
         let isPaused = false;
 
         // Helper: Format earnings time (handles different API formats)

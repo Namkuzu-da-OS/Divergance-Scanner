@@ -890,8 +890,8 @@ function startControlServer() {
         res.end(JSON.stringify({ error: 'Not found' }));
     });
 
-    server.listen(SETTINGS.controlPort, () => {
-        console.log(`[Opportunity] Control API listening on port ${SETTINGS.controlPort}`);
+    server.listen(SETTINGS.controlPort, '0.0.0.0', () => {
+        console.log(`[Opportunity] Control API listening on http://0.0.0.0:${SETTINGS.controlPort} (accessible from network)`);
     });
 }
 

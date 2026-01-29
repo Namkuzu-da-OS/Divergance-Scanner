@@ -2212,8 +2212,8 @@ function startControlServer() {
         res.end(JSON.stringify({ error: 'Not found' }));
     });
 
-    server.listen(CONTROL_PORT, () => {
-        console.log(`[Control] HTTP control server on port ${CONTROL_PORT}`);
+    server.listen(CONTROL_PORT, '0.0.0.0', () => {
+        console.log(`[Control] HTTP control server on http://0.0.0.0:${CONTROL_PORT} (accessible from network)`);
         console.log(`         GET  /status  - Check scanner status`);
         console.log(`         POST /pause   - Pause scanner`);
         console.log(`         POST /resume  - Resume scanner`);

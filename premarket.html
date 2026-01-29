@@ -204,6 +204,13 @@
 
         .loading { text-align: center; padding: 30px; font-size: 13px; color: #8b92a8; }
         .last-updated { font-size: 11px; color: #8b92a8; }
+
+        /* Collapsible docs */
+        .docs-content.collapsed { display: none; }
+        .docs-toggle { cursor: pointer; user-select: none; }
+        .docs-toggle:hover { background: #252a3a !important; }
+        .collapse-icon { transition: transform 0.2s; display: inline-block; }
+        .collapsed + .collapse-icon, .docs-content.collapsed ~ .collapse-icon { transform: rotate(-90deg); }
     </style>
 </head>
 <body>
@@ -223,6 +230,7 @@
                     <a href="analytics.html" class="nav-link">ANALYTICS</a>
                     <a href="earnings-scanner.html" class="nav-link">EARNINGS</a>
                     <a href="opportunity-scanner.html" class="nav-link">OPTIONS FLOW</a>
+                    <a href="strategies.html" class="nav-link">STRATEGIES</a>
                     <a href="scanner.html" class="nav-link">MARKET</a>
                 </div>
                 <span class="last-updated" id="lastUpdated"></span>
@@ -292,6 +300,26 @@
             <h2 class="section-title">Pre-Market Movers</h2>
             <div id="moversContainer">
                 <div class="loading">Loading pre-market data...</div>
+            </div>
+        </div>
+
+        <!-- Session Watchlist -->
+        <div class="section" id="sessionSection" style="border-color: #f59e0b;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h2 class="section-title" style="margin-bottom: 0;">
+                    📋 Today's Session Watchlist
+                    <span id="sessionDate" style="font-size: 12px; color: #8b92a8; font-weight: 400; margin-left: 8px;"></span>
+                </h2>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span id="sessionCount" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">0 symbols</span>
+                    <button class="btn" onclick="clearSession()" style="font-size: 10px; padding: 4px 8px;">CLEAR</button>
+                </div>
+            </div>
+            <p style="font-size: 11px; color: #8b92a8; margin-bottom: 12px;">All gaps discovered today (persists even if symbol drops from current scan). Resets daily at midnight ET.</p>
+            <div id="sessionContainer">
+                <div class="empty-state" style="padding: 30px;">
+                    <div class="empty-state-text">No symbols discovered yet today</div>
+                </div>
             </div>
         </div>
     </div>
@@ -381,6 +409,9 @@
 
             // Movers table
             updateMoversTable();
+
+            // Session watchlist
+            updateSessionWatchlist();
         }
 
         function updateMoversTable() {
@@ -456,11 +487,98 @@
             document.getElementById('watch').textContent = '0';
         }
 
+        function updateSessionWatchlist() {
+            const session = premarketData?.session;
+            const container = document.getElementById('sessionContainer');
+            const countEl = document.getElementById('sessionCount');
+            const dateEl = document.getElementById('sessionDate');
+
+            if (!session || !session.watchlist || session.watchlist.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding: 30px;">
+                        <div class="empty-state-text">No symbols discovered yet today</div>
+                    </div>`;
+                countEl.textContent = '0 symbols';
+                dateEl.textContent = '';
+                return;
+            }
+
+            dateEl.textContent = session.date || '';
+            countEl.textContent = `${session.watchlist.length} symbols`;
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Peak Gap</th>
+                            <th>Current Gap</th>
+                            <th>Type</th>
+                            <th>Scans</th>
+                            <th>First Seen</th>
+                            <th>Tier</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            for (const item of session.watchlist) {
+                const peakDir = item.peak_gap_pct >= 0 ? 'up' : 'down';
+                const currentDir = item.current_gap_pct >= 0 ? 'up' : 'down';
+                const peakIcon = item.peak_gap_pct >= 0 ? '↑' : '↓';
+                const currentIcon = item.current_gap_pct >= 0 ? '↑' : '↓';
+
+                let tierClass = 'filtered';
+                if (item.current_tier === 'HIGH_CONVICTION') tierClass = 'high';
+                else if (item.current_tier === 'TRADEABLE') tierClass = 'tradeable';
+                else if (item.current_tier === 'WATCH') tierClass = 'watch';
+
+                // Format first seen time
+                const firstSeen = new Date(item.first_seen);
+                const timeStr = firstSeen.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+                html += `
+                    <tr>
+                        <td style="font-weight: 700;">${item.symbol}</td>
+                        <td>
+                            <span class="gap-badge ${peakDir}">
+                                ${peakIcon} ${Math.abs(item.peak_gap_pct).toFixed(2)}%
+                            </span>
+                        </td>
+                        <td>
+                            <span class="gap-badge ${currentDir}">
+                                ${currentIcon} ${Math.abs(item.current_gap_pct).toFixed(2)}%
+                            </span>
+                        </td>
+                        <td>${item.gap_type || '-'}</td>
+                        <td style="text-align: center;">${item.scan_count}</td>
+                        <td style="color: #8b92a8;">${timeStr}</td>
+                        <td><span class="tier-badge ${tierClass}">${item.current_tier}</span></td>
+                    </tr>`;
+            }
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        const SCANNER_API = `http://${window.location.hostname}:8084`;
+
+        async function clearSession() {
+            if (!confirm('Clear today\'s session watchlist?')) return;
+            try {
+                const response = await fetch(`${SCANNER_API}/session/clear`, { method: 'POST' });
+                if (response.ok) {
+                    loadData();  // Refresh to show empty session
+                }
+            } catch (e) {
+                console.error('Failed to clear session:', e);
+            }
+        }
+
         let isPaused = false;
 
         async function loadStatus() {
             try {
-                const response = await fetch('http://localhost:8084/status');
+                const response = await fetch(`${SCANNER_API}/status`);
                 if (response.ok) {
                     const status = await response.json();
                     isPaused = status.paused;
@@ -498,7 +616,7 @@
         async function togglePause() {
             try {
                 const endpoint = isPaused ? 'resume' : 'pause';
-                const response = await fetch(`http://localhost:8084/${endpoint}`, { method: 'POST' });
+                const response = await fetch(`${SCANNER_API}/${endpoint}`, { method: 'POST' });
                 if (response.ok) {
                     isPaused = !isPaused;
                     updatePauseButton();
@@ -511,7 +629,7 @@
 
         async function triggerScan() {
             try {
-                const response = await fetch('http://localhost:8084/scan', { method: 'POST' });
+                const response = await fetch(`${SCANNER_API}/scan`, { method: 'POST' });
                 if (response.ok) {
                     // Wait a moment for scan to complete, then refresh
                     setTimeout(() => {
@@ -534,11 +652,14 @@
     <!-- Documentation Section -->
     <div class="container" style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #2a3641;">
         <div style="background: #151821; border: 1px solid #2a3641; border-radius: 10px; overflow: hidden;">
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #1a1f2e; border-bottom: 1px solid #2a3641; cursor: pointer;" onclick="document.getElementById('gaps-docs').classList.toggle('collapsed')">
+            <div class="docs-toggle" style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #1a1f2e; border-bottom: 1px solid #2a3641;" onclick="document.getElementById('gaps-docs').classList.toggle('collapsed'); this.querySelector('.collapse-icon').style.transform = document.getElementById('gaps-docs').classList.contains('collapsed') ? 'rotate(-90deg)' : 'rotate(0deg)';">
                 <span style="font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #f59e0b;">📖 HOW THE GAPS SCANNER WORKS</span>
-                <span style="background: #2a3641; padding: 4px 10px; border-radius: 12px; font-size: 12px;">Reference</span>
+                <span style="display: flex; align-items: center; gap: 8px;">
+                    <span style="background: #2a3641; padding: 4px 10px; border-radius: 12px; font-size: 12px;">Reference</span>
+                    <span class="collapse-icon" style="transform: rotate(-90deg);">▼</span>
+                </span>
             </div>
-            <div id="gaps-docs" style="padding: 20px; font-size: 13px; line-height: 1.8; color: #b8bfcc;">
+            <div id="gaps-docs" class="docs-content collapsed" style="padding: 20px; font-size: 13px; line-height: 1.8; color: #b8bfcc;">
 
                 <h3 style="color: #f59e0b; margin-bottom: 12px; font-size: 14px;">WHAT THIS DASHBOARD SHOWS</h3>
                 <p style="margin-bottom: 16px;">The Gaps Scanner <strong>dynamically discovers</strong> stocks gapping 2%+ from their previous close. It scans the entire S&P 500 and NASDAQ to find opportunities - NOT a fixed watchlist. Best used during pre-market (6:00 AM - 9:30 AM ET).</p>
@@ -642,6 +763,129 @@ GET  http://localhost:8084/status      # Scanner status
 GET  http://localhost:8084/latest      # Latest scan data
 GET  http://localhost:8084/today       # Today's stats
                 </pre>
+
+                <div style="border-top: 2px solid #f59e0b; margin: 24px 0; padding-top: 24px;">
+                    <h3 style="color: #f59e0b; margin-bottom: 16px; font-size: 16px;">🎯 GAP AND GO vs GAP AND FADE</h3>
+                    <p style="margin-bottom: 16px; color: #e5e7eb;">The critical question: Will this gap continue (GO) or reverse (FADE)? Use these factors to decide.</p>
+
+                    <h4 style="color: #ff6b6b; margin-bottom: 12px; font-size: 14px;">🔴 GAP AND FADE (Short Candidates)</h4>
+                    <p style="margin-bottom: 8px;">Gaps that are likely to fill/reverse:</p>
+                    <table style="width: 100%; margin-bottom: 20px; font-size: 12px;">
+                        <tr style="border-bottom: 1px solid #2a3641;">
+                            <td style="padding: 8px; width: 30%;"><strong>Parabolic Move</strong></td>
+                            <td style="padding: 8px;">5-day momentum &gt; 20% = unsustainable, mean reversion likely</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #2a3641;">
+                            <td style="padding: 8px;"><strong>RSI &gt; 80</strong></td>
+                            <td style="padding: 8px;">Extremely overbought, exhaustion signal</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #2a3641;">
+                            <td style="padding: 8px;"><strong>BB Position &gt; 1.0</strong></td>
+                            <td style="padding: 8px;">Price ABOVE upper Bollinger Band = stretched, will snap back</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #2a3641;">
+                            <td style="padding: 8px;"><strong>Above Call Wall</strong></td>
+                            <td style="padding: 8px;">Price blew through options structure = no gamma support above</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #2a3641;">
+                            <td style="padding: 8px;"><strong>Above Expected Move</strong></td>
+                            <td style="padding: 8px;">Price exceeded options-implied range = overextended</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #2a3641;">
+                            <td style="padding: 8px;"><strong>Far Above Max Pain</strong></td>
+                            <td style="padding: 8px;">$5+ above max pain = gravitational pull back down</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px;"><strong>High Volatility</strong></td>
+                            <td style="padding: 8px;">HV &gt; 100% = wild swings, hard to hold direction</td>
+                        </tr>
+                    </table>
+
+                    <h4 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">🟢 GAP AND GO (Long Candidates)</h4>
+                    <p style="margin-bottom: 8px;">Gaps that are likely to continue:</p>
+                    <table style="width: 100%; margin-bottom: 20px; font-size: 12px;">
+                        <tr style="border-bottom: 1px solid #2a3641;">
+                            <td style="padding: 8px; width: 30%;"><strong>Orderly Trend</strong></td>
+                            <td style="padding: 8px;">5-day momentum &lt; 5% = steady accumulation, not panic buying</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #2a3641;">
+                            <td style="padding: 8px;"><strong>RSI 60-75</strong></td>
+                            <td style="padding: 8px;">Strong but not extreme, room to run</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #2a3641;">
+                            <td style="padding: 8px;"><strong>BB Position 0.6-0.9</strong></td>
+                            <td style="padding: 8px;">Near upper band but WITHIN = trending, not overextended</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #2a3641;">
+                            <td style="padding: 8px;"><strong>Above Gamma Flip</strong></td>
+                            <td style="padding: 8px;">Dealers hedging calls by buying stock = self-reinforcing buying</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #2a3641;">
+                            <td style="padding: 8px;"><strong>Call Wall Nearby</strong></td>
+                            <td style="padding: 8px;">Heavy call OI just above = magnet pulling price up</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #2a3641;">
+                            <td style="padding: 8px;"><strong>Within Expected Move</strong></td>
+                            <td style="padding: 8px;">Price inside options-implied range = "normal" move</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px;"><strong>Moderate Volatility</strong></td>
+                            <td style="padding: 8px;">HV 30-60% = controlled trend, easier to hold</td>
+                        </tr>
+                    </table>
+
+                    <h4 style="color: #f59e0b; margin-bottom: 12px; font-size: 14px;">📊 QUICK REFERENCE COMPARISON</h4>
+                    <table style="width: 100%; margin-bottom: 20px; font-size: 12px; border: 1px solid #2a3641;">
+                        <thead>
+                            <tr style="background: #1a1f2e;">
+                                <th style="padding: 10px; text-align: left; border-bottom: 1px solid #2a3641;">Factor</th>
+                                <th style="padding: 10px; text-align: center; border-bottom: 1px solid #2a3641; color: #ff6b6b;">FADE</th>
+                                <th style="padding: 10px; text-align: center; border-bottom: 1px solid #2a3641; color: #00d4aa;">GO</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid #2a3641;">
+                                <td style="padding: 8px;">5-Day Momentum</td>
+                                <td style="padding: 8px; text-align: center; color: #ff6b6b;">&gt; 20% (parabolic)</td>
+                                <td style="padding: 8px; text-align: center; color: #00d4aa;">&lt; 5% (orderly)</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #2a3641;">
+                                <td style="padding: 8px;">RSI</td>
+                                <td style="padding: 8px; text-align: center; color: #ff6b6b;">&gt; 80</td>
+                                <td style="padding: 8px; text-align: center; color: #00d4aa;">60-75</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #2a3641;">
+                                <td style="padding: 8px;">BB Position</td>
+                                <td style="padding: 8px; text-align: center; color: #ff6b6b;">&gt; 1.0 (outside)</td>
+                                <td style="padding: 8px; text-align: center; color: #00d4aa;">0.6-0.9 (within)</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #2a3641;">
+                                <td style="padding: 8px;">vs Call Wall</td>
+                                <td style="padding: 8px; text-align: center; color: #ff6b6b;">Above (no support)</td>
+                                <td style="padding: 8px; text-align: center; color: #00d4aa;">At/near (magnet)</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #2a3641;">
+                                <td style="padding: 8px;">vs Gamma Flip</td>
+                                <td style="padding: 8px; text-align: center; color: #ff6b6b;">Way above</td>
+                                <td style="padding: 8px; text-align: center; color: #00d4aa;">Just above</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #2a3641;">
+                                <td style="padding: 8px;">vs Expected Move</td>
+                                <td style="padding: 8px; text-align: center; color: #ff6b6b;">Beyond upper</td>
+                                <td style="padding: 8px; text-align: center; color: #00d4aa;">Within range</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px;">Historical Vol</td>
+                                <td style="padding: 8px; text-align: center; color: #ff6b6b;">&gt; 100%</td>
+                                <td style="padding: 8px; text-align: center; color: #00d4aa;">30-60%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="background: #0a0e1a; padding: 16px; border-radius: 8px; border-left: 3px solid #f59e0b;">
+                        <p style="margin: 0; color: #e5e7eb;"><strong>💡 KEY INSIGHT:</strong> When price blows through ALL options structure (above call wall, above expected move, above gamma flip) with parabolic momentum = <span style="color: #ff6b6b;">FADE</span>. When price breaks above gamma flip with orderly momentum and call wall support nearby = <span style="color: #00d4aa;">GO</span>.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

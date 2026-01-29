@@ -830,6 +830,7 @@
                 <a href="analytics.html" class="nav-link">ANALYTICS</a>
                 <a href="earnings-scanner.html" class="nav-link earnings">EARNINGS</a>
                 <a href="opportunity-scanner.html" class="nav-link opportunity active">OPTIONS FLOW</a>
+                <a href="strategies.html" class="nav-link">STRATEGIES</a>
                 <a href="scanner.html" class="nav-link">MARKET</a>
             </nav>
         </div>
@@ -951,10 +952,12 @@
             }
         }
 
+        const SCANNER_API = `http://${window.location.hostname}:8083`;
+
         // Load scanner status
         async function loadStatus() {
             try {
-                const response = await fetch('http://localhost:8083/status');
+                const response = await fetch(`${SCANNER_API}/status`);
                 if (!response.ok) throw new Error('Scanner not responding');
                 scannerStatus = await response.json();
                 updateStatusUI();
@@ -993,7 +996,7 @@
         async function togglePause() {
             const endpoint = scannerStatus?.status === 'paused' ? 'resume' : 'pause';
             try {
-                await fetch(`http://localhost:8083/${endpoint}`, { method: 'POST' });
+                await fetch(`${SCANNER_API}/${endpoint}`, { method: 'POST' });
                 await loadStatus();
             } catch (e) {
                 console.error('Failed to toggle pause:', e);
@@ -1003,7 +1006,7 @@
         // Manual scan
         async function manualScan() {
             try {
-                await fetch('http://localhost:8083/scan', { method: 'POST' });
+                await fetch(`${SCANNER_API}/scan`, { method: 'POST' });
                 setTimeout(loadData, 3000); // Wait for scan to complete
             } catch (e) {
                 console.error('Failed to trigger scan:', e);

@@ -203,7 +203,22 @@
         .section-title.conviction { color: #00d4aa; }
         .section-title.gaps { color: #f59e0b; }
         .section-title.flow { color: #3b82f6; }
+        .section-title.earnings-flow { color: #10b981; }
         .section-title.earnings { color: #a855f7; }
+
+        /* Earnings Flow specific */
+        .earnings-countdown {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .metric-highlight { color: #ffc107; font-weight: 700; }
+        .metric-oversold { color: #00d4aa; }
+        .metric-overbought { color: #ff6b6b; }
 
         .section-count {
             background: #2a3641;
@@ -485,6 +500,7 @@
                     <a href="analytics.html" class="nav-link">ANALYTICS</a>
                     <a href="earnings-scanner.html" class="nav-link earnings">EARNINGS</a>
                     <a href="opportunity-scanner.html" class="nav-link opportunity">OPTIONS FLOW</a>
+                    <a href="strategies.html" class="nav-link">STRATEGIES</a>
                     <a href="scanner.html" class="nav-link">MARKET</a>
                 </div>
                 <div class="status-dot" id="status-dot"></div>
@@ -556,6 +572,17 @@
                 <span class="section-count" id="count-flow">0</span>
             </div>
             <div class="section-body" id="body-flow">
+                <div class="loading">Loading...</div>
+            </div>
+        </div>
+
+        <!-- Earnings Flow Confluence -->
+        <div class="section" id="section-earnings-flow">
+            <div class="section-header" onclick="toggleSection('earnings-flow')">
+                <span class="section-title earnings-flow">EARNINGS FLOW CONFLUENCE</span>
+                <span class="section-count" id="count-earnings-flow">0</span>
+            </div>
+            <div class="section-body" id="body-earnings-flow">
                 <div class="loading">Loading...</div>
             </div>
         </div>
@@ -698,12 +725,14 @@
             renderConviction();
             renderGaps();
             renderFlow();
+            renderEarningsFlow();
             renderEarnings();
 
             // Update counts
             document.getElementById('count-conviction').textContent = data.highConviction?.length || 0;
             document.getElementById('count-gaps').textContent = data.gaps?.length || 0;
             document.getElementById('count-flow').textContent = data.optionsFlow?.length || 0;
+            document.getElementById('count-earnings-flow').textContent = data.earningsFlow?.filter(e => e.tier !== 'WATCH').length || 0;
             document.getElementById('count-earnings').textContent = data.earnings?.length || 0;
         }
 
@@ -765,6 +794,7 @@
                 <thead>
                     <tr>
                         <th>Symbol</th>
+                        <th>Price</th>
                         <th>Gap</th>
                         <th>Volume</th>
                         <th>Tier</th>
@@ -778,14 +808,16 @@
                 const gapClass = item.gapPct > 0 ? 'positive' : 'negative';
                 const tierClass = item.tier === 'HIGH_CONVICTION' ? 'high-conviction' : item.tier === 'TRADEABLE' ? 'tradeable' : 'watch';
                 const volume = item.volume ? (item.volume > 1000000 ? (item.volume / 1000000).toFixed(1) + 'M' : (item.volume / 1000).toFixed(0) + 'K') : '--';
-                const earnings = item.earnings ? `${item.earnings} (${item.daysToEarnings}d)` : '--';
+                const earnings = item.earnings ? `${new Date(item.earnings).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})} (${item.daysToEarnings}d)` : '--';
+                const dirClass = item.direction === 'bullish' ? 'positive' : item.direction === 'bearish' ? 'negative' : '';
 
                 html += `<tr>
                     <td class="symbol-cell">${item.symbol}</td>
+                    <td>$${item.price?.toFixed(2) || '--'}</td>
                     <td class="${gapClass}">${item.gapPct > 0 ? '+' : ''}${item.gapPct?.toFixed(2)}%</td>
                     <td>${volume}</td>
                     <td><span class="tier-badge ${tierClass}">${item.tier}</span></td>
-                    <td class="${item.direction === 'bullish' ? 'positive' : item.direction === 'bearish' ? 'negative' : ''}">${item.direction || '--'}</td>
+                    <td class="${dirClass}">${item.direction || '--'}</td>
                     <td>${earnings}</td>
                 </tr>`;
             }
@@ -873,6 +905,65 @@
         function closeFlowModal(event) {
             if (event && event.target !== event.currentTarget) return;
             document.getElementById('flow-modal').classList.remove('active');
+        }
+
+        function renderEarningsFlow() {
+            const container = document.getElementById('body-earnings-flow');
+            const items = data.earningsFlow || [];
+
+            if (items.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">--</div>No earnings flow confluence detected</div>';
+                return;
+            }
+
+            // Only show TRADEABLE and above
+            const filtered = items.filter(item => item.tier !== 'WATCH');
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">--</div>No high-conviction earnings flow setups</div>';
+                return;
+            }
+
+            let html = `<table>
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Days</th>
+                        <th>Price</th>
+                        <th>C/P</th>
+                        <th>Vol/OI</th>
+                        <th>Premium</th>
+                        <th>RSI</th>
+                        <th>Score</th>
+                        <th>Signals</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            for (const item of filtered) {
+                const tierClass = item.tier === 'HIGH_CONVICTION' ? 'high-conviction' : 'tradeable';
+                const dirClass = item.direction === 'bullish' ? 'positive' : item.direction === 'bearish' ? 'negative' : '';
+                const cpClass = item.cpRatio > 1.5 ? 'positive' : '';
+                const voiClass = item.volOiRatio > 2 ? 'metric-highlight' : '';
+                const rsiClass = item.rsi < 40 ? 'metric-oversold' : item.rsi > 70 ? 'metric-overbought' : '';
+                const premiumText = item.netPremium ? (item.netPremium > 0 ? '+' : '') + '$' + (Math.abs(item.netPremium) / 1000000).toFixed(1) + 'M' : '--';
+                const premiumClass = item.netPremium > 0 ? 'positive' : item.netPremium < 0 ? 'negative' : '';
+
+                html += `<tr>
+                    <td class="symbol-cell">${item.symbol} <span class="earnings-countdown">${item.daysTo}d</span></td>
+                    <td class="${dirClass}">${item.direction || '--'}</td>
+                    <td>$${item.price?.toFixed(2) || '--'}</td>
+                    <td class="${cpClass}">${item.cpRatio?.toFixed(1) || '--'}x</td>
+                    <td class="${voiClass}">${item.volOiRatio?.toFixed(1) || '--'}x</td>
+                    <td class="${premiumClass}">${premiumText}</td>
+                    <td class="${rsiClass}">${item.rsi?.toFixed(0) || '--'}</td>
+                    <td><strong>${item.score}/100</strong></td>
+                    <td><div class="signals-list">${(item.signals || []).slice(0, 2).map(s => `<span class="signal-tag">${s}</span>`).join('')}</div></td>
+                </tr>`;
+            }
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
         }
 
         function renderEarnings() {

@@ -866,6 +866,39 @@ function getTodayPremarketStats() {
     };
 }
 
+/**
+ * Get all unique movers from today's session with full details
+ * Used to restore session watchlist after scanner restart
+ */
+function getTodaySessionMovers() {
+    const today = new Date().toISOString().split('T')[0];
+
+    // Get all unique movers from today, keeping the best (peak) data for each
+    const movers = getDb().prepare(`
+        SELECT
+            pm.symbol,
+            MIN(pm.timestamp) as first_seen,
+            MAX(pm.timestamp) as last_seen,
+            COUNT(*) as scan_count,
+            MAX(ABS(pm.gap_pct)) as peak_gap_pct,
+            pm.prev_close,
+            pm.premarket_price,
+            pm.gap_pct,
+            pm.premarket_volume,
+            pm.gap_type,
+            pm.catalyst,
+            pm.tier,
+            pm.score
+        FROM premarket_movers pm
+        JOIN premarket_scans ps ON pm.scan_id = ps.id
+        WHERE date(ps.timestamp) = ?
+        GROUP BY pm.symbol
+        ORDER BY peak_gap_pct DESC
+    `).all(today);
+
+    return movers;
+}
+
 module.exports = {
     getDb,
     insertSignal,
@@ -893,5 +926,6 @@ module.exports = {
     getRecentPremarketScans,
     getPremarketMovers,
     getLatestPremarketData,
-    getTodayPremarketStats
+    getTodayPremarketStats,
+    getTodaySessionMovers
 };

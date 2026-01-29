@@ -211,16 +211,46 @@ const server = http.createServer((req, res) => {
             // Extract gaps (from premarket)
             const gaps = [];
             if (premarket?.movers) {
+                // Build earnings lookup from earnings scan
+                const earningsLookup = {};
+                if (earningsScan?.results) {
+                    for (const e of earningsScan.results) {
+                        earningsLookup[e.symbol] = {
+                            date: e.earnings_date,
+                            daysTo: e.days_to_earnings
+                        };
+                    }
+                }
+
                 for (const mover of premarket.movers) {
                     if (mover.tier !== 'FILTERED') {
+                        // Derive direction from gap_type (e.g., "HUGE_DOWN" → bearish)
+                        const gapType = mover.gap_type || '';
+                        const direction = gapType.includes('UP') ? 'bullish' : gapType.includes('DOWN') ? 'bearish' : null;
+
+                        // Cross-reference earnings from earningsScan OR use catalyst from premarket
+                        const earningsInfo = earningsLookup[mover.symbol];
+
+                        // Check if catalyst indicates earnings today
+                        let earningsDate = earningsInfo?.date || null;
+                        let daysToEarnings = earningsInfo?.daysTo || null;
+
+                        if (mover.catalyst && mover.catalyst.includes('earnings')) {
+                            // Catalyst set by premarket scanner means earnings TODAY
+                            earningsDate = new Date().toISOString().split('T')[0];
+                            daysToEarnings = 0;
+                        }
+
                         gaps.push({
                             symbol: mover.symbol,
+                            price: mover.premarket_price,
                             gapPct: mover.gap_pct,
                             volume: mover.premarket_volume || mover.pre_market_volume,
                             tier: mover.tier,
-                            direction: mover.direction,
-                            earnings: mover.earnings_date || null,
-                            daysToEarnings: mover.days_to_earnings || null
+                            direction: direction,
+                            earnings: earningsDate,
+                            daysToEarnings: daysToEarnings,
+                            catalyst: mover.catalyst // Also pass catalyst for display
                         });
                     }
                 }
@@ -272,6 +302,106 @@ const server = http.createServer((req, res) => {
                 earnings.sort((a, b) => a.daysTo - b.daysTo);
             }
 
+            // Extract earnings flow confluence (earnings + options flow intersection)
+            const earningsFlow = [];
+            if (earningsScan?.results && opportunities?.results) {
+                // Build options flow lookup by symbol
+                const flowLookup = {};
+                for (const opp of opportunities.results) {
+                    flowLookup[opp.symbol] = opp;
+                }
+
+                for (const item of earningsScan.results) {
+                    const daysTo = item.days_to_earnings ?? 0;
+
+                    // Only process PREM window (5-14 days)
+                    if (daysTo < 5 || daysTo > 14) continue;
+
+                    // Check if we have options flow data for this symbol
+                    const flow = flowLookup[item.symbol];
+                    if (!flow) continue;
+
+                    // Calculate confluence score
+                    let score = 0;
+                    const signals = [];
+
+                    // Timing score
+                    if (daysTo >= 7 && daysTo <= 10) {
+                        score += 20;
+                        signals.push(`Optimal timing (${daysTo} days)`);
+                    } else {
+                        score += 10;
+                        signals.push(`In PREM window (${daysTo} days)`);
+                    }
+
+                    // Call/Put ratio
+                    const cpRatio = flow.unusual?.callPutRatio || 0;
+                    if (cpRatio > 2.0) {
+                        score += 25;
+                        signals.push(`Heavy call flow (${cpRatio.toFixed(1)}x C/P)`);
+                    } else if (cpRatio > 1.5) {
+                        score += 15;
+                        signals.push(`Elevated calls (${cpRatio.toFixed(1)}x C/P)`);
+                    }
+
+                    // Vol/OI ratio
+                    const volOi = flow.unusual?.volOiRatio || 0;
+                    if (volOi > 3) {
+                        score += 25;
+                        signals.push(`Major positioning (${volOi.toFixed(1)}x Vol/OI)`);
+                    } else if (volOi > 2) {
+                        score += 15;
+                        signals.push(`Elevated volume (${volOi.toFixed(1)}x Vol/OI)`);
+                    }
+
+                    // Net premium
+                    const netPremium = flow.unusual?.netPremium || 0;
+                    if (netPremium > 1000000) {
+                        score += 15;
+                        signals.push(`Net call premium $${(netPremium/1000000).toFixed(1)}M`);
+                    }
+
+                    // RSI setup
+                    const rsi = item.details?.rsi || 50;
+                    if (rsi < 40) {
+                        score += 15;
+                        signals.push(`RSI ${rsi.toFixed(0)} (oversold bounce)`);
+                    } else if (rsi <= 60) {
+                        score += 10;
+                        signals.push(`RSI ${rsi.toFixed(0)} (room to run)`);
+                    }
+
+                    // Determine tier
+                    const tier = score >= 70 ? 'HIGH_CONVICTION' :
+                                 score >= 50 ? 'TRADEABLE' : 'WATCH';
+
+                    // Determine direction (based on flow)
+                    const direction = cpRatio > 1.5 ? 'bullish' :
+                                      cpRatio < 0.7 ? 'bearish' : 'neutral';
+
+                    earningsFlow.push({
+                        symbol: item.symbol,
+                        daysTo: daysTo,
+                        earningsDate: item.earnings_date,
+                        earningsTime: item.earnings_time,
+                        price: flow.price,
+                        score: score,
+                        tier: tier,
+                        direction: direction,
+                        rsi: rsi,
+                        trend: item.details?.trend,
+                        ivRank: item.details?.ivPercentile,
+                        cpRatio: cpRatio,
+                        volOiRatio: volOi,
+                        netPremium: netPremium,
+                        signals: signals
+                    });
+                }
+
+                // Sort by score descending
+                earningsFlow.sort((a, b) => b.score - a.score);
+            }
+
             const briefing = {
                 timestamp: new Date().toISOString(),
                 marketContext,
@@ -279,11 +409,13 @@ const server = http.createServer((req, res) => {
                 gaps,
                 optionsFlow,
                 earnings,
+                earningsFlow,
                 summary: {
                     highConvictionCount: highConviction.length,
                     gapsCount: gaps.length,
                     optionsFlowCount: optionsFlow.length,
-                    earningsCount: earnings.length
+                    earningsCount: earnings.length,
+                    earningsFlowCount: earningsFlow.filter(e => e.tier !== 'WATCH').length
                 }
             };
 
@@ -326,8 +458,8 @@ const server = http.createServer((req, res) => {
     });
 });
 
-server.listen(PORT, () => {
-    console.log(`[Web Server] Running on http://localhost:${PORT}`);
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`[Web Server] Running on http://0.0.0.0:${PORT} (accessible from network)`);
     console.log(`[Web Server] Serving: ${ROOT}`);
 });
 

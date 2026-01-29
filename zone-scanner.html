@@ -985,6 +985,7 @@
                     <a href="analytics.html" class="nav-link">ANALYTICS</a>
                     <a href="earnings-scanner.html" class="nav-link earnings">EARNINGS</a>
                     <a href="opportunity-scanner.html" class="nav-link opportunity">OPTIONS FLOW</a>
+                    <a href="strategies.html" class="nav-link">STRATEGIES</a>
                     <a href="scanner.html" class="nav-link">MARKET</a>
                 </div>
                 <div class="status-dot" id="status-dot"></div>
@@ -1636,7 +1637,7 @@
         // BLOODHOUND CONTROL PANEL
         // ============================================
 
-        const CONTROL_API = 'http://localhost:8081';
+        const CONTROL_API = `http://${window.location.hostname}:8081`;
         let scannerStatus = { paused: false, isScanning: false };
 
         async function checkScannerStatus() {
