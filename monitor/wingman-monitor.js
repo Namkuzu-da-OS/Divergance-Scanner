@@ -34,8 +34,8 @@ const CONFIG = {
 
   // API endpoints
   apis: {
-    intel: externalConfig.apis?.intel || 'http://192.168.10.239:3000',
-    options: externalConfig.apis?.options || 'http://192.168.10.239:8000'
+    intel: externalConfig.apis?.intel || 'http://192.168.10.60:3000',
+    options: externalConfig.apis?.options || 'http://192.168.10.60:8000'
   },
 
   // Monitoring settings

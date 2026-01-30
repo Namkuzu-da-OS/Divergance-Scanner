@@ -538,13 +538,13 @@ Reference `monitor/bloodhound-scanner.js` for:
 
 ```javascript
 // Use these - they exist and work
-GET http://192.168.10.239:8000/api/technicals/{symbol}  // RSI, trend, momentum
-GET http://192.168.10.239:8000/api/levels/{symbol}      // Support/resistance
-GET http://192.168.10.239:8000/api/flow/{symbol}        // Options flow
-GET http://192.168.10.239:8000/api/options/{symbol}/iv  // IV rank
-GET http://192.168.10.239:8000/api/calendar/{symbol}    // Earnings date (single stock)
-GET http://192.168.10.239:8000/api/market/context       // VIX, SPY trend
-GET http://192.168.10.239:3000/api/x/sentiment/ticker/{symbol}  // Sentiment
+GET http://192.168.10.60:8000/api/technicals/{symbol}  // RSI, trend, momentum
+GET http://192.168.10.60:8000/api/levels/{symbol}      // Support/resistance
+GET http://192.168.10.60:8000/api/flow/{symbol}        // Options flow
+GET http://192.168.10.60:8000/api/options/{symbol}/iv  // IV rank
+GET http://192.168.10.60:8000/api/calendar/{symbol}    // Earnings date (single stock)
+GET http://192.168.10.60:8000/api/market/context       // VIX, SPY trend
+GET http://192.168.10.60:3000/api/x/sentiment/ticker/{symbol}  // Sentiment
 ```
 
 ### What Needs Building (NEW CODE)

@@ -93,7 +93,7 @@ async function analyzeSymbol(symbol) {
 
     try {
         // Get daily data
-        const data = await fetch(`http://192.168.10.239:8000/api/history/${symbol}?range=3mo&interval=1d`);
+        const data = await fetch(`http://192.168.10.60:8000/api/history/${symbol}?range=3mo&interval=1d`);
 
         if (!data.candles || data.candles.length === 0) {
             console.log('No candle data available');

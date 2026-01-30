@@ -89,7 +89,7 @@ On trade proposal, Wingman automatically runs:
 
 ## Server Locations
 
-- **Intelligence:** `http://192.168.10.239:3000`
-- **Options:** `http://192.168.10.239:8000`
+- **Intelligence:** `http://192.168.10.60:3000`
+- **Options:** `http://192.168.10.60:8000`
 
 Swagger: `:3000/api/swagger-ui`

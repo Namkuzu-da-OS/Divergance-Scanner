@@ -10,7 +10,7 @@ const path = require('path');
 const axios = require('axios');
 
 const DATA_FILE = path.join(__dirname, '../data/paper_trades.json');
-const OPTIONS_API = 'http://192.168.10.239:8000';
+const OPTIONS_API = 'http://192.168.10.60:8000';
 
 // Time windows to analyze (hours after entry)
 const TIME_WINDOWS = ['1h', '4h', '24h', '72h'];

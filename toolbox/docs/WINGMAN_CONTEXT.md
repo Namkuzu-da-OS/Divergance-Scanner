@@ -164,7 +164,7 @@
 **Broker:** ThinkOrSwim (TD Ameritrade)
 **Charting Platform:** TradingView (Free tier for charting, executing via ThinkOrSwim)
 **AI Assistant:** Wingman (validation, tracking, discipline enforcement)
-**Data Backend:** Market Intelligence Server (192.168.10.239:3000) - 190+ endpoints
+**Data Backend:** Market Intelligence Server (192.168.10.60:3000) - 190+ endpoints
 **Starting Capital:** $20,000
 **Starting Date:** December 29, 2025
 

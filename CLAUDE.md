@@ -157,12 +157,12 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 ### Primary Analysis Endpoints
 
 ```
-1. Quote + Technicals:  GET http://192.168.10.239:8000/api/technicals/{SYMBOL}
-2. Trading Signals:     GET http://192.168.10.239:8000/api/technicals/{SYMBOL}/signals
-3. Gamma Levels:        GET http://192.168.10.239:8000/api/levels/{SYMBOL}
-4. Options Flow:        GET http://192.168.10.239:8000/api/flow/{SYMBOL}
-5. Market Context:      GET http://192.168.10.239:8000/api/market/context
-6. AI Outlook:          GET http://192.168.10.239:3000/api/market/outlook
+1. Quote + Technicals:  GET http://192.168.10.60:8000/api/technicals/{SYMBOL}
+2. Trading Signals:     GET http://192.168.10.60:8000/api/technicals/{SYMBOL}/signals
+3. Gamma Levels:        GET http://192.168.10.60:8000/api/levels/{SYMBOL}
+4. Options Flow:        GET http://192.168.10.60:8000/api/flow/{SYMBOL}
+5. Market Context:      GET http://192.168.10.60:8000/api/market/context
+6. AI Outlook:          GET http://192.168.10.60:3000/api/market/outlook
 ```
 
 **Web search is SUPPLEMENTAL, not primary.**
@@ -657,13 +657,13 @@ node monitor/trade-client.js context SPY
 ### Logging a Trade (via curl)
 ```bash
 # Entry
-curl -X POST http://192.168.10.239:3000/api/trades \
+curl -X POST http://192.168.10.60:3000/api/trades \
   -H "Content-Type: application/json" \
   -d '{"symbol":"SPY","direction":"long","strategy":"vwap_reversion",
        "entry_price":692.00,"stop_price":690.00,"target_price":695.00}'
 
 # Close
-curl -X PATCH http://192.168.10.239:3000/api/trades/{id}/close \
+curl -X PATCH http://192.168.10.60:3000/api/trades/{id}/close \
   -H "Content-Type: application/json" \
   -d '{"exit_price":694.50,"exit_reason":"target_hit"}'
 ```
@@ -678,13 +678,13 @@ On each trade entry/exit, the server captures:
 ### Analytics Queries
 ```bash
 # Performance by VIX regime
-curl "http://192.168.10.239:3000/api/trades/stats?vix_regime=low"
+curl "http://192.168.10.60:3000/api/trades/stats?vix_regime=low"
 
 # Performance by gamma regime
-curl "http://192.168.10.239:3000/api/trades/stats?gamma_regime=BULLISH_SUPPORT"
+curl "http://192.168.10.60:3000/api/trades/stats?gamma_regime=BULLISH_SUPPORT"
 
 # Performance by strategy
-curl "http://192.168.10.239:3000/api/trades/stats?strategy=vwap_reversion"
+curl "http://192.168.10.60:3000/api/trades/stats?strategy=vwap_reversion"
 ```
 
 ---
@@ -920,19 +920,19 @@ When analyzing ANY symbol:
 
 ```
 1. TECHNICALS FIRST
-   curl http://192.168.10.239:8000/api/technicals/{SYMBOL}
+   curl http://192.168.10.60:8000/api/technicals/{SYMBOL}
    → Trend, RSI, MAs, momentum, volume
 
 2. GAMMA LEVELS
-   curl http://192.168.10.239:8000/api/levels/{SYMBOL}
+   curl http://192.168.10.60:8000/api/levels/{SYMBOL}
    → Call/put walls, max pain, gamma flip, expected move
 
 3. FLOW (if available)
-   curl http://192.168.10.239:8000/api/flow/{SYMBOL}
+   curl http://192.168.10.60:8000/api/flow/{SYMBOL}
    → Recent flow, delta, unusual activity
 
 4. MARKET CONTEXT
-   curl http://192.168.10.239:8000/api/market/context
+   curl http://192.168.10.60:8000/api/market/context
    → VIX regime, position size modifier
 
 5. ONLY THEN: Web search for news/catalysts if needed

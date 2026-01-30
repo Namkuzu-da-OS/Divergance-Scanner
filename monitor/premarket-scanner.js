@@ -19,8 +19,8 @@ const signalDb = require('./signal-db');
 // ============================================
 
 const CONFIG = {
-    INTEL_API: 'http://192.168.10.239:3000',
-    OPTIONS_API: 'http://192.168.10.239:8000',
+    INTEL_API: 'http://192.168.10.60:3000',
+    OPTIONS_API: 'http://192.168.10.60:8000',
     CONTROL_PORT: 8084,
     SCAN_INTERVAL_MS: 5 * 60 * 1000,  // 5 minutes
     PREMARKET_START_HOUR: 6,          // 6 AM ET

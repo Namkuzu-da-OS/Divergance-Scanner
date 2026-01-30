@@ -1095,7 +1095,7 @@
 
             // Fetch live price in background and update
             try {
-                const liveData = await fetchJson(`http://192.168.10.239:8000/api/technicals/${symbol}`);
+                const liveData = await fetchJson(`http://192.168.10.60:8000/api/technicals/${symbol}`);
                 if (liveData && liveData.price) {
                     // Update price display
                     const priceEl = modalBody.querySelector('.price-value');

@@ -86,8 +86,8 @@ You should see:
 ========================================
        WINGMAN MARKET MONITOR
 ========================================
-Intel API: http://192.168.10.239:3000
-Options API: http://192.168.10.239:8000
+Intel API: http://192.168.10.60:3000
+Options API: http://192.168.10.60:8000
 Check Interval: 120s
 Symbols: SPY, QQQ
 ========================================
@@ -179,7 +179,7 @@ thresholds: {
 - Verify chat ID is correct
 
 **"Failed to get market data"**
-- Check APIs are running: `curl http://192.168.10.239:3000/health`
+- Check APIs are running: `curl http://192.168.10.60:3000/health`
 - Verify network connectivity
 
 **No alerts received**

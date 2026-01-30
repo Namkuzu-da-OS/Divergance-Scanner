@@ -35,8 +35,8 @@ const CONFIG = {
     chatId: process.env.TELEGRAM_CHAT_ID || externalConfig.telegram?.chatId || 'YOUR_CHAT_ID'
   },
   apis: {
-    intel: externalConfig.apis?.intel || 'http://192.168.10.239:3000',
-    options: externalConfig.apis?.options || 'http://192.168.10.239:8000'
+    intel: externalConfig.apis?.intel || 'http://192.168.10.60:3000',
+    options: externalConfig.apis?.options || 'http://192.168.10.60:8000'
   },
   scanIntervalMs: 2 * 60 * 1000,  // 2 minutes
   outputPath: path.join(__dirname, '..', 'data', 'dynamic_scan.json'),

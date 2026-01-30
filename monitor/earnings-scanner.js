@@ -32,8 +32,8 @@ try {
 
 // API endpoints
 const APIS = {
-    intel: CONFIG.apis.intel || 'http://192.168.10.239:3000',
-    options: CONFIG.apis.options || 'http://192.168.10.239:8000'
+    intel: CONFIG.apis.intel || 'http://192.168.10.60:3000',
+    options: CONFIG.apis.options || 'http://192.168.10.60:8000'
 };
 
 // Earnings-specific Telegram config (separate bot)

@@ -28,8 +28,8 @@ Be complete. Miss no tickers."
 ## STEP 3: API Connectivity Check
 
 Ping both servers:
-- Options Analytics: `curl http://192.168.10.239:8000/api/market/context`
-- Market Intelligence: `curl http://192.168.10.239:3000/api/status`
+- Options Analytics: `curl http://192.168.10.60:8000/api/market/context`
+- Market Intelligence: `curl http://192.168.10.60:3000/api/status`
 
 ## BLOODHOUND SCANNER (CORE SYSTEM)
 
@@ -56,7 +56,7 @@ Scanner data is loaded via subagent in Step 2. For subsequent scanner checks dur
 
 ## API AWARENESS (MANDATORY)
 
-You have access to two data servers at 192.168.10.239:
+You have access to two data servers at 192.168.10.60:
 
 **Options Analytics (Port 8000):**
 - Discovery: `GET /api/capabilities` - Full endpoint documentation
@@ -64,7 +64,7 @@ You have access to two data servers at 192.168.10.239:
 
 **Market Intelligence (Port 3000):**
 - Discovery: `GET /api/status` - Health check
-- Swagger: `http://192.168.10.239:3000/api-docs`
+- Swagger: `http://192.168.10.60:3000/api-docs`
 - Key: `/api/latest`, `/api/market/outlook`, `/api/x/sentiment/ticker/{symbol}`
 
 **RULE: Always query OUR APIs first before using web search. Web search is supplemental only.**

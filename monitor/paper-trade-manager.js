@@ -10,7 +10,7 @@ const CONFIG = {
   TIME_STOP_HOURS: 72,
   WIN_THRESHOLD_PCT: 2.0,
   LOSS_THRESHOLD_PCT: -2.0,
-  OPTIONS_API: 'http://192.168.10.239:8000'
+  OPTIONS_API: 'http://192.168.10.60:8000'
 };
 
 // Time windows for price tracking (in minutes)

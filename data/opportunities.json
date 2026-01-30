@@ -1,11 +1,11 @@
 {
-  "timestamp": "2026-01-29T20:37:26.828Z",
+  "timestamp": "2026-01-29T20:56:28.555Z",
   "scannerStatus": "running",
   "scannerMode": "dynamic",
   "marketContext": {
-    "vix": 17.19,
+    "vix": 16.9,
     "vixRegime": "normal",
-    "spyPrice": 691.87,
+    "spyPrice": 693.95,
     "spyTrend": "bullish",
     "riskAppetite": "moderate"
   },
@@ -23,7 +23,7 @@
   "results": [
     {
       "symbol": "META",
-      "price": 737.685,
+      "price": 739.4672,
       "score": 80,
       "tier": "HIGH_CONVICTION",
       "direction": "neutral",
@@ -31,53 +31,53 @@
         "unusual_options"
       ],
       "unusual": {
-        "callVolume": 522869,
-        "putVolume": 150867,
-        "callPutRatio": 3.47,
-        "netPremium": 950756831,
+        "callVolume": 556211,
+        "putVolume": 153353,
+        "callPutRatio": 3.63,
+        "netPremium": 1038328782,
         "topStrikes": [
           {
             "strike": 730,
             "type": "call",
-            "volume": 11126,
+            "volume": 11133,
             "openInterest": 10349,
             "volOiRatio": 1.08,
-            "premium": 70177245,
+            "premium": 72141840,
             "expiration": "2026-05-15"
           },
           {
             "strike": 700,
             "type": "call",
-            "volume": 8337,
+            "volume": 8488,
             "openInterest": 12255,
-            "volOiRatio": 0.68,
-            "premium": 48813135,
+            "volOiRatio": 0.69,
+            "premium": 50737020,
             "expiration": "2026-03-20"
           },
           {
             "strike": 750,
             "type": "put",
-            "volume": 5666,
+            "volume": 5673,
             "openInterest": 1020,
-            "volOiRatio": 5.55,
-            "premium": 16077275,
+            "volOiRatio": 5.56,
+            "premium": 15402195,
             "expiration": "2026-02-20"
           },
           {
             "strike": 735,
             "type": "put",
-            "volume": 5616,
+            "volume": 5973,
             "openInterest": 7,
-            "volOiRatio": 802.29,
-            "premium": 3173040,
+            "volOiRatio": 853.29,
+            "premium": 2911838,
             "expiration": "2026-01-30"
           }
         ]
       },
       "technicals": {
-        "gap": 10.31133641379928,
+        "gap": 10.577841580308949,
         "volumeRatio": 1.72,
-        "ivRank": 69.2,
+        "ivRank": 39,
         "rsi": 57.05
       },
       "earnings": {
@@ -87,15 +87,15 @@
         "warningLevel": "none"
       },
       "signals": [
-        "Vol/OI 3324.0x (major positioning)",
-        "Net premium: $950.8M bullish",
-        "Call/Put ratio: 3.47 (strong bullish)",
+        "Vol/OI 853.3x (major positioning)",
+        "Net premium: $1038.3M bullish",
+        "Call/Put ratio: 3.63 (strong bullish)",
         "20 unusual strikes (conviction)",
         "Top call: 730C 5/15 vol/OI 1.1x",
-        "Top put: 750P 2/20 vol/OI 5.5x",
+        "Top put: 750P 2/20 vol/OI 5.6x",
         "🎲 Strikes capture earnings (event bet)"
       ],
-      "timestamp": "2026-01-29T20:35:41.689Z",
+      "timestamp": "2026-01-29T20:55:24.575Z",
       "discovery_sources": [
         "watchlist",
         "volume_leader",
@@ -105,7 +105,7 @@
     },
     {
       "symbol": "XLE",
-      "price": 50.645,
+      "price": 50.55,
       "score": 80,
       "tier": "HIGH_CONVICTION",
       "direction": "neutral",
@@ -113,10 +113,10 @@
         "unusual_options"
       ],
       "unusual": {
-        "callVolume": 283263,
-        "putVolume": 68071,
-        "callPutRatio": 4.16,
-        "netPremium": 25907868,
+        "callVolume": 287745,
+        "putVolume": 75014,
+        "callPutRatio": 3.84,
+        "netPremium": 24944948,
         "topStrikes": [
           {
             "strike": 50,
@@ -124,16 +124,16 @@
             "volume": 17122,
             "openInterest": 41387,
             "volOiRatio": 0.41,
-            "premium": 5992700,
+            "premium": 5907090,
             "expiration": "2026-06-18"
           },
           {
             "strike": 52.5,
             "type": "call",
-            "volume": 23474,
+            "volume": 23483,
             "openInterest": 56630,
             "volOiRatio": 0.41,
-            "premium": 2746458,
+            "premium": 2747511,
             "expiration": "2026-03-20"
           },
           {
@@ -148,18 +148,18 @@
           {
             "strike": 49,
             "type": "put",
-            "volume": 8727,
+            "volume": 8741,
             "openInterest": 3350,
             "volOiRatio": 2.61,
-            "premium": 855246,
+            "premium": 878470,
             "expiration": "2026-03-20"
           }
         ]
       },
       "technicals": {
-        "gap": 1.1888111888112007,
+        "gap": 0.999000999000999,
         "volumeRatio": 0.89,
-        "ivRank": 32.1,
+        "ivRank": 30.6,
         "rsi": 86.94
       },
       "earnings": {
@@ -170,555 +170,75 @@
       },
       "signals": [
         "Vol/OI 745.0x (major positioning)",
-        "Net premium: $25.9M bullish",
-        "Call/Put ratio: 4.16 (strong bullish)",
+        "Net premium: $24.9M bullish",
+        "Call/Put ratio: 3.84 (strong bullish)",
         "20 unusual strikes (conviction)",
         "Top call: 50C 6/18 vol/OI 0.4x",
         "Top put: 48.5P 1/15 vol/OI 23.6x"
       ],
-      "timestamp": "2026-01-29T20:36:49.595Z",
+      "timestamp": "2026-01-29T20:56:13.465Z",
       "discovery_sources": [
         "etf_sectors"
       ]
     },
     {
-      "symbol": "MSFT",
-      "price": 428.175,
-      "score": 75,
-      "tier": "HIGH_CONVICTION",
-      "direction": "bullish",
-      "opportunities": [
-        "unusual_calls",
-        "iv_high"
-      ],
-      "unusual": {
-        "callVolume": 642350,
-        "putVolume": 433090,
-        "callPutRatio": 1.48,
-        "netPremium": 273209361,
-        "topStrikes": [
-          {
-            "strike": 435,
-            "type": "call",
-            "volume": 20874,
-            "openInterest": 15304,
-            "volOiRatio": 1.36,
-            "premium": 31467555,
-            "expiration": "2026-03-20"
-          },
-          {
-            "strike": 425,
-            "type": "call",
-            "volume": 22162,
-            "openInterest": 77,
-            "volOiRatio": 287.82,
-            "premium": 13297200,
-            "expiration": "2026-01-30"
-          },
-          {
-            "strike": 440,
-            "type": "put",
-            "volume": 12218,
-            "openInterest": 12244,
-            "volOiRatio": 1,
-            "premium": 15333590,
-            "expiration": "2026-01-30"
-          },
-          {
-            "strike": 450,
-            "type": "put",
-            "volume": 6302,
-            "openInterest": 10469,
-            "volOiRatio": 0.6,
-            "premium": 13864400,
-            "expiration": "2026-01-30"
-          }
-        ]
-      },
-      "technicals": {
-        "gap": -11.098768764404207,
-        "volumeRatio": 1.4,
-        "ivRank": 82.5,
-        "rsi": 48.93
-      },
-      "earnings": {
-        "date": "2026-01-28",
-        "daysTo": 0,
-        "time": "before_open",
-        "warningLevel": "none"
-      },
-      "signals": [
-        "Vol/OI 287.8x (major positioning)",
-        "Net premium: $273.2M bullish",
-        "20 unusual strikes (conviction)",
-        "Top call: 435C 3/20 vol/OI 1.4x",
-        "Top put: 440P 1/30 vol/OI 1.0x",
-        "IV Rank: 83% (high - sell premium)",
-        "🎲 Strikes capture earnings (event bet)"
-      ],
-      "timestamp": "2026-01-29T20:35:29.019Z",
-      "discovery_sources": [
-        "watchlist",
-        "volume_leader",
-        "gainer",
-        "loser",
-        "nasdaq_mover"
-      ]
-    },
-    {
-      "symbol": "AAPL",
-      "price": 258.21,
-      "score": 75,
-      "tier": "HIGH_CONVICTION",
-      "direction": "bullish",
-      "opportunities": [
-        "unusual_calls",
-        "iv_high"
-      ],
-      "unusual": {
-        "callVolume": 463112,
-        "putVolume": 233497,
-        "callPutRatio": 1.98,
-        "netPremium": 146823955,
-        "topStrikes": [
-          {
-            "strike": 237.5,
-            "type": "call",
-            "volume": 15066,
-            "openInterest": 434,
-            "volOiRatio": 34.71,
-            "premium": 31789260,
-            "expiration": "2026-01-30"
-          },
-          {
-            "strike": 260,
-            "type": "call",
-            "volume": 29013,
-            "openInterest": 18420,
-            "volOiRatio": 1.58,
-            "premium": 13708642,
-            "expiration": "2026-01-30"
-          },
-          {
-            "strike": 282.5,
-            "type": "put",
-            "volume": 9877,
-            "openInterest": 1031,
-            "volOiRatio": 9.58,
-            "premium": 24001110,
-            "expiration": "2026-01-30"
-          },
-          {
-            "strike": 275,
-            "type": "put",
-            "volume": 9193,
-            "openInterest": 2474,
-            "volOiRatio": 3.72,
-            "premium": 16018802,
-            "expiration": "2026-01-30"
-          }
-        ]
-      },
-      "technicals": {
-        "gap": 0.6902199344875923,
-        "volumeRatio": 0.89,
-        "ivRank": 90.8,
-        "rsi": 43.86
-      },
-      "earnings": {
-        "date": "2026-01-29",
-        "daysTo": 0,
-        "time": "before_open",
-        "warningLevel": "critical"
-      },
-      "signals": [
-        "Vol/OI 34.7x (major positioning)",
-        "Net premium: $146.8M bullish",
-        "20 unusual strikes (conviction)",
-        "Top call: 237.5C 1/30 vol/OI 34.7x",
-        "Top put: 282.5P 1/30 vol/OI 9.6x",
-        "IV Rank: 91% (high - sell premium)",
-        "🎲 Strikes capture earnings (event bet)"
-      ],
-      "timestamp": "2026-01-29T20:36:32.334Z",
-      "discovery_sources": [
-        "watchlist"
-      ]
-    },
-    {
-      "symbol": "SPY",
-      "price": 691.97,
-      "score": 65,
-      "tier": "TRADEABLE",
-      "direction": "bullish",
-      "opportunities": [
-        "unusual_calls"
-      ],
-      "unusual": {
-        "callVolume": 4096451,
-        "putVolume": 3481179,
-        "callPutRatio": 1.18,
-        "netPremium": 427517850,
-        "topStrikes": [
-          {
-            "strike": 690,
-            "type": "call",
-            "volume": 310727,
-            "openInterest": 2206,
-            "volOiRatio": 140.86,
-            "premium": 64165126,
-            "expiration": "2026-01-29"
-          },
-          {
-            "strike": 689,
-            "type": "call",
-            "volume": 175915,
-            "openInterest": 926,
-            "volOiRatio": 189.97,
-            "premium": 52070840,
-            "expiration": "2026-01-29"
-          },
-          {
-            "strike": 695,
-            "type": "put",
-            "volume": 64071,
-            "openInterest": 8460,
-            "volOiRatio": 7.57,
-            "premium": 20182365,
-            "expiration": "2026-01-29"
-          },
-          {
-            "strike": 693,
-            "type": "put",
-            "volume": 110303,
-            "openInterest": 4126,
-            "volOiRatio": 26.73,
-            "premium": 15773329,
-            "expiration": "2026-01-29"
-          }
-        ]
-      },
-      "technicals": {
-        "gap": -0.4961030744010716,
-        "volumeRatio": 0.8,
-        "ivRank": 40.7,
-        "rsi": 56.48
-      },
-      "earnings": {
-        "date": null,
-        "daysTo": null,
-        "time": "unknown",
-        "warningLevel": "none"
-      },
-      "signals": [
-        "Vol/OI 237.4x (major positioning)",
-        "Net premium: $427.5M bullish",
-        "20 unusual strikes (conviction)",
-        "Top call: 690C 1/29 vol/OI 140.9x",
-        "Top put: 695P 1/29 vol/OI 7.6x"
-      ],
-      "timestamp": "2026-01-29T20:35:30.990Z",
-      "discovery_sources": [
-        "core",
-        "watchlist",
-        "52wk_extreme"
-      ]
-    },
-    {
-      "symbol": "QQQ",
-      "price": 626.48,
-      "score": 65,
-      "tier": "TRADEABLE",
-      "direction": "bullish",
-      "opportunities": [
-        "unusual_calls"
-      ],
-      "unusual": {
-        "callVolume": 2574802,
-        "putVolume": 2059407,
-        "callPutRatio": 1.25,
-        "netPremium": 360809218,
-        "topStrikes": [
-          {
-            "strike": 625,
-            "type": "call",
-            "volume": 210176,
-            "openInterest": 995,
-            "volOiRatio": 211.23,
-            "premium": 38882560,
-            "expiration": "2026-01-29"
-          },
-          {
-            "strike": 620,
-            "type": "call",
-            "volume": 20413,
-            "openInterest": 2225,
-            "volOiRatio": 9.17,
-            "premium": 38580570,
-            "expiration": "2026-02-27"
-          },
-          {
-            "strike": 620,
-            "type": "put",
-            "volume": 21433,
-            "openInterest": 5509,
-            "volOiRatio": 3.89,
-            "premium": 22504650,
-            "expiration": "2026-02-27"
-          },
-          {
-            "strike": 630,
-            "type": "put",
-            "volume": 42189,
-            "openInterest": 4755,
-            "volOiRatio": 8.87,
-            "premium": 15251324,
-            "expiration": "2026-01-29"
-          }
-        ]
-      },
-      "technicals": {
-        "gap": -1.0644009980733409,
-        "volumeRatio": 1,
-        "ivRank": 56,
-        "rsi": 57.8
-      },
-      "earnings": {
-        "date": null,
-        "daysTo": null,
-        "time": "unknown",
-        "warningLevel": "none"
-      },
-      "signals": [
-        "Vol/OI 356.9x (major positioning)",
-        "Net premium: $360.8M bullish",
-        "20 unusual strikes (conviction)",
-        "Top call: 625C 1/29 vol/OI 211.2x",
-        "Top put: 620P 2/27 vol/OI 3.9x"
-      ],
-      "timestamp": "2026-01-29T20:35:36.523Z",
-      "discovery_sources": [
-        "core",
-        "watchlist",
-        "52wk_extreme"
-      ]
-    },
-    {
-      "symbol": "TSLA",
-      "price": 415.69,
-      "score": 65,
-      "tier": "TRADEABLE",
-      "direction": "neutral",
-      "opportunities": [
-        "unusual_options"
-      ],
-      "unusual": {
-        "callVolume": 661499,
-        "putVolume": 860617,
-        "callPutRatio": 0.77,
-        "netPremium": -495210524,
-        "topStrikes": [
-          {
-            "strike": 420,
-            "type": "call",
-            "volume": 48911,
-            "openInterest": 2107,
-            "volOiRatio": 23.21,
-            "premium": 16996572,
-            "expiration": "2026-01-30"
-          },
-          {
-            "strike": 400,
-            "type": "call",
-            "volume": 7066,
-            "openInterest": 1791,
-            "volOiRatio": 3.95,
-            "premium": 11959205,
-            "expiration": "2026-01-30"
-          },
-          {
-            "strike": 440,
-            "type": "put",
-            "volume": 41001,
-            "openInterest": 6245,
-            "volOiRatio": 6.57,
-            "premium": 99222420,
-            "expiration": "2026-01-30"
-          },
-          {
-            "strike": 430,
-            "type": "put",
-            "volume": 57968,
-            "openInterest": 13358,
-            "volOiRatio": 4.34,
-            "premium": 86372320,
-            "expiration": "2026-01-30"
-          }
-        ]
-      },
-      "technicals": {
-        "gap": -3.6550317526537763,
-        "volumeRatio": 0.9,
-        "ivRank": 20.2,
-        "rsi": 50.03
-      },
-      "earnings": {
-        "date": "2026-04-21",
-        "daysTo": 82,
-        "time": "before_open",
-        "warningLevel": "none"
-      },
-      "signals": [
-        "Vol/OI 37.7x (major positioning)",
-        "Net premium: $495.2M bearish",
-        "20 unusual strikes (conviction)",
-        "Top call: 420C 1/30 vol/OI 23.2x",
-        "Top put: 440P 1/30 vol/OI 6.6x"
-      ],
-      "timestamp": "2026-01-29T20:35:38.213Z",
-      "discovery_sources": [
-        "watchlist",
-        "volume_leader",
-        "gainer",
-        "loser"
-      ]
-    },
-    {
-      "symbol": "NVDA",
-      "price": 191.19,
-      "score": 65,
-      "tier": "TRADEABLE",
-      "direction": "neutral",
-      "opportunities": [
-        "unusual_options"
-      ],
-      "unusual": {
-        "callVolume": 1261645,
-        "putVolume": 725415,
-        "callPutRatio": 1.74,
-        "netPremium": 345069021,
-        "topStrikes": [
-          {
-            "strike": 190,
-            "type": "call",
-            "volume": 146106,
-            "openInterest": 98586,
-            "volOiRatio": 1.48,
-            "premium": 31924161,
-            "expiration": "2026-01-30"
-          },
-          {
-            "strike": 187.5,
-            "type": "call",
-            "volume": 69473,
-            "openInterest": 73445,
-            "volOiRatio": 0.95,
-            "premium": 28483930,
-            "expiration": "2026-01-30"
-          },
-          {
-            "strike": 190,
-            "type": "put",
-            "volume": 82383,
-            "openInterest": 22529,
-            "volOiRatio": 3.66,
-            "premium": 8073534,
-            "expiration": "2026-01-30"
-          },
-          {
-            "strike": 205,
-            "type": "put",
-            "volume": 4373,
-            "openInterest": 239,
-            "volOiRatio": 18.3,
-            "premium": 6045672,
-            "expiration": "2026-01-30"
-          }
-        ]
-      },
-      "technicals": {
-        "gap": -0.1723057644110341,
-        "volumeRatio": 0.94,
-        "ivRank": 32.9,
-        "rsi": 53.29
-      },
-      "earnings": {
-        "date": "2026-02-25",
-        "daysTo": 27,
-        "time": "before_open",
-        "warningLevel": "none"
-      },
-      "signals": [
-        "Vol/OI 18.3x (major positioning)",
-        "Net premium: $345.1M bullish",
-        "20 unusual strikes (conviction)",
-        "Top call: 190C 1/30 vol/OI 1.5x",
-        "Top put: 190P 1/30 vol/OI 3.7x"
-      ],
-      "timestamp": "2026-01-29T20:35:44.970Z",
-      "discovery_sources": [
-        "watchlist",
-        "volume_leader",
-        "nasdaq_mover"
-      ]
-    },
-    {
       "symbol": "PLTR",
-      "price": 149.59,
-      "score": 65,
-      "tier": "TRADEABLE",
+      "price": 151.79,
+      "score": 75,
+      "tier": "HIGH_CONVICTION",
       "direction": "neutral",
       "opportunities": [
-        "unusual_options"
+        "unusual_options",
+        "iv_high"
       ],
       "unusual": {
-        "callVolume": 393264,
-        "putVolume": 384830,
-        "callPutRatio": 1.02,
-        "netPremium": -168387387,
+        "callVolume": 440341,
+        "putVolume": 398046,
+        "callPutRatio": 1.11,
+        "netPremium": -129880028,
         "topStrikes": [
           {
             "strike": 155,
             "type": "call",
-            "volume": 14076,
+            "volume": 15697,
             "openInterest": 362,
-            "volOiRatio": 38.88,
-            "premium": 8058510,
+            "volOiRatio": 43.36,
+            "premium": 10203050,
             "expiration": "2026-02-06"
           },
           {
             "strike": 150,
             "type": "call",
-            "volume": 7174,
-            "openInterest": 776,
-            "volOiRatio": 9.24,
-            "premium": 5631590,
-            "expiration": "2026-02-06"
+            "volume": 33045,
+            "openInterest": 324,
+            "volOiRatio": 101.99,
+            "premium": 9269122,
+            "expiration": "2026-01-30"
+          },
+          {
+            "strike": 175,
+            "type": "put",
+            "volume": 15189,
+            "openInterest": 3143,
+            "volOiRatio": 4.83,
+            "premium": 35466315,
+            "expiration": "2026-01-30"
           },
           {
             "strike": 170,
             "type": "put",
-            "volume": 15003,
+            "volume": 15052,
             "openInterest": 4993,
-            "volOiRatio": 3,
-            "premium": 30643628,
-            "expiration": "2026-01-30"
-          },
-          {
-            "strike": 167.5,
-            "type": "put",
-            "volume": 16872,
-            "openInterest": 7519,
-            "volOiRatio": 2.24,
-            "premium": 30243060,
+            "volOiRatio": 3.01,
+            "premium": 27507530,
             "expiration": "2026-01-30"
           }
         ]
       },
       "technicals": {
-        "gap": -4.931680965999359,
+        "gap": -3.5335239911026393,
         "volumeRatio": 1.23,
-        "ivRank": 32.1,
+        "ivRank": 87.4,
         "rsi": 17.96
       },
       "earnings": {
@@ -728,14 +248,15 @@
         "warningLevel": "critical"
       },
       "signals": [
-        "Vol/OI 649.4x (major positioning)",
-        "Net premium: $168.4M bearish",
+        "Vol/OI 660.7x (major positioning)",
+        "Net premium: $129.9M bearish",
         "20 unusual strikes (conviction)",
-        "Top call: 155C 2/6 vol/OI 38.9x",
-        "Top put: 170P 1/30 vol/OI 3.0x",
+        "Top call: 155C 2/6 vol/OI 43.4x",
+        "Top put: 175P 1/30 vol/OI 4.8x",
+        "IV Rank: 87% (high - sell premium)",
         "📊 Mixed: some pre, some post earnings"
       ],
-      "timestamp": "2026-01-29T20:35:51.352Z",
+      "timestamp": "2026-01-29T20:55:32.454Z",
       "discovery_sources": [
         "volume_leader",
         "gainer",
@@ -743,218 +264,63 @@
       ]
     },
     {
-      "symbol": "IWM",
-      "price": 262.4,
-      "score": 65,
-      "tier": "TRADEABLE",
-      "direction": "neutral",
-      "opportunities": [
-        "unusual_options"
-      ],
-      "unusual": {
-        "callVolume": 491269,
-        "putVolume": 820753,
-        "callPutRatio": 0.6,
-        "netPremium": -78035141,
-        "topStrikes": [
-          {
-            "strike": 230,
-            "type": "call",
-            "volume": 5001,
-            "openInterest": 16557,
-            "volOiRatio": 0.3,
-            "premium": 21711842,
-            "expiration": "2026-09-18"
-          },
-          {
-            "strike": 290,
-            "type": "call",
-            "volume": 5004,
-            "openInterest": 5316,
-            "volOiRatio": 0.94,
-            "premium": 6257502,
-            "expiration": "2026-12-18"
-          },
-          {
-            "strike": 270,
-            "type": "put",
-            "volume": 22321,
-            "openInterest": 4764,
-            "volOiRatio": 4.69,
-            "premium": 16952800,
-            "expiration": "2026-01-30"
-          },
-          {
-            "strike": 257,
-            "type": "put",
-            "volume": 30342,
-            "openInterest": 47034,
-            "volOiRatio": 0.65,
-            "premium": 9497046,
-            "expiration": "2026-02-20"
-          }
-        ]
-      },
-      "technicals": {
-        "gap": -0.3418154196733893,
-        "volumeRatio": 1.02,
-        "ivRank": 41.6,
-        "rsi": 63.5
-      },
-      "earnings": {
-        "date": null,
-        "daysTo": null,
-        "time": "unknown",
-        "warningLevel": "none"
-      },
-      "signals": [
-        "Vol/OI 139.9x (major positioning)",
-        "Net premium: $78.0M bearish",
-        "20 unusual strikes (conviction)",
-        "Top call: 230C 9/18 vol/OI 0.3x",
-        "Top put: 270P 1/30 vol/OI 4.7x"
-      ],
-      "timestamp": "2026-01-29T20:36:01.747Z",
-      "discovery_sources": [
-        "core"
-      ]
-    },
-    {
-      "symbol": "INTC",
-      "price": 48.1599,
-      "score": 65,
-      "tier": "TRADEABLE",
-      "direction": "neutral",
-      "opportunities": [
-        "unusual_options"
-      ],
-      "unusual": {
-        "callVolume": 314968,
-        "putVolume": 143461,
-        "callPutRatio": 2.2,
-        "netPremium": 47489115,
-        "topStrikes": [
-          {
-            "strike": 60,
-            "type": "call",
-            "volume": 32290,
-            "openInterest": 32239,
-            "volOiRatio": 1,
-            "premium": 6603305,
-            "expiration": "2026-04-17"
-          },
-          {
-            "strike": 50,
-            "type": "call",
-            "volume": 10843,
-            "openInterest": 49578,
-            "volOiRatio": 0.22,
-            "premium": 2152336,
-            "expiration": "2026-02-20"
-          },
-          {
-            "strike": 48,
-            "type": "put",
-            "volume": 20747,
-            "openInterest": 16616,
-            "volOiRatio": 1.25,
-            "premium": 1348555,
-            "expiration": "2026-01-30"
-          },
-          {
-            "strike": 47,
-            "type": "put",
-            "volume": 5597,
-            "openInterest": 1925,
-            "volOiRatio": 2.91,
-            "premium": 654849,
-            "expiration": "2026-02-06"
-          }
-        ]
-      },
-      "technicals": {
-        "gap": -1.2712177121771233,
-        "volumeRatio": 1.43,
-        "ivRank": 40.6,
-        "rsi": 57.81
-      },
-      "earnings": {
-        "date": "2026-01-22",
-        "daysTo": 0,
-        "time": "before_open",
-        "warningLevel": "none"
-      },
-      "signals": [
-        "Vol/OI 6.1x (major positioning)",
-        "Net premium: $47.5M bullish",
-        "18 unusual strikes (conviction)",
-        "Top call: 60C 4/17 vol/OI 1.0x",
-        "Top put: 48P 1/30 vol/OI 1.3x",
-        "🎲 Strikes capture earnings (event bet)"
-      ],
-      "timestamp": "2026-01-29T20:36:09.176Z",
-      "discovery_sources": [
-        "volume_leader",
-        "nasdaq_mover"
-      ]
-    },
-    {
       "symbol": "AMD",
-      "price": 248.97,
-      "score": 65,
-      "tier": "TRADEABLE",
+      "price": 251.66,
+      "score": 75,
+      "tier": "HIGH_CONVICTION",
       "direction": "bullish",
       "opportunities": [
-        "unusual_calls"
+        "unusual_calls",
+        "iv_high"
       ],
       "unusual": {
-        "callVolume": 287071,
-        "putVolume": 146718,
-        "callPutRatio": 1.96,
-        "netPremium": 91815614,
+        "callVolume": 312338,
+        "putVolume": 150151,
+        "callPutRatio": 2.08,
+        "netPremium": 142151464,
         "topStrikes": [
           {
             "strike": 250,
             "type": "call",
-            "volume": 27014,
+            "volume": 29793,
             "openInterest": 5938,
-            "volOiRatio": 4.55,
-            "premium": 7577427,
+            "volOiRatio": 5.02,
+            "premium": 11842718,
             "expiration": "2026-01-30"
           },
           {
             "strike": 245,
             "type": "call",
-            "volume": 11878,
+            "volume": 12432,
             "openInterest": 2412,
-            "volOiRatio": 4.92,
-            "premium": 6740765,
+            "volOiRatio": 5.15,
+            "premium": 9448320,
             "expiration": "2026-01-30"
           },
           {
             "strike": 255,
             "type": "put",
-            "volume": 6507,
+            "volume": 6715,
             "openInterest": 3613,
-            "volOiRatio": 1.8,
-            "premium": 4619970,
+            "volOiRatio": 1.86,
+            "premium": 3290350,
             "expiration": "2026-01-30"
           },
           {
             "strike": 252.5,
             "type": "put",
-            "volume": 8447,
+            "volume": 8518,
             "openInterest": 2715,
-            "volOiRatio": 3.11,
-            "premium": 4498028,
+            "volOiRatio": 3.14,
+            "premium": 2917415,
             "expiration": "2026-01-30"
           }
         ]
       },
       "technicals": {
-        "gap": -1.4916514995647743,
+        "gap": -0.42731660995489934,
         "volumeRatio": 0.75,
-        "ivRank": 32.3,
+        "ivRank": 89.5,
         "rsi": 79.2
       },
       "earnings": {
@@ -965,20 +331,896 @@
       },
       "signals": [
         "Vol/OI 10.2x (major positioning)",
-        "Net premium: $91.8M bullish",
+        "Net premium: $142.2M bullish",
         "20 unusual strikes (conviction)",
-        "Top call: 250C 1/30 vol/OI 4.5x",
-        "Top put: 255P 1/30 vol/OI 1.8x",
+        "Top call: 250C 1/30 vol/OI 5.0x",
+        "Top put: 255P 1/30 vol/OI 1.9x",
+        "IV Rank: 90% (high - sell premium)",
         "⏰ Strikes expire PRE-earnings (drift bet)"
       ],
-      "timestamp": "2026-01-29T20:36:26.288Z",
+      "timestamp": "2026-01-29T20:55:54.399Z",
       "discovery_sources": [
         "watchlist"
       ]
     },
     {
+      "symbol": "AAPL",
+      "price": 258.56,
+      "score": 75,
+      "tier": "HIGH_CONVICTION",
+      "direction": "bullish",
+      "opportunities": [
+        "unusual_calls",
+        "iv_high"
+      ],
+      "unusual": {
+        "callVolume": 531187,
+        "putVolume": 260605,
+        "callPutRatio": 2.04,
+        "netPremium": 179419234,
+        "topStrikes": [
+          {
+            "strike": 237.5,
+            "type": "call",
+            "volume": 15067,
+            "openInterest": 434,
+            "volOiRatio": 34.72,
+            "premium": 32356382,
+            "expiration": "2026-01-30"
+          },
+          {
+            "strike": 260,
+            "type": "call",
+            "volume": 33196,
+            "openInterest": 18420,
+            "volOiRatio": 1.8,
+            "premium": 17427900,
+            "expiration": "2026-01-30"
+          },
+          {
+            "strike": 282.5,
+            "type": "put",
+            "volume": 9877,
+            "openInterest": 1031,
+            "volOiRatio": 9.58,
+            "premium": 23852955,
+            "expiration": "2026-01-30"
+          },
+          {
+            "strike": 275,
+            "type": "put",
+            "volume": 9203,
+            "openInterest": 2474,
+            "volOiRatio": 3.72,
+            "premium": 16220288,
+            "expiration": "2026-01-30"
+          }
+        ]
+      },
+      "technicals": {
+        "gap": 0.8267041023241322,
+        "volumeRatio": 0.89,
+        "ivRank": 91.2,
+        "rsi": 43.86
+      },
+      "earnings": {
+        "date": "2026-01-29",
+        "daysTo": 0,
+        "time": "before_open",
+        "warningLevel": "critical"
+      },
+      "signals": [
+        "Vol/OI 34.7x (major positioning)",
+        "Net premium: $179.4M bullish",
+        "20 unusual strikes (conviction)",
+        "Top call: 237.5C 1/30 vol/OI 34.7x",
+        "Top put: 282.5P 1/30 vol/OI 9.6x",
+        "IV Rank: 91% (high - sell premium)",
+        "🎲 Strikes capture earnings (event bet)"
+      ],
+      "timestamp": "2026-01-29T20:55:57.719Z",
+      "discovery_sources": [
+        "watchlist"
+      ]
+    },
+    {
+      "symbol": "XLP",
+      "price": 82.14,
+      "score": 70,
+      "tier": "HIGH_CONVICTION",
+      "direction": "bearish",
+      "opportunities": [
+        "unusual_puts",
+        "iv_low"
+      ],
+      "unusual": {
+        "callVolume": 2826,
+        "putVolume": 36905,
+        "callPutRatio": 0.08,
+        "netPremium": -3579891,
+        "topStrikes": [
+          {
+            "strike": 76,
+            "type": "call",
+            "volume": 39,
+            "openInterest": 6,
+            "volOiRatio": 6.5,
+            "premium": 28762,
+            "expiration": "2026-04-17"
+          },
+          {
+            "strike": 100,
+            "type": "call",
+            "volume": 8,
+            "openInterest": 1,
+            "volOiRatio": 8,
+            "premium": 280,
+            "expiration": "2026-12-18"
+          },
+          {
+            "strike": 82,
+            "type": "put",
+            "volume": 10169,
+            "openInterest": 429,
+            "volOiRatio": 23.7,
+            "premium": 1571110,
+            "expiration": "2026-03-20"
+          },
+          {
+            "strike": 79,
+            "type": "put",
+            "volume": 20171,
+            "openInterest": 4546,
+            "volOiRatio": 4.44,
+            "premium": 1482568,
+            "expiration": "2026-03-20"
+          }
+        ]
+      },
+      "technicals": {
+        "gap": -0.21865889212827092,
+        "volumeRatio": 0.83,
+        "ivRank": 8.8,
+        "rsi": 83.53
+      },
+      "earnings": {
+        "date": null,
+        "daysTo": null,
+        "time": "unknown",
+        "warningLevel": "none"
+      },
+      "signals": [
+        "Vol/OI 23.7x (major positioning)",
+        "Net premium: $3.6M",
+        "Call/Put ratio: 0.08 (strong bearish)",
+        "4 unusual strikes (conviction)",
+        "Top call: 76C 4/17 vol/OI 6.5x",
+        "Top put: 82P 3/20 vol/OI 23.7x",
+        "IV Rank: 9% (low - buy premium)"
+      ],
+      "timestamp": "2026-01-29T20:56:21.434Z",
+      "discovery_sources": [
+        "etf_sectors"
+      ]
+    },
+    {
+      "symbol": "MSFT",
+      "price": 431.92,
+      "score": 65,
+      "tier": "TRADEABLE",
+      "direction": "bullish",
+      "opportunities": [
+        "unusual_calls"
+      ],
+      "unusual": {
+        "callVolume": 743313,
+        "putVolume": 439823,
+        "callPutRatio": 1.69,
+        "netPremium": 459172152,
+        "topStrikes": [
+          {
+            "strike": 435,
+            "type": "call",
+            "volume": 21238,
+            "openInterest": 15304,
+            "volOiRatio": 1.39,
+            "premium": 35467460,
+            "expiration": "2026-03-20"
+          },
+          {
+            "strike": 430,
+            "type": "call",
+            "volume": 42859,
+            "openInterest": 333,
+            "volOiRatio": 128.71,
+            "premium": 21000910,
+            "expiration": "2026-01-30"
+          },
+          {
+            "strike": 450,
+            "type": "put",
+            "volume": 6649,
+            "openInterest": 10469,
+            "volOiRatio": 0.64,
+            "premium": 12134425,
+            "expiration": "2026-01-30"
+          },
+          {
+            "strike": 440,
+            "type": "put",
+            "volume": 12614,
+            "openInterest": 12244,
+            "volOiRatio": 1.03,
+            "premium": 11636415,
+            "expiration": "2026-01-30"
+          }
+        ]
+      },
+      "technicals": {
+        "gap": -10.321200921869481,
+        "volumeRatio": 1.4,
+        "ivRank": 79.9,
+        "rsi": 48.93
+      },
+      "earnings": {
+        "date": "2026-01-28",
+        "daysTo": 0,
+        "time": "before_open",
+        "warningLevel": "none"
+      },
+      "signals": [
+        "Vol/OI 775.2x (major positioning)",
+        "Net premium: $459.2M bullish",
+        "20 unusual strikes (conviction)",
+        "Top call: 435C 3/20 vol/OI 1.4x",
+        "Top put: 450P 1/30 vol/OI 0.6x",
+        "🎲 Strikes capture earnings (event bet)"
+      ],
+      "timestamp": "2026-01-29T20:55:15.283Z",
+      "discovery_sources": [
+        "watchlist",
+        "volume_leader",
+        "gainer",
+        "loser",
+        "nasdaq_mover"
+      ]
+    },
+    {
+      "symbol": "SPY",
+      "price": 693.99,
+      "score": 65,
+      "tier": "TRADEABLE",
+      "direction": "bullish",
+      "opportunities": [
+        "unusual_calls"
+      ],
+      "unusual": {
+        "callVolume": 4446912,
+        "putVolume": 3231265,
+        "callPutRatio": 1.38,
+        "netPremium": 1053429578,
+        "topStrikes": [
+          {
+            "strike": 690,
+            "type": "call",
+            "volume": 313437,
+            "openInterest": 2206,
+            "volOiRatio": 142.08,
+            "premium": 126315111,
+            "expiration": "2026-01-29"
+          },
+          {
+            "strike": 691,
+            "type": "call",
+            "volume": 350634,
+            "openInterest": 1441,
+            "volOiRatio": 243.33,
+            "premium": 107118687,
+            "expiration": "2026-01-29"
+          },
+          {
+            "strike": 670,
+            "type": "put",
+            "volume": 7996,
+            "openInterest": 9729,
+            "volOiRatio": 0.82,
+            "premium": 13889052,
+            "expiration": "2026-06-18"
+          },
+          {
+            "strike": 690,
+            "type": "put",
+            "volume": 96192,
+            "openInterest": 21037,
+            "volOiRatio": 4.57,
+            "premium": 8609184,
+            "expiration": "2026-01-30"
+          }
+        ]
+      },
+      "technicals": {
+        "gap": -0.20563112938942657,
+        "volumeRatio": 0.8,
+        "ivRank": 42.6,
+        "rsi": 56.48
+      },
+      "earnings": {
+        "date": null,
+        "daysTo": null,
+        "time": "unknown",
+        "warningLevel": "none"
+      },
+      "signals": [
+        "Vol/OI 243.3x (major positioning)",
+        "Net premium: $1053.4M bullish",
+        "20 unusual strikes (conviction)",
+        "Top call: 690C 1/29 vol/OI 142.1x",
+        "Top put: 670P 6/18 vol/OI 0.8x"
+      ],
+      "timestamp": "2026-01-29T20:55:17.327Z",
+      "discovery_sources": [
+        "core",
+        "watchlist",
+        "52wk_extreme"
+      ]
+    },
+    {
+      "symbol": "QQQ",
+      "price": 629.43,
+      "score": 65,
+      "tier": "TRADEABLE",
+      "direction": "bullish",
+      "opportunities": [
+        "unusual_calls"
+      ],
+      "unusual": {
+        "callVolume": 2770044,
+        "putVolume": 1882011,
+        "callPutRatio": 1.47,
+        "netPremium": 904292800,
+        "topStrikes": [
+          {
+            "strike": 625,
+            "type": "call",
+            "volume": 213252,
+            "openInterest": 995,
+            "volOiRatio": 214.32,
+            "premium": 93937506,
+            "expiration": "2026-01-29"
+          },
+          {
+            "strike": 624,
+            "type": "call",
+            "volume": 145277,
+            "openInterest": 801,
+            "volOiRatio": 181.37,
+            "premium": 78376941,
+            "expiration": "2026-01-29"
+          },
+          {
+            "strike": 620,
+            "type": "put",
+            "volume": 21494,
+            "openInterest": 5509,
+            "volOiRatio": 3.9,
+            "premium": 20172119,
+            "expiration": "2026-02-27"
+          },
+          {
+            "strike": 630,
+            "type": "put",
+            "volume": 30016,
+            "openInterest": 24691,
+            "volOiRatio": 1.22,
+            "premium": 8779680,
+            "expiration": "2026-01-30"
+          }
+        ]
+      },
+      "technicals": {
+        "gap": -0.5985281576703322,
+        "volumeRatio": 1,
+        "ivRank": 48.8,
+        "rsi": 57.8
+      },
+      "earnings": {
+        "date": null,
+        "daysTo": null,
+        "time": "unknown",
+        "warningLevel": "none"
+      },
+      "signals": [
+        "Vol/OI 359.3x (major positioning)",
+        "Net premium: $904.3M bullish",
+        "20 unusual strikes (conviction)",
+        "Top call: 625C 1/29 vol/OI 214.3x",
+        "Top put: 620P 2/27 vol/OI 3.9x"
+      ],
+      "timestamp": "2026-01-29T20:55:19.819Z",
+      "discovery_sources": [
+        "core",
+        "watchlist",
+        "52wk_extreme"
+      ]
+    },
+    {
+      "symbol": "TSLA",
+      "price": 416.53,
+      "score": 65,
+      "tier": "TRADEABLE",
+      "direction": "neutral",
+      "opportunities": [
+        "unusual_options"
+      ],
+      "unusual": {
+        "callVolume": 699087,
+        "putVolume": 888206,
+        "callPutRatio": 0.79,
+        "netPremium": -454039759,
+        "topStrikes": [
+          {
+            "strike": 420,
+            "type": "call",
+            "volume": 52252,
+            "openInterest": 2107,
+            "volOiRatio": 24.8,
+            "premium": 17635050,
+            "expiration": "2026-01-30"
+          },
+          {
+            "strike": 400,
+            "type": "call",
+            "volume": 7587,
+            "openInterest": 1791,
+            "volOiRatio": 4.24,
+            "premium": 13125510,
+            "expiration": "2026-01-30"
+          },
+          {
+            "strike": 440,
+            "type": "put",
+            "volume": 41211,
+            "openInterest": 6245,
+            "volOiRatio": 6.6,
+            "premium": 95918602,
+            "expiration": "2026-01-30"
+          },
+          {
+            "strike": 430,
+            "type": "put",
+            "volume": 58408,
+            "openInterest": 13358,
+            "volOiRatio": 4.37,
+            "premium": 83815480,
+            "expiration": "2026-01-30"
+          }
+        ]
+      },
+      "technicals": {
+        "gap": -3.460343948454088,
+        "volumeRatio": 0.9,
+        "ivRank": 34,
+        "rsi": 50.03
+      },
+      "earnings": {
+        "date": "2026-04-21",
+        "daysTo": 82,
+        "time": "before_open",
+        "warningLevel": "none"
+      },
+      "signals": [
+        "Vol/OI 38.1x (major positioning)",
+        "Net premium: $454.0M bearish",
+        "20 unusual strikes (conviction)",
+        "Top call: 420C 1/30 vol/OI 24.8x",
+        "Top put: 440P 1/30 vol/OI 6.6x"
+      ],
+      "timestamp": "2026-01-29T20:55:22.437Z",
+      "discovery_sources": [
+        "watchlist",
+        "volume_leader",
+        "gainer",
+        "loser"
+      ]
+    },
+    {
+      "symbol": "NVDA",
+      "price": 192.155,
+      "score": 65,
+      "tier": "TRADEABLE",
+      "direction": "neutral",
+      "opportunities": [
+        "unusual_options"
+      ],
+      "unusual": {
+        "callVolume": 1359023,
+        "putVolume": 792158,
+        "callPutRatio": 1.72,
+        "netPremium": 440698442,
+        "topStrikes": [
+          {
+            "strike": 190,
+            "type": "call",
+            "volume": 155312,
+            "openInterest": 98586,
+            "volOiRatio": 1.58,
+            "premium": 45661728,
+            "expiration": "2026-01-30"
+          },
+          {
+            "strike": 187.5,
+            "type": "call",
+            "volume": 74971,
+            "openInterest": 73445,
+            "volOiRatio": 1.02,
+            "premium": 37485500,
+            "expiration": "2026-01-30"
+          },
+          {
+            "strike": 190,
+            "type": "put",
+            "volume": 85913,
+            "openInterest": 22529,
+            "volOiRatio": 3.81,
+            "premium": 6271649,
+            "expiration": "2026-01-30"
+          },
+          {
+            "strike": 205,
+            "type": "put",
+            "volume": 4375,
+            "openInterest": 239,
+            "volOiRatio": 18.31,
+            "premium": 5643750,
+            "expiration": "2026-01-30"
+          }
+        ]
+      },
+      "technicals": {
+        "gap": 0.33155806182121494,
+        "volumeRatio": 0.94,
+        "ivRank": 32.7,
+        "rsi": 53.29
+      },
+      "earnings": {
+        "date": "2026-02-25",
+        "daysTo": 27,
+        "time": "before_open",
+        "warningLevel": "none"
+      },
+      "signals": [
+        "Vol/OI 19.1x (major positioning)",
+        "Net premium: $440.7M bullish",
+        "20 unusual strikes (conviction)",
+        "Top call: 190C 1/30 vol/OI 1.6x",
+        "Top put: 190P 1/30 vol/OI 3.8x"
+      ],
+      "timestamp": "2026-01-29T20:55:26.940Z",
+      "discovery_sources": [
+        "watchlist",
+        "volume_leader",
+        "nasdaq_mover"
+      ]
+    },
+    {
+      "symbol": "IWM",
+      "price": 263.26,
+      "score": 65,
+      "tier": "TRADEABLE",
+      "direction": "neutral",
+      "opportunities": [
+        "unusual_options"
+      ],
+      "unusual": {
+        "callVolume": 516716,
+        "putVolume": 836094,
+        "callPutRatio": 0.62,
+        "netPremium": -48995226,
+        "topStrikes": [
+          {
+            "strike": 230,
+            "type": "call",
+            "volume": 5001,
+            "openInterest": 16557,
+            "volOiRatio": 0.3,
+            "premium": 21656830,
+            "expiration": "2026-09-18"
+          },
+          {
+            "strike": 262,
+            "type": "call",
+            "volume": 51216,
+            "openInterest": 350,
+            "volOiRatio": 146.33,
+            "premium": 6504432,
+            "expiration": "2026-01-29"
+          },
+          {
+            "strike": 270,
+            "type": "put",
+            "volume": 22345,
+            "openInterest": 4764,
+            "volOiRatio": 4.69,
+            "premium": 15071702,
+            "expiration": "2026-01-30"
+          },
+          {
+            "strike": 265,
+            "type": "put",
+            "volume": 4291,
+            "openInterest": 545,
+            "volOiRatio": 7.87,
+            "premium": 8933862,
+            "expiration": "2027-01-15"
+          }
+        ]
+      },
+      "technicals": {
+        "gap": -0.01519179642993561,
+        "volumeRatio": 1.02,
+        "ivRank": 25.9,
+        "rsi": 63.5
+      },
+      "earnings": {
+        "date": null,
+        "daysTo": null,
+        "time": "unknown",
+        "warningLevel": "none"
+      },
+      "signals": [
+        "Vol/OI 146.3x (major positioning)",
+        "Net premium: $49.0M bearish",
+        "20 unusual strikes (conviction)",
+        "Top call: 230C 9/18 vol/OI 0.3x",
+        "Top put: 270P 1/30 vol/OI 4.7x"
+      ],
+      "timestamp": "2026-01-29T20:55:39.681Z",
+      "discovery_sources": [
+        "core"
+      ]
+    },
+    {
+      "symbol": "IBIT",
+      "price": 47.645,
+      "score": 65,
+      "tier": "TRADEABLE",
+      "direction": "bullish",
+      "opportunities": [
+        "unusual_calls",
+        "iv_low"
+      ],
+      "unusual": {
+        "callVolume": 510829,
+        "putVolume": 424136,
+        "callPutRatio": 1.2,
+        "netPremium": 9942584,
+        "topStrikes": [
+          {
+            "strike": 50,
+            "type": "call",
+            "volume": 8040,
+            "openInterest": 2618,
+            "volOiRatio": 3.07,
+            "premium": 9527400,
+            "expiration": "2027-06-17"
+          },
+          {
+            "strike": 40,
+            "type": "call",
+            "volume": 5388,
+            "openInterest": 11723,
+            "volOiRatio": 0.46,
+            "premium": 5684340,
+            "expiration": "2026-06-18"
+          },
+          {
+            "strike": 42,
+            "type": "put",
+            "volume": 52163,
+            "openInterest": 8805,
+            "volOiRatio": 5.92,
+            "premium": 5685767,
+            "expiration": "2026-03-20"
+          },
+          {
+            "strike": 35,
+            "type": "put",
+            "volume": 7502,
+            "openInterest": 735,
+            "volOiRatio": 10.21,
+            "premium": 3525940,
+            "expiration": "2027-06-17"
+          }
+        ]
+      },
+      "technicals": {
+        "gap": -5.672144129875263,
+        "volumeRatio": 0.8,
+        "ivRank": 12,
+        "rsi": 45.97
+      },
+      "earnings": {
+        "date": null,
+        "daysTo": null,
+        "time": "unknown",
+        "warningLevel": "none"
+      },
+      "signals": [
+        "Vol/OI 397.6x (major positioning)",
+        "Net premium: $9.9M bullish",
+        "20 unusual strikes (conviction)",
+        "Top call: 50C 6/17 vol/OI 3.1x",
+        "Top put: 42P 3/20 vol/OI 5.9x",
+        "IV Rank: 12% (low - buy premium)"
+      ],
+      "timestamp": "2026-01-29T20:55:41.737Z",
+      "discovery_sources": [
+        "watchlist",
+        "etf_crypto"
+      ]
+    },
+    {
+      "symbol": "INTC",
+      "price": 48.7135,
+      "score": 65,
+      "tier": "TRADEABLE",
+      "direction": "neutral",
+      "opportunities": [
+        "unusual_options"
+      ],
+      "unusual": {
+        "callVolume": 334357,
+        "putVolume": 148203,
+        "callPutRatio": 2.26,
+        "netPremium": 59090487,
+        "topStrikes": [
+          {
+            "strike": 60,
+            "type": "call",
+            "volume": 32301,
+            "openInterest": 32239,
+            "volOiRatio": 1,
+            "premium": 7186973,
+            "expiration": "2026-04-17"
+          },
+          {
+            "strike": 48,
+            "type": "call",
+            "volume": 23315,
+            "openInterest": 7766,
+            "volOiRatio": 3,
+            "premium": 2704540,
+            "expiration": "2026-01-30"
+          },
+          {
+            "strike": 48,
+            "type": "put",
+            "volume": 21187,
+            "openInterest": 16616,
+            "volOiRatio": 1.28,
+            "premium": 889854,
+            "expiration": "2026-01-30"
+          },
+          {
+            "strike": 47,
+            "type": "put",
+            "volume": 5609,
+            "openInterest": 1925,
+            "volOiRatio": 2.91,
+            "premium": 521637,
+            "expiration": "2026-02-06"
+          }
+        ]
+      },
+      "technicals": {
+        "gap": -0.13632636326362807,
+        "volumeRatio": 1.43,
+        "ivRank": 71.8,
+        "rsi": 57.81
+      },
+      "earnings": {
+        "date": "2026-01-22",
+        "daysTo": 0,
+        "time": "before_open",
+        "warningLevel": "none"
+      },
+      "signals": [
+        "Vol/OI 6.1x (major positioning)",
+        "Net premium: $59.1M bullish",
+        "18 unusual strikes (conviction)",
+        "Top call: 60C 4/17 vol/OI 1.0x",
+        "Top put: 48P 1/30 vol/OI 1.3x",
+        "🎲 Strikes capture earnings (event bet)"
+      ],
+      "timestamp": "2026-01-29T20:55:44.426Z",
+      "discovery_sources": [
+        "volume_leader",
+        "nasdaq_mover"
+      ]
+    },
+    {
+      "symbol": "CMCSA",
+      "price": 29.205,
+      "score": 55,
+      "tier": "TRADEABLE",
+      "direction": "bullish",
+      "opportunities": [
+        "unusual_calls"
+      ],
+      "unusual": {
+        "callVolume": 70052,
+        "putVolume": 25372,
+        "callPutRatio": 2.76,
+        "netPremium": 6232778,
+        "topStrikes": [
+          {
+            "strike": 30,
+            "type": "call",
+            "volume": 28949,
+            "openInterest": 72909,
+            "volOiRatio": 0.4,
+            "premium": 4805534,
+            "expiration": "2026-03-20"
+          },
+          {
+            "strike": 30,
+            "type": "call",
+            "volume": 9463,
+            "openInterest": 20630,
+            "volOiRatio": 0.46,
+            "premium": 544122,
+            "expiration": "2026-02-20"
+          },
+          {
+            "strike": 31,
+            "type": "put",
+            "volume": 498,
+            "openInterest": 11,
+            "volOiRatio": 45.27,
+            "premium": 139689,
+            "expiration": "2026-06-18"
+          },
+          {
+            "strike": 27.5,
+            "type": "put",
+            "volume": 5095,
+            "openInterest": 11066,
+            "volOiRatio": 0.46,
+            "premium": 109542,
+            "expiration": "2026-02-20"
+          }
+        ]
+      },
+      "technicals": {
+        "gap": 2.7983104540654633,
+        "volumeRatio": 1.32,
+        "ivRank": 28.1,
+        "rsi": 55.07
+      },
+      "earnings": {
+        "date": "2026-01-29",
+        "daysTo": 0,
+        "time": "before_open",
+        "warningLevel": "critical"
+      },
+      "signals": [
+        "Vol/OI 87.5x (major positioning)",
+        "Net premium: $6.2M bullish",
+        "15 unusual strikes (conviction)",
+        "Top call: 30C 3/20 vol/OI 0.4x",
+        "Top put: 31P 6/18 vol/OI 45.3x",
+        "🎲 Strikes capture earnings (event bet)"
+      ],
+      "timestamp": "2026-01-29T20:55:35.236Z",
+      "discovery_sources": [
+        "volume_leader",
+        "gainer",
+        "loser"
+      ]
+    },
+    {
       "symbol": "NOW",
-      "price": 114.15,
+      "price": 115.96,
       "score": 55,
       "tier": "TRADEABLE",
       "direction": "bearish",
@@ -986,28 +1228,28 @@
         "unusual_puts"
       ],
       "unusual": {
-        "callVolume": 61751,
-        "putVolume": 40940,
-        "callPutRatio": 1.51,
-        "netPremium": 5904308,
+        "callVolume": 76398,
+        "putVolume": 49196,
+        "callPutRatio": 1.55,
+        "netPremium": 8140005,
         "topStrikes": [
-          {
-            "strike": 120,
-            "type": "call",
-            "volume": 1201,
-            "openInterest": 116,
-            "volOiRatio": 10.35,
-            "premium": 1795495,
-            "expiration": "2026-09-18"
-          },
           {
             "strike": 130,
             "type": "call",
-            "volume": 4578,
+            "volume": 4597,
             "openInterest": 568,
-            "volOiRatio": 8.06,
-            "premium": 1716750,
+            "volOiRatio": 8.09,
+            "premium": 1999695,
             "expiration": "2026-04-17"
+          },
+          {
+            "strike": 120,
+            "type": "call",
+            "volume": 1204,
+            "openInterest": 116,
+            "volOiRatio": 10.38,
+            "premium": 1926400,
+            "expiration": "2026-09-18"
           },
           {
             "strike": 160,
@@ -1024,15 +1266,15 @@
             "volume": 408,
             "openInterest": 12,
             "volOiRatio": 34,
-            "premium": 273360,
+            "premium": 265200,
             "expiration": "2026-09-18"
           }
         ]
       },
       "technicals": {
-        "gap": -11.934886591575374,
+        "gap": -10.538497145502246,
         "volumeRatio": 1.69,
-        "ivRank": 78.1,
+        "ivRank": 34,
         "rsi": 26.38
       },
       "earnings": {
@@ -1043,12 +1285,12 @@
       },
       "signals": [
         "Vol/OI 854.0x (major positioning)",
-        "Net premium: $5.9M bullish",
+        "Net premium: $8.1M bullish",
         "20 unusual strikes (conviction)",
-        "Top call: 120C 9/18 vol/OI 10.3x",
+        "Top call: 130C 4/17 vol/OI 8.1x",
         "Top put: 160P 7/17 vol/OI 18.0x"
       ],
-      "timestamp": "2026-01-29T20:35:56.662Z",
+      "timestamp": "2026-01-29T20:55:37.409Z",
       "discovery_sources": [
         "volume_leader",
         "gainer",
@@ -1056,88 +1298,8 @@
       ]
     },
     {
-      "symbol": "IBIT",
-      "price": 47.445,
-      "score": 55,
-      "tier": "TRADEABLE",
-      "direction": "bullish",
-      "opportunities": [
-        "unusual_calls",
-        "iv_low"
-      ],
-      "unusual": {
-        "callVolume": 489241,
-        "putVolume": 427371,
-        "callPutRatio": 1.14,
-        "netPremium": 4549112,
-        "topStrikes": [
-          {
-            "strike": 50,
-            "type": "call",
-            "volume": 7990,
-            "openInterest": 2618,
-            "volOiRatio": 3.05,
-            "premium": 9468150,
-            "expiration": "2027-06-17"
-          },
-          {
-            "strike": 40,
-            "type": "call",
-            "volume": 5388,
-            "openInterest": 11723,
-            "volOiRatio": 0.46,
-            "premium": 5643930,
-            "expiration": "2026-06-18"
-          },
-          {
-            "strike": 42,
-            "type": "put",
-            "volume": 51766,
-            "openInterest": 8805,
-            "volOiRatio": 5.88,
-            "premium": 5771909,
-            "expiration": "2026-03-20"
-          },
-          {
-            "strike": 35,
-            "type": "put",
-            "volume": 7501,
-            "openInterest": 735,
-            "volOiRatio": 10.21,
-            "premium": 3544222,
-            "expiration": "2027-06-17"
-          }
-        ]
-      },
-      "technicals": {
-        "gap": -6.068105325678079,
-        "volumeRatio": 0.8,
-        "ivRank": 12.5,
-        "rsi": 45.97
-      },
-      "earnings": {
-        "date": null,
-        "daysTo": null,
-        "time": "unknown",
-        "warningLevel": "none"
-      },
-      "signals": [
-        "Vol/OI 331.3x (major positioning)",
-        "Net premium: $4.5M",
-        "20 unusual strikes (conviction)",
-        "Top call: 50C 6/17 vol/OI 3.0x",
-        "Top put: 42P 3/20 vol/OI 5.9x",
-        "IV Rank: 13% (low - buy premium)"
-      ],
-      "timestamp": "2026-01-29T20:36:04.491Z",
-      "discovery_sources": [
-        "watchlist",
-        "etf_crypto"
-      ]
-    },
-    {
       "symbol": "XLB",
-      "price": 49.9103,
+      "price": 49.985,
       "score": 50,
       "tier": "TRADEABLE",
       "direction": "bullish",
@@ -1146,10 +1308,10 @@
         "iv_low"
       ],
       "unusual": {
-        "callVolume": 4679,
-        "putVolume": 3378,
-        "callPutRatio": 1.39,
-        "netPremium": 417638,
+        "callVolume": 4692,
+        "putVolume": 3633,
+        "callPutRatio": 1.29,
+        "netPremium": 459834,
         "topStrikes": [
           {
             "strike": 49,
@@ -1157,25 +1319,25 @@
             "volume": 103,
             "openInterest": 11,
             "volOiRatio": 9.36,
-            "premium": 9991,
+            "premium": 11176,
             "expiration": "2026-01-30"
           },
           {
-            "strike": 54,
+            "strike": 50,
             "type": "call",
-            "volume": 100,
-            "openInterest": 1,
-            "volOiRatio": 100,
-            "premium": 1750,
-            "expiration": "2026-02-27"
+            "volume": 14,
+            "openInterest": 2,
+            "volOiRatio": 7,
+            "premium": 1813,
+            "expiration": "2026-03-06"
           },
           {
             "strike": 48.5,
             "type": "put",
-            "volume": 160,
+            "volume": 176,
             "openInterest": 12,
-            "volOiRatio": 13.33,
-            "premium": 6400,
+            "volOiRatio": 14.67,
+            "premium": 5896,
             "expiration": "2026-02-20"
           },
           {
@@ -1184,15 +1346,15 @@
             "volume": 92,
             "openInterest": 14,
             "volOiRatio": 6.57,
-            "premium": 5612,
+            "premium": 5290,
             "expiration": "2026-02-13"
           }
         ]
       },
       "technicals": {
-        "gap": -0.07947947947948628,
+        "gap": 0.07007007007006323,
         "volumeRatio": 0.94,
-        "ivRank": 16.9,
+        "ivRank": 18.6,
         "rsi": 82.9
       },
       "earnings": {
@@ -1205,17 +1367,17 @@
         "Vol/OI 100.0x (major positioning)",
         "5 unusual strikes (conviction)",
         "Top call: 49C 1/30 vol/OI 9.4x",
-        "Top put: 48.5P 2/20 vol/OI 13.3x",
-        "IV Rank: 17% (low - buy premium)"
+        "Top put: 48.5P 2/20 vol/OI 14.7x",
+        "IV Rank: 19% (low - buy premium)"
       ],
-      "timestamp": "2026-01-29T20:36:46.616Z",
+      "timestamp": "2026-01-29T20:56:09.910Z",
       "discovery_sources": [
         "etf_sectors"
       ]
     },
     {
       "symbol": "T",
-      "price": 25.065,
+      "price": 25.08,
       "score": 45,
       "tier": "WATCH",
       "direction": "bearish",
@@ -1223,51 +1385,51 @@
         "unusual_puts"
       ],
       "unusual": {
-        "callVolume": 76644,
-        "putVolume": 69887,
-        "callPutRatio": 1.1,
-        "netPremium": 2765113,
+        "callVolume": 79703,
+        "putVolume": 74036,
+        "callPutRatio": 1.08,
+        "netPremium": 2677415,
         "topStrikes": [
           {
             "strike": 25,
             "type": "call",
-            "volume": 12331,
+            "volume": 12393,
             "openInterest": 11818,
-            "volOiRatio": 1.04,
-            "premium": 363765,
+            "volOiRatio": 1.05,
+            "premium": 377986,
             "expiration": "2026-01-30"
           },
           {
             "strike": 25,
             "type": "call",
-            "volume": 6878,
+            "volume": 6962,
             "openInterest": 5068,
-            "volOiRatio": 1.36,
-            "premium": 292315,
+            "volOiRatio": 1.37,
+            "premium": 309809,
             "expiration": "2026-02-06"
           },
           {
             "strike": 23,
             "type": "put",
-            "volume": 14881,
+            "volume": 14897,
             "openInterest": 20487,
             "volOiRatio": 0.73,
-            "premium": 267858,
+            "premium": 297940,
             "expiration": "2026-03-20"
           },
           {
             "strike": 24.5,
             "type": "put",
-            "volume": 26992,
+            "volume": 27019,
             "openInterest": 225,
-            "volOiRatio": 119.96,
-            "premium": 175448,
+            "volOiRatio": 120.08,
+            "premium": 243171,
             "expiration": "2026-01-30"
           }
         ]
       },
       "technicals": {
-        "gap": 4.133776485251355,
+        "gap": 4.196094723722467,
         "volumeRatio": 1.92,
         "ivRank": 23.7,
         "rsi": 51.4
@@ -1280,12 +1442,12 @@
       },
       "signals": [
         "Vol/OI 272.0x (major positioning)",
-        "Net premium: $2.8M",
-        "16 unusual strikes (conviction)",
-        "Top call: 25C 1/30 vol/OI 1.0x",
+        "Net premium: $2.7M",
+        "17 unusual strikes (conviction)",
+        "Top call: 25C 1/30 vol/OI 1.1x",
         "Top put: 23P 3/20 vol/OI 0.7x"
       ],
-      "timestamp": "2026-01-29T20:35:48.320Z",
+      "timestamp": "2026-01-29T20:55:29.727Z",
       "discovery_sources": [
         "volume_leader",
         "gainer",
@@ -1294,7 +1456,7 @@
     },
     {
       "symbol": "UVXY",
-      "price": 36.95,
+      "price": 36.785,
       "score": 45,
       "tier": "WATCH",
       "direction": "bullish",
@@ -1302,53 +1464,53 @@
         "unusual_calls"
       ],
       "unusual": {
-        "callVolume": 22135,
-        "putVolume": 9394,
-        "callPutRatio": 2.36,
-        "netPremium": 3842340,
+        "callVolume": 24904,
+        "putVolume": 9704,
+        "callPutRatio": 2.57,
+        "netPremium": 4086046,
         "topStrikes": [
+          {
+            "strike": 32,
+            "type": "call",
+            "volume": 3032,
+            "openInterest": 605,
+            "volOiRatio": 5.01,
+            "premium": 1523580,
+            "expiration": "2026-02-06"
+          },
           {
             "strike": 38,
             "type": "call",
             "volume": 528,
             "openInterest": 14,
             "volOiRatio": 37.71,
-            "premium": 393360,
+            "premium": 396000,
             "expiration": "2026-04-17"
-          },
-          {
-            "strike": 32.5,
-            "type": "call",
-            "volume": 120,
-            "openInterest": 1,
-            "volOiRatio": 120,
-            "premium": 66000,
-            "expiration": "2026-02-06"
-          },
-          {
-            "strike": 37,
-            "type": "put",
-            "volume": 2130,
-            "openInterest": 116,
-            "volOiRatio": 18.36,
-            "premium": 177855,
-            "expiration": "2026-01-30"
           },
           {
             "strike": 32,
             "type": "put",
-            "volume": 419,
+            "volume": 442,
             "openInterest": 9,
-            "volOiRatio": 46.56,
-            "premium": 175980,
+            "volOiRatio": 49.11,
+            "premium": 223210,
             "expiration": "2026-04-17"
+          },
+          {
+            "strike": 37,
+            "type": "put",
+            "volume": 2178,
+            "openInterest": 116,
+            "volOiRatio": 18.78,
+            "premium": 200376,
+            "expiration": "2026-01-30"
           }
         ]
       },
       "technicals": {
-        "gap": 1.9029233314947733,
+        "gap": 1.447876447876444,
         "volumeRatio": 1.01,
-        "ivRank": 53.6,
+        "ivRank": 56.1,
         "rsi": 51.6
       },
       "earnings": {
@@ -1359,30 +1521,241 @@
       },
       "signals": [
         "Vol/OI 120.0x (major positioning)",
-        "Net premium: $3.8M",
-        "11 unusual strikes (conviction)",
-        "Top call: 38C 4/17 vol/OI 37.7x",
-        "Top put: 37P 1/30 vol/OI 18.4x"
+        "Net premium: $4.1M",
+        "12 unusual strikes (conviction)",
+        "Top call: 32C 2/6 vol/OI 5.0x",
+        "Top put: 32P 4/17 vol/OI 49.1x"
       ],
-      "timestamp": "2026-01-29T20:36:43.669Z",
+      "timestamp": "2026-01-29T20:56:06.621Z",
       "discovery_sources": [
         "etf_volatility"
       ]
     },
     {
-      "symbol": "XLF",
-      "price": 53.405,
-      "score": 45,
+      "symbol": "VXX",
+      "price": 27.21,
+      "score": 40,
       "tier": "WATCH",
       "direction": "bearish",
       "opportunities": [
         "unusual_puts"
       ],
       "unusual": {
-        "callVolume": 73905,
-        "putVolume": 41986,
-        "callPutRatio": 1.76,
-        "netPremium": -1117010,
+        "callVolume": 25279,
+        "putVolume": 14415,
+        "callPutRatio": 1.75,
+        "netPremium": 740013,
+        "topStrikes": [
+          {
+            "strike": 30,
+            "type": "call",
+            "volume": 5623,
+            "openInterest": 6619,
+            "volOiRatio": 0.85,
+            "premium": 39361,
+            "expiration": "2026-01-30"
+          },
+          {
+            "strike": 31.5,
+            "type": "call",
+            "volume": 51,
+            "openInterest": 4,
+            "volOiRatio": 12.75,
+            "premium": 4564,
+            "expiration": "2026-02-13"
+          },
+          {
+            "strike": 27,
+            "type": "put",
+            "volume": 1423,
+            "openInterest": 118,
+            "volOiRatio": 12.06,
+            "premium": 140166,
+            "expiration": "2026-02-06"
+          },
+          {
+            "strike": 27.5,
+            "type": "put",
+            "volume": 1663,
+            "openInterest": 205,
+            "volOiRatio": 8.11,
+            "premium": 102274,
+            "expiration": "2026-01-30"
+          }
+        ]
+      },
+      "technicals": {
+        "gap": 1.265351693338295,
+        "volumeRatio": 0.9,
+        "ivRank": 30.4,
+        "rsi": 52.08
+      },
+      "earnings": {
+        "date": null,
+        "daysTo": null,
+        "time": "unknown",
+        "warningLevel": "none"
+      },
+      "signals": [
+        "Vol/OI 13.6x (major positioning)",
+        "8 unusual strikes (conviction)",
+        "Top call: 30C 1/30 vol/OI 0.8x",
+        "Top put: 27P 2/6 vol/OI 12.1x"
+      ],
+      "timestamp": "2026-01-29T20:55:46.856Z",
+      "discovery_sources": [
+        "52wk_extreme",
+        "etf_volatility"
+      ]
+    },
+    {
+      "symbol": "XLI",
+      "price": 165.525,
+      "score": 40,
+      "tier": "WATCH",
+      "direction": "bearish",
+      "opportunities": [
+        "unusual_puts"
+      ],
+      "unusual": {
+        "callVolume": 5406,
+        "putVolume": 1980,
+        "callPutRatio": 2.73,
+        "netPremium": 553430,
+        "topStrikes": [
+          {
+            "strike": 166,
+            "type": "put",
+            "volume": 250,
+            "openInterest": 19,
+            "volOiRatio": 13.16,
+            "premium": 165625,
+            "expiration": "2026-06-18"
+          },
+          {
+            "strike": 172,
+            "type": "put",
+            "volume": 35,
+            "openInterest": 1,
+            "volOiRatio": 35,
+            "premium": 39550,
+            "expiration": "2026-09-18"
+          }
+        ]
+      },
+      "technicals": {
+        "gap": 0.8437918849762517,
+        "volumeRatio": 0.97,
+        "ivRank": 24.3,
+        "rsi": 64.34
+      },
+      "earnings": {
+        "date": null,
+        "daysTo": null,
+        "time": "unknown",
+        "warningLevel": "none"
+      },
+      "signals": [
+        "Vol/OI 35.0x (major positioning)",
+        "3 unusual strikes (conviction)",
+        "Top put: 166P 6/18 vol/OI 13.2x"
+      ],
+      "timestamp": "2026-01-29T20:55:51.670Z",
+      "discovery_sources": [
+        "52wk_extreme",
+        "etf_sectors"
+      ]
+    },
+    {
+      "symbol": "ETHA",
+      "price": 21.14,
+      "score": 40,
+      "tier": "WATCH",
+      "direction": "bullish",
+      "opportunities": [
+        "unusual_calls"
+      ],
+      "unusual": {
+        "callVolume": 122899,
+        "putVolume": 89851,
+        "callPutRatio": 1.37,
+        "netPremium": 329648,
+        "topStrikes": [
+          {
+            "strike": 26,
+            "type": "call",
+            "volume": 5067,
+            "openInterest": 7031,
+            "volOiRatio": 0.72,
+            "premium": 952596,
+            "expiration": "2026-06-18"
+          },
+          {
+            "strike": 22,
+            "type": "call",
+            "volume": 6214,
+            "openInterest": 519,
+            "volOiRatio": 11.97,
+            "premium": 248560,
+            "expiration": "2026-02-06"
+          },
+          {
+            "strike": 18,
+            "type": "put",
+            "volume": 18041,
+            "openInterest": 330,
+            "volOiRatio": 54.67,
+            "premium": 811845,
+            "expiration": "2026-03-06"
+          },
+          {
+            "strike": 21,
+            "type": "put",
+            "volume": 6138,
+            "openInterest": 1603,
+            "volOiRatio": 3.83,
+            "premium": 402039,
+            "expiration": "2026-02-06"
+          }
+        ]
+      },
+      "technicals": {
+        "gap": -7.036059806508346,
+        "volumeRatio": 0.71,
+        "ivRank": 22.5,
+        "rsi": 44.25
+      },
+      "earnings": {
+        "date": null,
+        "daysTo": null,
+        "time": "unknown",
+        "warningLevel": "none"
+      },
+      "signals": [
+        "Vol/OI 301.0x (major positioning)",
+        "18 unusual strikes (conviction)",
+        "Top call: 26C 6/18 vol/OI 0.7x",
+        "Top put: 18P 3/6 vol/OI 54.7x"
+      ],
+      "timestamp": "2026-01-29T20:55:59.909Z",
+      "discovery_sources": [
+        "etf_crypto"
+      ]
+    },
+    {
+      "symbol": "XLF",
+      "price": 53.515,
+      "score": 40,
+      "tier": "WATCH",
+      "direction": "bearish",
+      "opportunities": [
+        "unusual_puts"
+      ],
+      "unusual": {
+        "callVolume": 80976,
+        "putVolume": 42435,
+        "callPutRatio": 1.91,
+        "netPremium": -540468,
         "topStrikes": [
           {
             "strike": 55,
@@ -1390,16 +1763,16 @@
             "volume": 15055,
             "openInterest": 43192,
             "volOiRatio": 0.35,
-            "premium": 2559350,
+            "premium": 2619570,
             "expiration": "2026-06-18"
           },
           {
             "strike": 55,
             "type": "call",
-            "volume": 15661,
+            "volume": 15701,
             "openInterest": 39011,
             "volOiRatio": 0.4,
-            "premium": 1088440,
+            "premium": 1161874,
             "expiration": "2026-03-20"
           },
           {
@@ -1417,15 +1790,15 @@
             "volume": 5002,
             "openInterest": 10620,
             "volOiRatio": 0.47,
-            "premium": 682773,
+            "premium": 652761,
             "expiration": "2026-12-18"
           }
         ]
       },
       "technicals": {
-        "gap": 0.7831666352141896,
+        "gap": 0.9907529722589141,
         "volumeRatio": 1.05,
-        "ivRank": 36.3,
+        "ivRank": 32,
         "rsi": 26.94
       },
       "earnings": {
@@ -1436,279 +1809,18 @@
       },
       "signals": [
         "Vol/OI 500.0x (major positioning)",
-        "Net premium: $1.1M",
-        "11 unusual strikes (conviction)",
+        "12 unusual strikes (conviction)",
         "Top call: 55C 6/18 vol/OI 0.3x",
         "Top put: 50P 12/15 vol/OI 500.0x"
       ],
-      "timestamp": "2026-01-29T20:36:51.988Z",
-      "discovery_sources": [
-        "etf_sectors"
-      ]
-    },
-    {
-      "symbol": "VXX",
-      "price": 27.32,
-      "score": 40,
-      "tier": "WATCH",
-      "direction": "bullish",
-      "opportunities": [
-        "unusual_calls"
-      ],
-      "unusual": {
-        "callVolume": 24963,
-        "putVolume": 14071,
-        "callPutRatio": 1.77,
-        "netPremium": 965308,
-        "topStrikes": [
-          {
-            "strike": 30,
-            "type": "call",
-            "volume": 5611,
-            "openInterest": 6619,
-            "volOiRatio": 0.85,
-            "premium": 42083,
-            "expiration": "2026-01-30"
-          },
-          {
-            "strike": 31.5,
-            "type": "call",
-            "volume": 51,
-            "openInterest": 4,
-            "volOiRatio": 12.75,
-            "premium": 4054,
-            "expiration": "2026-02-13"
-          },
-          {
-            "strike": 27,
-            "type": "put",
-            "volume": 1402,
-            "openInterest": 118,
-            "volOiRatio": 11.88,
-            "premium": 128283,
-            "expiration": "2026-02-06"
-          },
-          {
-            "strike": 27.5,
-            "type": "put",
-            "volume": 1593,
-            "openInterest": 205,
-            "volOiRatio": 7.77,
-            "premium": 86022,
-            "expiration": "2026-01-30"
-          }
-        ]
-      },
-      "technicals": {
-        "gap": 1.674730182359506,
-        "volumeRatio": 0.9,
-        "ivRank": 33.8,
-        "rsi": 52.08
-      },
-      "earnings": {
-        "date": null,
-        "daysTo": null,
-        "time": "unknown",
-        "warningLevel": "none"
-      },
-      "signals": [
-        "Vol/OI 12.8x (major positioning)",
-        "7 unusual strikes (conviction)",
-        "Top call: 30C 1/30 vol/OI 0.8x",
-        "Top put: 27P 2/6 vol/OI 11.9x"
-      ],
-      "timestamp": "2026-01-29T20:36:14.374Z",
-      "discovery_sources": [
-        "52wk_extreme",
-        "etf_volatility"
-      ]
-    },
-    {
-      "symbol": "XLI",
-      "price": 165.285,
-      "score": 40,
-      "tier": "WATCH",
-      "direction": "bearish",
-      "opportunities": [
-        "unusual_puts"
-      ],
-      "unusual": {
-        "callVolume": 5340,
-        "putVolume": 1877,
-        "callPutRatio": 2.84,
-        "netPremium": 532470,
-        "topStrikes": [
-          {
-            "strike": 166,
-            "type": "put",
-            "volume": 250,
-            "openInterest": 19,
-            "volOiRatio": 13.16,
-            "premium": 168750,
-            "expiration": "2026-06-18"
-          },
-          {
-            "strike": 172,
-            "type": "put",
-            "volume": 35,
-            "openInterest": 1,
-            "volOiRatio": 35,
-            "premium": 39988,
-            "expiration": "2026-09-18"
-          }
-        ]
-      },
-      "technicals": {
-        "gap": 0.6975752406482334,
-        "volumeRatio": 0.97,
-        "ivRank": 21.2,
-        "rsi": 64.34
-      },
-      "earnings": {
-        "date": null,
-        "daysTo": null,
-        "time": "unknown",
-        "warningLevel": "none"
-      },
-      "signals": [
-        "Vol/OI 35.0x (major positioning)",
-        "3 unusual strikes (conviction)",
-        "Top put: 166P 6/18 vol/OI 13.2x"
-      ],
-      "timestamp": "2026-01-29T20:36:20.701Z",
-      "discovery_sources": [
-        "52wk_extreme",
-        "etf_sectors"
-      ]
-    },
-    {
-      "symbol": "ETHA",
-      "price": 21.0455,
-      "score": 40,
-      "tier": "WATCH",
-      "direction": "bullish",
-      "opportunities": [
-        "unusual_calls"
-      ],
-      "unusual": {
-        "callVolume": 116641,
-        "putVolume": 88206,
-        "callPutRatio": 1.32,
-        "netPremium": -165576,
-        "topStrikes": [
-          {
-            "strike": 26,
-            "type": "call",
-            "volume": 5066,
-            "openInterest": 7031,
-            "volOiRatio": 0.72,
-            "premium": 899215,
-            "expiration": "2026-06-18"
-          },
-          {
-            "strike": 22,
-            "type": "call",
-            "volume": 6194,
-            "openInterest": 519,
-            "volOiRatio": 11.93,
-            "premium": 229178,
-            "expiration": "2026-02-06"
-          },
-          {
-            "strike": 18,
-            "type": "put",
-            "volume": 18041,
-            "openInterest": 330,
-            "volOiRatio": 54.67,
-            "premium": 802824,
-            "expiration": "2026-03-06"
-          },
-          {
-            "strike": 21,
-            "type": "put",
-            "volume": 6133,
-            "openInterest": 1603,
-            "volOiRatio": 3.83,
-            "premium": 435443,
-            "expiration": "2026-02-06"
-          }
-        ]
-      },
-      "technicals": {
-        "gap": -7.4516270888302465,
-        "volumeRatio": 0.71,
-        "ivRank": 20.9,
-        "rsi": 44.25
-      },
-      "earnings": {
-        "date": null,
-        "daysTo": null,
-        "time": "unknown",
-        "warningLevel": "none"
-      },
-      "signals": [
-        "Vol/OI 301.0x (major positioning)",
-        "18 unusual strikes (conviction)",
-        "Top call: 26C 6/18 vol/OI 0.7x",
-        "Top put: 18P 3/6 vol/OI 54.7x"
-      ],
-      "timestamp": "2026-01-29T20:36:35.610Z",
-      "discovery_sources": [
-        "etf_crypto"
-      ]
-    },
-    {
-      "symbol": "XLP",
-      "price": 82.21,
-      "score": 40,
-      "tier": "WATCH",
-      "direction": "bullish",
-      "opportunities": [
-        "unusual_calls",
-        "iv_low"
-      ],
-      "unusual": {
-        "callVolume": 2687,
-        "putVolume": 6711,
-        "callPutRatio": 0.4,
-        "netPremium": -605498,
-        "topStrikes": [
-          {
-            "strike": 100,
-            "type": "call",
-            "volume": 8,
-            "openInterest": 1,
-            "volOiRatio": 8,
-            "premium": 292,
-            "expiration": "2026-12-18"
-          }
-        ]
-      },
-      "technicals": {
-        "gap": -0.13362487852283703,
-        "volumeRatio": 0.83,
-        "ivRank": 9.2,
-        "rsi": 83.53
-      },
-      "earnings": {
-        "date": null,
-        "daysTo": null,
-        "time": "unknown",
-        "warningLevel": "none"
-      },
-      "signals": [
-        "Vol/OI 8.0x (major positioning)",
-        "Top call: 100C 12/18 vol/OI 8.0x",
-        "IV Rank: 9% (low - buy premium)"
-      ],
-      "timestamp": "2026-01-29T20:36:57.244Z",
+      "timestamp": "2026-01-29T20:56:16.547Z",
       "discovery_sources": [
         "etf_sectors"
       ]
     },
     {
       "symbol": "XLRE",
-      "price": 41.355,
+      "price": 41.315,
       "score": 40,
       "tier": "WATCH",
       "direction": "bullish",
@@ -1717,10 +1829,10 @@
         "iv_low"
       ],
       "unusual": {
-        "callVolume": 216,
-        "putVolume": 94,
-        "callPutRatio": 2.3,
-        "netPremium": 17675,
+        "callVolume": 238,
+        "putVolume": 99,
+        "callPutRatio": 2.4,
+        "netPremium": 18540,
         "topStrikes": [
           {
             "strike": 43,
@@ -1734,9 +1846,9 @@
         ]
       },
       "technicals": {
-        "gap": 1.2362301101591076,
+        "gap": 1.138310893512843,
         "volumeRatio": 0.89,
-        "ivRank": 6,
+        "ivRank": 7,
         "rsi": 58.85
       },
       "earnings": {
@@ -1748,16 +1860,16 @@
       "signals": [
         "Vol/OI 18.0x (major positioning)",
         "Top call: 43C 8/21 vol/OI 18.0x",
-        "IV Rank: 6% (low - buy premium)"
+        "IV Rank: 7% (low - buy premium)"
       ],
-      "timestamp": "2026-01-29T20:37:05.956Z",
+      "timestamp": "2026-01-29T20:56:23.465Z",
       "discovery_sources": [
         "etf_sectors"
       ]
     },
     {
       "symbol": "XLU",
-      "price": 43.315,
+      "price": 43.3,
       "score": 40,
       "tier": "WATCH",
       "direction": "bearish",
@@ -1765,10 +1877,10 @@
         "unusual_puts"
       ],
       "unusual": {
-        "callVolume": 4568,
-        "putVolume": 2975,
-        "callPutRatio": 1.54,
-        "netPremium": 313198,
+        "callVolume": 4765,
+        "putVolume": 3107,
+        "callPutRatio": 1.53,
+        "netPremium": 316300,
         "topStrikes": [
           {
             "strike": 40.5,
@@ -1809,9 +1921,9 @@
         ]
       },
       "technicals": {
-        "gap": -0.03461804754211994,
+        "gap": -0.06923609508423988,
         "volumeRatio": 1.1,
-        "ivRank": 29.3,
+        "ivRank": 30,
         "rsi": 68.81
       },
       "earnings": {
@@ -1826,95 +1938,42 @@
         "Top call: 40.5C 1/30 vol/OI 18.2x",
         "Top put: 44.5P 2/13 vol/OI 15.3x"
       ],
-      "timestamp": "2026-01-29T20:37:09.276Z",
+      "timestamp": "2026-01-29T20:56:26.313Z",
       "discovery_sources": [
         "etf_sectors"
       ]
     },
     {
-      "symbol": "XLV",
-      "price": 154.03,
-      "score": 40,
+      "symbol": "XLC",
+      "price": 119.86,
+      "score": 30,
       "tier": "WATCH",
       "direction": "bullish",
       "opportunities": [
-        "unusual_calls",
-        "iv_low"
+        "unusual_calls"
       ],
       "unusual": {
-        "callVolume": 2936,
-        "putVolume": 1735,
-        "callPutRatio": 1.69,
-        "netPremium": -193328,
+        "callVolume": 921,
+        "putVolume": 689,
+        "callPutRatio": 1.34,
+        "netPremium": 131130,
         "topStrikes": [
           {
-            "strike": 152.5,
+            "strike": 123,
             "type": "call",
-            "volume": 10,
-            "openInterest": 1,
-            "volOiRatio": 10,
-            "premium": 3725,
+            "volume": 178,
+            "openInterest": 14,
+            "volOiRatio": 12.71,
+            "premium": 8900,
             "expiration": "2026-02-20"
           }
         ]
       },
       "technicals": {
-        "gap": -0.1814529194478654,
-        "volumeRatio": 0.93,
-        "ivRank": 17.6,
-        "rsi": 31.86
-      },
-      "earnings": null,
-      "signals": [
-        "Vol/OI 10.0x (major positioning)",
-        "Top call: 152.5C 2/20 vol/OI 10.0x",
-        "IV Rank: 18% (low - buy premium)"
-      ],
-      "timestamp": "2026-01-29T20:37:19.388Z",
-      "discovery_sources": [
-        "etf_sectors"
-      ]
-    },
-    {
-      "symbol": "XLY",
-      "price": 121.06,
-      "score": 40,
-      "tier": "WATCH",
-      "direction": "bearish",
-      "opportunities": [
-        "unusual_puts"
-      ],
-      "unusual": {
-        "callVolume": 2566,
-        "putVolume": 4522,
-        "callPutRatio": 0.57,
-        "netPremium": -603103,
-        "topStrikes": [
-          {
-            "strike": 122.5,
-            "type": "put",
-            "volume": 609,
-            "openInterest": 6,
-            "volOiRatio": 101.5,
-            "premium": 310590,
-            "expiration": "2026-04-17"
-          },
-          {
-            "strike": 120.5,
-            "type": "put",
-            "volume": 444,
-            "openInterest": 65,
-            "volOiRatio": 6.83,
-            "premium": 26418,
-            "expiration": "2026-01-30"
-          }
-        ]
-      },
-      "technicals": {
-        "gap": -0.5830664367249683,
-        "volumeRatio": 0.91,
-        "ivRank": 51.3,
-        "rsi": 52.71
+        "gap": 2.6638115631691646,
+        "volumeRatio": 1.36,
+        "ivRank": 20.6,
+        "rsi": 48.39
       },
       "earnings": {
         "date": null,
@@ -1923,18 +1982,18 @@
         "warningLevel": "none"
       },
       "signals": [
-        "Vol/OI 101.5x (major positioning)",
-        "5 unusual strikes (conviction)",
-        "Top put: 122.5P 4/17 vol/OI 101.5x"
+        "Vol/OI 12.7x (major positioning)",
+        "Top call: 123C 2/20 vol/OI 12.7x"
       ],
-      "timestamp": "2026-01-29T20:37:26.722Z",
+      "timestamp": "2026-01-29T20:55:48.810Z",
       "discovery_sources": [
+        "52wk_extreme",
         "etf_sectors"
       ]
     },
     {
       "symbol": "XLK",
-      "price": 145.87,
+      "price": 146.73,
       "score": 30,
       "tier": "WATCH",
       "direction": "bullish",
@@ -1942,18 +2001,18 @@
         "unusual_calls"
       ],
       "unusual": {
-        "callVolume": 7734,
-        "putVolume": 8507,
-        "callPutRatio": 0.91,
-        "netPremium": 74784,
+        "callVolume": 8526,
+        "putVolume": 9295,
+        "callPutRatio": 0.92,
+        "netPremium": 416307,
         "topStrikes": [
           {
             "strike": 149,
             "type": "call",
-            "volume": 481,
+            "volume": 603,
             "openInterest": 23,
-            "volOiRatio": 20.91,
-            "premium": 67100,
+            "volOiRatio": 26.22,
+            "premium": 103414,
             "expiration": "2026-02-13"
           },
           {
@@ -1962,15 +2021,15 @@
             "volume": 8,
             "openInterest": 1,
             "volOiRatio": 8,
-            "premium": 4560,
+            "premium": 4400,
             "expiration": "2026-04-17"
           }
         ]
       },
       "technicals": {
-        "gap": -2.251557997721628,
+        "gap": -1.675266367352409,
         "volumeRatio": 1.25,
-        "ivRank": 38.9,
+        "ivRank": 71.3,
         "rsi": 57.1
       },
       "earnings": {
@@ -1980,20 +2039,76 @@
         "warningLevel": "none"
       },
       "signals": [
-        "Vol/OI 20.9x (major positioning)",
-        "Top call: 149C 2/13 vol/OI 20.9x",
+        "Vol/OI 26.2x (major positioning)",
+        "Top call: 149C 2/13 vol/OI 26.2x",
         "Top put: 143P 4/17 vol/OI 8.0x"
       ],
-      "timestamp": "2026-01-29T20:36:54.710Z",
+      "timestamp": "2026-01-29T20:56:19.316Z",
+      "discovery_sources": [
+        "etf_sectors"
+      ]
+    },
+    {
+      "symbol": "XLV",
+      "price": 153.85,
+      "score": 30,
+      "tier": "WATCH",
+      "direction": "bullish",
+      "opportunities": [
+        "unusual_calls"
+      ],
+      "unusual": {
+        "callVolume": 3483,
+        "putVolume": 2766,
+        "callPutRatio": 1.26,
+        "netPremium": 10340,
+        "topStrikes": [
+          {
+            "strike": 145,
+            "type": "call",
+            "volume": 386,
+            "openInterest": 19,
+            "volOiRatio": 20.32,
+            "premium": 350295,
+            "expiration": "2026-02-06"
+          },
+          {
+            "strike": 152.5,
+            "type": "call",
+            "volume": 10,
+            "openInterest": 1,
+            "volOiRatio": 10,
+            "premium": 3475,
+            "expiration": "2026-02-20"
+          }
+        ]
+      },
+      "technicals": {
+        "gap": -0.29810122480721146,
+        "volumeRatio": 0.93,
+        "ivRank": 24.3,
+        "rsi": 31.86
+      },
+      "earnings": {
+        "date": null,
+        "daysTo": null,
+        "time": "unknown",
+        "warningLevel": "none"
+      },
+      "signals": [
+        "Vol/OI 20.3x (major positioning)",
+        "Top call: 145C 2/6 vol/OI 20.3x"
+      ],
+      "timestamp": "2026-01-29T20:56:28.452Z",
       "discovery_sources": [
         "etf_sectors"
       ]
     }
   ],
   "summary": {
-    "highConviction": 4,
+    "highConviction": 6,
     "tradeable": 11,
-    "watch": 12,
-    "filtered": 3
+    "watch": 11,
+    "filtered": 2
   }
 }

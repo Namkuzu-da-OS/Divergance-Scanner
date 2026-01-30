@@ -27,7 +27,7 @@
 const https = require('https');
 const http = require('http');
 
-const API_BASE = process.env.INTEL_API || 'http://192.168.10.239:3000';
+const API_BASE = process.env.INTEL_API || 'http://192.168.10.60:3000';
 
 // Helper to make HTTP requests
 function request(method, path, body = null) {

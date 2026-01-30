@@ -7,6 +7,7 @@
 | **Dashboard** | [strategies.html](../strategies.html) | Visual strategy browser with modals |
 | **Smart Money Dip Buy** | [Strategies/smart-money-dip-buy.md](../Strategies/smart-money-dip-buy.md) | Full case studies, 267 lines |
 | **Earnings Flow Confluence** | [Strategies/earnings-flow-confluence.md](../Strategies/earnings-flow-confluence.md) | AAPL Jan 2026 case study |
+| **VIX Fear Capitulation** | [Strategies/vix-fear-capitulation.md](../Strategies/vix-fear-capitulation.md) | 10-year backtest, 73%+ win rate |
 | **VIX Master Indicator** | [Strategies/VIX_Master_Indicator.ts](../Strategies/VIX_Master_Indicator.ts) | TradingView Pine Script |
 | **VIX Master Labels** | [Strategies/VIX_Master_Labels.ts](../Strategies/VIX_Master_Labels.ts) | Companion labels indicator |
 
