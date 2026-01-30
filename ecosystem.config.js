@@ -54,6 +54,15 @@ module.exports = {
       autorestart: true,
       max_restarts: 10,
       restart_delay: 5000
+    },
+    {
+      name: 'eod-tracker',
+      script: 'monitor/eod-gap-tracker.js',
+      cwd: __dirname,
+      watch: false,
+      autorestart: true,
+      max_restarts: 5,
+      restart_delay: 10000
     }
   ]
 };

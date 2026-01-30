@@ -156,7 +156,50 @@ function initSchema() {
             catalyst TEXT,
             tier TEXT,
             score INTEGER,
+            -- EOD tracking (filled by eod-gap-tracker.js)
+            eod_close REAL,
+            intraday_high REAL,
+            intraday_low REAL,
+            gap_filled INTEGER DEFAULT 0,
+            fill_time TEXT,
+            eod_change_pct REAL,
+            outcome TEXT,
+            eod_updated_at TEXT,
             FOREIGN KEY (scan_id) REFERENCES premarket_scans(id)
+        );
+
+        -- Gap ticker stats (aggregated analytics)
+        CREATE TABLE IF NOT EXISTS gap_ticker_stats (
+            symbol TEXT PRIMARY KEY,
+            total_gaps INTEGER DEFAULT 0,
+            total_gaps_up INTEGER DEFAULT 0,
+            total_gaps_down INTEGER DEFAULT 0,
+            avg_gap_pct REAL,
+            fill_count INTEGER DEFAULT 0,
+            fill_rate REAL,
+            avg_follow_through REAL,
+            wins INTEGER DEFAULT 0,
+            losses INTEGER DEFAULT 0,
+            win_rate REAL,
+            last_gap_date TEXT,
+            last_gap_pct REAL,
+            updated_at TEXT
+        );
+
+        -- Watchlist table (replaces watchlist.json)
+        CREATE TABLE IF NOT EXISTS watchlist (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            symbol TEXT UNIQUE NOT NULL,
+            enabled INTEGER DEFAULT 1,
+            notes TEXT,
+            source TEXT DEFAULT 'manual',
+            added_at TEXT NOT NULL,
+            added_by TEXT,
+            gap_pct REAL,
+            score_at_add INTEGER,
+            tier_at_add TEXT,
+            expires_at TEXT,
+            last_scanned TEXT
         );
 
         -- Indexes for efficient queries
@@ -174,7 +217,47 @@ function initSchema() {
         CREATE INDEX IF NOT EXISTS idx_premarket_scans_timestamp ON premarket_scans(timestamp);
         CREATE INDEX IF NOT EXISTS idx_premarket_movers_symbol ON premarket_movers(symbol);
         CREATE INDEX IF NOT EXISTS idx_premarket_movers_scan ON premarket_movers(scan_id);
+        CREATE INDEX IF NOT EXISTS idx_watchlist_symbol ON watchlist(symbol);
+        CREATE INDEX IF NOT EXISTS idx_watchlist_enabled ON watchlist(enabled);
+        CREATE INDEX IF NOT EXISTS idx_watchlist_source ON watchlist(source);
+        CREATE INDEX IF NOT EXISTS idx_gap_ticker_stats_symbol ON gap_ticker_stats(symbol);
     `);
+
+    // Migration: Add EOD columns to existing premarket_movers table
+    migratePremarketMovers();
+}
+
+/**
+ * Add EOD tracking columns to existing premarket_movers table
+ */
+function migratePremarketMovers() {
+    const columns = [
+        { name: 'eod_close', type: 'REAL' },
+        { name: 'intraday_high', type: 'REAL' },
+        { name: 'intraday_low', type: 'REAL' },
+        { name: 'gap_filled', type: 'INTEGER DEFAULT 0' },
+        { name: 'fill_time', type: 'TEXT' },
+        { name: 'eod_change_pct', type: 'REAL' },
+        { name: 'outcome', type: 'TEXT' },
+        { name: 'eod_updated_at', type: 'TEXT' }
+    ];
+
+    for (const col of columns) {
+        try {
+            db.exec(`ALTER TABLE premarket_movers ADD COLUMN ${col.name} ${col.type}`);
+            console.log(`[SignalDB] Added column ${col.name} to premarket_movers`);
+        } catch (e) {
+            // Column already exists, ignore
+        }
+    }
+
+    // Create indexes for new columns (after they exist)
+    try {
+        db.exec('CREATE INDEX IF NOT EXISTS idx_premarket_movers_outcome ON premarket_movers(outcome)');
+        db.exec('CREATE INDEX IF NOT EXISTS idx_premarket_movers_gap_filled ON premarket_movers(gap_filled)');
+    } catch (e) {
+        // Indexes already exist, ignore
+    }
 }
 
 /**
@@ -899,6 +982,599 @@ function getTodaySessionMovers() {
     return movers;
 }
 
+// ============================================
+// GAP ANALYTICS FUNCTIONS
+// ============================================
+
+/**
+ * Update EOD data for a gap (called by eod-gap-tracker.js)
+ */
+function updateGapEOD(moverId, eodData) {
+    const { close, high, low, prevClose } = eodData;
+    const now = new Date().toISOString();
+
+    // Get the original gap data
+    const mover = getDb().prepare('SELECT * FROM premarket_movers WHERE id = ?').get(moverId);
+    if (!mover) return false;
+
+    // Calculate if gap filled
+    const gapUp = mover.gap_pct > 0;
+    let gapFilled = 0;
+    let fillTime = null;
+
+    if (gapUp) {
+        // Gap up fills if low touches prev_close
+        gapFilled = low <= prevClose ? 1 : 0;
+    } else {
+        // Gap down fills if high touches prev_close
+        gapFilled = high >= prevClose ? 1 : 0;
+    }
+
+    // Calculate EOD change from premarket price
+    const eodChangePct = ((close - mover.premarket_price) / mover.premarket_price) * 100;
+
+    // Determine outcome
+    let outcome;
+    const gapDirection = mover.gap_pct > 0 ? 'up' : 'down';
+    const closeVsOpen = close > mover.premarket_price ? 'up' : close < mover.premarket_price ? 'down' : 'flat';
+
+    if (Math.abs(eodChangePct) < 0.5) {
+        outcome = 'SCRATCH';
+    } else if (gapDirection === 'up' && closeVsOpen === 'up') {
+        outcome = 'WIN';  // Gap up, closed higher
+    } else if (gapDirection === 'down' && closeVsOpen === 'down') {
+        outcome = 'WIN';  // Gap down, closed lower
+    } else {
+        outcome = 'LOSS'; // Gap faded
+    }
+
+    getDb().prepare(`
+        UPDATE premarket_movers SET
+            eod_close = ?,
+            intraday_high = ?,
+            intraday_low = ?,
+            gap_filled = ?,
+            fill_time = ?,
+            eod_change_pct = ?,
+            outcome = ?,
+            eod_updated_at = ?
+        WHERE id = ?
+    `).run(close, high, low, gapFilled, fillTime, eodChangePct, outcome, now, moverId);
+
+    return { gapFilled, outcome, eodChangePct };
+}
+
+/**
+ * Get gaps that need EOD tracking (from today, no EOD data yet)
+ */
+function getGapsNeedingEOD() {
+    const today = new Date().toISOString().split('T')[0];
+
+    // Get ONE row per symbol (the one with peak gap) that needs EOD data
+    return getDb().prepare(`
+        SELECT
+            pm.id,
+            pm.symbol,
+            pm.gap_pct,
+            pm.prev_close,
+            pm.premarket_price,
+            pm.tier
+        FROM premarket_movers pm
+        JOIN premarket_scans ps ON pm.scan_id = ps.id
+        WHERE date(ps.timestamp) = ?
+        AND pm.eod_close IS NULL
+        AND pm.id IN (
+            -- Subquery to get the row with peak gap for each symbol today
+            SELECT pm2.id FROM premarket_movers pm2
+            JOIN premarket_scans ps2 ON pm2.scan_id = ps2.id
+            WHERE pm2.symbol = pm.symbol
+            AND date(ps2.timestamp) = ?
+            ORDER BY ABS(pm2.gap_pct) DESC
+            LIMIT 1
+        )
+        GROUP BY pm.symbol
+    `).all(today, today);
+}
+
+/**
+ * Get gap fill rates by various dimensions
+ */
+function getGapFillRates(options = {}) {
+    const { days = null } = options; // null = all time
+
+    const dateFilter = days ? `AND date(ps.timestamp) > date('now', '-${days} days')` : '';
+
+    // Overall fill rate
+    const overall = getDb().prepare(`
+        SELECT
+            COUNT(*) as total,
+            SUM(CASE WHEN gap_filled = 1 THEN 1 ELSE 0 END) as filled,
+            ROUND(AVG(CASE WHEN gap_filled = 1 THEN 100.0 ELSE 0 END), 1) as fill_rate
+        FROM premarket_movers pm
+        JOIN premarket_scans ps ON pm.scan_id = ps.id
+        WHERE pm.eod_close IS NOT NULL
+        ${dateFilter}
+    `).get();
+
+    // By tier
+    const byTier = getDb().prepare(`
+        SELECT
+            pm.tier,
+            COUNT(*) as total,
+            SUM(CASE WHEN gap_filled = 1 THEN 1 ELSE 0 END) as filled,
+            ROUND(AVG(CASE WHEN gap_filled = 1 THEN 100.0 ELSE 0 END), 1) as fill_rate
+        FROM premarket_movers pm
+        JOIN premarket_scans ps ON pm.scan_id = ps.id
+        WHERE pm.eod_close IS NOT NULL
+        ${dateFilter}
+        GROUP BY pm.tier
+        ORDER BY fill_rate DESC
+    `).all();
+
+    // By gap size bucket
+    const bySize = getDb().prepare(`
+        SELECT
+            CASE
+                WHEN ABS(gap_pct) >= 5 THEN '5%+'
+                WHEN ABS(gap_pct) >= 3 THEN '3-5%'
+                WHEN ABS(gap_pct) >= 2 THEN '2-3%'
+                ELSE '<2%'
+            END as size_bucket,
+            COUNT(*) as total,
+            SUM(CASE WHEN gap_filled = 1 THEN 1 ELSE 0 END) as filled,
+            ROUND(AVG(CASE WHEN gap_filled = 1 THEN 100.0 ELSE 0 END), 1) as fill_rate
+        FROM premarket_movers pm
+        JOIN premarket_scans ps ON pm.scan_id = ps.id
+        WHERE pm.eod_close IS NOT NULL
+        ${dateFilter}
+        GROUP BY size_bucket
+        ORDER BY fill_rate DESC
+    `).all();
+
+    // By catalyst
+    const byCatalyst = getDb().prepare(`
+        SELECT
+            CASE WHEN catalyst IS NOT NULL AND catalyst != '' THEN 'With Catalyst' ELSE 'No Catalyst' END as has_catalyst,
+            COUNT(*) as total,
+            SUM(CASE WHEN gap_filled = 1 THEN 1 ELSE 0 END) as filled,
+            ROUND(AVG(CASE WHEN gap_filled = 1 THEN 100.0 ELSE 0 END), 1) as fill_rate
+        FROM premarket_movers pm
+        JOIN premarket_scans ps ON pm.scan_id = ps.id
+        WHERE pm.eod_close IS NOT NULL
+        ${dateFilter}
+        GROUP BY has_catalyst
+    `).all();
+
+    // By direction
+    const byDirection = getDb().prepare(`
+        SELECT
+            CASE WHEN gap_pct > 0 THEN 'Gap Up' ELSE 'Gap Down' END as direction,
+            COUNT(*) as total,
+            SUM(CASE WHEN gap_filled = 1 THEN 1 ELSE 0 END) as filled,
+            ROUND(AVG(CASE WHEN gap_filled = 1 THEN 100.0 ELSE 0 END), 1) as fill_rate
+        FROM premarket_movers pm
+        JOIN premarket_scans ps ON pm.scan_id = ps.id
+        WHERE pm.eod_close IS NOT NULL
+        ${dateFilter}
+        GROUP BY direction
+    `).all();
+
+    return {
+        days: days || 'all_time',
+        overall,
+        by_tier: byTier,
+        by_size: bySize,
+        by_catalyst: byCatalyst,
+        by_direction: byDirection
+    };
+}
+
+/**
+ * Get ticker-specific gap history
+ * Note: Groups by DATE to count distinct gap events (not individual scans)
+ */
+function getTickerGapHistory(symbol, options = {}) {
+    const { days = null, limit = 20 } = options;
+    symbol = symbol.toUpperCase();
+
+    const dateFilter = days ? `AND date(ps.timestamp) > date('now', '-${days} days')` : '';
+
+    // Get recent gaps for this ticker - one per day with peak values
+    const gaps = getDb().prepare(`
+        SELECT
+            pm.symbol,
+            date(ps.timestamp) as gap_date,
+            MAX(ABS(pm.gap_pct)) as peak_gap_pct,
+            MAX(pm.gap_pct) as gap_pct,
+            MAX(pm.tier) as tier,
+            MAX(pm.gap_filled) as gap_filled,
+            MAX(pm.outcome) as outcome,
+            MAX(pm.eod_close) as eod_close
+        FROM premarket_movers pm
+        JOIN premarket_scans ps ON pm.scan_id = ps.id
+        WHERE pm.symbol = ?
+        ${dateFilter}
+        GROUP BY date(ps.timestamp)
+        ORDER BY gap_date DESC
+        LIMIT ?
+    `).all(symbol, limit);
+
+    // Get aggregate stats - counting DISTINCT DAYS
+    const stats = getDb().prepare(`
+        SELECT
+            COUNT(DISTINCT date(ps.timestamp)) as total_gaps,
+            (SELECT COUNT(DISTINCT date(ps2.timestamp)) FROM premarket_movers pm2
+             JOIN premarket_scans ps2 ON pm2.scan_id = ps2.id
+             WHERE pm2.symbol = ? AND pm2.gap_pct > 0 ${dateFilter}) as gaps_up,
+            (SELECT COUNT(DISTINCT date(ps2.timestamp)) FROM premarket_movers pm2
+             JOIN premarket_scans ps2 ON pm2.scan_id = ps2.id
+             WHERE pm2.symbol = ? AND pm2.gap_pct < 0 ${dateFilter}) as gaps_down,
+            ROUND(AVG(ABS(gap_pct)), 2) as avg_gap_pct,
+            MAX(ABS(gap_pct)) as max_gap_pct,
+            (SELECT COUNT(DISTINCT date(ps2.timestamp)) FROM premarket_movers pm2
+             JOIN premarket_scans ps2 ON pm2.scan_id = ps2.id
+             WHERE pm2.symbol = ? AND pm2.gap_filled = 1 ${dateFilter}) as filled_count,
+            (SELECT COUNT(DISTINCT date(ps2.timestamp)) FROM premarket_movers pm2
+             JOIN premarket_scans ps2 ON pm2.scan_id = ps2.id
+             WHERE pm2.symbol = ? AND pm2.outcome = 'WIN' ${dateFilter}) as wins,
+            (SELECT COUNT(DISTINCT date(ps2.timestamp)) FROM premarket_movers pm2
+             JOIN premarket_scans ps2 ON pm2.scan_id = ps2.id
+             WHERE pm2.symbol = ? AND pm2.outcome = 'LOSS' ${dateFilter}) as losses,
+            (SELECT COUNT(DISTINCT date(ps2.timestamp)) FROM premarket_movers pm2
+             JOIN premarket_scans ps2 ON pm2.scan_id = ps2.id
+             WHERE pm2.symbol = ? AND pm2.eod_close IS NOT NULL ${dateFilter}) as tracked_count
+        FROM premarket_movers pm
+        JOIN premarket_scans ps ON pm.scan_id = ps.id
+        WHERE pm.symbol = ?
+        ${dateFilter}
+    `).get(symbol, symbol, symbol, symbol, symbol, symbol, symbol);
+
+    // Calculate rates
+    const fillRate = stats.tracked_count > 0
+        ? Math.round((stats.filled_count / stats.tracked_count) * 100)
+        : null;
+    const winRate = (stats.wins + stats.losses) > 0
+        ? Math.round((stats.wins / (stats.wins + stats.losses)) * 100)
+        : null;
+
+    return {
+        symbol,
+        days: days || 'all_time',
+        stats: {
+            ...stats,
+            fill_rate: fillRate,
+            win_rate: winRate
+        },
+        recent_gaps: gaps
+    };
+}
+
+/**
+ * Get repeat offenders (tickers that gap frequently)
+ */
+function getRepeatOffenders(options = {}) {
+    const { days = 30, minGaps = 2, limit = 20 } = options;
+
+    return getDb().prepare(`
+        SELECT
+            pm.symbol,
+            COUNT(*) as gap_count,
+            SUM(CASE WHEN gap_pct > 0 THEN 1 ELSE 0 END) as gaps_up,
+            SUM(CASE WHEN gap_pct < 0 THEN 1 ELSE 0 END) as gaps_down,
+            ROUND(AVG(ABS(gap_pct)), 2) as avg_gap_pct,
+            SUM(CASE WHEN gap_filled = 1 THEN 1 ELSE 0 END) as filled_count,
+            SUM(CASE WHEN eod_close IS NOT NULL THEN 1 ELSE 0 END) as tracked_count,
+            ROUND(
+                CASE WHEN SUM(CASE WHEN eod_close IS NOT NULL THEN 1 ELSE 0 END) > 0
+                THEN (SUM(CASE WHEN gap_filled = 1 THEN 1 ELSE 0 END) * 100.0 /
+                      SUM(CASE WHEN eod_close IS NOT NULL THEN 1 ELSE 0 END))
+                ELSE NULL END
+            , 1) as fill_rate,
+            MAX(date(ps.timestamp)) as last_gap_date
+        FROM premarket_movers pm
+        JOIN premarket_scans ps ON pm.scan_id = ps.id
+        WHERE date(ps.timestamp) > date('now', '-' || ? || ' days')
+        GROUP BY pm.symbol
+        HAVING COUNT(*) >= ?
+        ORDER BY gap_count DESC
+        LIMIT ?
+    `).all(days, minGaps, limit);
+}
+
+/**
+ * Get today's gaps enriched with historical context
+ */
+function getTodayGapsWithHistory() {
+    const today = new Date().toISOString().split('T')[0];
+
+    // Get today's unique gaps - one per symbol with peak gap value
+    const todayGaps = getDb().prepare(`
+        SELECT
+            pm.symbol,
+            MAX(ABS(pm.gap_pct)) as peak_gap,
+            (SELECT gap_pct FROM premarket_movers pm2
+             JOIN premarket_scans ps2 ON pm2.scan_id = ps2.id
+             WHERE pm2.symbol = pm.symbol AND date(ps2.timestamp) = date(ps.timestamp)
+             ORDER BY ABS(pm2.gap_pct) DESC LIMIT 1) as gap_pct,
+            MAX(pm.tier) as tier,
+            MAX(pm.catalyst) as catalyst
+        FROM premarket_movers pm
+        JOIN premarket_scans ps ON pm.scan_id = ps.id
+        WHERE date(ps.timestamp) = ?
+        GROUP BY pm.symbol
+        ORDER BY peak_gap DESC
+    `).all(today);
+
+    // Enrich each with history
+    return todayGaps.map(gap => {
+        const history = getTickerGapHistory(gap.symbol, { days: 30 });
+        return {
+            ...gap,
+            history_30d: {
+                total_gaps: history.stats.total_gaps,
+                fill_rate: history.stats.fill_rate,
+                avg_gap_pct: history.stats.avg_gap_pct,
+                recent: history.recent_gaps.slice(0, 5).map(g => ({
+                    date: g.gap_date,
+                    gap_pct: g.gap_pct,
+                    filled: g.gap_filled,
+                    outcome: g.outcome
+                }))
+            }
+        };
+    });
+}
+
+/**
+ * Update aggregated ticker stats (called after EOD tracking)
+ */
+function updateTickerStats(symbol) {
+    symbol = symbol.toUpperCase();
+    const now = new Date().toISOString();
+
+    const stats = getDb().prepare(`
+        SELECT
+            COUNT(*) as total_gaps,
+            SUM(CASE WHEN gap_pct > 0 THEN 1 ELSE 0 END) as total_gaps_up,
+            SUM(CASE WHEN gap_pct < 0 THEN 1 ELSE 0 END) as total_gaps_down,
+            ROUND(AVG(gap_pct), 2) as avg_gap_pct,
+            SUM(CASE WHEN gap_filled = 1 THEN 1 ELSE 0 END) as fill_count,
+            ROUND(AVG(eod_change_pct), 2) as avg_follow_through,
+            SUM(CASE WHEN outcome = 'WIN' THEN 1 ELSE 0 END) as wins,
+            SUM(CASE WHEN outcome = 'LOSS' THEN 1 ELSE 0 END) as losses,
+            SUM(CASE WHEN eod_close IS NOT NULL THEN 1 ELSE 0 END) as tracked_count,
+            MAX(date(ps.timestamp)) as last_gap_date,
+            (SELECT gap_pct FROM premarket_movers pm2
+             JOIN premarket_scans ps2 ON pm2.scan_id = ps2.id
+             WHERE pm2.symbol = ?
+             ORDER BY ps2.timestamp DESC LIMIT 1) as last_gap_pct
+        FROM premarket_movers pm
+        JOIN premarket_scans ps ON pm.scan_id = ps.id
+        WHERE pm.symbol = ?
+    `).get(symbol, symbol);
+
+    const fillRate = stats.tracked_count > 0
+        ? (stats.fill_count / stats.tracked_count)
+        : null;
+    const winRate = (stats.wins + stats.losses) > 0
+        ? (stats.wins / (stats.wins + stats.losses))
+        : null;
+
+    getDb().prepare(`
+        INSERT OR REPLACE INTO gap_ticker_stats (
+            symbol, total_gaps, total_gaps_up, total_gaps_down,
+            avg_gap_pct, fill_count, fill_rate, avg_follow_through,
+            wins, losses, win_rate, last_gap_date, last_gap_pct, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+        symbol,
+        stats.total_gaps,
+        stats.total_gaps_up,
+        stats.total_gaps_down,
+        stats.avg_gap_pct,
+        stats.fill_count,
+        fillRate,
+        stats.avg_follow_through,
+        stats.wins,
+        stats.losses,
+        winRate,
+        stats.last_gap_date,
+        stats.last_gap_pct,
+        now
+    );
+}
+
+/**
+ * Get all ticker stats for display
+ */
+function getAllTickerStats(options = {}) {
+    const { minGaps = 1, limit = 50 } = options;
+
+    return getDb().prepare(`
+        SELECT * FROM gap_ticker_stats
+        WHERE total_gaps >= ?
+        ORDER BY total_gaps DESC
+        LIMIT ?
+    `).all(minGaps, limit);
+}
+
+// ============================================
+// WATCHLIST FUNCTIONS
+// ============================================
+
+/**
+ * Add or update a symbol in watchlist
+ * Sources: 'manual', 'premarket_gap', 'bloodhound', 'earnings'
+ */
+function addToWatchlist(symbol, options = {}) {
+    symbol = symbol.toUpperCase();
+    const now = new Date().toISOString();
+
+    const {
+        notes = null,
+        source = 'manual',
+        addedBy = null,
+        gapPct = null,
+        scoreAtAdd = null,
+        tierAtAdd = null,
+        expiresAt = null
+    } = options;
+
+    const existing = getDb().prepare('SELECT * FROM watchlist WHERE symbol = ?').get(symbol);
+
+    if (existing) {
+        // Update existing - re-enable if disabled, update notes/metadata
+        getDb().prepare(`
+            UPDATE watchlist SET
+                enabled = 1,
+                notes = COALESCE(?, notes),
+                source = CASE WHEN ? IS NOT NULL THEN ? ELSE source END,
+                gap_pct = COALESCE(?, gap_pct),
+                score_at_add = COALESCE(?, score_at_add),
+                tier_at_add = COALESCE(?, tier_at_add),
+                expires_at = COALESCE(?, expires_at)
+            WHERE symbol = ?
+        `).run(notes, source, source, gapPct, scoreAtAdd, tierAtAdd, expiresAt, symbol);
+        console.log(`[Watchlist] Updated ${symbol} (source: ${source})`);
+        return { action: 'updated', symbol };
+    } else {
+        // Insert new
+        getDb().prepare(`
+            INSERT INTO watchlist (symbol, enabled, notes, source, added_at, added_by, gap_pct, score_at_add, tier_at_add, expires_at)
+            VALUES (?, 1, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(symbol, notes, source, now, addedBy, gapPct, scoreAtAdd, tierAtAdd, expiresAt);
+        console.log(`[Watchlist] Added ${symbol} (source: ${source})`);
+        return { action: 'added', symbol };
+    }
+}
+
+/**
+ * Remove a symbol from watchlist
+ */
+function removeFromWatchlist(symbol) {
+    symbol = symbol.toUpperCase();
+    const result = getDb().prepare('DELETE FROM watchlist WHERE symbol = ?').run(symbol);
+    if (result.changes > 0) {
+        console.log(`[Watchlist] Removed ${symbol}`);
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Enable/disable a symbol (keeps it in list)
+ */
+function setWatchlistEnabled(symbol, enabled) {
+    symbol = symbol.toUpperCase();
+    const result = getDb().prepare('UPDATE watchlist SET enabled = ? WHERE symbol = ?').run(enabled ? 1 : 0, symbol);
+    return result.changes > 0;
+}
+
+/**
+ * Get enabled watchlist symbols (for scanners)
+ */
+function getWatchlist() {
+    return getDb().prepare(`
+        SELECT symbol FROM watchlist
+        WHERE enabled = 1
+        AND (expires_at IS NULL OR expires_at > datetime('now'))
+        ORDER BY added_at DESC
+    `).all().map(r => r.symbol);
+}
+
+/**
+ * Get full watchlist with all metadata
+ */
+function getWatchlistFull() {
+    return getDb().prepare(`
+        SELECT * FROM watchlist
+        ORDER BY enabled DESC, added_at DESC
+    `).all();
+}
+
+/**
+ * Check if symbol is in watchlist
+ */
+function isInWatchlist(symbol) {
+    symbol = symbol.toUpperCase();
+    const result = getDb().prepare('SELECT 1 FROM watchlist WHERE symbol = ? AND enabled = 1').get(symbol);
+    return !!result;
+}
+
+/**
+ * Update last scanned timestamp
+ */
+function updateWatchlistScanned(symbol) {
+    symbol = symbol.toUpperCase();
+    const now = new Date().toISOString();
+    getDb().prepare('UPDATE watchlist SET last_scanned = ? WHERE symbol = ?').run(now, symbol);
+}
+
+/**
+ * Clean expired watchlist entries
+ */
+function cleanExpiredWatchlist() {
+    const result = getDb().prepare(`
+        DELETE FROM watchlist
+        WHERE expires_at IS NOT NULL AND expires_at < datetime('now')
+    `).run();
+    if (result.changes > 0) {
+        console.log(`[Watchlist] Cleaned ${result.changes} expired entries`);
+    }
+    return result.changes;
+}
+
+/**
+ * Migrate from watchlist.json to database (one-time)
+ */
+function migrateWatchlistFromJson(jsonPath) {
+    const fs = require('fs');
+    try {
+        const content = fs.readFileSync(jsonPath, 'utf8');
+        const data = JSON.parse(content);
+
+        let migrated = 0;
+        for (const item of data.symbols || []) {
+            const existing = getDb().prepare('SELECT 1 FROM watchlist WHERE symbol = ?').get(item.symbol);
+            if (!existing) {
+                addToWatchlist(item.symbol, {
+                    notes: item.notes,
+                    source: 'manual'
+                });
+                if (!item.enabled) {
+                    setWatchlistEnabled(item.symbol, false);
+                }
+                migrated++;
+            }
+        }
+        console.log(`[Watchlist] Migrated ${migrated} symbols from JSON`);
+        return migrated;
+    } catch (e) {
+        console.log(`[Watchlist] Migration failed: ${e.message}`);
+        return 0;
+    }
+}
+
+/**
+ * Get watchlist stats
+ */
+function getWatchlistStats() {
+    const total = getDb().prepare('SELECT COUNT(*) as count FROM watchlist').get();
+    const enabled = getDb().prepare('SELECT COUNT(*) as count FROM watchlist WHERE enabled = 1').get();
+    const bySources = getDb().prepare(`
+        SELECT source, COUNT(*) as count
+        FROM watchlist
+        WHERE enabled = 1
+        GROUP BY source
+    `).all();
+
+    return {
+        total: total.count,
+        enabled: enabled.count,
+        by_source: bySources
+    };
+}
+
 module.exports = {
     getDb,
     insertSignal,
@@ -927,5 +1603,25 @@ module.exports = {
     getPremarketMovers,
     getLatestPremarketData,
     getTodayPremarketStats,
-    getTodaySessionMovers
+    getTodaySessionMovers,
+    // Gap analytics functions
+    updateGapEOD,
+    getGapsNeedingEOD,
+    getGapFillRates,
+    getTickerGapHistory,
+    getRepeatOffenders,
+    getTodayGapsWithHistory,
+    updateTickerStats,
+    getAllTickerStats,
+    // Watchlist functions
+    addToWatchlist,
+    removeFromWatchlist,
+    setWatchlistEnabled,
+    getWatchlist,
+    getWatchlistFull,
+    isInWatchlist,
+    updateWatchlistScanned,
+    cleanExpiredWatchlist,
+    migrateWatchlistFromJson,
+    getWatchlistStats
 };

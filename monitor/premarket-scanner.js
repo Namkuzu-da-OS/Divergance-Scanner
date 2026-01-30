@@ -13,6 +13,7 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 const signalDb = require('./signal-db');
+const telegramConfig = require('./config.json').telegram;
 
 // ============================================
 // CONFIGURATION
@@ -199,6 +200,123 @@ function updateSessionWatchlist(mover) {
 function getSessionWatchlistArray() {
     return Array.from(sessionWatchlist.values())
         .sort((a, b) => b.peak_gap_pct - a.peak_gap_pct);
+}
+
+// ============================================
+// TELEGRAM ALERTS
+// ============================================
+
+// Track which symbols we've alerted today to avoid spam
+const alertedToday = new Set();
+
+/**
+ * Send message to Telegram
+ */
+async function sendTelegram(message) {
+    if (!telegramConfig?.botToken || !telegramConfig?.chatId) {
+        log('Telegram not configured, skipping alert');
+        return false;
+    }
+
+    try {
+        const url = `https://api.telegram.org/bot${telegramConfig.botToken}/sendMessage`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: telegramConfig.chatId,
+                text: message,
+                parse_mode: 'HTML'
+            })
+        });
+
+        if (!response.ok) {
+            const error = await response.text();
+            log(`Telegram error: ${error}`);
+            return false;
+        }
+
+        return true;
+    } catch (e) {
+        log(`Telegram failed: ${e.message}`);
+        return false;
+    }
+}
+
+/**
+ * Send alert for HIGH_CONVICTION gap with historical fill rate
+ */
+async function sendGapAlert(mover, marketContext) {
+    const symbol = mover.symbol;
+
+    // Skip if already alerted today
+    if (alertedToday.has(symbol)) {
+        return;
+    }
+
+    // Get historical fill rate for this ticker
+    const tickerHistory = signalDb.getTickerGapHistory(symbol, 90);
+
+    // Build the alert message
+    const gapDir = mover.gap_pct >= 0 ? '📈' : '📉';
+    const gapStr = mover.gap_pct >= 0 ? `+${mover.gap_pct.toFixed(1)}%` : `${mover.gap_pct.toFixed(1)}%`;
+
+    let msg = `${gapDir} <b>HIGH CONVICTION GAP</b>\n\n`;
+    msg += `<b>${symbol}</b> ${gapStr}\n`;
+    msg += `Price: $${mover.premarket_price?.toFixed(2) || 'N/A'}\n`;
+    msg += `Prev Close: $${mover.prev_close?.toFixed(2) || 'N/A'}\n`;
+
+    if (mover.catalyst) {
+        msg += `Catalyst: ${mover.catalyst === 'earnings_bmo' ? '📊 Earnings (BMO)' : mover.catalyst === 'earnings_amc' ? '📊 Earnings (AMC)' : mover.catalyst}\n`;
+    }
+
+    msg += `\n<b>Score:</b> ${mover.score}/100\n`;
+
+    // Add historical context
+    if (tickerHistory && tickerHistory.total_gaps > 0) {
+        msg += `\n<b>📊 History (90d):</b>\n`;
+        msg += `• ${tickerHistory.total_gaps} gaps recorded\n`;
+        msg += `• Fill rate: ${(tickerHistory.fill_rate * 100).toFixed(0)}%\n`;
+
+        if (tickerHistory.wins !== undefined && tickerHistory.losses !== undefined) {
+            const winRate = tickerHistory.total_gaps > 0
+                ? ((tickerHistory.wins / tickerHistory.total_gaps) * 100).toFixed(0)
+                : 'N/A';
+            msg += `• Win rate: ${winRate}%\n`;
+        }
+
+        // Show last few gaps
+        if (tickerHistory.recent_gaps && tickerHistory.recent_gaps.length > 0) {
+            const recent = tickerHistory.recent_gaps.slice(0, 3);
+            const recentStr = recent.map(g => {
+                const dir = g.gap_pct >= 0 ? '+' : '';
+                const filled = g.gap_filled ? '✓' : '✗';
+                return `${dir}${g.gap_pct.toFixed(1)}%${filled}`;
+            }).join(', ');
+            msg += `• Recent: ${recentStr}\n`;
+        }
+    } else {
+        msg += `\n<i>🆕 First gap in 90 days</i>\n`;
+    }
+
+    // Market context
+    msg += `\n<b>Market:</b> SPY ${marketContext.spyChange >= 0 ? '+' : ''}${marketContext.spyChange.toFixed(2)}% | VIX ${marketContext.vix.toFixed(1)}\n`;
+
+    const success = await sendTelegram(msg);
+    if (success) {
+        alertedToday.add(symbol);
+        log(`[Telegram] Sent HIGH_CONVICTION alert for ${symbol}`);
+    }
+}
+
+/**
+ * Reset alerted set at start of new day
+ */
+function resetAlertedToday() {
+    const today = getETDateString();
+    if (sessionDate !== today) {
+        alertedToday.clear();
+    }
 }
 
 /**
@@ -551,6 +669,7 @@ async function runScan() {
 
     // Check if we need to reset session watchlist (new day)
     checkSessionReset();
+    resetAlertedToday();
 
     scanCount++;
     const timestamp = new Date().toISOString();
@@ -720,6 +839,30 @@ async function runScan() {
     }
 
     log(`[DB] Saved scan #${scanId} with ${movers.length} movers`);
+
+    // Auto-add HIGH_CONVICTION gaps to persistent watchlist
+    for (const mover of highConviction) {
+        if (!signalDb.isInWatchlist(mover.symbol)) {
+            const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(); // Expires in 7 days
+            signalDb.addToWatchlist(mover.symbol, {
+                notes: `Premarket gap ${mover.gap_pct > 0 ? '+' : ''}${mover.gap_pct.toFixed(1)}% - ${new Date().toISOString().split('T')[0]}`,
+                source: 'premarket_gap',
+                addedBy: 'premarket-scanner',
+                gapPct: mover.gap_pct,
+                scoreAtAdd: mover.score,
+                tierAtAdd: mover.tier,
+                expiresAt: expiresAt
+            });
+            log(`[Watchlist] Auto-added ${mover.symbol} (${mover.gap_pct.toFixed(1)}% gap, score: ${mover.score})`);
+        }
+
+        // Send Telegram alert with historical fill rate
+        sendGapAlert(mover, {
+            spyChange: spyChange,
+            vix: vixData.price,
+            bias: marketBias
+        });
+    }
 
     // Get session watchlist
     const sessionList = getSessionWatchlistArray();

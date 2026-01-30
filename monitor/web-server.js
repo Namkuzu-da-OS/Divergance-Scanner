@@ -108,6 +108,10 @@ const server = http.createServer((req, res) => {
             const tradeable = movers.filter(m => m.tier === 'TRADEABLE').length;
             const watch = movers.filter(m => m.tier === 'WATCH').length;
 
+            // Get session watchlist from database
+            const sessionMovers = signalDb.getTodaySessionMovers();
+            const today = new Date().toISOString().split('T')[0];
+
             const data = {
                 timestamp: scan.timestamp,
                 scan_id: scan.id,
@@ -122,9 +126,26 @@ const server = http.createServer((req, res) => {
                     total_gaps: movers.length,
                     high_conviction: highConviction,
                     tradeable: tradeable,
-                    watch: watch
+                    watch: watch,
+                    session_total: sessionMovers.length
                 },
-                movers: movers
+                movers: movers,
+                session: {
+                    date: today,
+                    symbols_discovered: sessionMovers.length,
+                    watchlist: sessionMovers.map(m => ({
+                        symbol: m.symbol,
+                        first_seen: m.first_seen,
+                        last_seen: m.last_seen,
+                        scan_count: m.scan_count,
+                        peak_gap_pct: m.peak_gap_pct,
+                        current_gap_pct: m.gap_pct,
+                        current_tier: m.tier,
+                        current_score: m.score,
+                        gap_type: m.gap_type,
+                        premarket_volume: m.premarket_volume
+                    }))
+                }
             };
 
             res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -146,6 +167,84 @@ const server = http.createServer((req, res) => {
             res.end(JSON.stringify(stats));
         } catch (e) {
             console.error('[Web Server] Error loading premarket stats:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
+    // API: Gap Analytics - fill rates and stats
+    if (req.method === 'GET' && urlPath === '/api/gaps/analytics') {
+        try {
+            const signalDb = require('./signal-db');
+            const url = new URL(req.url, `http://${req.headers.host}`);
+            const days = url.searchParams.get('days');
+
+            const stats = signalDb.getGapFillRates({
+                days: days ? parseInt(days) : null
+            });
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(stats));
+        } catch (e) {
+            console.error('[Web Server] Error loading gap analytics:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
+    // API: Gap ticker history
+    if (req.method === 'GET' && urlPath.startsWith('/api/gaps/ticker/')) {
+        try {
+            const signalDb = require('./signal-db');
+            const symbol = urlPath.split('/').pop().toUpperCase();
+            const url = new URL(req.url, `http://${req.headers.host}`);
+            const days = url.searchParams.get('days');
+
+            const history = signalDb.getTickerGapHistory(symbol, {
+                days: days ? parseInt(days) : null
+            });
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(history));
+        } catch (e) {
+            console.error('[Web Server] Error loading ticker gap history:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
+    // API: Repeat offenders (frequent gappers)
+    if (req.method === 'GET' && urlPath === '/api/gaps/repeat-offenders') {
+        try {
+            const signalDb = require('./signal-db');
+            const url = new URL(req.url, `http://${req.headers.host}`);
+            const days = url.searchParams.get('days') || 30;
+            const minGaps = url.searchParams.get('min') || 2;
+
+            const offenders = signalDb.getRepeatOffenders({
+                days: parseInt(days),
+                minGaps: parseInt(minGaps)
+            });
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(offenders));
+        } catch (e) {
+            console.error('[Web Server] Error loading repeat offenders:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
+    // API: Today's gaps with historical context
+    if (req.method === 'GET' && urlPath === '/api/gaps/today-with-history') {
+        try {
+            const signalDb = require('./signal-db');
+            const gaps = signalDb.getTodayGapsWithHistory();
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(gaps));
+        } catch (e) {
+            console.error('[Web Server] Error loading gaps with history:', e.message);
             res.writeHead(500, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: e.message }));
         }

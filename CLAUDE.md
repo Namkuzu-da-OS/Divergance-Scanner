@@ -222,14 +222,14 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 | File | Purpose | Update Trigger |
 |------|---------|----------------|
 | `data/bloodhound.json` | **Bloodhound scan results** | Every 2 min scan |
-| `data/watchlist.json` | Symbols to always scan | Manual edit or web UI |
+| `data/watchlist.json` | Symbols to always scan (legacy, now backed by SQLite) | Manual or auto-add |
 | `data/dynamic_scan.json` | Full technical data for dashboard | Every scan |
 | `data/positions.json` | Open trades | Position change |
 | `data/trades_journal.json` | Trade history | Trade closes |
 | `data/account_summary.json` | P&L metrics | EOD |
 | `data/scanner.json` | Live market data | Every 2 min (bloodhound) |
 | `data/premarket.json` | Pre-market gaps and movers | Every 5 min (6-9:30 AM ET) |
-| `data/opportunity_history.db` | **SQLite database** - Signals, checkpoints, scanner history, premarket | Every scan |
+| `data/opportunity_history.db` | **SQLite database** - Signals, checkpoints, scanner history, premarket, **watchlist**, **gap_ticker_stats** | Every scan |
 | `data/ACTIVE_SESSION.md` | Session state | Hourly |
 | `data/daily_log.md` | Today's journal | Throughout day |
 
@@ -244,9 +244,10 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 |------|---------|
 | `monitor/bloodhound-scanner.js` | **Confluence scanner** - Dynamic discovery, scoring, VIX alerts |
 | `monitor/premarket-scanner.js` | **Pre-market scanner** - Gap detection 6-9:30 AM ET |
-| `monitor/signal-db.js` | **Signal database** - SQLite storage for signals, checkpoints, history, premarket |
+| `monitor/eod-gap-tracker.js` | **EOD tracker** - Captures closing data, calculates gap fills (4:15 PM ET) |
+| `monitor/signal-db.js` | **Signal database** - SQLite storage for signals, checkpoints, history, premarket, watchlist, gap analytics |
 | `monitor/signal-logger.js` | Signal tracking wrapper (uses signal-db.js) |
-| `monitor/migrate-to-db.js` | One-time migration script for JSON to SQLite |
+| `monitor/migrate-watchlist.js` | Migrate watchlist.json to SQLite database |
 | `monitor/trade-client.js` | Trade logging API client |
 | `scanner.html` | Visual market dashboard |
 
@@ -322,7 +323,9 @@ Control API: `http://localhost:8081`
 
 Bloodhound dynamically discovers symbols from:
 
-1. **Watchlist** (`data/watchlist.json`) - Always scanned, highest priority
+1. **Watchlist** (SQLite `watchlist` table + `data/watchlist.json` fallback) - Always scanned, highest priority
+   - Manual symbols (permanent)
+   - Premarket gaps auto-added by premarket-scanner (7-day expiry)
 2. **Market Data** (`/api/latest`) - 52-week extremes, volume spikes
 3. **Sector Rotation** - Strongest/weakest sector ETFs
 
@@ -404,8 +407,8 @@ The tradeable decision uses both wall proximity AND confluence score:
 |------|---------|
 | `data/bloodhound.json` | Latest scan results with all opportunities |
 | `data/dynamic_scan.json` | Full technical data for dashboard |
-| `data/watchlist.json` | Symbols to always scan |
-| `data/opportunity_history.db` | SQLite database with signals, checkpoints, scanner history |
+| `data/watchlist.json` | Legacy watchlist (now backed by SQLite) |
+| `data/opportunity_history.db` | SQLite database with signals, checkpoints, scanner history, watchlist, gap_ticker_stats |
 
 ### Signal Validation System (Database-Backed)
 
@@ -577,6 +580,15 @@ pm2 logs premarket
 | WATCH | 30-49 | Monitor but wait |
 | FILTERED | <30 | Not significant |
 
+### Auto-Add to Watchlist
+
+HIGH_CONVICTION gaps are automatically added to the SQLite watchlist:
+- **Source:** `premarket_gap`
+- **Expiry:** 7 days (auto-cleaned)
+- **Effect:** Bloodhound will track these symbols during market hours
+
+This ensures premarket discoveries flow into the main scanner without manual intervention.
+
 ### Control API (Port 8084)
 
 | Endpoint | Method | Purpose |
@@ -603,6 +615,47 @@ Edit `monitor/premarket-scanner.js` CONFIG for:
 - `PREMARKET_START_HOUR` - Start hour ET (default: 6)
 - `PREMARKET_END_HOUR` - End hour ET (default: 9)
 - `PREMARKET_END_MINUTE` - End minute ET (default: 30)
+
+---
+
+## EOD Gap Tracker & Gap Analytics
+
+**Tracks gap fill rates and outcomes.** Runs at 4:15 PM ET to capture closing data for each day's gaps.
+
+### What It Tracks
+
+For each gap discovered by premarket scanner:
+- **EOD Close/High/Low** - Closing prices from Options API
+- **Gap Filled** - Did price cross back through prev_close?
+- **Outcome** - WIN (gap continued), LOSS (gap faded), SCRATCH (flat)
+
+### Gap Fill Logic
+
+| Gap Type | Filled Condition |
+|----------|------------------|
+| Gap UP | Intraday low ≤ prev_close |
+| Gap DOWN | Intraday high ≥ prev_close |
+
+### PM2 Process
+
+Runs as persistent process with internal cron scheduling:
+```bash
+pm2 logs eod-tracker        # View logs
+node monitor/eod-gap-tracker.js --now  # Manual run
+```
+
+### Analytics API Endpoints
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /api/gaps/analytics?days=30` | Fill rates by tier, size, catalyst |
+| `GET /api/gaps/ticker/:symbol` | Ticker-specific gap history |
+| `GET /api/gaps/repeat-offenders` | Frequent gappers with fill rates |
+| `GET /api/gaps/today-with-history` | Today's gaps with historical context |
+
+### Documentation
+
+Full documentation: `toolbox/docs/GAP_ANALYTICS.md`
 
 ---
 

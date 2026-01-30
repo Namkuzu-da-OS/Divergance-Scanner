@@ -980,21 +980,47 @@ function classifyWallActivity(optionsAnalysis, wallPrice, wallType, wallExpirati
 }
 
 // ============================================
-// WATCHLIST LOADING
+// WATCHLIST LOADING (Database + JSON fallback)
 // ============================================
 
 const WATCHLIST_PATH = path.join(__dirname, '..', 'data', 'watchlist.json');
 
 function loadWatchlist() {
+    const symbols = new Set();
+
+    // 1. Try database first (includes premarket gaps, manual adds, etc.)
+    try {
+        const dbSymbols = signalDb.getWatchlist();
+        if (dbSymbols.length > 0) {
+            dbSymbols.forEach(s => symbols.add(s));
+            console.log(`[Watchlist] Loaded ${dbSymbols.length} from database`);
+        }
+    } catch (e) {
+        console.log(`[Watchlist] Database read failed: ${e.message}`);
+    }
+
+    // 2. Also load from JSON (manual baseline, ensures SPY/QQQ always present)
     try {
         const data = JSON.parse(fs.readFileSync(WATCHLIST_PATH, 'utf8'));
-        return data.symbols
-            .filter(s => s.enabled)
-            .map(s => s.symbol);
+        const jsonSymbols = data.symbols.filter(s => s.enabled).map(s => s.symbol);
+        jsonSymbols.forEach(s => symbols.add(s));
+        console.log(`[Watchlist] Loaded ${jsonSymbols.length} from JSON`);
     } catch (e) {
-        console.log('[Watchlist] Could not load watchlist.json, using defaults');
+        console.log('[Watchlist] Could not load watchlist.json');
+    }
+
+    // 3. Fallback to defaults if nothing loaded
+    if (symbols.size === 0) {
+        console.log('[Watchlist] Using defaults: SPY, QQQ');
         return ['SPY', 'QQQ'];
     }
+
+    // Clean expired entries periodically
+    try {
+        signalDb.cleanExpiredWatchlist();
+    } catch (e) { /* ignore */ }
+
+    return Array.from(symbols);
 }
 
 // ============================================

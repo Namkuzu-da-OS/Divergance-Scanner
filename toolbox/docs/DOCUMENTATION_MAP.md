@@ -1,7 +1,7 @@
 # Wingman Documentation Map
 
-**Last Updated:** November 4, 2025
-**Status:** Complete system documentation with VWAP + Divergence integration
+**Last Updated:** January 30, 2026
+**Status:** Complete system documentation with Gap Analytics + VWAP + Divergence integration
 
 ---
 
@@ -60,6 +60,10 @@
 - [TradingView/Divergence + VWAP Reversion v4.md](TradingView/Divergence%20+%20VWAP%20Reversion%20v4.md) - PineScript indicator (4-version, working)
 - [VWAP_Reversion_with_Divergence_Checklist.md](VWAP_Reversion_with_Divergence_Checklist.md) - Step-by-step trade rules
 - [TRADES_JOURNAL_SCHEMA.md](TRADES_JOURNAL_SCHEMA.md) - How to log trades with divergence data
+
+**Scanner Systems:**
+- [GAP_ANALYTICS.md](GAP_ANALYTICS.md) - Gap fill tracking, EOD analysis, repeat offender patterns
+- See also: `CLAUDE.md` → Scanner Dashboard section for Bloodhound, Premarket, Earnings scanners
 
 **Reference:**
 - [TradingView/Divergence for Many Indicators.md](TradingView/Divergence%20for%20Many%20Indicators.md) - Original divergence indicator

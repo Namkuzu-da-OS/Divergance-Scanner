@@ -322,6 +322,58 @@
                 </div>
             </div>
         </div>
+
+        <!-- Gap Analytics -->
+        <div class="section" id="analyticsSection" style="border-color: #8b5cf6;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h2 class="section-title" style="margin-bottom: 0;">
+                    📊 Gap Analytics
+                </h2>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 11px; color: #8b92a8;">Lookback:</span>
+                    <select id="analyticsLookback" onchange="loadAnalytics()" style="background: #1a1f2e; color: #e0e6ed; border: 1px solid #2d3548; border-radius: 4px; padding: 4px 8px; font-size: 11px;">
+                        <option value="30">30 days</option>
+                        <option value="90">90 days</option>
+                        <option value="365">1 year</option>
+                        <option value="">All time</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="analyticsContainer">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <!-- Fill Rates -->
+                    <div>
+                        <h3 style="font-size: 13px; color: #8b5cf6; margin-bottom: 12px; font-weight: 600;">Fill Rates</h3>
+                        <div id="fillRatesContainer">
+                            <div class="empty-state" style="padding: 20px;">
+                                <div class="empty-state-text">No EOD data yet</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Repeat Offenders -->
+                    <div>
+                        <h3 style="font-size: 13px; color: #8b5cf6; margin-bottom: 12px; font-weight: 600;">Repeat Offenders</h3>
+                        <div id="repeatOffendersContainer">
+                            <div class="empty-state" style="padding: 20px;">
+                                <div class="empty-state-text">No frequent gappers yet</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Today's Gaps With History -->
+                <div style="margin-top: 20px;">
+                    <h3 style="font-size: 13px; color: #8b5cf6; margin-bottom: 12px; font-weight: 600;">Today's Gaps - Historical Context</h3>
+                    <div id="todayHistoryContainer">
+                        <div class="empty-state" style="padding: 20px;">
+                            <div class="empty-state-text">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -642,11 +694,221 @@
             }
         }
 
+        // ============================================
+        // GAP ANALYTICS
+        // ============================================
+
+        async function loadAnalytics() {
+            const lookback = document.getElementById('analyticsLookback').value;
+            const daysParam = lookback ? `?days=${lookback}` : '';
+
+            try {
+                // Load fill rates
+                const fillRatesResponse = await fetch(`/api/gaps/analytics${daysParam}`);
+                if (fillRatesResponse.ok) {
+                    const data = await fillRatesResponse.json();
+                    renderFillRates(data);
+                }
+
+                // Load repeat offenders
+                const offendersResponse = await fetch(`/api/gaps/repeat-offenders${daysParam}`);
+                if (offendersResponse.ok) {
+                    const data = await offendersResponse.json();
+                    renderRepeatOffenders(data);
+                }
+
+                // Load today's gaps with history
+                const todayResponse = await fetch('/api/gaps/today-with-history');
+                if (todayResponse.ok) {
+                    const data = await todayResponse.json();
+                    renderTodayHistory(data);
+                }
+            } catch (e) {
+                console.error('Failed to load analytics:', e);
+            }
+        }
+
+        function renderFillRates(data) {
+            const container = document.getElementById('fillRatesContainer');
+
+            if (!data.overall || data.overall.total === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding: 20px;">
+                        <div class="empty-state-text">No EOD data yet. Run eod-gap-tracker.js after market close.</div>
+                    </div>`;
+                return;
+            }
+
+            let html = `
+                <div style="margin-bottom: 16px;">
+                    <div style="font-size: 24px; font-weight: 700; color: #8b5cf6;">${data.overall.fill_rate || 0}%</div>
+                    <div style="font-size: 11px; color: #8b92a8;">Overall Fill Rate (${data.overall.total} gaps)</div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 12px;">`;
+
+            // By Tier
+            if (data.by_tier && data.by_tier.length > 0) {
+                html += `<div style="background: #1a1f2e; padding: 10px; border-radius: 6px;">
+                    <div style="font-weight: 600; margin-bottom: 8px; color: #8b92a8;">By Tier</div>`;
+                for (const t of data.by_tier) {
+                    html += `<div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <span>${t.tier}</span>
+                        <span style="color: #f59e0b;">${t.fill_rate}%</span>
+                    </div>`;
+                }
+                html += `</div>`;
+            }
+
+            // By Size
+            if (data.by_size && data.by_size.length > 0) {
+                html += `<div style="background: #1a1f2e; padding: 10px; border-radius: 6px;">
+                    <div style="font-weight: 600; margin-bottom: 8px; color: #8b92a8;">By Gap Size</div>`;
+                for (const s of data.by_size) {
+                    html += `<div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <span>${s.size_bucket}</span>
+                        <span style="color: #f59e0b;">${s.fill_rate}%</span>
+                    </div>`;
+                }
+                html += `</div>`;
+            }
+
+            // By Direction
+            if (data.by_direction && data.by_direction.length > 0) {
+                html += `<div style="background: #1a1f2e; padding: 10px; border-radius: 6px;">
+                    <div style="font-weight: 600; margin-bottom: 8px; color: #8b92a8;">By Direction</div>`;
+                for (const d of data.by_direction) {
+                    html += `<div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <span>${d.direction}</span>
+                        <span style="color: #f59e0b;">${d.fill_rate}%</span>
+                    </div>`;
+                }
+                html += `</div>`;
+            }
+
+            // By Catalyst
+            if (data.by_catalyst && data.by_catalyst.length > 0) {
+                html += `<div style="background: #1a1f2e; padding: 10px; border-radius: 6px;">
+                    <div style="font-weight: 600; margin-bottom: 8px; color: #8b92a8;">By Catalyst</div>`;
+                for (const c of data.by_catalyst) {
+                    html += `<div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                        <span>${c.has_catalyst}</span>
+                        <span style="color: #f59e0b;">${c.fill_rate}%</span>
+                    </div>`;
+                }
+                html += `</div>`;
+            }
+
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function renderRepeatOffenders(data) {
+            const container = document.getElementById('repeatOffendersContainer');
+
+            if (!data || data.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding: 20px;">
+                        <div class="empty-state-text">No repeat gappers found</div>
+                    </div>`;
+                return;
+            }
+
+            let html = `<table style="font-size: 12px;">
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Gaps</th>
+                        <th>Avg Gap</th>
+                        <th>Fill Rate</th>
+                        <th>Last Gap</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+            for (const item of data.slice(0, 10)) {
+                const fillRate = item.fill_rate !== null ? `${item.fill_rate}%` : '-';
+                html += `
+                    <tr>
+                        <td style="font-weight: 700;">${item.symbol}</td>
+                        <td style="text-align: center;">${item.gap_count}</td>
+                        <td>${item.avg_gap_pct >= 0 ? '+' : ''}${item.avg_gap_pct}%</td>
+                        <td style="color: #f59e0b;">${fillRate}</td>
+                        <td style="color: #8b92a8;">${item.last_gap_date || '-'}</td>
+                    </tr>`;
+            }
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function renderTodayHistory(data) {
+            const container = document.getElementById('todayHistoryContainer');
+
+            if (!data || data.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding: 20px;">
+                        <div class="empty-state-text">No gaps today yet</div>
+                    </div>`;
+                return;
+            }
+
+            let html = `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">`;
+
+            for (const gap of data) {
+                const dir = gap.gap_pct >= 0 ? 'up' : 'down';
+                const icon = gap.gap_pct >= 0 ? '↑' : '↓';
+                const history = gap.history_30d || {};
+
+                let historyBadge = '';
+                if (history.total_gaps === 1) {
+                    historyBadge = '<span style="background: #22c55e20; color: #22c55e; padding: 2px 6px; border-radius: 4px; font-size: 10px;">NEW</span>';
+                } else if (history.total_gaps > 1) {
+                    const fillStr = history.fill_rate !== null ? `${history.fill_rate}% fill` : '';
+                    historyBadge = `<span style="background: #f59e0b20; color: #f59e0b; padding: 2px 6px; border-radius: 4px; font-size: 10px;">${history.total_gaps} gaps ${fillStr}</span>`;
+                }
+
+                // Recent history indicators
+                let recentHtml = '';
+                if (history.recent && history.recent.length > 0) {
+                    recentHtml = '<div style="margin-top: 6px; font-size: 10px; color: #8b92a8;">Recent: ';
+                    for (const r of history.recent.slice(0, 5)) {
+                        if (r.filled === 1) {
+                            recentHtml += '<span style="color: #22c55e;">✓</span> ';
+                        } else if (r.filled === 0) {
+                            recentHtml += '<span style="color: #ef4444;">✗</span> ';
+                        } else {
+                            recentHtml += '<span style="color: #8b92a8;">○</span> ';
+                        }
+                    }
+                    recentHtml += '</div>';
+                }
+
+                html += `
+                    <div style="background: #1a1f2e; padding: 12px; border-radius: 8px; border-left: 3px solid ${dir === 'up' ? '#22c55e' : '#ef4444'};">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span style="font-weight: 700;">${gap.symbol}</span>
+                            ${historyBadge}
+                        </div>
+                        <div style="font-size: 16px; font-weight: 600; color: ${dir === 'up' ? '#22c55e' : '#ef4444'};">
+                            ${icon} ${Math.abs(gap.gap_pct).toFixed(2)}%
+                        </div>
+                        <div style="font-size: 11px; color: #8b92a8; margin-top: 4px;">${gap.tier || ''}</div>
+                        ${recentHtml}
+                    </div>`;
+            }
+
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
         // Auto-refresh every 60 seconds
         loadData();
         loadStatus();
+        loadAnalytics();
         setInterval(loadData, 60000);
         setInterval(loadStatus, 30000);
+        setInterval(loadAnalytics, 300000); // Refresh analytics every 5 minutes
     </script>
 
     <!-- Documentation Section -->
