@@ -1,13 +1,12 @@
 /**
- * Earnings Season Trading System
+ * Earnings Season Scanner
  *
- * A complete system for trading earnings season, not just a scanner.
+ * Scans for pre-earnings momentum (PREM) candidates.
  *
  * Features:
- * - PREM Scanner: Find pre-earnings momentum candidates
- * - Position Tracker: Track open earnings trades
- * - Exit Reminders: Alert day before earnings to close
- * - Performance Analytics: Win rate, P&L by strategy
+ * - PREM Scanner: Find pre-earnings momentum candidates 5-10 days out
+ * - Earnings Calendar: Track upcoming earnings dates
+ * - Telegram Alerts: Notify on high-conviction setups
  *
  * Control API: http://localhost:8082
  * Dashboard:   http://localhost:8080/earnings-scanner.html
@@ -45,7 +44,6 @@ const DATA_DIR = path.join(__dirname, '..', 'data');
 const CALENDAR_FILE = path.join(DATA_DIR, 'earnings-calendar.json');
 const SCAN_OUTPUT_FILE = path.join(DATA_DIR, 'earnings-scan.json');
 const SIGNALS_FILE = path.join(DATA_DIR, 'earnings-signals.json');
-const POSITIONS_FILE = path.join(DATA_DIR, 'earnings-positions.json');
 const PAUSE_FILE = path.join(DATA_DIR, '.earnings_paused');
 
 // Settings
@@ -251,122 +249,6 @@ function getPremCandidates(calendar) {
     }));
 }
 
-// =============================================================================
-// POSITION TRACKING SYSTEM
-// =============================================================================
-
-/**
- * Load positions from file
- */
-function loadPositions() {
-    try {
-        if (!fs.existsSync(POSITIONS_FILE)) {
-            return { positions: [], closed: [] };
-        }
-        return JSON.parse(fs.readFileSync(POSITIONS_FILE, 'utf8'));
-    } catch (e) {
-        console.error('[Positions] Error loading:', e.message);
-        return { positions: [], closed: [] };
-    }
-}
-
-/**
- * Save positions to file
- */
-function savePositions(data) {
-    fs.writeFileSync(POSITIONS_FILE, JSON.stringify(data, null, 2));
-}
-
-/**
- * Add a new position (when taking a PREM signal)
- */
-function addPosition(symbol, entryPrice, score, signals, earningsDate, strategy = 'PREM') {
-    const data = loadPositions();
-
-    const position = {
-        id: `${symbol}_${Date.now()}`,
-        symbol,
-        strategy,
-        entry_price: entryPrice,
-        entry_date: new Date().toISOString(),
-        entry_score: score,
-        entry_signals: signals,
-        earnings_date: earningsDate,
-        days_to_earnings_at_entry: calculateDaysToEarnings(earningsDate),
-        status: 'open',
-        exit_price: null,
-        exit_date: null,
-        exit_reason: null,
-        pnl_pct: null,
-        pnl_dollar: null,
-        current_price: entryPrice,
-        current_pnl_pct: 0,
-        last_updated: new Date().toISOString()
-    };
-
-    data.positions.push(position);
-    savePositions(data);
-
-    console.log(`[Positions] Added ${symbol} @ $${entryPrice} (${strategy})`);
-    return position;
-}
-
-/**
- * Update position with current price
- */
-function updatePositionPrice(symbol, currentPrice) {
-    const data = loadPositions();
-    const position = data.positions.find(p => p.symbol === symbol && p.status === 'open');
-
-    if (position) {
-        position.current_price = currentPrice;
-        position.current_pnl_pct = ((currentPrice - position.entry_price) / position.entry_price * 100).toFixed(2);
-        position.last_updated = new Date().toISOString();
-        savePositions(data);
-    }
-}
-
-/**
- * Close a position
- */
-function closePosition(symbol, exitPrice, exitReason) {
-    const data = loadPositions();
-    const positionIndex = data.positions.findIndex(p => p.symbol === symbol && p.status === 'open');
-
-    if (positionIndex === -1) {
-        console.log(`[Positions] No open position found for ${symbol}`);
-        return null;
-    }
-
-    const position = data.positions[positionIndex];
-    position.status = 'closed';
-    position.exit_price = exitPrice;
-    position.exit_date = new Date().toISOString();
-    position.exit_reason = exitReason;
-    position.pnl_pct = ((exitPrice - position.entry_price) / position.entry_price * 100).toFixed(2);
-
-    // Move to closed array
-    data.closed.push(position);
-    data.positions.splice(positionIndex, 1);
-    savePositions(data);
-
-    console.log(`[Positions] Closed ${symbol} @ $${exitPrice} (${exitReason}) | P&L: ${position.pnl_pct}%`);
-    return position;
-}
-
-/**
- * Get positions needing exit alerts (1-2 days before earnings)
- */
-function getPositionsNeedingExitAlert() {
-    const data = loadPositions();
-
-    return data.positions.filter(p => {
-        if (p.status !== 'open') return false;
-        const daysToEarnings = calculateDaysToEarnings(p.earnings_date);
-        return daysToEarnings >= 0 && daysToEarnings <= 2;
-    });
-}
-
 /**
  * Calculate days to earnings from date string
  */
@@ -376,71 +258,6 @@ function calculateDaysToEarnings(earningsDateStr) {
     const earnings = new Date(earningsDateStr);
     const diff = earnings - today;
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
-}
-
-// =============================================================================
-// EXIT REMINDER SYSTEM
-// =============================================================================
-
-// Track which positions we've already alerted for today
-const exitAlertsToday = new Set();
-
-/**
- * Check and send exit reminders
- */
-async function checkExitReminders() {
-    const positionsToAlert = getPositionsNeedingExitAlert();
-
-    for (const position of positionsToAlert) {
-        const alertKey = `${position.id}_${new Date().toISOString().split('T')[0]}`;
-
-        // Only alert once per day per position
-        if (exitAlertsToday.has(alertKey)) continue;
-
-        const daysToEarnings = calculateDaysToEarnings(position.earnings_date);
-        const msg = formatExitReminderAlert(position, daysToEarnings);
-
-        const sent = await sendTelegram(msg);
-        if (sent) {
-            exitAlertsToday.add(alertKey);
-            console.log(`[Exit Reminder] Sent for ${position.symbol} (${daysToEarnings} days to earnings)`);
-        }
-    }
-}
-
-/**
- * Format exit reminder alert
- */
-function formatExitReminderAlert(position, daysToEarnings) {
-    const urgency = daysToEarnings === 0 ? '🚨🚨🚨' :
-                    daysToEarnings === 1 ? '⚠️⚠️' : '📢';
-
-    const currentPnl = position.current_pnl_pct || 0;
-    const pnlEmoji = currentPnl >= 0 ? '🟢' : '🔴';
-    const timeStr = formatTimePST();
-
-    let msg = `${urgency} <b>EXIT REMINDER: ${escapeHtml(position.symbol)}</b>\n`;
-    msg += `<code>${timeStr} PST</code>\n\n`;
-
-    msg += `<b>Days to Earnings:</b> ${daysToEarnings === 0 ? 'TODAY!' : daysToEarnings + ' day(s)'}\n`;
-    msg += `<b>Earnings Date:</b> ${position.earnings_date}\n\n`;
-
-    msg += `<b>Your Position:</b>\n`;
-    msg += `Entry: $${position.entry_price.toFixed(2)} (${position.entry_date.split('T')[0]})\n`;
-    msg += `Current: $${position.current_price?.toFixed(2) || 'N/A'}\n`;
-    msg += `P&L: ${pnlEmoji} ${currentPnl}%\n\n`;
-
-    if (daysToEarnings === 0) {
-        msg += `<b>⚡ ACTION REQUIRED:</b>\n`;
-        msg += `Close position NOW if following PREM strategy.\n`;
-        msg += `Holding through earnings = gambling on the report.\n`;
-    } else {
-        msg += `<b>📋 Plan Your Exit:</b>\n`;
-        msg += `Close by end of day tomorrow (before earnings)\n`;
-        msg += `Or decide if you want to hold through.\n`;
-    }
-
-    return msg;
 }
 
 // =============================================================================
@@ -680,7 +497,7 @@ async function runScan() {
 
         fs.writeFileSync(SCAN_OUTPUT_FILE, JSON.stringify(scanOutput, null, 2));
 
-        // Send alerts and create paper trades
+        // Send alerts
         for (const alert of alerts) {
             const msg = formatPremAlert(alert);
             const sent = await sendTelegram(msg);
@@ -688,9 +505,6 @@ async function runScan() {
                 alertCooldowns.set(alert.symbol, Date.now());
             }
         }
-
-        // Check for exit reminders on tracked positions
-        await checkExitReminders();
 
         // Summary
         console.log('\n' + '-'.repeat(40));
@@ -911,62 +725,6 @@ function startControlServer() {
             return;
         }
 
-        // GET /positions - Open positions
-        if (req.method === 'GET' && url === '/positions') {
-            const positions = loadPositions();
-            res.writeHead(200);
-            res.end(JSON.stringify(positions));
-            return;
-        }
-
-        // POST /positions/add - Add position (when taking a trade)
-        if (req.method === 'POST' && url === '/positions/add') {
-            let body = '';
-            req.on('data', chunk => body += chunk);
-            req.on('end', () => {
-                try {
-                    const data = JSON.parse(body);
-                    const position = addPosition(
-                        data.symbol,
-                        data.entry_price,
-                        data.score || 0,
-                        data.signals || [],
-                        data.earnings_date,
-                        data.strategy || 'PREM'
-                    );
-                    res.writeHead(200);
-                    res.end(JSON.stringify({ success: true, position }));
-                } catch (e) {
-                    res.writeHead(400);
-                    res.end(JSON.stringify({ success: false, error: e.message }));
-                }
-            });
-            return;
-        }
-
-        // POST /positions/close - Close position
-        if (req.method === 'POST' && url === '/positions/close') {
-            let body = '';
-            req.on('data', chunk => body += chunk);
-            req.on('end', () => {
-                try {
-                    const data = JSON.parse(body);
-                    const position = closePosition(data.symbol, data.exit_price, data.reason || 'manual');
-                    if (position) {
-                        res.writeHead(200);
-                        res.end(JSON.stringify({ success: true, position }));
-                    } else {
-                        res.writeHead(404);
-                        res.end(JSON.stringify({ success: false, error: 'Position not found' }));
-                    }
-                } catch (e) {
-                    res.writeHead(400);
-                    res.end(JSON.stringify({ success: false, error: e.message }));
-                }
-            });
-            return;
-        }
-
         res.writeHead(404);
         res.end(JSON.stringify({ error: 'Not found' }));
     });
@@ -974,7 +732,7 @@ function startControlServer() {
     server.listen(SETTINGS.controlPort, '0.0.0.0', () => {
         console.log(`[Control] Listening on http://0.0.0.0:${SETTINGS.controlPort} (accessible from network)`);
         console.log('');
-        console.log('  Scanner:');
+        console.log('  Endpoints:');
         console.log(`    GET  /status            - System status`);
         console.log(`    GET  /results           - Latest scan results`);
         console.log(`    GET  /calendar          - Earnings calendar`);
@@ -983,11 +741,6 @@ function startControlServer() {
         console.log(`    POST /scan              - Trigger immediate scan`);
         console.log(`    POST /refresh-calendar  - Refresh earnings calendar`);
         console.log(`    POST /test-alert        - Send test Telegram alert`);
-        console.log('');
-        console.log('  Positions:');
-        console.log(`    GET  /positions         - Open positions`);
-        console.log(`    POST /positions/add     - Add position {symbol, entry_price, earnings_date}`);
-        console.log(`    POST /positions/close   - Close position {symbol, exit_price, reason}`);
     });
 }
 
@@ -1029,23 +782,12 @@ async function main() {
 
 // Export for testing and integration
 module.exports = {
-    // Scanner
     runScan,
     calculatePremScore,
     getPremCandidates,
     loadCalendar,
-    SETTINGS,
-
-    // Position Management
-    addPosition,
-    closePosition,
-    loadPositions,
-    updatePositionPrice,
-    getPositionsNeedingExitAlert,
-
-    // Alerts
-    checkExitReminders,
-    sendTelegram
+    sendTelegram,
+    SETTINGS
 };
 
 // Run if called directly

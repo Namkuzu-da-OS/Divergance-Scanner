@@ -629,89 +629,6 @@
             </tbody>
         </table>
 
-        <!-- Open Positions -->
-        <div class="section-header">
-            <h2>📊 Open Positions</h2>
-            <button class="btn" onclick="showAddPositionModal()">+ Add Position</button>
-        </div>
-        <table class="signals-table">
-            <thead>
-                <tr>
-                    <th>Symbol</th>
-                    <th>Entry</th>
-                    <th>Current</th>
-                    <th>P&L</th>
-                    <th>Earnings</th>
-                    <th>Days Left</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="positions-body">
-                <tr><td colspan="7" style="color: #8b92a8; text-align: center;">No open positions</td></tr>
-            </tbody>
-        </table>
-
-        <!-- Performance Analytics -->
-        <div class="section-header">
-            <h2>📈 Performance Analytics</h2>
-        </div>
-        <div class="summary-grid" id="analytics-grid">
-            <div class="summary-card">
-                <div class="label">Total Trades</div>
-                <div class="value" id="total-trades">--</div>
-            </div>
-            <div class="summary-card green">
-                <div class="label">Win Rate</div>
-                <div class="value" id="win-rate">--</div>
-            </div>
-            <div class="summary-card">
-                <div class="label">Avg P&L</div>
-                <div class="value" id="avg-pnl">--</div>
-            </div>
-            <div class="summary-card green">
-                <div class="label">Avg Win</div>
-                <div class="value" id="avg-win">--</div>
-            </div>
-            <div class="summary-card red">
-                <div class="label">Avg Loss</div>
-                <div class="value" id="avg-loss">--</div>
-            </div>
-            <div class="summary-card blue">
-                <div class="label">Active Paper Trades</div>
-                <div class="value" id="active-paper">--</div>
-            </div>
-        </div>
-
-        <!-- Tier Performance -->
-        <div class="section-header">
-            <h2>📋 Performance by Tier</h2>
-        </div>
-        <div id="tier-analytics" style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px;">
-            <div style="color: #8b92a8; padding: 20px;">Collecting data...</div>
-        </div>
-    </div>
-
-    <!-- Add Position Modal -->
-    <div id="add-position-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
-        <div style="background: #151821; border: 1px solid #2a3641; border-radius: 12px; padding: 24px; width: 400px;">
-            <h3 style="margin-bottom: 16px; color: #f59e0b;">Add Position</h3>
-            <div style="margin-bottom: 12px;">
-                <label style="display: block; color: #8b92a8; font-size: 12px; margin-bottom: 4px;">Symbol</label>
-                <input type="text" id="pos-symbol" style="width: 100%; padding: 8px; background: #0a0e1a; border: 1px solid #2a3641; border-radius: 4px; color: white;" placeholder="AAPL">
-            </div>
-            <div style="margin-bottom: 12px;">
-                <label style="display: block; color: #8b92a8; font-size: 12px; margin-bottom: 4px;">Entry Price</label>
-                <input type="number" id="pos-price" style="width: 100%; padding: 8px; background: #0a0e1a; border: 1px solid #2a3641; border-radius: 4px; color: white;" placeholder="150.00" step="0.01">
-            </div>
-            <div style="margin-bottom: 16px;">
-                <label style="display: block; color: #8b92a8; font-size: 12px; margin-bottom: 4px;">Earnings Date</label>
-                <input type="date" id="pos-earnings" style="width: 100%; padding: 8px; background: #0a0e1a; border: 1px solid #2a3641; border-radius: 4px; color: white;">
-            </div>
-            <div style="display: flex; gap: 12px;">
-                <button class="btn" onclick="submitPosition()">Add Position</button>
-                <button class="btn danger" onclick="hideAddPositionModal()">Cancel</button>
-            </div>
-        </div>
     </div>
 
     <!-- Score Explainer Modal -->
@@ -1108,95 +1025,6 @@
             alert(`Detail view for ${symbol} coming soon!`);
         }
 
-        // Fetch positions
-        async function fetchPositions() {
-            try {
-                const res = await fetch(`${SCANNER_API}/positions`);
-                const data = await res.json();
-                renderPositions(data.positions || []);
-            } catch (e) {
-                console.error('Positions fetch failed:', e);
-            }
-        }
-
-        // Render positions table
-        function renderPositions(positions) {
-            const tbody = document.getElementById('positions-body');
-
-            if (!positions || positions.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" style="color: #8b92a8; text-align: center;">No open positions</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = positions.map(p => {
-                const pnl = parseFloat(p.current_pnl_pct || 0);
-                const pnlColor = pnl >= 0 ? '#00d4aa' : '#ef4444';
-                const daysLeft = Math.ceil((new Date(p.earnings_date) - new Date()) / (1000 * 60 * 60 * 24));
-                const urgent = daysLeft <= 2;
-
-                return `
-                    <tr>
-                        <td class="symbol-cell">${p.symbol}</td>
-                        <td>$${p.entry_price?.toFixed(2) || '--'}</td>
-                        <td>$${p.current_price?.toFixed(2) || '--'}</td>
-                        <td style="color: ${pnlColor}; font-weight: 600;">${pnl >= 0 ? '+' : ''}${pnl}%</td>
-                        <td>${p.earnings_date}</td>
-                        <td style="${urgent ? 'color: #ef4444; font-weight: 600;' : ''}">${daysLeft}d ${urgent ? '⚠️' : ''}</td>
-                        <td>
-                            <button class="btn" style="padding: 4px 8px; font-size: 10px;" onclick="closePositionPrompt('${p.symbol}')">Close</button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        // Fetch analytics
-        async function fetchAnalytics() {
-            try {
-                const res = await fetch(`${SCANNER_API}/analytics`);
-                const data = await res.json();
-                renderAnalytics(data);
-            } catch (e) {
-                console.error('Analytics fetch failed:', e);
-            }
-        }
-
-        // Render analytics
-        function renderAnalytics(data) {
-            document.getElementById('total-trades').textContent = data.total_trades || 0;
-            document.getElementById('win-rate').textContent = data.win_rate || '--';
-            document.getElementById('avg-pnl').textContent = data.avg_pnl || '--';
-            document.getElementById('avg-win').textContent = data.avg_win || '--';
-            document.getElementById('avg-loss').textContent = data.avg_loss || '--';
-            document.getElementById('active-paper').textContent = data.active_trades || 0;
-
-            // Render tier breakdown
-            const tierDiv = document.getElementById('tier-analytics');
-            if (data.by_tier && Object.keys(data.by_tier).length > 0) {
-                tierDiv.innerHTML = Object.entries(data.by_tier).map(([tier, stats]) => `
-                    <div class="summary-card" style="min-width: 200px;">
-                        <div class="label">${tier}</div>
-                        <div style="font-size: 14px; margin-top: 8px;">
-                            <div>Trades: ${stats.trades}</div>
-                            <div style="color: #00d4aa;">Win Rate: ${stats.win_rate}</div>
-                            <div>Avg P&L: ${stats.avg_pnl}</div>
-                        </div>
-                    </div>
-                `).join('');
-            } else {
-                tierDiv.innerHTML = '<div style="color: #8b92a8; padding: 20px;">No completed trades yet. Data will appear after paper trades close.</div>';
-            }
-        }
-
-        // Position modal functions
-        function showAddPositionModal() {
-            document.getElementById('add-position-modal').style.display = 'flex';
-        }
-
-        function hideAddPositionModal() {
-            document.getElementById('add-position-modal').style.display = 'none';
-        }
-
         // Score explainer modal functions
         function showScoreExplainer() {
             document.getElementById('score-explainer-modal').style.display = 'flex';
@@ -1211,90 +1039,19 @@
         // Close modals on Escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
-                hideAddPositionModal();
                 hideScoreExplainer();
             }
         });
-
-        async function submitPosition() {
-            const symbol = document.getElementById('pos-symbol').value.toUpperCase();
-            const entryPrice = parseFloat(document.getElementById('pos-price').value);
-            const earningsDate = document.getElementById('pos-earnings').value;
-
-            if (!symbol || !entryPrice || !earningsDate) {
-                alert('Please fill all fields');
-                return;
-            }
-
-            try {
-                const res = await fetch(`${SCANNER_API}/positions/add`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        symbol,
-                        entry_price: entryPrice,
-                        earnings_date: earningsDate
-                    })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    hideAddPositionModal();
-                    fetchPositions();
-                    // Clear form
-                    document.getElementById('pos-symbol').value = '';
-                    document.getElementById('pos-price').value = '';
-                    document.getElementById('pos-earnings').value = '';
-                } else {
-                    alert('Failed to add position: ' + data.error);
-                }
-            } catch (e) {
-                alert('Error adding position: ' + e.message);
-            }
-        }
-
-        function closePositionPrompt(symbol) {
-            const exitPrice = prompt(`Enter exit price for ${symbol}:`);
-            if (exitPrice) {
-                closePositionAPI(symbol, parseFloat(exitPrice));
-            }
-        }
-
-        async function closePositionAPI(symbol, exitPrice) {
-            try {
-                const res = await fetch(`${SCANNER_API}/positions/close`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        symbol,
-                        exit_price: exitPrice,
-                        reason: 'manual'
-                    })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    fetchPositions();
-                    fetchAnalytics();
-                } else {
-                    alert('Failed to close position: ' + data.error);
-                }
-            } catch (e) {
-                alert('Error closing position: ' + e.message);
-            }
-        }
 
         // Initial load
         fetchStatus();
         fetchCalendar();
         fetchSignals();
-        fetchPositions();
-        fetchAnalytics();
 
         // Auto-refresh every 30 seconds
         setInterval(() => {
             fetchStatus();
             fetchSignals();
-            fetchPositions();
-            fetchAnalytics();
         }, 30000);
 
         // Refresh calendar every 5 minutes
