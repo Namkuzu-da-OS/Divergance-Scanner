@@ -1,0 +1,21 @@
+[Unit]
+Description=Divergence Scanner Backend
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/divergence-scanner
+Environment="PATH=/opt/divergence-scanner/venv/bin"
+ExecStart=/opt/divergence-scanner/venv/bin/python -m uvicorn backend.main:app --host 127.0.0.1 --port 8042
+Restart=always
+RestartSec=5
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=divergence-scanner
+
+[Install]
+WantedBy=multi-user.target

@@ -35,68 +35,52 @@ export function SectorHeatmap() {
 
   return (
     <div>
-      {/* Timeframe selector */}
-      <div className="flex gap-2 mb-4">
-        {timeframes.map((tf) => (
-          <button
-            key={tf}
-            onClick={() => setSelectedTimeframe(tf)}
-            className={cn(
-              'px-3 py-1 rounded text-sm transition-colors',
-              selectedTimeframe === tf
-                ? 'bg-blue-600 text-white'
-                : 'bg-bg-tertiary text-gray-400 hover:text-white'
-            )}
-          >
-            {tf.toUpperCase()}
-          </button>
-        ))}
+      {/* Title + Timeframe selector inline */}
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">Sector Heatmap</h2>
+        <div className="flex gap-1">
+          {timeframes.map((tf) => (
+            <button
+              key={tf}
+              onClick={() => setSelectedTimeframe(tf)}
+              className={cn(
+                'px-2 py-0.5 rounded text-xs transition-colors',
+                selectedTimeframe === tf
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-bg-tertiary text-gray-500 hover:text-white'
+              )}
+            >
+              {tf.toUpperCase()}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Heatmap grid */}
+      {/* Heatmap grid - more compact */}
       {sectors.length === 0 ? (
-        <div className="text-center text-gray-500 py-8">Loading sector data...</div>
+        <div className="text-center text-gray-500 py-6 text-sm">Loading sector data...</div>
       ) : (
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-4 gap-1.5">
           {sortedSectors.map((sector) => {
             const perf = getPerf(sector)
             return (
               <div
                 key={sector.symbol}
                 className={cn(
-                  'p-3 rounded cursor-pointer transition-all hover:scale-105',
+                  'p-2 rounded cursor-pointer transition-all hover:scale-105 hover:brightness-110',
                   getColor(perf)
                 )}
+                title={`${sector.name} | RS: ${sector.rs_score?.toFixed(1)} | Rank #${sector.rs_rank}`}
               >
-                <div className="font-semibold text-white text-sm">{sector.symbol}</div>
-                <div className="text-xs text-gray-200 truncate">{sector.name}</div>
-                <div className="text-lg font-bold text-white mt-1">
+                <div className="font-semibold text-white text-xs">{sector.symbol}</div>
+                <div className="text-base font-bold text-white">
                   {perf > 0 ? '+' : ''}{perf?.toFixed(1)}%
-                </div>
-                <div className="text-xs text-gray-300">
-                  RS: {sector.rs_score?.toFixed(1)} | #{sector.rs_rank}
                 </div>
               </div>
             )
           })}
         </div>
       )}
-
-      {/* Legend */}
-      <div className="flex justify-center gap-4 mt-4 text-xs text-gray-400">
-        <span className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded bg-green-600"></div> Strong
-        </span>
-        <span className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded bg-green-800/70"></div> Positive
-        </span>
-        <span className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded bg-red-900/70"></div> Negative
-        </span>
-        <span className="flex items-center gap-1">
-          <div className="w-3 h-3 rounded bg-red-600"></div> Weak
-        </span>
-      </div>
     </div>
   )
 }

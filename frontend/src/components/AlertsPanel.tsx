@@ -235,7 +235,7 @@ function AlertDetailModal({
 }
 
 export function AlertsPanel() {
-  const { alerts, markAlertRead } = useScannerStore()
+  const { alerts, markAlertRead, rankings } = useScannerStore()
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null)
 
   // Show unread first, then by timestamp
@@ -251,61 +251,98 @@ export function AlertsPanel() {
     markAlertRead(alert.id)
   }
 
-  if (alerts.length === 0) {
-    return (
-      <div className="text-center text-gray-500 py-8">
-        No alerts yet
-      </div>
-    )
-  }
+  // Get top movers from rankings
+  const sortedByChange = [...rankings].sort((a, b) => (b.change_1d_pct || 0) - (a.change_1d_pct || 0))
+  const topGainers = sortedByChange.slice(0, 3)
+  const topLosers = sortedByChange.slice(-3).reverse()
 
   return (
-    <div>
-      {/* Header with unread count */}
-      {unreadCount > 0 && (
-        <div className="mb-3 text-sm">
-          <span className="px-2 py-1 bg-red-900 text-red-300 rounded text-xs">
-            {unreadCount} unread
-          </span>
-        </div>
-      )}
-
-      {/* Alert list */}
-      <div className="space-y-2 max-h-[350px] overflow-auto">
-        {sorted.slice(0, 20).map((alert) => (
-          <div
-            key={alert.id}
-            onClick={() => handleAlertClick(alert as Alert)}
-            className={cn(
-              'p-3 rounded-lg cursor-pointer transition-all hover:bg-bg-tertiary/80',
-              !alert.read && 'bg-bg-tertiary border-l-2',
-              alert.read && 'bg-bg-tertiary/50 opacity-60',
-              alert.severity === 'critical' && !alert.read && 'border-l-red-500',
-              alert.severity === 'warning' && !alert.read && 'border-l-yellow-500',
-              alert.severity === 'info' && !alert.read && 'border-l-blue-500',
-            )}
-          >
-            <div className="flex justify-between items-start">
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <span className={cn(
-                    'text-xs px-1.5 py-0.5 rounded',
-                    alert.severity === 'critical' && 'bg-red-900 text-red-300',
-                    alert.severity === 'warning' && 'bg-yellow-900 text-yellow-300',
-                    alert.severity === 'info' && 'bg-blue-900 text-blue-300',
-                  )}>
-                    {alert.severity}
+    <div className="h-full flex flex-col">
+      {/* Top Movers Section */}
+      <div className="mb-3 flex-shrink-0">
+        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-2">Top Movers</h2>
+        <div className="grid grid-cols-2 gap-2">
+          {/* Gainers */}
+          <div>
+            <div className="text-[10px] text-gray-500 mb-1">GAINERS</div>
+            <div className="space-y-1">
+              {topGainers.map((r) => (
+                <div key={r.symbol} className="flex items-center justify-between bg-green-950/30 rounded px-2 py-1">
+                  <span className="text-xs font-medium text-white">{r.symbol}</span>
+                  <span className="text-xs font-semibold text-green-400">
+                    +{r.change_1d_pct?.toFixed(1)}%
                   </span>
-                  <span className="text-sm font-medium text-white">{alert.symbol}</span>
                 </div>
-                <div className="text-sm text-gray-400 mt-1 line-clamp-2">{alert.message}</div>
-              </div>
-              <div className="text-xs text-gray-500 whitespace-nowrap ml-2">
-                {new Date(alert.timestamp).toLocaleTimeString()}
-              </div>
+              ))}
+              {topGainers.length === 0 && (
+                <div className="text-xs text-gray-600 py-1">Loading...</div>
+              )}
             </div>
           </div>
-        ))}
+          {/* Losers */}
+          <div>
+            <div className="text-[10px] text-gray-500 mb-1">LOSERS</div>
+            <div className="space-y-1">
+              {topLosers.map((r) => (
+                <div key={r.symbol} className="flex items-center justify-between bg-red-950/30 rounded px-2 py-1">
+                  <span className="text-xs font-medium text-white">{r.symbol}</span>
+                  <span className="text-xs font-semibold text-red-400">
+                    {r.change_1d_pct?.toFixed(1)}%
+                  </span>
+                </div>
+              ))}
+              {topLosers.length === 0 && (
+                <div className="text-xs text-gray-600 py-1">Loading...</div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Alerts Section */}
+      <div className="border-t border-border pt-2 flex-1 flex flex-col min-h-0">
+        <div className="flex items-center justify-between mb-2 flex-shrink-0">
+          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">Alerts</h2>
+          {unreadCount > 0 && (
+            <span className="px-1.5 py-0.5 bg-red-800 text-red-200 rounded text-[10px] font-medium">
+              {unreadCount} new
+            </span>
+          )}
+        </div>
+
+        {alerts.length === 0 ? (
+          <div className="text-center text-gray-600 py-4 text-xs">
+            No alerts yet
+          </div>
+        ) : (
+          <div className="space-y-1 flex-1 overflow-auto">
+            {sorted.map((alert) => (
+              <div
+                key={alert.id}
+                onClick={() => handleAlertClick(alert as Alert)}
+                className={cn(
+                  'p-2 rounded cursor-pointer transition-all hover:brightness-110',
+                  !alert.read && 'bg-bg-tertiary',
+                  alert.read && 'bg-bg-tertiary/30 opacity-50',
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <span className={cn(
+                    'w-1.5 h-1.5 rounded-full flex-shrink-0',
+                    alert.severity === 'critical' && 'bg-red-500',
+                    alert.severity === 'warning' && 'bg-yellow-500',
+                    alert.severity === 'info' && 'bg-blue-500',
+                  )} />
+                  <span className="text-xs font-medium text-white">{alert.symbol}</span>
+                  <span className="text-[10px] text-gray-500">
+                    {new Date(alert.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+                <div className="text-[11px] text-gray-400 mt-0.5 line-clamp-1 pl-3.5">{alert.message}</div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Detail Modal */}

@@ -35,8 +35,10 @@ export function useWebSocket(options: UseWebSocketOptions = {}) {
 
     setStatus('connecting')
 
-    // Dynamic WebSocket URL - uses the same host that served the page
-    const wsUrl = `ws://${window.location.hostname}:8042/ws`
+    // WebSocket URL - same origin (nginx proxies to backend)
+    // Supports both http/ws and https/wss
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+    const wsUrl = `${protocol}//${window.location.host}/ws`
 
     try {
       const ws = new WebSocket(wsUrl)

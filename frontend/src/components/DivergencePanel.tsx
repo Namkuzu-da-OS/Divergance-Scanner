@@ -208,7 +208,7 @@ export function DivergencePanel() {
 
   if (divergences.length === 0) {
     return (
-      <div className="text-center text-gray-500 py-8">
+      <div className="text-center text-gray-500 py-6 text-sm">
         No significant divergences detected
       </div>
     )
@@ -219,48 +219,59 @@ export function DivergencePanel() {
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-2 max-h-[300px] overflow-auto">
+      <div className="space-y-1.5">
         {sorted.map((d, i) => (
           <div
             key={`${d.symbol_a}-${d.symbol_b}-${i}`}
             onClick={() => setSelectedDivergence(d as Divergence)}
             className={cn(
-              'p-3 rounded-lg border-l-4 cursor-pointer transition-all hover:bg-white/5',
-              d.confidence === 'high' && 'border-l-red-500 bg-red-500/5',
-              d.confidence === 'medium' && 'border-l-yellow-500 bg-yellow-500/5',
-              d.confidence === 'low' && 'border-l-blue-500 bg-blue-500/5',
+              'p-2 rounded cursor-pointer transition-all hover:brightness-110',
+              d.relative_strength.direction === 'strengthening' && 'bg-green-950/40',
+              d.relative_strength.direction === 'weakening' && 'bg-red-950/40',
+              d.relative_strength.direction === 'neutral' && 'bg-bg-tertiary',
             )}
           >
-            <div className="flex items-center justify-between">
-              {/* Left: Pair & Type */}
-              <div className="flex items-center gap-3">
-                <div className="font-semibold text-white">
-                  {d.symbol_a} vs {d.symbol_b}
-                </div>
-                <div className={cn(
-                  'text-xs px-2 py-0.5 rounded',
-                  d.relative_strength.direction === 'strengthening' && 'bg-green-900/50 text-green-400',
-                  d.relative_strength.direction === 'weakening' && 'bg-red-900/50 text-red-400',
-                  d.relative_strength.direction === 'neutral' && 'bg-gray-800 text-gray-400',
+            {/* Top row: Pair name + direction badge */}
+            <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-white text-sm">
+                  {d.symbol_a} <span className="text-gray-500">vs</span> {d.symbol_b}
+                </span>
+                <span className={cn(
+                  'text-[10px] px-1.5 py-0.5 rounded font-medium',
+                  d.relative_strength.direction === 'strengthening' && 'bg-green-800 text-green-300',
+                  d.relative_strength.direction === 'weakening' && 'bg-red-800 text-red-300',
+                  d.relative_strength.direction === 'neutral' && 'bg-gray-700 text-gray-400',
                 )}>
                   {d.relative_strength.direction}
-                </div>
+                </span>
               </div>
+              <span className={cn(
+                'text-[10px] px-1.5 py-0.5 rounded font-medium',
+                d.confidence === 'high' && 'bg-red-800 text-red-200',
+                d.confidence === 'medium' && 'bg-yellow-800 text-yellow-200',
+                d.confidence === 'low' && 'bg-blue-800 text-blue-200',
+              )}>
+                {d.confidence}
+              </span>
+            </div>
 
-              {/* Right: Confidence & Strength */}
-              <div className="flex items-center gap-3">
-                <div className="text-xs text-gray-500">
-                  {(d.strength * 100).toFixed(0)}%
-                </div>
-                <div className={cn(
-                  'text-xs px-2 py-0.5 rounded',
-                  d.confidence === 'high' && 'bg-red-900 text-red-300',
-                  d.confidence === 'medium' && 'bg-yellow-900 text-yellow-300',
-                  d.confidence === 'low' && 'bg-blue-900 text-blue-300',
-                )}>
-                  {d.confidence}
-                </div>
+            {/* Strength bar */}
+            <div className="flex items-center gap-2">
+              <div className="flex-1 h-1.5 bg-bg-primary rounded-full overflow-hidden">
+                <div
+                  className={cn(
+                    'h-full rounded-full transition-all',
+                    d.relative_strength.direction === 'strengthening' && 'bg-green-500',
+                    d.relative_strength.direction === 'weakening' && 'bg-red-500',
+                    d.relative_strength.direction === 'neutral' && 'bg-gray-500',
+                  )}
+                  style={{ width: `${d.strength * 100}%` }}
+                />
               </div>
+              <span className="text-[10px] text-gray-400 w-8 text-right">
+                {(d.strength * 100).toFixed(0)}%
+              </span>
             </div>
           </div>
         ))}

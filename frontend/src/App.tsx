@@ -8,8 +8,9 @@ import { RSRankingTable } from './components/RSRankingTable'
 import { DivergencePanel } from './components/DivergencePanel'
 import { AlertsPanel } from './components/AlertsPanel'
 
-// Dynamic API base - uses the same host that served the page
-const API_BASE = `http://${window.location.hostname}:8042`
+// API base - empty string means same origin (nginx proxies to backend)
+// For dev mode with Vite proxy, this also works since Vite proxies /api to backend
+const API_BASE = ''
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -116,31 +117,27 @@ function Dashboard() {
     <div className="min-h-screen bg-bg-primary text-white">
       <Header connectionStatus={status} />
 
-      <main className="p-4 max-w-[1800px] mx-auto">
-        {/* Top Row: Heatmap + Divergences */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-          <div className="bg-bg-secondary rounded-lg p-4 border border-border">
-            <h2 className="text-lg font-semibold mb-3 text-gray-200">Sector Heatmap</h2>
+      <main className="p-3 max-w-[1920px] mx-auto">
+        {/* Top Row: 3-column grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-3 lg:grid-rows-[minmax(320px,auto)]">
+          <div className="bg-bg-secondary rounded-lg p-3 border border-border">
             <SectorHeatmap />
           </div>
 
-          <div className="bg-bg-secondary rounded-lg p-4 border border-border">
-            <h2 className="text-lg font-semibold mb-3 text-gray-200">Active Divergences</h2>
+          <div className="bg-bg-secondary rounded-lg p-3 border border-border">
+            <h2 className="text-sm font-semibold mb-2 text-gray-400 uppercase tracking-wide">Active Divergences</h2>
             <DivergencePanel />
+          </div>
+
+          <div className="bg-bg-secondary rounded-lg p-3 border border-border flex flex-col">
+            <AlertsPanel />
           </div>
         </div>
 
-        {/* Bottom Row: Rankings + Alerts */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2 bg-bg-secondary rounded-lg p-4 border border-border">
-            <h2 className="text-lg font-semibold mb-3 text-gray-200">Relative Strength Rankings</h2>
-            <RSRankingTable />
-          </div>
-
-          <div className="bg-bg-secondary rounded-lg p-4 border border-border">
-            <h2 className="text-lg font-semibold mb-3 text-gray-200">Alerts</h2>
-            <AlertsPanel />
-          </div>
+        {/* Bottom Row: Full-width Rankings */}
+        <div className="bg-bg-secondary rounded-lg p-3 border border-border">
+          <h2 className="text-sm font-semibold mb-2 text-gray-400 uppercase tracking-wide">Relative Strength Rankings</h2>
+          <RSRankingTable />
         </div>
       </main>
     </div>

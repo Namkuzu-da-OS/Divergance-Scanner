@@ -4,6 +4,7 @@ Background task that fetches data and broadcasts updates via WebSocket
 """
 import asyncio
 import logging
+import time
 from typing import Optional
 import numpy as np
 
@@ -12,7 +13,7 @@ from backend.core.symbols import ALL_SYMBOLS, SYMBOL_UNIVERSE, DIVERGENCE_PAIRS,
 from backend.services.data_client import get_data_client
 from backend.api.websocket import get_connection_manager
 from backend.api.routes.alerts import add_alert, AlertType, AlertSeverity, get_unread_alerts, determine_severity
-from backend.db.models import DivergenceEvent, AlertSettings
+from backend.db.models import DivergenceEvent, AlertSettings, RSSnapshot
 from modules.relative_strength import create_ranking, rank_universe
 from modules.intermarket_divergence import analyze_all_pairs
 from modules.rotation_detector import detect_rotation_signals, determine_market_regime
@@ -118,6 +119,23 @@ class PollingService:
 
             ranked = rank_universe(rankings)
             rankings_data = [r.to_dict() for r in ranked]
+
+            # Save RS snapshots every 15 minutes for trend analysis
+            current_minute = int(time.time() / 60)
+            if current_minute % 15 == 0:
+                for r in ranked:
+                    snapshot = RSSnapshot(
+                        id=None,
+                        symbol=r.symbol,
+                        rs_score=r.rs_score,
+                        rs_rank=r.rs_rank,
+                        performance_1d=r.performance.get('1d'),
+                        performance_5d=r.performance.get('5d'),
+                        performance_20d=r.performance.get('20d'),
+                        performance_60d=r.performance.get('60d'),
+                    )
+                    snapshot.save()
+                logger.info(f"Saved RS snapshots for {len(ranked)} symbols")
 
             # Store for rotation detection
             self._previous_rankings = rankings_data

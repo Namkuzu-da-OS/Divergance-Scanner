@@ -17,8 +17,8 @@ export function Header({ connectionStatus }: HeaderProps) {
   ]
 
   return (
-    <header className="bg-bg-secondary border-b border-border px-4 py-3">
-      <div className="max-w-[1800px] mx-auto flex items-center justify-between">
+    <header className="bg-bg-secondary border-b border-border px-4 py-2">
+      <div className="max-w-[1920px] mx-auto flex items-center justify-between">
         <div className="flex items-center gap-6">
           <h1 className="text-xl font-bold text-white">Divergence Scanner</h1>
 
