@@ -2712,9 +2712,18 @@ async function runScan() {
     console.log(`\n[Bloodhound] Scan complete (${scannerState.lastScanDuration}s).${backoffStatus} Next scan in ${SETTINGS.scanIntervalMs / 60000} minutes.`);
 
     // Signal validation: update prices and check for checkpoint validations
+    // Build price cache from scan results to avoid duplicate API calls
+    const priceCache = new Map();
+    for (const analysis of tieredAnalyses) {
+        if (analysis.price && analysis.symbol) {
+            priceCache.set(analysis.symbol, analysis.price);
+        }
+    }
+    console.log(`[Signal Logger] Price cache built with ${priceCache.size} symbols`);
+
     try {
-        await signalLogger.updateActiveSignalPrices();
-        await signalLogger.validateOldSignals();
+        await signalLogger.updateActiveSignalPrices(priceCache);
+        await signalLogger.validateOldSignals(priceCache);
     } catch (e) {
         console.error('[Bloodhound] Signal validation error:', e.message);
     }

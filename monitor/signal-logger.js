@@ -15,6 +15,11 @@ const CONFIG = {
   WIN_THRESHOLD_PCT: 0.5  // 0.5% move in predicted direction = correct
 };
 
+// Sleep helper for retry backoff
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 /**
  * Log a new signal when alert fires
  * Deduplicates: only one active signal per symbol allowed
@@ -84,25 +89,46 @@ function logSignal(alertData) {
 
 /**
  * Fetch current price for symbol
+ * @param {string} symbol - Stock symbol
+ * @param {Map} priceCache - Optional cache of prices from recent scan
  */
-async function getCurrentPrice(symbol) {
-  try {
-    const response = await axios.get(`${CONFIG.OPTIONS_API}/api/technicals/${symbol}`, {
-      timeout: 5000
-    });
-    return response.data?.current || null;
-  } catch (e) {
-    console.error(`[Signal Logger] Failed to fetch price for ${symbol}:`, e.message);
-    return null;
+async function getCurrentPrice(symbol, priceCache = null) {
+  // 1. Check cache first (prices already fetched during scan)
+  if (priceCache && priceCache.has(symbol)) {
+    return priceCache.get(symbol);
   }
+
+  // 2. API call with retry logic for cache misses
+  const maxRetries = 3;
+  const baseDelay = 1000;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const response = await axios.get(`${CONFIG.OPTIONS_API}/api/technicals/${symbol}`, {
+        timeout: 10000  // Increased from 5000ms
+      });
+      return response.data?.current || null;
+    } catch (e) {
+      if (attempt === maxRetries) {
+        console.error(`[Signal Logger] Failed to fetch price for ${symbol} after ${maxRetries} attempts:`, e.message);
+        return null;
+      }
+      // Exponential backoff: 1s, 2s, 4s
+      const delay = baseDelay * Math.pow(2, attempt - 1);
+      console.log(`[Signal Logger] Retry ${attempt}/${maxRetries} for ${symbol} in ${delay}ms...`);
+      await sleep(delay);
+    }
+  }
+  return null;
 }
 
 /**
  * Update prices for all active signals
  * Call this every scan cycle to track peak/trough
- * Optimized: fetches price ONCE per unique symbol to avoid API hammering
+ * Optimized: uses price cache from scan, only fetches missing symbols
+ * @param {Map} priceCache - Optional cache of prices from recent scan
  */
-async function updateActiveSignalPrices() {
+async function updateActiveSignalPrices(priceCache = null) {
   const activeSignals = signalDb.getActiveSignals();
 
   if (activeSignals.length === 0) {
@@ -119,12 +145,19 @@ async function updateActiveSignalPrices() {
   }
 
   let updated = 0;
+  let cacheHits = 0;
+  let apiCalls = 0;
   const uniqueSymbols = Object.keys(symbolGroups).length;
 
-  // Fetch price ONCE per unique symbol
+  // Fetch price ONCE per unique symbol (uses cache if available)
   for (const [symbol, signals] of Object.entries(symbolGroups)) {
     try {
-      const currentPrice = await getCurrentPrice(symbol);
+      // Track whether this will be a cache hit
+      const fromCache = priceCache && priceCache.has(symbol);
+      if (fromCache) cacheHits++;
+      else apiCalls++;
+
+      const currentPrice = await getCurrentPrice(symbol, priceCache);
       if (currentPrice) {
         // Update ALL signals for this symbol with same price
         for (const signal of signals) {
@@ -138,15 +171,17 @@ async function updateActiveSignalPrices() {
   }
 
   if (updated > 0) {
-    console.log(`[Signal Logger] Updated prices for ${updated} signal(s) (${uniqueSymbols} API call(s))`);
+    const cacheInfo = priceCache ? ` (${cacheHits} cached, ${apiCalls} API)` : ` (${uniqueSymbols} API calls)`;
+    console.log(`[Signal Logger] Updated prices for ${updated} signal(s)${cacheInfo}`);
   }
 }
 
 /**
  * Validate signals at checkpoint intervals (4h, 24h, 7d)
  * Call this every scan cycle - it handles timing internally
+ * @param {Map} priceCache - Optional cache of prices from recent scan
  */
-async function validateOldSignals() {
+async function validateOldSignals(priceCache = null) {
   // Process all checkpoint types
   const checkpointTypes = ['4h', '24h', '7d'];
 
@@ -161,7 +196,7 @@ async function validateOldSignals() {
 
     for (const signal of pendingSignals) {
       try {
-        const currentPrice = await getCurrentPrice(signal.symbol);
+        const currentPrice = await getCurrentPrice(signal.symbol, priceCache);
         if (!currentPrice) {
           console.log(`[Signal Logger] Skipping ${signal.signal_id} - price fetch failed`);
           continue;
