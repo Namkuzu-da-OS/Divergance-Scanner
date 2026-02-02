@@ -754,7 +754,7 @@ function updateScannerHistory(analyses, marketContext) {
             todaySnapshot.volume.vs_yesterday = parseFloat((todaySnapshot.volume.total / yesterday.volume.total).toFixed(2));
         }
 
-        // Also write to database for permanent history
+        // Also write to database for permanent history (includes trend data)
         try {
             signalDb.upsertScannerHistory(symbol, today, {
                 first_seen: history.symbols[symbol].first_seen,
@@ -762,7 +762,13 @@ function updateScannerHistory(analyses, marketContext) {
                 zone: todaySnapshot.scanner_data?.peak_zone,
                 price: analysis.technicals?.price,
                 gap_pct: todaySnapshot.price_action?.gap_from_prev_pct || 0,
-                rsi: todaySnapshot.technicals_eod?.rsi
+                rsi: todaySnapshot.technicals_eod?.rsi,
+                // Trend data
+                trend: analysis.technicals?.trend,           // Symbol's own trend
+                direction: analysis.direction,                // bullish/bearish/pinned
+                spy_trend: marketContext?.spyTrend,          // Market trend
+                vix: marketContext?.vix,                     // VIX level
+                vix_regime: marketContext?.vixRegime         // VIX regime
             });
         } catch (e) {
             console.error(`[History] DB write failed for ${symbol}:`, e.message);

@@ -125,6 +125,12 @@ function initSchema() {
             close_price REAL,
             gap_pct REAL,
             rsi_eod REAL,
+            -- Trend columns (added 2026-02-02)
+            trend TEXT,              -- Symbol's own trend: strong_uptrend/uptrend/neutral/downtrend/strong_downtrend
+            direction TEXT,          -- bullish/bearish/pinned/neutral
+            spy_trend TEXT,          -- Market trend at time: bullish/bearish/neutral
+            vix REAL,                -- VIX level
+            vix_regime TEXT,         -- complacent/normal/elevated/fear/capitulation
             UNIQUE(symbol, date)
         );
 
@@ -225,6 +231,40 @@ function initSchema() {
 
     // Migration: Add EOD columns to existing premarket_movers table
     migratePremarketMovers();
+
+    // Migration: Add trend columns to existing scanner_history table
+    migrateScannerHistory();
+}
+
+/**
+ * Add trend columns to existing scanner_history table
+ */
+function migrateScannerHistory() {
+    const columns = [
+        { name: 'trend', type: 'TEXT' },
+        { name: 'direction', type: 'TEXT' },
+        { name: 'spy_trend', type: 'TEXT' },
+        { name: 'vix', type: 'REAL' },
+        { name: 'vix_regime', type: 'TEXT' }
+    ];
+
+    for (const col of columns) {
+        try {
+            db.exec(`ALTER TABLE scanner_history ADD COLUMN ${col.name} ${col.type}`);
+            console.log(`[SignalDB] Added column ${col.name} to scanner_history`);
+        } catch (e) {
+            // Column already exists, ignore
+        }
+    }
+
+    // Create indexes for trend analysis
+    try {
+        db.exec('CREATE INDEX IF NOT EXISTS idx_scanner_history_trend ON scanner_history(trend)');
+        db.exec('CREATE INDEX IF NOT EXISTS idx_scanner_history_spy_trend ON scanner_history(spy_trend)');
+        db.exec('CREATE INDEX IF NOT EXISTS idx_scanner_history_vix_regime ON scanner_history(vix_regime)');
+    } catch (e) {
+        // Indexes already exist, ignore
+    }
 }
 
 /**
@@ -698,7 +738,7 @@ function upsertScannerHistory(symbol, date, data) {
     ).get(symbol, date);
 
     if (existing) {
-        // Update existing record
+        // Update existing record (trend data always updates to latest)
         getDb().prepare(`
             UPDATE scanner_history SET
                 scans_today = scans_today + 1,
@@ -707,7 +747,12 @@ function upsertScannerHistory(symbol, date, data) {
                 high_price = MAX(high_price, ?),
                 low_price = MIN(low_price, ?),
                 close_price = ?,
-                rsi_eod = ?
+                rsi_eod = ?,
+                trend = ?,
+                direction = ?,
+                spy_trend = ?,
+                vix = ?,
+                vix_regime = ?
             WHERE symbol = ? AND date = ?
         `).run(
             data.score || 0,
@@ -716,6 +761,11 @@ function upsertScannerHistory(symbol, date, data) {
             data.price || 999999,
             data.price,
             data.rsi,
+            data.trend,
+            data.direction,
+            data.spy_trend,
+            data.vix,
+            data.vix_regime,
             symbol, date
         );
     } else {
@@ -725,13 +775,15 @@ function upsertScannerHistory(symbol, date, data) {
                 symbol, date, first_seen, scans_today,
                 peak_score, peak_zone,
                 open_price, high_price, low_price, close_price,
-                gap_pct, rsi_eod
-            ) VALUES (?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?)
+                gap_pct, rsi_eod,
+                trend, direction, spy_trend, vix, vix_regime
+            ) VALUES (?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).run(
             symbol, date, data.first_seen || new Date().toISOString(),
             data.score || 0, data.zone,
             data.price, data.price, data.price, data.price,
-            data.gap_pct || 0, data.rsi
+            data.gap_pct || 0, data.rsi,
+            data.trend, data.direction, data.spy_trend, data.vix, data.vix_regime
         );
     }
 }

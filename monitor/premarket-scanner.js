@@ -493,21 +493,35 @@ async function fetchMarketData() {
             }
         }
 
-        // Add VIX separately
+        // Add VIX separately (from Intel API - VIX is an index, not available via quotes)
         try {
             const vixResponse = await axios.get(
-                `${CONFIG.OPTIONS_API}/api/quotes/VIX`,
+                `${CONFIG.INTEL_API}/api/latest/VIX`,
                 { timeout: 3000 }
             );
-            const vixQuote = vixResponse.data?.quote;
-            if (vixQuote) {
+            const vixData = vixResponse.data?.data;
+            if (vixData) {
                 marketData['VIX'] = {
-                    price: vixQuote.lastPrice || vixQuote.mark,
-                    previousClose: vixQuote.closePrice
+                    price: parseFloat(vixData.current_price),
+                    previousClose: parseFloat(vixData.previous_close)
                 };
             }
         } catch (e) {
-            // VIX may not be available
+            // VIX may not be available - try market context as fallback
+            try {
+                const contextResponse = await axios.get(
+                    `${CONFIG.OPTIONS_API}/api/market/context`,
+                    { timeout: 3000 }
+                );
+                if (contextResponse.data?.vix) {
+                    marketData['VIX'] = {
+                        price: contextResponse.data.vix,
+                        previousClose: null  // Not available from context
+                    };
+                }
+            } catch (e2) {
+                // VIX not available
+            }
         }
 
         return marketData;
