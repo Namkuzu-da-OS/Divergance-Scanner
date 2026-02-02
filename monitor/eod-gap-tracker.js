@@ -156,15 +156,15 @@ async function fetchDailyBar(symbol) {
 
         const data = await response.json();
 
-        // Get the most recent bar
-        if (data.bars && data.bars.length > 0) {
-            const bar = data.bars[data.bars.length - 1];
+        // Get the most recent bar (API returns 'candles' not 'bars')
+        if (data.candles && data.candles.length > 0) {
+            const bar = data.candles[data.candles.length - 1];
             return {
-                open: bar.o || bar.open,
-                high: bar.h || bar.high,
-                low: bar.l || bar.low,
-                close: bar.c || bar.close,
-                volume: bar.v || bar.volume
+                open: bar.open,
+                high: bar.high,
+                low: bar.low,
+                close: bar.close,
+                volume: bar.volume
             };
         }
 
@@ -177,14 +177,16 @@ async function fetchDailyBar(symbol) {
 }
 
 async function fetchQuoteAsDailyBar(symbol) {
-    const quote = await fetchQuote(symbol);
-    if (quote) {
+    const data = await fetchQuote(symbol);
+    // API returns {symbol, quote: {openPrice, highPrice, lowPrice, lastPrice, ...}}
+    if (data && data.quote) {
+        const q = data.quote;
         return {
-            open: quote.open,
-            high: quote.high,
-            low: quote.low,
-            close: quote.price || quote.last,
-            volume: quote.volume
+            open: q.openPrice,
+            high: q.highPrice,
+            low: q.lowPrice,
+            close: q.lastPrice || q.closePrice,
+            volume: q.totalVolume || q.volume
         };
     }
     return null;
