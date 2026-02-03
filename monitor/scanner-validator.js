@@ -12,23 +12,30 @@
  * node scanner-validator.js
  */
 
-const fs = require('fs');
-const path = require('path');
+const http = require('http');
 
-const DYNAMIC_SCAN_PATH = path.join(__dirname, '..', 'data', 'dynamic_scan.json');
+const API_URL = 'http://localhost:8080/api/scan/latest';
 
-function loadScan() {
-    try {
-        const data = fs.readFileSync(DYNAMIC_SCAN_PATH, 'utf8');
-        return JSON.parse(data);
-    } catch (err) {
-        console.error('ERROR: Could not read dynamic_scan.json:', err.message);
-        process.exit(1);
-    }
+async function loadScan() {
+    return new Promise((resolve, reject) => {
+        http.get(API_URL, (res) => {
+            let data = '';
+            res.on('data', chunk => data += chunk);
+            res.on('end', () => {
+                try {
+                    resolve(JSON.parse(data));
+                } catch (err) {
+                    reject(new Error('Failed to parse API response: ' + err.message));
+                }
+            });
+        }).on('error', (err) => {
+            reject(new Error('Failed to fetch from API: ' + err.message));
+        });
+    });
 }
 
-function validateTickers(claimedTickers) {
-    const scan = loadScan();
+async function validateTickers(claimedTickers) {
+    const scan = await loadScan();
     const actualTickers = scan.results.map(r => r.symbol);
     const actualCount = actualTickers.length;
 
@@ -93,8 +100,8 @@ function validateTickers(claimedTickers) {
 }
 
 // Quick summary mode - just show what's in the scan
-function showSummary() {
-    const scan = loadScan();
+async function showSummary() {
+    const scan = await loadScan();
     const results = scan.results;
 
     console.log('\n┌────────────────────────────────────────────────────────────────┐');
@@ -140,12 +147,13 @@ function showSummary() {
 }
 
 // Main
-const args = process.argv.slice(2);
+async function main() {
+    const args = process.argv.slice(2);
 
-if (args.length === 0 || args[0] === '--summary' || args[0] === '-s') {
-    showSummary();
-} else if (args[0] === '--help' || args[0] === '-h') {
-    console.log(`
+    if (args.length === 0 || args[0] === '--summary' || args[0] === '-s') {
+        await showSummary();
+    } else if (args[0] === '--help' || args[0] === '-h') {
+        console.log(`
 Scanner Validator - Ensures all tickers are accounted for
 
 Usage:
@@ -157,6 +165,12 @@ Usage:
 This tool exists because I (the AI) missed tickers during a review.
 Run this AFTER any scanner briefing to verify I didn't skip anything.
 `);
-} else {
-    validateTickers(args);
+    } else {
+        await validateTickers(args);
+    }
 }
+
+main().catch(err => {
+    console.error('ERROR:', err.message);
+    process.exit(1);
+});
