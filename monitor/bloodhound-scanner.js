@@ -35,16 +35,32 @@ const APIS = {
 
 const SETTINGS = {
     scanIntervalMs: 5 * 60 * 1000,  // 5 minutes
-    minConfluenceScore: 48,          // Minimum score to alert (0-80, was 60/100)
+    minConfluenceScore: 35,          // Minimum score to alert (0-100 scale, data-driven)
     maxSymbols: 20,                  // Max symbols to scan per cycle
     alertCooldownMs: 30 * 60 * 1000, // 30 min cooldown per symbol
     ignoreMarketHours: false,        // Set true to bypass market hours check
     // Signal tracking settings
-    velocityThreshold: 20,           // Points jump to trigger velocity alert
-    autoTrackMinScore: 80,           // Minimum score to auto-track for outcomes
+    velocityThreshold: 15,           // Points jump to trigger velocity alert (adjusted for new scale)
+    autoTrackMinScore: 50,           // Minimum score to auto-track for outcomes
     signalExpirationDays: 5,         // Days before unresolved signal = EXPIRED
     // Display timezone
     displayTimezone: 'America/Los_Angeles', // PST/PDT for user display
+
+    // === DATA-DRIVEN THRESHOLDS (from 179 signal backtest) ===
+    // AT_WALL + EXTENDED_RSI = 89.5% win rate
+    // ELEVATED_VOLUME = 76.9% win rate
+    // VIX_ELEVATED = 66.7% win rate
+    WALL_THRESHOLD_PCT: 1.0,        // Within 1% = "at wall"
+    RSI_OVERSOLD: 30,
+    RSI_OVERBOUGHT: 70,
+    VOLUME_ELEVATED: 1.5,           // 1.5x average = elevated
+    VIX_ELEVATED: 20,
+    VIX_FEAR: 30,
+
+    // Tier thresholds (0-100 scale)
+    TIER_HIGH_CONVICTION: 50,       // Requires prime setup or multiple high-edge factors
+    TIER_TRADEABLE: 35,
+    TIER_WATCH: 20,
 };
 
 // ============================================
@@ -409,230 +425,39 @@ function getNextMarketOpen() {
 }
 
 // ============================================
-// SIGNAL TRACKING
+// SIGNAL TRACKING (Now uses SQLite database)
 // ============================================
 
-const SIGNAL_TRACKING_PATH = path.join(__dirname, '..', 'data', 'signal_tracking.json');
+// In-memory cache for velocity tracking within a scan cycle
+const velocityCache = new Map();
 
-// Load signal tracking data
-function loadSignalTracking() {
-    try {
-        if (fs.existsSync(SIGNAL_TRACKING_PATH)) {
-            return JSON.parse(fs.readFileSync(SIGNAL_TRACKING_PATH, 'utf8'));
-        }
-    } catch (e) {
-        console.error('[Bloodhound] Error loading signal tracking:', e.message);
-    }
-    return { signals: {}, lastUpdated: null };
-}
-
-// Save signal tracking data
-function saveSignalTracking(data) {
-    try {
-        data.lastUpdated = new Date().toISOString();
-        fs.writeFileSync(SIGNAL_TRACKING_PATH, JSON.stringify(data, null, 2));
-    } catch (e) {
-        console.error('[Bloodhound] Error saving signal tracking:', e.message);
-    }
-}
-
-// Update signal history and calculate velocity
+// Update signal history and calculate velocity (database-backed)
 function updateSignalHistory(symbol, score, price, direction, analysis) {
-    const tracking = loadSignalTracking();
-    const now = new Date().toISOString();
-
-    if (!tracking.signals[symbol]) {
-        tracking.signals[symbol] = {
-            history: [],
-            firstSeen: now,
-            peakScore: 0,
-            activeSignal: null
-        };
-    }
-
-    const symbolData = tracking.signals[symbol];
-
-    // Get previous score for velocity calculation
-    const prevEntry = symbolData.history.length > 0
-        ? symbolData.history[symbolData.history.length - 1]
-        : null;
-    const prevScore = prevEntry?.score || 0;
+    // Get velocity from database (comparing today vs yesterday)
+    const velocityData = signalDb.getSymbolVelocity(symbol);
+    const prevScore = velocityData.prevScore || 0;
     const velocity = score - prevScore;
 
-    // Add to history (keep last 50 entries per symbol)
-    symbolData.history.push({
-        timestamp: now,
-        score,
-        price,
-        direction,
-        velocity
-    });
-    if (symbolData.history.length > 50) {
-        symbolData.history = symbolData.history.slice(-50);
-    }
-
-    // Update peak score
-    if (score > symbolData.peakScore) {
-        symbolData.peakScore = score;
-    }
-
-    // Check if this should create/update an active tracked signal
-    if (score >= SETTINGS.autoTrackMinScore && !symbolData.activeSignal) {
-        // Create new active signal to track for outcome
-        symbolData.activeSignal = {
-            id: `${symbol}_${Date.now()}`,
-            entryTime: now,
-            entryPrice: price,
-            entryScore: score,
-            direction: direction,
-            target: analysis?.levels?.callWall || null,
-            stop: analysis?.levels?.putWall || null,
-            signalsAtEntry: analysis?.signals?.slice(0, 5) || [],
-            currentPrice: price,
-            pnlPct: 0,
-            outcome: null,
-            resolvedTime: null,
-            daysHeld: 0
-        };
-        console.log(`[Bloodhound] Tracking new signal: ${symbol} @ $${price} (score ${score})`);
-    }
-
-    saveSignalTracking(tracking);
+    // Cache the current score for this scan cycle
+    velocityCache.set(symbol, { score, price, direction, velocity });
 
     return { prevScore, velocity };
 }
 
-// Resolve signal outcomes based on current prices
-async function resolveSignalOutcomes() {
-    const tracking = loadSignalTracking();
-    let resolved = 0;
-
-    for (const [symbol, data] of Object.entries(tracking.signals)) {
-        const signal = data.activeSignal;
-        if (!signal || signal.outcome) continue; // Skip if no active signal or already resolved
-
-        try {
-            // Get current price
-            const technicals = await fetchJSON(`${APIS.options}/api/technicals/${symbol}`);
-            if (!technicals?.current) continue;
-
-            const currentPrice = technicals.current;
-            signal.currentPrice = currentPrice;
-            signal.pnlPct = ((currentPrice - signal.entryPrice) / signal.entryPrice * 100).toFixed(2);
-            signal.daysHeld = Math.floor((Date.now() - new Date(signal.entryTime).getTime()) / (1000 * 60 * 60 * 24));
-
-            // Auto-grade based on direction and price levels
-            if (signal.direction === 'bullish' || signal.direction === 'pinned') {
-                if (signal.target && currentPrice >= signal.target) {
-                    signal.outcome = 'WIN';
-                    signal.resolvedTime = new Date().toISOString();
-                    console.log(`[Bloodhound] Signal WIN: ${symbol} hit target $${signal.target}`);
-                    resolved++;
-                } else if (signal.stop && currentPrice <= signal.stop * 0.98) { // 2% buffer below stop
-                    signal.outcome = 'LOSS';
-                    signal.resolvedTime = new Date().toISOString();
-                    console.log(`[Bloodhound] Signal LOSS: ${symbol} hit stop $${signal.stop}`);
-                    resolved++;
-                } else if (signal.daysHeld >= SETTINGS.signalExpirationDays) {
-                    signal.outcome = signal.pnlPct > 0 ? 'EXPIRED_WIN' : 'EXPIRED_LOSS';
-                    signal.resolvedTime = new Date().toISOString();
-                    console.log(`[Bloodhound] Signal EXPIRED: ${symbol} P&L ${signal.pnlPct}%`);
-                    resolved++;
-                }
-            } else if (signal.direction === 'bearish') {
-                if (signal.stop && currentPrice >= signal.stop * 1.02) { // 2% buffer above stop for shorts
-                    signal.outcome = 'LOSS';
-                    signal.resolvedTime = new Date().toISOString();
-                    resolved++;
-                } else if (signal.target && currentPrice <= signal.target) {
-                    signal.outcome = 'WIN';
-                    signal.resolvedTime = new Date().toISOString();
-                    resolved++;
-                } else if (signal.daysHeld >= SETTINGS.signalExpirationDays) {
-                    signal.outcome = signal.pnlPct < 0 ? 'EXPIRED_WIN' : 'EXPIRED_LOSS'; // Inverted for shorts
-                    signal.resolvedTime = new Date().toISOString();
-                    resolved++;
-                }
-            }
-        } catch (e) {
-            console.error(`[Bloodhound] Error resolving ${symbol}:`, e.message);
-        }
-    }
-
-    if (resolved > 0) {
-        saveSignalTracking(tracking);
-        console.log(`[Bloodhound] Resolved ${resolved} signal outcome(s)`);
-    }
-
-    return resolved;
-}
-
-// Get signal tracking stats for display
-function getSignalStats() {
-    const tracking = loadSignalTracking();
-    let active = 0, wins = 0, losses = 0, expired = 0;
-
-    for (const data of Object.values(tracking.signals)) {
-        const signal = data.activeSignal;
-        if (!signal) continue;
-
-        if (!signal.outcome) active++;
-        else if (signal.outcome === 'WIN' || signal.outcome === 'EXPIRED_WIN') wins++;
-        else if (signal.outcome === 'LOSS' || signal.outcome === 'EXPIRED_LOSS') losses++;
-        else expired++;
-    }
-
-    const total = wins + losses;
-    const winRate = total > 0 ? ((wins / total) * 100).toFixed(1) : 'N/A';
-
-    return { active, wins, losses, expired, winRate };
-}
+// Signal outcomes are now tracked via signalLogger and signal-db.js
+// The resolveSignalOutcomes() and getSignalStats() functions have been moved there
 
 // ============================================
-// SCANNER HISTORY TRACKING
+// SCANNER HISTORY TRACKING (Now uses SQLite database only)
 // ============================================
 
-const HISTORY_FILE = path.join(__dirname, '..', 'data', 'scanner_history.json');
 const HISTORY_RETENTION_DAYS = 14;
 
-function loadScannerHistory() {
-    try {
-        if (!fs.existsSync(HISTORY_FILE)) {
-            return {
-                meta: {
-                    last_updated: new Date().toISOString(),
-                    retention_days: HISTORY_RETENTION_DAYS,
-                    total_symbols_tracked: 0
-                },
-                symbols: {}
-            };
-        }
-        return JSON.parse(fs.readFileSync(HISTORY_FILE, 'utf8'));
-    } catch (e) {
-        console.error('[History] Failed to load scanner_history.json:', e.message);
-        return {
-            meta: {
-                last_updated: new Date().toISOString(),
-                retention_days: HISTORY_RETENTION_DAYS,
-                total_symbols_tracked: 0
-            },
-            symbols: {}
-        };
-    }
-}
-
-function saveScannerHistory(history) {
-    try {
-        history.meta.last_updated = new Date().toISOString();
-        history.meta.total_symbols_tracked = Object.keys(history.symbols).length;
-        fs.writeFileSync(HISTORY_FILE, JSON.stringify(history, null, 2));
-    } catch (e) {
-        console.error('[History] Failed to save scanner_history.json:', e.message);
-    }
-}
-
+/**
+ * Update scanner history in database
+ * This replaces the JSON-based scanner_history.json
+ */
 function updateScannerHistory(analyses, marketContext) {
-    const history = loadScannerHistory();
     const now = new Date();
     const today = now.toISOString().split('T')[0]; // YYYY-MM-DD
 
@@ -641,224 +466,62 @@ function updateScannerHistory(analyses, marketContext) {
     for (const analysis of analyses) {
         const symbol = analysis.symbol;
 
-        // Initialize symbol if not exists
-        if (!history.symbols[symbol]) {
-            history.symbols[symbol] = {
-                first_seen: now.toISOString(),
-                last_seen: now.toISOString(),
-                daily_snapshots: []
-            };
+        // Calculate time in scanner for this symbol today
+        const existingHistory = signalDb.getScannerHistory(symbol, 1);
+        const todayEntry = existingHistory.find(h => h.date === today);
+        let timeInScannerMins = 0;
+        if (todayEntry && todayEntry.first_seen) {
+            const firstScan = new Date(todayEntry.first_seen);
+            timeInScannerMins = Math.floor((now - firstScan) / 60000);
         }
 
-        // Update last_seen
-        history.symbols[symbol].last_seen = now.toISOString();
-
-        // Find or create today's snapshot
-        let todaySnapshot = history.symbols[symbol].daily_snapshots.find(s => s.date === today);
-
-        if (!todaySnapshot) {
-            // First scan of the day - create new snapshot
-            todaySnapshot = {
-                date: today,
-                first_scan: now.toISOString(),
-                scans_today: 1,
-                peak_score: analysis.totalScore,
-
-                price_action: {
-                    open: analysis.technicals.price,
-                    high: analysis.technicals.price,
-                    low: analysis.technicals.price,
-                    close: analysis.technicals.price,
-                    vwap: analysis.levels.vwap || null,
-                    range_pct: 0,
-                    gap_from_prev_pct: null
-                },
-
-                volume: {
-                    total: 0,
-                    avg_20d: analysis.technicals.volumeAvg || null,
-                    ratio: analysis.technicals.volumeRatio || null,
-                    vs_yesterday: null,
-                    first_hour: 0
-                },
-
-                scanner_data: {
-                    peak_zone: analysis.zone,
-                    peak_direction: analysis.direction,
-                    peak_signals: analysis.signals.slice(0, 5),
-                    time_in_scanner_mins: 0
-                },
-
-                technicals_eod: {
-                    rsi: analysis.technicals.rsi,
-                    above_20ema: analysis.technicals.above20EMA || false,
-                    above_50sma: analysis.technicals.above50SMA || false,
-                    bb_position: analysis.technicals.bbPosition || 'MIDDLE'
-                }
-            };
-
-            // Calculate gap from previous day if available
-            const yesterday = history.symbols[symbol].daily_snapshots[history.symbols[symbol].daily_snapshots.length - 1];
-            if (yesterday && yesterday.price_action.close) {
-                const gap = ((analysis.technicals.price - yesterday.price_action.close) / yesterday.price_action.close) * 100;
-                todaySnapshot.price_action.gap_from_prev_pct = parseFloat(gap.toFixed(2));
-            }
-
-            history.symbols[symbol].daily_snapshots.push(todaySnapshot);
-        } else {
-            // Update existing snapshot
-            todaySnapshot.scans_today++;
-
-            // Update peak score if higher
-            if (analysis.totalScore > todaySnapshot.peak_score) {
-                todaySnapshot.peak_score = analysis.totalScore;
-                todaySnapshot.scanner_data.peak_zone = analysis.zone;
-                todaySnapshot.scanner_data.peak_direction = analysis.direction;
-                todaySnapshot.scanner_data.peak_signals = analysis.signals.slice(0, 5);
-            }
-
-            // Update price action (track high/low/close)
-            if (analysis.technicals.price > todaySnapshot.price_action.high) {
-                todaySnapshot.price_action.high = analysis.technicals.price;
-            }
-            if (analysis.technicals.price < todaySnapshot.price_action.low) {
-                todaySnapshot.price_action.low = analysis.technicals.price;
-            }
-            todaySnapshot.price_action.close = analysis.technicals.price;
-            todaySnapshot.price_action.vwap = analysis.levels.vwap || todaySnapshot.price_action.vwap;
-
-            // Calculate range %
-            if (todaySnapshot.price_action.high > todaySnapshot.price_action.low) {
-                const rangePct = ((todaySnapshot.price_action.high - todaySnapshot.price_action.low) / todaySnapshot.price_action.low) * 100;
-                todaySnapshot.price_action.range_pct = parseFloat(rangePct.toFixed(2));
-            }
-
-            // Update volume (use latest available)
-            todaySnapshot.volume.ratio = analysis.technicals.volumeRatio || todaySnapshot.volume.ratio;
-            todaySnapshot.volume.avg_20d = analysis.technicals.volumeAvg || todaySnapshot.volume.avg_20d;
-
-            // Update technicals (EOD = latest)
-            todaySnapshot.technicals_eod.rsi = analysis.technicals.rsi;
-            todaySnapshot.technicals_eod.above_20ema = analysis.technicals.above20EMA || false;
-            todaySnapshot.technicals_eod.above_50sma = analysis.technicals.above50SMA || false;
-            todaySnapshot.technicals_eod.bb_position = analysis.technicals.bbPosition || 'MIDDLE';
-
-            // Update time in scanner
-            const firstScan = new Date(todaySnapshot.first_scan);
-            todaySnapshot.scanner_data.time_in_scanner_mins = Math.floor((now - firstScan) / 60000);
+        // Calculate range_pct from high/low if available
+        let rangePct = null;
+        if (todayEntry && todayEntry.high_price && todayEntry.low_price && todayEntry.low_price > 0) {
+            rangePct = ((todayEntry.high_price - todayEntry.low_price) / todayEntry.low_price) * 100;
         }
 
-        // Calculate volume vs yesterday if we have yesterday's data
-        const yesterday = history.symbols[symbol].daily_snapshots[history.symbols[symbol].daily_snapshots.length - 2];
-        if (yesterday && yesterday.volume.total > 0 && todaySnapshot.volume.total > 0) {
-            todaySnapshot.volume.vs_yesterday = parseFloat((todaySnapshot.volume.total / yesterday.volume.total).toFixed(2));
-        }
-
-        // Also write to database for permanent history (includes trend data)
+        // Write to database with all fields
         try {
             signalDb.upsertScannerHistory(symbol, today, {
-                first_seen: history.symbols[symbol].first_seen,
-                score: todaySnapshot.peak_score,
-                zone: todaySnapshot.scanner_data?.peak_zone,
-                price: analysis.technicals?.price,
-                gap_pct: todaySnapshot.price_action?.gap_from_prev_pct || 0,
-                rsi: todaySnapshot.technicals_eod?.rsi,
+                first_seen: now.toISOString(),
+                score: analysis.totalScore,
+                zone: analysis.zone,
+                price: analysis.price,
+                gap_pct: 0, // Will be calculated from previous day in DB
+                rsi: analysis.technicals?.rsi,
                 // Trend data
-                trend: analysis.technicals?.trend,           // Symbol's own trend
-                direction: analysis.direction,                // bullish/bearish/pinned
-                spy_trend: marketContext?.spyTrend,          // Market trend
-                vix: marketContext?.vix,                     // VIX level
-                vix_regime: marketContext?.vixRegime         // VIX regime
+                trend: analysis.technicals?.trend,
+                direction: analysis.direction,
+                spy_trend: marketContext?.spyTrend,
+                vix: marketContext?.vix,
+                vix_regime: marketContext?.vixRegime,
+                // New fields for full migration
+                vwap: analysis.levels?.vwap,
+                range_pct: rangePct,
+                volume_ratio: analysis.technicals?.volumeRatio,
+                volume_avg_20d: analysis.technicals?.volumeAvg,
+                peak_direction: analysis.direction,
+                peak_signals: analysis.signals?.slice(0, 5) || [],
+                time_in_scanner_mins: timeInScannerMins,
+                above_20ema: analysis.technicals?.above20EMA,
+                above_50sma: analysis.technicals?.above50SMA,
+                bb_position: analysis.technicals?.bbPosition || 'MIDDLE'
             });
         } catch (e) {
             console.error(`[History] DB write failed for ${symbol}:`, e.message);
         }
     }
 
-    // Prune old data (keep only HISTORY_RETENTION_DAYS)
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - HISTORY_RETENTION_DAYS);
-    const cutoffDateStr = cutoffDate.toISOString().split('T')[0];
-
-    for (const symbol in history.symbols) {
-        history.symbols[symbol].daily_snapshots = history.symbols[symbol].daily_snapshots.filter(
-            s => s.date >= cutoffDateStr
-        );
-
-        // Remove symbol if no snapshots left
-        if (history.symbols[symbol].daily_snapshots.length === 0) {
-            delete history.symbols[symbol];
-        }
-    }
-
-    saveScannerHistory(history);
-    console.log(`[History] Updated. Tracking ${Object.keys(history.symbols).length} symbols.`);
+    console.log(`[History] Updated ${analyses.length} symbols in database.`);
 }
 
+/**
+ * Compute history status using database (replaces JSON-based version)
+ * Uses signalDb.computeHistoryStatus() for actual computation
+ */
 function computeHistoryStatus(symbol) {
-    const history = loadScannerHistory();
-
-    if (!history.symbols[symbol]) {
-        return null; // No history
-    }
-
-    const symbolData = history.symbols[symbol];
-    const snapshots = symbolData.daily_snapshots;
-
-    if (snapshots.length === 0) {
-        return null;
-    }
-
-    // Count consecutive days (no gaps)
-    const today = new Date().toISOString().split('T')[0];
-    let consecutiveDays = 0;
-    let checkDate = new Date(today);
-
-    for (let i = 0; i < 30; i++) { // Check back 30 days max
-        const dateStr = checkDate.toISOString().split('T')[0];
-        const hasSnapshot = snapshots.some(s => s.date === dateStr);
-
-        if (!hasSnapshot) {
-            break; // Gap found
-        }
-
-        consecutiveDays++;
-        checkDate.setDate(checkDate.getDate() - 1);
-    }
-
-    // Calculate days since first seen
-    const firstSeen = new Date(symbolData.first_seen);
-    const daysSinceFirst = Math.floor((new Date() - firstSeen) / (1000 * 60 * 60 * 24));
-
-    // Find peak score across all history
-    const peakScoreEver = Math.max(...snapshots.map(s => s.peak_score));
-    const todaySnapshot = snapshots.find(s => s.date === today);
-    const currentScore = todaySnapshot ? todaySnapshot.peak_score : 0;
-
-    // Determine trend
-    let trend = 'STABLE';
-    if (snapshots.length >= 2) {
-        const yesterday = snapshots[snapshots.length - 2];
-        const scoreDiff = currentScore - yesterday.peak_score;
-
-        if (scoreDiff >= 15) trend = 'RISING';
-        else if (scoreDiff <= -15) trend = 'FADING';
-    }
-
-    // Determine label
-    let label = 'NEW';
-    if (consecutiveDays === 2) label = 'DAY_2';
-    else if (consecutiveDays >= 3) label = 'STREAK';
-    else if (daysSinceFirst > consecutiveDays && consecutiveDays === 1) label = 'RETURNED';
-
-    return {
-        label,
-        consecutive_days: consecutiveDays,
-        days_since_first: daysSinceFirst,
-        trend,
-        peak_score_ever: peakScoreEver,
-        current_vs_peak: currentScore - peakScoreEver
-    };
+    return signalDb.computeHistoryStatus(symbol);
 }
 
 // ============================================
@@ -1233,49 +896,59 @@ async function analyzeSymbol(symbol, discoveryData) {
     if (!price) return null;
 
     // ============================================
-    // CONFLUENCE SCORING (0-80) - Sentiment removed
+    // DATA-DRIVEN CONFLUENCE SCORING (0-100)
+    // Based on backtest of 179 signals:
+    // - AT_WALL + EXTENDED_RSI = 89.5% win rate
+    // - ELEVATED_VOLUME = 76.9% win rate
+    // - VIX_ELEVATED = 66.7% win rate
     // ============================================
 
     const scores = {
-        technical: 0,  // 0-25
-        levels: 0,     // 0-25
-        volume: 0,     // 0-15
-        context: 0     // 0-15
+        base: 0,       // AT_WALL + EXTENDED_RSI (0-50 with combo)
+        highEdge: 0,   // Volume + VIX factors (0-35)
+        standard: 0    // BB, trend, flow, confluence (0-25)
     };
 
     const signals = [];
     let direction = 'neutral';
 
-    // --- TECHNICAL SCORE (0-25) ---
+    // Track key conditions for combo detection
+    let atWallCondition = false;
+    let extendedRsiCondition = false;
+
+    // --- BASE CONDITION: EXTENDED RSI (15 pts) ---
     const rsi = technicals.rsi || 50;
     const trend = technicals.trend || 'neutral';
     const bbPosition = technicals.bb_position || 0.5;
 
-    if (rsi <= 30) {
-        scores.technical += 15;
-        signals.push(`RSI low momentum (${rsi.toFixed(1)})`);
+    // Check for extended RSI (oversold/overbought) - 89.5% win rate when combined with wall
+    if (rsi <= SETTINGS.RSI_OVERSOLD) {
+        scores.base += 15;
+        extendedRsiCondition = true;
+        signals.push(`RSI oversold (${rsi.toFixed(1)})`);
         direction = 'bullish';
-    } else if (rsi >= 70) {
-        scores.technical += 15;
-        signals.push(`RSI high momentum (${rsi.toFixed(1)})`);
+    } else if (rsi >= SETTINGS.RSI_OVERBOUGHT) {
+        scores.base += 15;
+        extendedRsiCondition = true;
+        signals.push(`RSI overbought (${rsi.toFixed(1)})`);
         direction = 'bearish';
     } else if (rsi <= 40 && trend === 'uptrend') {
-        scores.technical += 10;
+        scores.standard += 5;
         signals.push(`RSI pullback in uptrend (${rsi.toFixed(1)})`);
         direction = 'bullish';
     } else if (rsi >= 60 && trend === 'downtrend') {
-        scores.technical += 10;
+        scores.standard += 5;
         signals.push(`RSI bounce in downtrend (${rsi.toFixed(1)})`);
         direction = 'bearish';
     }
 
-    // Bollinger position
+    // --- STANDARD FACTOR: Bollinger Bands (5 pts) ---
     if (bbPosition <= 0.1) {
-        scores.technical += 10;
+        scores.standard += 5;
         signals.push('At lower Bollinger Band');
         direction = direction || 'bullish';
     } else if (bbPosition >= 0.9) {
-        scores.technical += 10;
+        scores.standard += 5;
         signals.push('At upper Bollinger Band');
         direction = direction || 'bearish';
     }
@@ -1295,36 +968,36 @@ async function analyzeSymbol(symbol, discoveryData) {
         if (fibSignal) {
             if (fibSignal.isGoldenPocket) {
                 // Golden Pocket (0.618) - deeper pullback entry in Golden Zone
-                scores.technical += 10;
+                scores.standard += 5;
                 signals.push(`📐 At Golden Pocket (0.618 @ $${fibSignal.price.toFixed(2)})`);
                 if (direction === 'neutral') direction = 'bullish'; // Fib support = bullish bias
 
                 // Check for MA confluence at Golden Pocket
                 fibMAConfluence = checkFibMAConfluence(fibSignal.price, technicals, 1.5);
                 if (fibMAConfluence) {
-                    scores.technical += 5;
+                    scores.standard += 3;
                     signals.push(`📐 Golden Pocket + ${fibMAConfluence.ma} confluence`);
                 }
             } else if (fibSignal.type === 'retracement' && fibSignal.level === 0.5) {
                 // 50% retracement - first entry in Golden Zone (strong trends)
-                scores.technical += 8;
+                scores.standard += 4;
                 signals.push(`📐 At 50% Fib ($${fibSignal.price.toFixed(2)})`);
                 if (direction === 'neutral') direction = 'bullish';
 
                 // Check for MA confluence at 50%
                 fibMAConfluence = checkFibMAConfluence(fibSignal.price, technicals, 1.5);
                 if (fibMAConfluence) {
-                    scores.technical += 5;
+                    scores.standard += 3;
                     signals.push(`📐 50% Fib + ${fibMAConfluence.ma} confluence`);
                 }
             } else if (fibSignal.type === 'extension' && fibSignal.level === 1.272) {
                 // 1.272 extension - first profit target
-                scores.technical += 5;
+                scores.standard += 3;
                 signals.push(`🎯 At 1.272 extension ($${fibSignal.price.toFixed(2)}) - TP1`);
                 if (direction === 'neutral') direction = 'bearish'; // Extension = potential reversal
             } else if (fibSignal.type === 'extension' && fibSignal.level === 1.618) {
                 // 1.618 extension - extended profit target
-                scores.technical += 5;
+                scores.standard += 3;
                 signals.push(`🎯 At 1.618 extension ($${fibSignal.price.toFixed(2)}) - TP2`);
                 if (direction === 'neutral') direction = 'bearish'; // Extension = potential reversal
             }
@@ -1332,7 +1005,7 @@ async function analyzeSymbol(symbol, discoveryData) {
         }
     }
 
-    // --- LEVELS SCORE (0-30) ---
+    // --- BASE CONDITION: AT WALL (15 pts) + COMBO BONUS ---
     const callWall = levels.levels?.call_wall?.price;
     const putWall = levels.levels?.put_wall?.price;
     const maxPain = levels.levels?.max_pain?.price;
@@ -1344,70 +1017,76 @@ async function analyzeSymbol(symbol, discoveryData) {
     const distToPutWall = putWall ? ((price - putWall) / price * 100) : null;
     const distToVwap = vwap ? ((price - vwap) / price * 100) : null;
 
-    // Check for pinned scenario (both walls within 1% of price)
-    const atPutWall = distToPutWall !== null && distToPutWall <= 0.5 && distToPutWall >= -0.5;
-    const atCallWall = distToCallWall !== null && distToCallWall <= 0.5 && distToCallWall >= -0.5;
+    // Using data-driven threshold (1% = at wall)
+    const wallThresholdPct = SETTINGS.WALL_THRESHOLD_PCT;
+    const atPutWall = distToPutWall !== null && Math.abs(distToPutWall) <= wallThresholdPct;
+    const atCallWall = distToCallWall !== null && Math.abs(distToCallWall) <= wallThresholdPct;
     const isPinned = atPutWall && atCallWall;
 
-    // Check for extended scenarios (breakouts)
+    // Check for extended scenarios (breakouts/breakdowns)
     const aboveCallWall = distToCallWall !== null && distToCallWall < -0.3; // Price above call wall
     const belowPutWall = distToPutWall !== null && distToPutWall < -0.3; // Price below put wall
 
     if (isPinned) {
-        // Pinned between walls - high confluence but no clear direction
-        scores.levels += 25;
+        // Pinned between walls - both at support and resistance
+        scores.base += 15;
+        atWallCondition = true;
         signals.push(`📍 PINNED between walls ($${putWall}-$${callWall})`);
         direction = 'pinned';
     } else if (aboveCallWall) {
-        // Breakout above call wall - bullish momentum
-        scores.levels += 20;
+        // Breakout above call wall - already moved, less actionable
+        scores.standard += 8;
         const distAbove = Math.abs(distToCallWall).toFixed(1);
         signals.push(`🚀 BREAKOUT above call wall ($${callWall}) +${distAbove}%`);
         direction = 'bullish';
-        // Extra score if gamma flip confirms
         if (gammaFlip && price > gammaFlip) {
-            scores.levels += 10;
+            scores.standard += 4;
             signals.push(`Above gamma flip ($${gammaFlip.toFixed(2)})`);
         }
     } else if (belowPutWall) {
-        // Breakdown below put wall - bearish momentum
-        scores.levels += 20;
+        // Breakdown below put wall - already moved, less actionable
+        scores.standard += 8;
         const distBelow = Math.abs(distToPutWall).toFixed(1);
         signals.push(`💥 BREAKDOWN below put wall ($${putWall}) -${distBelow}%`);
         direction = 'bearish';
-        // Extra caution if below gamma flip
         if (gammaFlip && price < gammaFlip) {
-            scores.levels += 10;
+            scores.standard += 4;
             signals.push(`Below gamma flip ($${gammaFlip.toFixed(2)})`);
         }
     } else {
-        // At support (put wall)
+        // AT WALL - This is the key condition (89.5% win rate when combined with extended RSI)
         if (atPutWall) {
-            scores.levels += 20;
+            scores.base += 15;
+            atWallCondition = true;
             signals.push(`At put wall support ($${putWall})`);
             if (direction === 'neutral') direction = 'bullish';
         }
-
-        // At resistance (call wall)
         if (atCallWall) {
-            scores.levels += 20;
+            scores.base += 15;
+            atWallCondition = true;
             signals.push(`At call wall resistance ($${callWall})`);
             if (direction === 'neutral') direction = 'bearish';
         }
     }
 
-    // At VWAP (mean reversion opportunity)
+    // === COMBO BONUS: AT_WALL + EXTENDED_RSI (89.5% historical win rate) ===
+    if (atWallCondition && extendedRsiCondition) {
+        scores.base += 20;
+        signals.unshift('⭐ PRIME SETUP: Wall + Extended RSI');
+    }
+
+    // --- STANDARD FACTORS: VWAP, Confluence ---
     if (distToVwap !== null && Math.abs(distToVwap) <= 0.3) {
-        scores.levels += 10;
+        scores.standard += 5;
         signals.push(`At VWAP ($${vwap})`);
     }
 
-    // Fib + Wall Confluence (extensions aligning with gamma walls)
+    // Fib + Wall Confluence
     if (fibLevels && (callWall || putWall)) {
         const fibWallAlignments = checkFibWallConfluence(fibLevels, callWall, putWall, 1.5);
         if (fibWallAlignments) {
             for (const alignment of fibWallAlignments) {
-                scores.levels += 5;
+                scores.standard += 3;
                 if (alignment.type === 'resistance') {
                     signals.push(`🎯 ${alignment.fibLevel} Fib ($${alignment.fibPrice.toFixed(0)}) = Call Wall ($${alignment.wallPrice})`);
                 } else {
@@ -1423,14 +1102,12 @@ async function analyzeSymbol(symbol, discoveryData) {
             Math.abs(z.distance_pct) <= 0.5 && z.count >= 2
         );
         if (nearbyZone) {
-            scores.levels += 10 * nearbyZone.count;
+            scores.standard += 5;
             signals.push(`Confluence zone (${nearbyZone.count} levels)`);
         }
     }
 
     // --- WALL ACTIVITY CHECK ---
-    // Only penalize DORMANT walls (stale OI). Don't reward ACTIVE since we
-    // can't verify if activity is bullish or bearish.
     let wallActivity = null;
     const atWall = atPutWall || atCallWall;
 
@@ -1448,7 +1125,7 @@ async function analyzeSymbol(symbol, discoveryData) {
 
             // Only penalize DORMANT - don't reward ACTIVE (can't verify direction)
             if (wallActivity.status === 'DORMANT') {
-                scores.levels -= 5;
+                scores.standard -= 3;
                 signals.push(`⚠️ ${wallType.toUpperCase()} wall dormant (stale OI)`);
             } else if (wallActivity.status === 'ACTIVE') {
                 // Log for visibility but no score change - activity doesn't tell us direction
@@ -1460,14 +1137,14 @@ async function analyzeSymbol(symbol, discoveryData) {
         }
     }
 
-    // --- VOLUME SCORE (0-15) ---
+    // --- HIGH-EDGE FACTOR: ELEVATED VOLUME (76.9% win rate) ---
     const volRatio = discoveryData?.volRatio || technicals.volume_ratio || 1;
 
     if (volRatio >= 2) {
-        scores.volume += 15;
+        scores.highEdge += 20;
         signals.push(`Volume spike (${volRatio.toFixed(1)}x avg)`);
-    } else if (volRatio >= 1.5) {
-        scores.volume += 10;
+    } else if (volRatio >= SETTINGS.VOLUME_ELEVATED) {
+        scores.highEdge += 15;
         signals.push(`Elevated volume (${volRatio.toFixed(1)}x avg)`);
     }
 
@@ -1502,7 +1179,7 @@ async function analyzeSymbol(symbol, discoveryData) {
 
         // Score based on unusual activity
         if (maxCallVolOI >= 5 || maxPutVolOI >= 5) {
-            scores.volume += 15;
+            scores.highEdge += 10;
             if (maxCallVolOI > maxPutVolOI) {
                 const exp = topCall.expiration?.slice(5).replace('-', '/') || '';
                 const prem = ((topCall.premium || 0) / 1000000).toFixed(1);
@@ -1544,7 +1221,7 @@ async function analyzeSymbol(symbol, discoveryData) {
                 }
             }
         } else if (maxCallVolOI >= 2 || maxPutVolOI >= 2) {
-            scores.volume += 8;
+            scores.standard += 5;
             if (maxCallVolOI > maxPutVolOI) {
                 const exp = topCall.expiration?.slice(5).replace('-', '/') || '';
                 const prem = ((topCall.premium || 0) / 1000000).toFixed(1);
@@ -1561,14 +1238,14 @@ async function analyzeSymbol(symbol, discoveryData) {
         const cpRatio = opts.call_put_ratio || 1;
 
         if (Math.abs(netPremium) >= 10000000) { // $10M+ net premium
-            scores.volume += 10;
+            scores.standard += 5;
             const premDir = netPremium > 0 ? 'bullish' : 'bearish';
             signals.push(`$${(Math.abs(netPremium) / 1000000).toFixed(0)}M net ${premDir} premium`);
 
-            // Alignment bonus
+            // Alignment bonus (flow aligned with direction)
             if ((netPremium > 0 && direction === 'bullish') ||
                 (netPremium < 0 && direction === 'bearish')) {
-                scores.volume += 5;
+                scores.standard += 5;
             }
         }
 
@@ -1580,90 +1257,88 @@ async function analyzeSymbol(symbol, discoveryData) {
         }
     }
 
-    // --- DISCOVERY SOURCE SCORE (0-15) ---
+    // --- STANDARD FACTOR: Discovery source bonus ---
     if (discoveryData) {
         // Bonus for AI outlook mentions
         if (discoveryData.sources?.includes('ai_outlook')) {
-            scores.context += 10;
+            scores.standard += 5;
             signals.push(`📌 AI Outlook highlight`);
         }
-        // NOTE: Social/Twitter scoring removed - Bloodhound is now purely technical
     }
 
-    // --- CONTEXT SCORE (0-10) ---
+    // --- CONTEXT & VIX SCORING ---
     if (marketContext) {
         const spyTrend = marketContext.spyTrend;
+        const vix = marketContext.vix || 0;
 
         // Skip SPY trend comparison for index ETFs (SPY can't be counter-trend to itself)
         const isIndexETF = symbol === 'SPY' || symbol === 'QQQ';
 
         if (isIndexETF) {
-            // For SPY/QQQ, just note market context without alignment scoring
-            signals.push(`Market: VIX ${marketContext.vix}`);
+            signals.push(`Market: VIX ${vix.toFixed(1)}`);
         }
-        // Pinned scenarios are direction-neutral, no context penalty
         else if (direction === 'pinned') {
-            signals.push(`Market: SPY ${spyTrend}, VIX ${marketContext.vix}`);
+            signals.push(`Market: SPY ${spyTrend}, VIX ${vix.toFixed(1)}`);
         }
         // Aligned with market
         else if ((direction === 'bullish' && spyTrend === 'bullish') ||
             (direction === 'bearish' && spyTrend === 'bearish')) {
-            scores.context += 10;
+            scores.standard += 5;
             signals.push(`Aligned with SPY ${spyTrend}`);
         }
-        // Against market (penalty, but still note it)
+        // Against market (note it, but data shows counter-trend can work)
         else if (direction !== 'neutral' && spyTrend && direction !== spyTrend) {
-            scores.context -= 10;
             signals.push(`⚠️ Against SPY ${spyTrend}`);
-            // BACKTEST FIX: Don't call bearish in bullish market (16.4% win rate)
-            // Override to pinned instead of fighting the trend
+            // BACKTEST: Counter-trend bullish in bearish SPY = 63.6% win rate
+            // So we don't heavily penalize counter-trend anymore
             if (direction === 'bearish' && spyTrend === 'bullish') {
                 direction = 'pinned';
                 signals.push(`📍 Downgraded to PINNED (counter-trend)`);
             }
         }
 
-        // --- MULTI-TIMEFRAME ALIGNMENT ---
-        // Check if setup direction aligns with higher timeframe bias
+        // --- HIGH-EDGE FACTOR: VIX ELEVATED/FEAR (66.7% win rate) ---
+        if (vix >= SETTINGS.VIX_FEAR) {
+            scores.highEdge += 15;
+            signals.push(`🔥 VIX fear (${vix.toFixed(1)}) - quality entries`);
+        } else if (vix >= SETTINGS.VIX_ELEVATED) {
+            scores.highEdge += 10;
+            signals.push(`VIX elevated (${vix.toFixed(1)})`);
+        }
+
+        // --- STANDARD FACTOR: Multi-timeframe alignment ---
         if (marketContext.intradayBias && marketContext.swingBias) {
             const swingBias = marketContext.swingBias.toLowerCase();
             const intradayBias = marketContext.intradayBias.toLowerCase();
 
-            // Check if setup direction aligns with swing bias
             const setupAligned = (direction === 'bullish' && swingBias === 'bullish') ||
                                  (direction === 'bearish' && swingBias === 'bearish');
-
-            // Check if timeframes agree with each other
             const tfAligned = swingBias === intradayBias;
 
             if (setupAligned && tfAligned) {
-                // Highest probability: setup + both timeframes aligned
-                scores.context += 15;
+                scores.standard += 5;
                 signals.push(`✅ TF aligned: both ${marketContext.swingBias}`);
             } else if (setupAligned && !tfAligned) {
-                // Good swing setup, but intraday differs - still decent
-                scores.context += 5;
+                scores.standard += 3;
                 signals.push(`Swing ${marketContext.swingBias}, intraday ${marketContext.intradayBias}`);
-            } else if (!setupAligned && direction !== 'neutral' && direction !== 'pinned' && swingBias !== 'neutral') {
-                // Counter-trend trade - lower probability
-                scores.context -= 15;
-                signals.push(`⚠️ COUNTER-TREND: ${direction} vs swing ${marketContext.swingBias}`);
             }
-        }
-
-        // VIX regime adjustment
-        if (marketContext.vixRegime === 'elevated' || marketContext.vixRegime === 'high') {
-            signals.push(`⚠️ VIX ${marketContext.vixRegime} (${marketContext.vix})`);
+            // Don't penalize counter-trend as heavily - data shows it can work
         }
     }
 
     // ============================================
-    // FINAL SCORE (max 80 - sentiment removed)
+    // FINAL SCORE (0-100 scale, data-driven)
+    // Base: AT_WALL + EXTENDED_RSI + combo (0-50)
+    // HighEdge: Volume + VIX (0-35)
+    // Standard: BB, trend, flow, confluence (0-25)
     // ============================================
 
-    const totalScore = Math.max(0, Math.min(80,
-        scores.technical + scores.levels + scores.volume + scores.context
+    const totalScore = Math.max(0, Math.min(100,
+        scores.base + scores.highEdge + scores.standard
     ));
+
+    // Track if this is a "prime setup" for tier determination
+    const isPrimeSetup = atWallCondition && extendedRsiCondition;
 
     // ============================================
     // ZONE CLASSIFICATION (for zone-scanner UI)
@@ -1672,42 +1347,19 @@ async function analyzeSymbol(symbol, discoveryData) {
     let zone = 'MID_RANGE';
     let tradeable = false;
     let action = null;
-    let tier = 'FILTERED';  // New: tradeable tier
+    let tier = 'FILTERED';
 
-    const rsiHighMomentum = 70;
-    const rsiLowMomentum = 30;
-
-    // Dynamic wall threshold based on score
-    const getWallThreshold = (score) => {
-        if (score >= 80) return 1.5;  // High conviction = looser threshold
-        if (score >= 70) return 1.0;  // Moderate
-        return 0.5;                    // Strict for lower scores
-    };
-
-    const wallThreshold = getWallThreshold(totalScore);
-
-    // Near wall checks (using dynamic threshold)
-    const nearPutWall = distToPutWall !== null && Math.abs(distToPutWall) <= wallThreshold;
-    const nearCallWall = distToCallWall !== null && Math.abs(distToCallWall) <= wallThreshold;
-
-    // WATCH zone threshold (2% for near-misses)
+    // Near wall checks (2% for watch zone)
     const watchThreshold = 2.0;
     const watchNearPutWall = distToPutWall !== null && Math.abs(distToPutWall) <= watchThreshold;
     const watchNearCallWall = distToCallWall !== null && Math.abs(distToCallWall) <= watchThreshold;
 
-    // Trend alignment check
-    const isTrendAligned = (actionType, trendDir) => {
-        if (actionType === 'BUY') return trendDir !== 'bearish';  // bullish or neutral OK
-        if (actionType === 'SELL') return trendDir !== 'bullish'; // bearish or neutral OK
-        return true;
-    };
-
-    // Step 1: Determine BASE ZONE (same logic as before)
-    if (rsi >= rsiHighMomentum) {
+    // Step 1: Determine BASE ZONE
+    if (rsi >= SETTINGS.RSI_OVERBOUGHT) {
         zone = 'HIGH_MOMENTUM';
-    } else if (rsi <= rsiLowMomentum) {
+    } else if (rsi <= SETTINGS.RSI_OVERSOLD) {
         zone = 'LOW_MOMENTUM';
-        if (nearPutWall) {
+        if (atPutWall) {
             zone = 'BUY_ZONE';
             action = 'BUY';
         }
@@ -1717,68 +1369,66 @@ async function analyzeSymbol(symbol, discoveryData) {
         zone = 'EXTENDED_LOW';
     } else if (isPinned) {
         zone = 'PINNED';
-    } else if (nearPutWall) {
+    } else if (atPutWall) {
         zone = 'BUY_ZONE';
         action = 'BUY';
-    } else if (nearCallWall) {
+    } else if (atCallWall) {
         zone = 'SELL_ZONE';
         action = 'SELL';
     }
 
-    // BACKTEST FIX: EXTENDED_HIGH = reversal watch zone, not bullish continuation
-    // 21/22 EXTENDED_HIGH signals were bullish, 4.5% win rate
-    // Override bullish to pinned - don't chase breakouts
+    // Extended high = reversal watch, not bullish continuation
     if (zone === 'EXTENDED_HIGH' && direction === 'bullish') {
         direction = 'pinned';
         signals.push(`📍 Extended high - reversal watch`);
     }
 
-    // Step 2: Apply SCORE-AWARE TRADEABLE TIERS
-    if (action) {
-        const aligned = isTrendAligned(action, trend);
-        // BACKTEST FIX: Exclude bad zones from HIGH_CONVICTION
-        // EXTENDED_HIGH = 4.5% win rate, HIGH_MOMENTUM has similar issues
-        const badZones = ['EXTENDED_HIGH', 'HIGH_MOMENTUM'];
-        const notBadZone = !badZones.includes(zone);
+    // ============================================
+    // DATA-DRIVEN TIER ASSIGNMENT
+    // Based on 179 signal backtest:
+    // - PRIME SETUP (AT_WALL + EXTENDED_RSI) = 89.5% win rate
+    // - Score 50+ with prime setup = HIGH_CONVICTION
+    // - Score 50+ without prime = TRADEABLE
+    // - Score 35-49 = WATCH
+    // - Score <35 = FILTERED
+    // ============================================
 
-        // HIGH_CONVICTION: Score >= 56 at wall, OR Score >= 64 near wall (scaled from 70/80 of 100 to 80 max)
-        // BUT exclude bad zones that historically underperform
-        if (totalScore >= 56 && (atPutWall || atCallWall) && notBadZone) {
-            tradeable = true;
-            tier = 'HIGH_CONVICTION';
-        } else if (totalScore >= 64 && (nearPutWall || nearCallWall) && notBadZone) {
-            tradeable = true;
-            tier = 'HIGH_CONVICTION';
-        }
-        // TRADEABLE: Score >= 48 at wall + trend aligned (was 60/100)
-        else if (totalScore >= 48 && (atPutWall || atCallWall) && aligned) {
-            tradeable = true;
-            tier = 'TRADEABLE';
-        }
-        // WATCH: Score >= 48 at wall but counter-trend
-        else if (totalScore >= 48 && (atPutWall || atCallWall) && !aligned) {
-            tier = 'WATCH';  // Downgraded due to counter-trend
-        }
-        // WATCH: Score >= 40 near wall (not at) (was 50/100)
-        else if (totalScore >= 40 && (watchNearPutWall || watchNearCallWall)) {
-            tier = 'WATCH';
-        }
+    // Exclude historically bad zones from tradeable tiers
+    const badZones = ['EXTENDED_HIGH', 'HIGH_MOMENTUM'];
+    const notBadZone = !badZones.includes(zone);
+
+    // HIGH_CONVICTION: Prime setup (AT_WALL + EXTENDED_RSI) with good score
+    // OR very high score (65+) with action
+    if (isPrimeSetup && totalScore >= 40 && notBadZone) {
+        tradeable = true;
+        tier = 'HIGH_CONVICTION';
     }
-
-    // WATCH: EXTENDED_LOW with low RSI (potential reversal)
-    if (zone === 'EXTENDED_LOW' && rsi < 35 && totalScore >= 40) {
+    // HIGH_CONVICTION: Very high score at wall (multiple high-edge factors)
+    else if (totalScore >= SETTINGS.TIER_HIGH_CONVICTION && atWallCondition && action && notBadZone) {
+        tradeable = true;
+        tier = 'HIGH_CONVICTION';
+    }
+    // TRADEABLE: Good score at wall
+    else if (totalScore >= SETTINGS.TIER_TRADEABLE && atWallCondition && action && notBadZone) {
+        tradeable = true;
+        tier = 'TRADEABLE';
+    }
+    // WATCH: Moderate score near wall or waiting for setup
+    else if (totalScore >= SETTINGS.TIER_WATCH && (watchNearPutWall || watchNearCallWall)) {
+        tier = 'WATCH';
+    }
+    // WATCH: Extended low with oversold RSI (potential reversal)
+    else if (zone === 'EXTENDED_LOW' && extendedRsiCondition && totalScore >= SETTINGS.TIER_WATCH) {
         tier = 'WATCH';
         action = 'WATCH_REVERSAL';
     }
-
-    // WATCH: High score but mid-range (waiting for level)
-    if (zone === 'MID_RANGE' && totalScore >= 56) {
+    // WATCH: High score in mid-range (waiting for level)
+    else if (zone === 'MID_RANGE' && totalScore >= SETTINGS.TIER_TRADEABLE) {
         tier = 'WATCH';
         action = 'WATCH_LEVEL';
     }
-
-    // WATCH: High-score PINNED setups (trapped between walls, waiting for direction)
-    if (zone === 'PINNED' && totalScore >= 56) {
+    // WATCH: Pinned with good score (waiting for direction)
+    else if (zone === 'PINNED' && totalScore >= SETTINGS.TIER_TRADEABLE) {
         tier = 'WATCH';
         action = 'WATCH_BREAKOUT';
     }
@@ -1947,14 +1597,14 @@ function formatAlert(analysis) {
                      analysis.direction === 'bearish' ? '🔴' :
                      analysis.direction === 'pinned' ? '📍' : '⚪';
 
-    const scoreEmoji = analysis.totalScore >= 64 ? '🔥' :
-                       analysis.totalScore >= 56 ? '⭐' : '📊';
+    const scoreEmoji = analysis.totalScore >= 60 ? '🔥' :
+                       analysis.totalScore >= 50 ? '⭐' : '📊';
 
     const timeStr = formatTimePST();
 
     let msg = `${scoreEmoji} <b>BLOODHOUND: ${escapeHtml(analysis.symbol)}</b> ${dirEmoji}\n`;
     msg += `<code>${timeStr} PST</code>\n\n`;
-    msg += `<b>Confluence Score:</b> ${analysis.totalScore}/80\n`;
+    msg += `<b>Confluence Score:</b> ${analysis.totalScore}/100\n`;
     msg += `<b>Direction:</b> ${analysis.direction.toUpperCase()}\n`;
     msg += `<b>Price:</b> $${analysis.price.toFixed(2)}\n\n`;
 
@@ -2315,6 +1965,23 @@ async function runScan() {
                 `<i>${formatTimePST()} PST</i>`;
             await sendTelegram(vixMsg);
             console.log(`[VIX] Regime change: ${scannerState.previousVixRegime} → ${currentRegime}`);
+
+            // Log VIX regime change to database (replaces alerts_log.json)
+            try {
+                signalDb.insertAlert({
+                    type: 'VIX_REGIME',
+                    priority: currentRegime === 'fear' || currentRegime === 'capitulation' ? 'HIGH' : 'MEDIUM',
+                    message: `VIX regime change: ${scannerState.previousVixRegime} → ${currentRegime}`,
+                    details: {
+                        from: scannerState.previousVixRegime,
+                        to: currentRegime,
+                        vix: marketContext.vix,
+                        spy_price: marketContext.spyPrice
+                    }
+                });
+            } catch (e) {
+                console.error(`[VIX] Failed to log alert to DB:`, e.message);
+            }
         }
         scannerState.previousVixRegime = currentRegime;
     } else {
@@ -2404,8 +2071,8 @@ async function runScan() {
         }
     }
 
-    // Resolve any tracked signal outcomes
-    await resolveSignalOutcomes();
+    // Signal outcomes are now resolved via signalLogger.validateOldSignals()
+    // (called at end of scan cycle)
 
     // 4. Sort by confluence score
     analyses.sort((a, b) => b.totalScore - a.totalScore);
@@ -2470,7 +2137,7 @@ async function runScan() {
                            a.action === 'WATCH_LEVEL' ? '(waiting for level)' :
                            !isTimeframeAligned(a, marketContext) ? '(TF misaligned)' :
                            a.wallActivity === 'DORMANT' ? '(dormant wall)' :
-                           a.totalScore < 70 ? `(score ${a.totalScore})` : '';
+                           a.totalScore < SETTINGS.TIER_HIGH_CONVICTION ? `(score ${a.totalScore})` : '';
             console.log(`  👀 ${a.symbol}: ${a.totalScore}/100 ${reason}`);
         });
     }
@@ -2754,7 +2421,7 @@ async function main() {
     console.log('='.repeat(60));
     console.log(`Intel API: ${APIS.intel}`);
     console.log(`Options API: ${APIS.options}`);
-    console.log(`Min Confluence Score: ${SETTINGS.minConfluenceScore}/80`);
+    console.log(`Min Confluence Score: ${SETTINGS.minConfluenceScore}/100 (data-driven)`);
     console.log(`Scan Interval: ${SETTINGS.scanIntervalMs / 1000}s`);
     if (isPaused()) {
         console.log(`Status: 💤 PAUSED`);
