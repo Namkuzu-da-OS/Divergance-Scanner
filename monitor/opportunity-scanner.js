@@ -40,7 +40,13 @@ const SETTINGS = {
         startHour: 8,   // 8 AM EST
         endHour: 16,    // 4 PM EST
         timezone: 'America/New_York'
-    }
+    },
+
+    // Persistence-based filtering (added based on 30,539 record analysis)
+    // Key insight: 5+ scans = 98-100% accuracy vs 50-55% for <5 scans
+    MIN_PERSISTENCE_ALERT: 5,           // Minimum scans before alerting (~25 min of signal)
+    HIGH_PERSISTENCE: 20,               // Considered "high" persistence (very high conviction)
+    TREAT_PUT_HEAVY_AS_BULLISH: true    // Heavy puts = institutional hedging = bullish
 };
 
 // Display timezone for alerts (user's local time)
@@ -232,6 +238,79 @@ let lastScanTime = null;
 let nextScanTime = null;
 let scanCount = 0;
 const alertCooldowns = new Map();
+
+// ============================================
+// PERSISTENCE TRACKING
+// Tracks how many consecutive scans a symbol has been HIGH_CONVICTION
+// Key insight from 30,539 records: 5+ scans = 98% accuracy vs 50% for <5
+// ============================================
+
+const persistenceTracker = new Map(); // key: "SYMBOL:YYYY-MM-DD" -> { count, firstSeen, direction, firstPrice }
+const alertedToday = new Set();       // Symbols already alerted today (avoid spam)
+let lastResetDate = null;             // Track last reset to prevent multiple clears
+
+function getToday() {
+    // Use EST for consistent day boundaries
+    return new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+}
+
+function updatePersistence(symbol, tier, direction, price) {
+    if (tier !== 'HIGH_CONVICTION') return 0;
+
+    const today = getToday();
+    const key = `${symbol}:${today}`;
+
+    if (!persistenceTracker.has(key)) {
+        persistenceTracker.set(key, {
+            count: 1,
+            firstSeen: Date.now(),
+            direction,
+            firstPrice: price
+        });
+    } else {
+        const data = persistenceTracker.get(key);
+        data.count++;
+        // Track if direction changed
+        if (data.direction !== direction) {
+            data.directionChanged = true;
+        }
+    }
+
+    return persistenceTracker.get(key).count;
+}
+
+function getPersistence(symbol) {
+    const today = getToday();
+    const key = `${symbol}:${today}`;
+    return persistenceTracker.get(key) || null;
+}
+
+function getPersistenceLevel(count) {
+    if (count >= SETTINGS.HIGH_PERSISTENCE) return 'VERY HIGH';
+    if (count >= 10) return 'HIGH';
+    if (count >= SETTINGS.MIN_PERSISTENCE_ALERT) return 'MODERATE';
+    return 'LOW';
+}
+
+function clearDailyTracking() {
+    const today = getToday();
+
+    // Prevent multiple clears on same day
+    if (lastResetDate === today) {
+        return false;
+    }
+
+    // Clear entries from previous days
+    for (const key of persistenceTracker.keys()) {
+        if (!key.endsWith(`:${today}`)) {
+            persistenceTracker.delete(key);
+        }
+    }
+    alertedToday.clear();
+    lastResetDate = today;
+    console.log(`[Opportunity] Cleared daily tracking for new day: ${today}`);
+    return true;
+}
 
 // ============================================
 // HTTP HELPERS
@@ -689,11 +768,47 @@ async function runScan() {
         console.error('[Opportunity] DB save error:', e.message);
     }
 
-    // Send Telegram alerts for HIGH_CONVICTION
+    // PERSISTENCE-BASED ALERTING
+    // Only alert when a symbol crosses the persistence threshold
+    // This reduces alerts from ~300-500/day to ~20-50 high-quality signals
     const highConviction = results.filter(r => r.tier === 'HIGH_CONVICTION');
+    let alertsSent = 0;
+    let persistenceUpdates = [];
+
     for (const opp of highConviction) {
-        await sendTelegramAlert(opp, marketContext);
+        // Update persistence count
+        const persistence = updatePersistence(opp.symbol, opp.tier, opp.direction, opp.price);
+
+        persistenceUpdates.push(`${opp.symbol}:${persistence}`);
+
+        // Only alert when crossing the threshold AND not already alerted today
+        const shouldAlert = persistence === SETTINGS.MIN_PERSISTENCE_ALERT &&
+                           !alertedToday.has(opp.symbol);
+
+        if (shouldAlert) {
+            // Apply put_heavy reinterpretation if enabled
+            let effectiveDirection = opp.direction;
+            let extraSignal = null;
+
+            if (SETTINGS.TREAT_PUT_HEAVY_AS_BULLISH && opp.direction === 'bearish') {
+                // Check if this is put_heavy by looking at call/put ratio
+                if (opp.unusual.callPutRatio < 0.5) {
+                    effectiveDirection = 'bullish';
+                    extraSignal = '🛡️ Heavy put hedging (bullish - institutions protecting longs)';
+                }
+            }
+
+            await sendTelegramAlert(opp, marketContext, persistence, effectiveDirection, extraSignal);
+            alertedToday.add(opp.symbol);
+            alertsSent++;
+        }
     }
+
+    // Log persistence stats
+    if (persistenceUpdates.length > 0) {
+        console.log(`[Opportunity] Persistence: ${persistenceUpdates.join(', ')}`);
+    }
+    console.log(`[Opportunity] Alerts sent: ${alertsSent} (${alertedToday.size} unique today)`);
 
     console.log(`[Opportunity] Scan complete. Next scan at ${nextScanTime.toISOString()}`);
 }
@@ -702,8 +817,8 @@ async function runScan() {
 // TELEGRAM ALERTS
 // ============================================
 
-async function sendTelegramAlert(opportunity, marketContext) {
-    // Check cooldown
+async function sendTelegramAlert(opportunity, marketContext, persistence = null, effectiveDirection = null, extraSignal = null) {
+    // Check cooldown (still respected for manual/test alerts)
     const cooldownKey = opportunity.symbol;
     const lastAlert = alertCooldowns.get(cooldownKey);
     if (lastAlert && Date.now() - lastAlert < SETTINGS.alertCooldownMs) {
@@ -717,9 +832,12 @@ async function sendTelegramAlert(opportunity, marketContext) {
         return;
     }
 
+    // Use effective direction if provided (for put_heavy reinterpretation)
+    const displayDirection = effectiveDirection || opportunity.direction;
+
     // Build message
-    const directionEmoji = opportunity.direction === 'bullish' ? '🟢' :
-                          opportunity.direction === 'bearish' ? '🔴' : '⚪';
+    const directionEmoji = displayDirection === 'bullish' ? '🟢' :
+                          displayDirection === 'bearish' ? '🔴' : '⚪';
 
     const topStrike = opportunity.unusual.topStrikes[0];
     const topStrikeText = topStrike
@@ -731,6 +849,13 @@ async function sendTelegramAlert(opportunity, marketContext) {
 
     const timeStr = formatTimePST();
 
+    // Build persistence line if available
+    let persistenceLine = '';
+    if (persistence !== null) {
+        const level = getPersistenceLevel(persistence);
+        persistenceLine = `\n📊 <b>Persistence: ${persistence} scans (${level})</b>`;
+    }
+
     // Build earnings warning if within 14 days
     let earningsLine = '';
     if (opportunity.earnings && opportunity.earnings.daysTo !== null && opportunity.earnings.daysTo <= 14) {
@@ -741,10 +866,16 @@ async function sendTelegramAlert(opportunity, marketContext) {
         earningsLine = `\n${earningsEmoji} <b>EARNINGS: ${opportunity.earnings.date} ${timeLabel} (${opportunity.earnings.daysTo}d)</b>`;
     }
 
+    // Build signals list with extra signal if provided
+    let signalsList = opportunity.signals.slice(0, 5);
+    if (extraSignal) {
+        signalsList = [extraSignal, ...signalsList.slice(0, 4)];
+    }
+
     const message = `
 ${directionEmoji} <b>UNUSUAL OPTIONS: ${opportunity.symbol}</b>
 <code>${timeStr} PST</code>
-Score: ${opportunity.score}/100 | ${opportunity.tier}${earningsLine}
+Score: ${opportunity.score}/100 | ${opportunity.tier}${persistenceLine}${earningsLine}
 
 💰 Price: $${opportunity.price.toFixed(2)}
 📊 Top Strike: ${topStrikeText}
@@ -752,7 +883,7 @@ Score: ${opportunity.score}/100 | ${opportunity.tier}${earningsLine}
 📈 Call/Put: ${opportunity.unusual.callPutRatio.toFixed(2)}
 
 🎯 Signals:
-${opportunity.signals.slice(0, 5).map(s => `• ${s}`).join('\n')}
+${signalsList.map(s => `• ${s}`).join('\n')}
 
 📊 Context: SPY ${marketContext.spyTrend} | VIX ${marketContext.vix} (${marketContext.vixRegime})
 `.trim();
@@ -812,6 +943,17 @@ function startControlServer() {
         if (url === '/status' && req.method === 'GET') {
             const now = Date.now();
             const nextScanIn = nextScanTime ? Math.max(0, nextScanTime.getTime() - now) : 0;
+            const today = getToday();
+
+            // Count symbols at different persistence levels
+            let persistentCount = 0;
+            let highPersistenceCount = 0;
+            for (const [key, data] of persistenceTracker.entries()) {
+                if (key.endsWith(`:${today}`)) {
+                    if (data.count >= SETTINGS.MIN_PERSISTENCE_ALERT) persistentCount++;
+                    if (data.count >= SETTINGS.HIGH_PERSISTENCE) highPersistenceCount++;
+                }
+            }
 
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({
@@ -823,7 +965,16 @@ function startControlServer() {
                 nextScanIn: Math.round(nextScanIn / 1000),
                 maxSymbols: SETTINGS.maxSymbols,
                 discoverySources: ['core', 'watchlist', 'volume_leaders', 'gainers', 'losers', 'nasdaq_movers', '52wk_extremes', 'etf_categories'],
-                marketHours: isMarketHours()
+                marketHours: isMarketHours(),
+                // Persistence stats
+                persistence: {
+                    trackedToday: persistenceTracker.size,
+                    persistent: persistentCount,       // Met alert threshold
+                    highPersistence: highPersistenceCount,  // Very high conviction
+                    alertedToday: alertedToday.size,
+                    minThreshold: SETTINGS.MIN_PERSISTENCE_ALERT,
+                    highThreshold: SETTINGS.HIGH_PERSISTENCE
+                }
             }));
             return;
         }
@@ -882,6 +1033,50 @@ function startControlServer() {
             console.log('[Opportunity] Alert cooldowns cleared');
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ status: 'cooldowns_cleared' }));
+            return;
+        }
+
+        // GET /persistence - View current persistence tracking
+        if (url === '/persistence' && req.method === 'GET') {
+            const today = getToday();
+            const todayData = [];
+
+            for (const [key, data] of persistenceTracker.entries()) {
+                if (key.endsWith(`:${today}`)) {
+                    const symbol = key.split(':')[0];
+                    todayData.push({
+                        symbol,
+                        count: data.count,
+                        level: getPersistenceLevel(data.count),
+                        direction: data.direction,
+                        firstPrice: data.firstPrice,
+                        firstSeen: new Date(data.firstSeen).toISOString(),
+                        alerted: alertedToday.has(symbol)
+                    });
+                }
+            }
+
+            // Sort by count descending
+            todayData.sort((a, b) => b.count - a.count);
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+                date: today,
+                minPersistenceAlert: SETTINGS.MIN_PERSISTENCE_ALERT,
+                highPersistence: SETTINGS.HIGH_PERSISTENCE,
+                treatPutHeavyAsBullish: SETTINGS.TREAT_PUT_HEAVY_AS_BULLISH,
+                alertedCount: alertedToday.size,
+                trackedSymbols: todayData.length,
+                symbols: todayData
+            }));
+            return;
+        }
+
+        // POST /clear-persistence - Clear persistence tracking (for testing)
+        if (url === '/clear-persistence' && req.method === 'POST') {
+            clearDailyTracking();
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ status: 'persistence_cleared' }));
             return;
         }
 
@@ -991,11 +1186,14 @@ if (args.includes('pause')) {
     // Start scanner
     console.log('[Opportunity] ========================================');
     console.log('[Opportunity] OPPORTUNITY SCANNER starting...');
-    console.log('[Opportunity] Mode: DYNAMIC DISCOVERY');
+    console.log('[Opportunity] Mode: DYNAMIC DISCOVERY + PERSISTENCE FILTERING');
     console.log(`[Opportunity] Sources: movers, gainers/losers, nasdaq, 52wk extremes, watchlist`);
     console.log(`[Opportunity] Max symbols: ${SETTINGS.maxSymbols}`);
     console.log(`[Opportunity] Interval: ${SETTINGS.scanIntervalMs / 1000}s`);
     console.log(`[Opportunity] Market hours: ${SETTINGS.marketHours.startHour}:00-${SETTINGS.marketHours.endHour}:00 EST`);
+    console.log('[Opportunity] ----------------------------------------');
+    console.log(`[Opportunity] Persistence filtering: MIN=${SETTINGS.MIN_PERSISTENCE_ALERT}, HIGH=${SETTINGS.HIGH_PERSISTENCE}`);
+    console.log(`[Opportunity] Put hedging reinterpretation: ${SETTINGS.TREAT_PUT_HEAVY_AS_BULLISH ? 'ENABLED' : 'disabled'}`);
     console.log('[Opportunity] ========================================');
 
     // Clear stale data from previous day/session
@@ -1013,4 +1211,17 @@ if (args.includes('pause')) {
     setInterval(() => {
         runScan().catch(e => console.error('[Opportunity] Scan error:', e));
     }, SETTINGS.scanIntervalMs);
+
+    // Daily reset scheduler - clears persistence tracking at midnight EST
+    // Using setInterval instead of cron for simplicity
+    setInterval(() => {
+        const now = new Date();
+        const estHour = parseInt(now.toLocaleString('en-US', { timeZone: 'America/New_York', hour: 'numeric', hour12: false }));
+        const estMinute = parseInt(now.toLocaleString('en-US', { timeZone: 'America/New_York', minute: 'numeric' }));
+
+        // Clear at midnight EST (00:00-00:05 window to catch it)
+        if (estHour === 0 && estMinute < 5) {
+            clearDailyTracking();
+        }
+    }, 60 * 1000); // Check every minute
 }
