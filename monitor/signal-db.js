@@ -295,6 +295,9 @@ function initSchema() {
 
     // Migration: Add trend columns to existing scanner_history table
     migrateScannerHistory();
+
+    // Migration: Create alerts table
+    migrateAlerts();
 }
 
 /**
@@ -306,7 +309,19 @@ function migrateScannerHistory() {
         { name: 'direction', type: 'TEXT' },
         { name: 'spy_trend', type: 'TEXT' },
         { name: 'vix', type: 'REAL' },
-        { name: 'vix_regime', type: 'TEXT' }
+        { name: 'vix_regime', type: 'TEXT' },
+        // New columns for full JSON migration
+        { name: 'vwap', type: 'REAL' },
+        { name: 'range_pct', type: 'REAL' },
+        { name: 'volume_ratio', type: 'REAL' },
+        { name: 'volume_avg_20d', type: 'REAL' },
+        { name: 'peak_direction', type: 'TEXT' },
+        { name: 'peak_signals_json', type: 'TEXT' },
+        { name: 'time_in_scanner_mins', type: 'INTEGER' },
+        { name: 'above_20ema', type: 'INTEGER' },
+        { name: 'above_50sma', type: 'INTEGER' },
+        { name: 'bb_position', type: 'TEXT' },
+        { name: 'velocity', type: 'REAL' }
     ];
 
     for (const col of columns) {
@@ -325,6 +340,29 @@ function migrateScannerHistory() {
         db.exec('CREATE INDEX IF NOT EXISTS idx_scanner_history_vix_regime ON scanner_history(vix_regime)');
     } catch (e) {
         // Indexes already exist, ignore
+    }
+}
+
+/**
+ * Create alerts table for VIX regime changes and other alerts
+ */
+function migrateAlerts() {
+    try {
+        db.exec(`
+            CREATE TABLE IF NOT EXISTS alerts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp TEXT NOT NULL,
+                type TEXT NOT NULL,
+                priority TEXT,
+                symbol TEXT,
+                message TEXT NOT NULL,
+                details_json TEXT
+            )
+        `);
+        db.exec('CREATE INDEX IF NOT EXISTS idx_alerts_timestamp ON alerts(timestamp)');
+        db.exec('CREATE INDEX IF NOT EXISTS idx_alerts_type ON alerts(type)');
+    } catch (e) {
+        // Table/indexes already exist, ignore
     }
 }
 
@@ -792,11 +830,25 @@ function getDatabaseStats() {
 
 /**
  * Insert or update scanner history for a symbol on a given date
+ * Now includes all fields from scanner_history.json and signal_tracking.json
  */
 function upsertScannerHistory(symbol, date, data) {
     const existing = getDb().prepare(
         'SELECT * FROM scanner_history WHERE symbol = ? AND date = ?'
     ).get(symbol, date);
+
+    // Calculate velocity (score change from previous entry)
+    let velocity = null;
+    if (data.score !== undefined) {
+        const prevEntry = getDb().prepare(`
+            SELECT peak_score FROM scanner_history
+            WHERE symbol = ? AND date < ?
+            ORDER BY date DESC LIMIT 1
+        `).get(symbol, date);
+        if (prevEntry) {
+            velocity = (data.score || 0) - (prevEntry.peak_score || 0);
+        }
+    }
 
     if (existing) {
         // Update existing record (trend data always updates to latest)
@@ -813,7 +865,18 @@ function upsertScannerHistory(symbol, date, data) {
                 direction = ?,
                 spy_trend = ?,
                 vix = ?,
-                vix_regime = ?
+                vix_regime = ?,
+                vwap = COALESCE(?, vwap),
+                range_pct = COALESCE(?, range_pct),
+                volume_ratio = COALESCE(?, volume_ratio),
+                volume_avg_20d = COALESCE(?, volume_avg_20d),
+                peak_direction = CASE WHEN ? > peak_score THEN ? ELSE peak_direction END,
+                peak_signals_json = CASE WHEN ? > peak_score THEN ? ELSE peak_signals_json END,
+                time_in_scanner_mins = ?,
+                above_20ema = COALESCE(?, above_20ema),
+                above_50sma = COALESCE(?, above_50sma),
+                bb_position = COALESCE(?, bb_position),
+                velocity = COALESCE(?, velocity)
             WHERE symbol = ? AND date = ?
         `).run(
             data.score || 0,
@@ -827,6 +890,17 @@ function upsertScannerHistory(symbol, date, data) {
             data.spy_trend,
             data.vix,
             data.vix_regime,
+            data.vwap,
+            data.range_pct,
+            data.volume_ratio,
+            data.volume_avg_20d,
+            data.score || 0, data.peak_direction || data.direction,
+            data.score || 0, data.peak_signals_json || JSON.stringify(data.peak_signals || []),
+            data.time_in_scanner_mins,
+            data.above_20ema ? 1 : 0,
+            data.above_50sma ? 1 : 0,
+            data.bb_position,
+            velocity,
             symbol, date
         );
     } else {
@@ -837,16 +911,29 @@ function upsertScannerHistory(symbol, date, data) {
                 peak_score, peak_zone,
                 open_price, high_price, low_price, close_price,
                 gap_pct, rsi_eod,
-                trend, direction, spy_trend, vix, vix_regime
-            ) VALUES (?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                trend, direction, spy_trend, vix, vix_regime,
+                vwap, range_pct, volume_ratio, volume_avg_20d,
+                peak_direction, peak_signals_json, time_in_scanner_mins,
+                above_20ema, above_50sma, bb_position, velocity
+            ) VALUES (?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).run(
             symbol, date, data.first_seen || new Date().toISOString(),
             data.score || 0, data.zone,
             data.price, data.price, data.price, data.price,
             data.gap_pct || 0, data.rsi,
-            data.trend, data.direction, data.spy_trend, data.vix, data.vix_regime
+            data.trend, data.direction, data.spy_trend, data.vix, data.vix_regime,
+            data.vwap, data.range_pct, data.volume_ratio, data.volume_avg_20d,
+            data.peak_direction || data.direction,
+            data.peak_signals_json || JSON.stringify(data.peak_signals || []),
+            data.time_in_scanner_mins || 0,
+            data.above_20ema ? 1 : 0,
+            data.above_50sma ? 1 : 0,
+            data.bb_position,
+            velocity
         );
     }
+
+    return { velocity };
 }
 
 /**
@@ -930,6 +1017,114 @@ function getAllHistoryStatuses() {
     return symbols.map(s => ({
         symbol: s.symbol,
         ...computeHistoryStatus(s.symbol)
+    }));
+}
+
+/**
+ * Get symbol velocity (score change from last scan)
+ * This replaces signal_tracking.json functionality
+ */
+function getSymbolVelocity(symbol) {
+    const recent = getDb().prepare(`
+        SELECT peak_score, date FROM scanner_history
+        WHERE symbol = ?
+        ORDER BY date DESC
+        LIMIT 2
+    `).all(symbol);
+
+    if (recent.length < 2) {
+        return { velocity: 0, prevScore: 0, currentScore: recent[0]?.peak_score || 0 };
+    }
+
+    const currentScore = recent[0].peak_score || 0;
+    const prevScore = recent[1].peak_score || 0;
+    const velocity = currentScore - prevScore;
+
+    return { velocity, prevScore, currentScore };
+}
+
+/**
+ * Get velocity for all recent symbols (for batch processing)
+ */
+function getAllVelocities() {
+    const today = new Date().toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    return getDb().prepare(`
+        SELECT
+            t.symbol,
+            t.peak_score as current_score,
+            y.peak_score as prev_score,
+            (t.peak_score - COALESCE(y.peak_score, 0)) as velocity
+        FROM scanner_history t
+        LEFT JOIN scanner_history y ON t.symbol = y.symbol AND y.date = ?
+        WHERE t.date = ?
+        ORDER BY velocity DESC
+    `).all(yesterday, today);
+}
+
+// ============================================
+// ALERTS FUNCTIONS
+// ============================================
+
+/**
+ * Insert a new alert (e.g., VIX regime change)
+ */
+function insertAlert(alertData) {
+    const stmt = getDb().prepare(`
+        INSERT INTO alerts (timestamp, type, priority, symbol, message, details_json)
+        VALUES (?, ?, ?, ?, ?, ?)
+    `);
+
+    stmt.run(
+        alertData.timestamp || new Date().toISOString(),
+        alertData.type,
+        alertData.priority || 'MEDIUM',
+        alertData.symbol || null,
+        alertData.message,
+        JSON.stringify(alertData.details || {})
+    );
+
+    console.log(`[SignalDB] Alert inserted: ${alertData.type} - ${alertData.message}`);
+}
+
+/**
+ * Get recent alerts from database
+ */
+function getRecentAlerts(options = {}) {
+    const { limit = 50, type = null, days = 7 } = options;
+
+    let query = `
+        SELECT * FROM alerts
+        WHERE timestamp > datetime('now', '-' || ? || ' days')
+    `;
+    const params = [days];
+
+    if (type) {
+        query += ` AND type = ?`;
+        params.push(type);
+    }
+
+    query += ` ORDER BY timestamp DESC LIMIT ?`;
+    params.push(limit);
+
+    return getDb().prepare(query).all(...params);
+}
+
+/**
+ * Get alerts formatted for dashboard display
+ */
+function getAlertsForDashboard(options = {}) {
+    const alerts = getRecentAlerts(options);
+
+    return alerts.map(a => ({
+        id: a.id,
+        timestamp: a.timestamp,
+        type: a.type,
+        priority: a.priority,
+        symbol: a.symbol,
+        message: a.message,
+        details: JSON.parse(a.details_json || '{}')
     }));
 }
 
@@ -2041,6 +2236,13 @@ module.exports = {
     getScannerHistory,
     computeHistoryStatus,
     getAllHistoryStatuses,
+    // Velocity tracking (replaces signal_tracking.json)
+    getSymbolVelocity,
+    getAllVelocities,
+    // Alerts functions (replaces alerts_log.json)
+    insertAlert,
+    getRecentAlerts,
+    getAlertsForDashboard,
     // Pre-market functions
     insertPremarketScan,
     insertPremarketMover,

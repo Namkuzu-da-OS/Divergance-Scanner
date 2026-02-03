@@ -87,6 +87,31 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // API: Get alerts from database (replaces alerts_log.json)
+    if (req.method === 'GET' && urlPath === '/api/alerts') {
+        try {
+            const signalDb = require('./signal-db');
+            const url = new URL(req.url, `http://${req.headers.host}`);
+            const limit = url.searchParams.get('limit') || 50;
+            const type = url.searchParams.get('type') || null;
+            const days = url.searchParams.get('days') || 7;
+
+            const alerts = signalDb.getAlertsForDashboard({
+                limit: parseInt(limit),
+                type: type,
+                days: parseInt(days)
+            });
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ alerts }));
+        } catch (e) {
+            console.error('[Web Server] Error loading alerts:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
     // API: Get latest bloodhound scan (replaces dynamic_scan.json)
     if (req.method === 'GET' && urlPath === '/api/scan/latest') {
         try {

@@ -288,48 +288,19 @@ async function runCheck() {
 }
 
 function logAlert(alert) {
-  const logFile = path.join(__dirname, '..', 'data', 'alerts_log.json');
-  const RETENTION_DAYS = 30;
-
-  let logs = [];
+  // Now uses SQLite database instead of alerts_log.json
   try {
-    if (fs.existsSync(logFile)) {
-      logs = JSON.parse(fs.readFileSync(logFile, 'utf8'));
-    }
+    const signalDb = require('./signal-db');
+    signalDb.insertAlert({
+      type: alert.type || 'MONITOR_ALERT',
+      priority: alert.priority || 'MEDIUM',
+      symbol: alert.symbol || null,
+      message: alert.message || JSON.stringify(alert),
+      details: alert
+    });
+    console.log(`[Monitor] Alert logged to database: ${alert.type || 'MONITOR_ALERT'}`);
   } catch (e) {
-    logs = [];
-  }
-
-  logs.push({
-    timestamp: new Date().toISOString(),
-    ...alert
-  });
-
-  // Time-based retention: keep 30 days
-  const cutoffDate = new Date(Date.now() - RETENTION_DAYS * 24 * 60 * 60 * 1000);
-  const hotAlerts = logs.filter(a => new Date(a.timestamp) > cutoffDate);
-  const archiveAlerts = logs.filter(a => new Date(a.timestamp) <= cutoffDate);
-
-  // Save hot alerts
-  fs.writeFileSync(logFile, JSON.stringify(hotAlerts, null, 2));
-
-  // Archive old alerts to monthly files
-  if (archiveAlerts.length > 0) {
-    const archiveMonth = new Date().toISOString().slice(0, 7); // "2026-01"
-    const archivePath = path.join(__dirname, '..', 'data', `alerts_archive_${archiveMonth}.json`);
-
-    let existingArchive = [];
-    try {
-      if (fs.existsSync(archivePath)) {
-        existingArchive = JSON.parse(fs.readFileSync(archivePath, 'utf8'));
-      }
-    } catch (e) {
-      existingArchive = [];
-    }
-
-    existingArchive.push(...archiveAlerts);
-    fs.writeFileSync(archivePath, JSON.stringify(existingArchive, null, 2));
-    console.log(`[Monitor] Archived ${archiveAlerts.length} alerts to ${archivePath}`);
+    console.error(`[Monitor] Failed to log alert to database: ${e.message}`);
   }
 }
 
