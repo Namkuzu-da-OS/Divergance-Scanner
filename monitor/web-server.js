@@ -87,6 +87,50 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // API: Get latest bloodhound scan (replaces dynamic_scan.json)
+    if (req.method === 'GET' && urlPath === '/api/scan/latest') {
+        try {
+            const signalDb = require('./signal-db');
+            const data = signalDb.getLatestBloodhoundScan();
+
+            if (!data) {
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ results: [], marketContext: {} }));
+                return;
+            }
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(data));
+        } catch (e) {
+            console.error('[Web Server] Error loading scan/latest:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
+    // API: Get bloodhound scan summary (replaces scanner.json)
+    if (req.method === 'GET' && urlPath === '/api/scan/summary') {
+        try {
+            const signalDb = require('./signal-db');
+            const data = signalDb.getBloodhoundScanSummary();
+
+            if (!data) {
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ vix: {}, spy: {}, qqq: {}, topOpportunities: [] }));
+                return;
+            }
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(data));
+        } catch (e) {
+            console.error('[Web Server] Error loading scan/summary:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
     // API: Get pre-market data from database
     if (req.method === 'GET' && urlPath === '/api/premarket') {
         try {
@@ -254,9 +298,10 @@ const server = http.createServer((req, res) => {
     // API: Morning Briefing - aggregates all scanner data
     if (req.method === 'GET' && urlPath === '/api/morning-briefing') {
         try {
+            const signalDb = require('./signal-db');
             const dataDir = path.join(ROOT, 'data');
 
-            // Load all data sources
+            // Load JSON data sources (still used for premarket, opportunities, earnings)
             const loadJson = (file) => {
                 try {
                     const content = fs.readFileSync(path.join(dataDir, file), 'utf8');
@@ -267,7 +312,8 @@ const server = http.createServer((req, res) => {
             };
 
             const premarket = loadJson('premarket.json');
-            const dynamicScan = loadJson('dynamic_scan.json');
+            // Get dynamicScan from database instead of JSON
+            const dynamicScan = signalDb.getLatestBloodhoundScan();
             const opportunities = loadJson('opportunities.json');
             const earningsScan = loadJson('earnings-scan.json');
 

@@ -227,6 +227,67 @@ function initSchema() {
         CREATE INDEX IF NOT EXISTS idx_watchlist_enabled ON watchlist(enabled);
         CREATE INDEX IF NOT EXISTS idx_watchlist_source ON watchlist(source);
         CREATE INDEX IF NOT EXISTS idx_gap_ticker_stats_symbol ON gap_ticker_stats(symbol);
+
+        -- Bloodhound scan metadata (replaces scanner.json header)
+        CREATE TABLE IF NOT EXISTS bloodhound_scans (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT NOT NULL,
+            vix REAL,
+            vix_regime TEXT,
+            spy_trend TEXT,
+            spy_price REAL,
+            risk_appetite TEXT,
+            regime TEXT,
+            position_size_modifier REAL,
+            spy_levels_json TEXT,
+            qqq_levels_json TEXT,
+            scan_count INTEGER,
+            tradeable_count INTEGER,
+            alerts_sent INTEGER,
+            watchlist_count INTEGER,
+            sources_json TEXT
+        );
+
+        -- Individual ticker results (replaces dynamic_scan.json results array)
+        CREATE TABLE IF NOT EXISTS bloodhound_results (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            scan_id INTEGER NOT NULL,
+            symbol TEXT NOT NULL,
+            price REAL,
+            zone TEXT,
+            tradeable INTEGER,
+            action TEXT,
+            put_wall REAL,
+            call_wall REAL,
+            max_pain REAL,
+            gamma_flip REAL,
+            vwap REAL,
+            to_put_wall REAL,
+            to_call_wall REAL,
+            position_in_range REAL,
+            rsi REAL,
+            trend TEXT,
+            momentum_5d REAL,
+            momentum_20d REAL,
+            bb_position REAL,
+            volume_signal TEXT,
+            fibonacci_json TEXT,
+            score INTEGER,
+            direction TEXT,
+            tier TEXT,
+            signals_json TEXT,
+            is_watchlist INTEGER,
+            sources_json TEXT,
+            history_label TEXT,
+            consecutive_days INTEGER,
+            history_trend TEXT,
+            reasoning_json TEXT,
+            FOREIGN KEY (scan_id) REFERENCES bloodhound_scans(id)
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_bloodhound_scans_timestamp ON bloodhound_scans(timestamp);
+        CREATE INDEX IF NOT EXISTS idx_bloodhound_results_scan_id ON bloodhound_results(scan_id);
+        CREATE INDEX IF NOT EXISTS idx_bloodhound_results_symbol ON bloodhound_results(symbol);
     `);
 
     // Migration: Add EOD columns to existing premarket_movers table
@@ -1627,6 +1688,338 @@ function getWatchlistStats() {
     };
 }
 
+// ============================================
+// BLOODHOUND SCANNER FUNCTIONS
+// ============================================
+
+/**
+ * Insert a bloodhound scan record (metadata)
+ * Returns the scan_id for linking results
+ */
+function insertBloodhoundScan(scanData) {
+    const stmt = getDb().prepare(`
+        INSERT INTO bloodhound_scans (
+            timestamp, vix, vix_regime, spy_trend, spy_price,
+            risk_appetite, regime, position_size_modifier,
+            spy_levels_json, qqq_levels_json,
+            scan_count, tradeable_count, alerts_sent, watchlist_count,
+            sources_json
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    const result = stmt.run(
+        scanData.timestamp || new Date().toISOString(),
+        scanData.vix,
+        scanData.vixRegime,
+        scanData.spyTrend,
+        scanData.spyPrice,
+        scanData.riskAppetite,
+        scanData.regime,
+        scanData.positionSizeModifier,
+        JSON.stringify(scanData.spyLevels || {}),
+        JSON.stringify(scanData.qqqLevels || {}),
+        scanData.scanCount || 0,
+        scanData.tradeableCount || 0,
+        scanData.alertsSent || 0,
+        scanData.watchlistCount || 0,
+        JSON.stringify(scanData.sources || [])
+    );
+
+    return result.lastInsertRowid;
+}
+
+/**
+ * Insert bloodhound results (batch insert for all tickers)
+ */
+function insertBloodhoundResults(scanId, results) {
+    const stmt = getDb().prepare(`
+        INSERT INTO bloodhound_results (
+            scan_id, symbol, price, zone, tradeable, action,
+            put_wall, call_wall, max_pain, gamma_flip, vwap,
+            to_put_wall, to_call_wall, position_in_range,
+            rsi, trend, momentum_5d, momentum_20d, bb_position, volume_signal,
+            fibonacci_json, score, direction, tier, signals_json,
+            is_watchlist, sources_json,
+            history_label, consecutive_days, history_trend, reasoning_json
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    const insertMany = getDb().transaction((items) => {
+        for (const r of items) {
+            stmt.run(
+                scanId,
+                r.symbol,
+                r.price,
+                r.zone,
+                r.tradeable ? 1 : 0,
+                r.action,
+                r.levels?.putWall,
+                r.levels?.callWall,
+                r.levels?.maxPain,
+                r.levels?.gammaFlip,
+                r.levels?.vwap,
+                r.distances?.toPutWall,
+                r.distances?.toCallWall,
+                r.distances?.positionInRange,
+                r.technicals?.rsi,
+                r.technicals?.trend,
+                r.technicals?.momentum5d,
+                r.technicals?.momentum20d,
+                r.technicals?.bbPosition,
+                r.technicals?.volumeSignal,
+                JSON.stringify(r.fibonacci || null),
+                r.sourceInfo?.score || 0,
+                r.sourceInfo?.direction,
+                r.sourceInfo?.tier,
+                JSON.stringify(r.sourceInfo?.signals || []),
+                r.sourceInfo?.isWatchlist ? 1 : 0,
+                JSON.stringify(r.sourceInfo?.sources || []),
+                r.history_status?.label,
+                r.history_status?.consecutive_days,
+                r.history_status?.trend,
+                JSON.stringify(r.reasoning || [])
+            );
+        }
+    });
+
+    insertMany(results);
+    console.log(`[SignalDB] Inserted ${results.length} bloodhound results for scan ${scanId}`);
+}
+
+/**
+ * Get the most recent bloodhound scan with all results
+ * Returns data in format compatible with dynamic_scan.json
+ */
+function getLatestBloodhoundScan() {
+    const scan = getDb().prepare(`
+        SELECT * FROM bloodhound_scans
+        ORDER BY id DESC
+        LIMIT 1
+    `).get();
+
+    if (!scan) {
+        return null;
+    }
+
+    const results = getDb().prepare(`
+        SELECT * FROM bloodhound_results
+        WHERE scan_id = ?
+        ORDER BY score DESC
+    `).all(scan.id);
+
+    // Transform to dynamic_scan.json format
+    return {
+        timestamp: scan.timestamp,
+        scanType: 'bloodhound',
+        sources: {
+            highConviction: true,
+            trending: false,
+            authorConsensus: false,
+            aiOutlook: true
+        },
+        marketContext: {
+            vix: scan.vix,
+            vixRegime: scan.vix_regime,
+            spyTrend: scan.spy_trend,
+            spyPrice: scan.spy_price,
+            riskAppetite: scan.risk_appetite,
+            regime: scan.regime,
+            positionSizeModifier: scan.position_size_modifier,
+            spyLevels: JSON.parse(scan.spy_levels_json || '{}'),
+            qqqLevels: JSON.parse(scan.qqq_levels_json || '{}')
+        },
+        scanCount: scan.scan_count,
+        tradeableCount: scan.tradeable_count,
+        results: results.map(r => ({
+            symbol: r.symbol,
+            price: r.price,
+            zone: r.zone,
+            tradeable: r.tradeable === 1,
+            action: r.action,
+            reasoning: JSON.parse(r.reasoning_json || '[]'),
+            levels: {
+                putWall: r.put_wall,
+                callWall: r.call_wall,
+                maxPain: r.max_pain,
+                gammaFlip: r.gamma_flip,
+                vwap: r.vwap
+            },
+            distances: {
+                toPutWall: r.to_put_wall,
+                toCallWall: r.to_call_wall,
+                positionInRange: r.position_in_range
+            },
+            technicals: {
+                rsi: r.rsi,
+                trend: r.trend,
+                momentum5d: r.momentum_5d,
+                momentum20d: r.momentum_20d,
+                bbPosition: r.bb_position,
+                volumeSignal: r.volume_signal
+            },
+            fibonacci: JSON.parse(r.fibonacci_json || 'null'),
+            timestamp: scan.timestamp,
+            sourceInfo: {
+                sources: JSON.parse(r.sources_json || '[]'),
+                score: r.score,
+                direction: r.direction,
+                signals: JSON.parse(r.signals_json || '[]'),
+                isWatchlist: r.is_watchlist === 1,
+                tier: r.tier
+            },
+            history_status: r.history_label ? {
+                label: r.history_label,
+                consecutive_days: r.consecutive_days,
+                trend: r.history_trend
+            } : null
+        }))
+    };
+}
+
+/**
+ * Get bloodhound scan summary (for scanner.html - lighter format)
+ * Returns data in format compatible with scanner.json
+ */
+function getBloodhoundScanSummary() {
+    const scan = getDb().prepare(`
+        SELECT * FROM bloodhound_scans
+        ORDER BY id DESC
+        LIMIT 1
+    `).get();
+
+    if (!scan) {
+        return null;
+    }
+
+    // Get top 15 opportunities by score
+    const topOpportunities = getDb().prepare(`
+        SELECT * FROM bloodhound_results
+        WHERE scan_id = ?
+        ORDER BY score DESC
+        LIMIT 15
+    `).all(scan.id);
+
+    // Get SPY and QQQ data
+    const spyResult = getDb().prepare(`
+        SELECT * FROM bloodhound_results
+        WHERE scan_id = ? AND symbol = 'SPY'
+    `).get(scan.id);
+
+    const qqqResult = getDb().prepare(`
+        SELECT * FROM bloodhound_results
+        WHERE scan_id = ? AND symbol = 'QQQ'
+    `).get(scan.id);
+
+    const spyLevels = JSON.parse(scan.spy_levels_json || '{}');
+    const qqqLevels = JSON.parse(scan.qqq_levels_json || '{}');
+
+    return {
+        timestamp: scan.timestamp,
+        vix: {
+            price: scan.vix || 0,
+            regime: scan.vix_regime || 'unknown'
+        },
+        spy: {
+            price: scan.spy_price || 0,
+            change_pct: 0,
+            levels: spyLevels,
+            context: {
+                regime: scan.regime,
+                gamma_regime: spyLevels.gammaRegime || 'unknown',
+                iv_rank: spyLevels.ivRank || 0
+            }
+        },
+        qqq: {
+            price: qqqResult?.price || 0,
+            change_pct: 0,
+            levels: qqqLevels,
+            context: {}
+        },
+        market_context: {
+            vix_regime: scan.vix_regime,
+            spy_trend: scan.spy_trend,
+            risk_appetite: scan.risk_appetite,
+            position_size_modifier: scan.position_size_modifier,
+            bias: 'NEUTRAL',
+            swing_bias: 'NEUTRAL',
+            gamma_regime: spyLevels.gammaRegime || 'unknown',
+            iv_rank: spyLevels.ivRank || 0
+        },
+        discovery: {
+            themes: [],
+            intradayBias: 'NEUTRAL',
+            swingBias: 'NEUTRAL',
+            sourcesUsed: JSON.parse(scan.sources_json || '[]')
+        },
+        symbolsScanned: scan.scan_count,
+        topOpportunities: topOpportunities.map(r => ({
+            symbol: r.symbol,
+            score: r.score,
+            direction: r.direction,
+            tier: r.tier,
+            signals: JSON.parse(r.signals_json || '[]'),
+            atWall: r.to_put_wall !== null && Math.abs(r.to_put_wall) < 0.5 ||
+                    r.to_call_wall !== null && Math.abs(r.to_call_wall) < 0.5,
+            wallActivity: null,
+            sources: JSON.parse(r.sources_json || '[]'),
+            history_status: r.history_label ? {
+                label: r.history_label,
+                consecutive_days: r.consecutive_days,
+                trend: r.history_trend
+            } : null
+        })),
+        alertsSent: scan.alerts_sent,
+        watchListCount: scan.watchlist_count
+    };
+}
+
+/**
+ * Delete bloodhound scans older than N days
+ */
+function cleanupOldBloodhoundScans(daysToKeep = 7) {
+    const cutoff = new Date(Date.now() - daysToKeep * 24 * 60 * 60 * 1000).toISOString();
+
+    // Delete results first (foreign key)
+    const resultsDeleted = getDb().prepare(`
+        DELETE FROM bloodhound_results
+        WHERE scan_id IN (
+            SELECT id FROM bloodhound_scans WHERE timestamp < ?
+        )
+    `).run(cutoff);
+
+    // Delete scans
+    const scansDeleted = getDb().prepare(`
+        DELETE FROM bloodhound_scans WHERE timestamp < ?
+    `).run(cutoff);
+
+    if (scansDeleted.changes > 0) {
+        console.log(`[SignalDB] Cleaned up ${scansDeleted.changes} old bloodhound scans (${resultsDeleted.changes} results)`);
+    }
+
+    return { scansDeleted: scansDeleted.changes, resultsDeleted: resultsDeleted.changes };
+}
+
+/**
+ * Get bloodhound scan history (for analytics)
+ */
+function getBloodhoundScanHistory(limit = 100) {
+    return getDb().prepare(`
+        SELECT
+            id,
+            timestamp,
+            vix,
+            vix_regime,
+            spy_trend,
+            spy_price,
+            scan_count,
+            tradeable_count,
+            alerts_sent
+        FROM bloodhound_scans
+        ORDER BY id DESC
+        LIMIT ?
+    `).all(limit);
+}
+
 module.exports = {
     getDb,
     insertSignal,
@@ -1675,5 +2068,12 @@ module.exports = {
     updateWatchlistScanned,
     cleanExpiredWatchlist,
     migrateWatchlistFromJson,
-    getWatchlistStats
+    getWatchlistStats,
+    // Bloodhound scanner functions
+    insertBloodhoundScan,
+    insertBloodhoundResults,
+    getLatestBloodhoundScan,
+    getBloodhoundScanSummary,
+    cleanupOldBloodhoundScans,
+    getBloodhoundScanHistory
 };

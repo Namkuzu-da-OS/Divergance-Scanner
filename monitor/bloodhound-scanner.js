@@ -2564,12 +2564,7 @@ async function runScan() {
         watchListCount: watchList.length
     };
 
-    fs.writeFileSync(
-        path.join(__dirname, '..', 'data', 'scanner.json'),
-        JSON.stringify(output, null, 2)
-    );
-
-    // 8. Write to dynamic_scan.json (format compatible with zone-scanner.html)
+    // 8. Write to database (replaces scanner.json, dynamic_scan.json, bloodhound.json)
     const tradeableResults = analyses.filter(a => a.tradeable);
 
     // Build reasoning array based on zone and signals
@@ -2611,16 +2606,11 @@ async function runScan() {
         return reasons;
     };
 
-    const dynamicOutput = {
-        timestamp: new Date().toISOString(),
-        scanType: 'bloodhound',
-        sources: {
-            highConviction: true,
-            trending: false,  // X/Twitter trending disabled - purely technical scanner
-            authorConsensus: false,  // Author consensus disabled
-            aiOutlook: true
-        },
-        marketContext: {
+    // Insert scan metadata to database
+    const scanTimestamp = new Date().toISOString();
+    try {
+        const scanId = signalDb.insertBloodhoundScan({
+            timestamp: scanTimestamp,
             vix: marketContext?.vix || 0,
             vixRegime: marketContext?.vixRegime || 'unknown',
             spyTrend: marketContext?.spyTrend || 'unknown',
@@ -2629,11 +2619,16 @@ async function runScan() {
             regime: marketContext?.regime || 'unknown',
             positionSizeModifier: marketContext?.positionSizeModifier || 1,
             spyLevels: marketContext?.spyLevels || {},
-            qqqLevels: marketContext?.qqqLevels || {}
-        },
-        scanCount: analyses.length,
-        tradeableCount: tradeableResults.length,
-        results: analyses.map(a => ({
+            qqqLevels: marketContext?.qqqLevels || {},
+            scanCount: analyses.length,
+            tradeableCount: tradeableResults.length,
+            alertsSent: highConviction.length,
+            watchlistCount: watchList.length,
+            sources: ['watchlist', 'ai_outlook', 'market_data', 'sector_rotation']
+        });
+
+        // Insert individual ticker results
+        const resultsForDb = analyses.map(a => ({
             symbol: a.symbol,
             price: a.price,
             zone: a.zone,
@@ -2661,51 +2656,32 @@ async function runScan() {
                 swingLow: a.fibonacci.swingLow,
                 atLevel: a.fibonacci.atLevel,
                 maConfluence: a.fibonacci.maConfluence,
-                // Key retracement levels
                 goldenPocket: a.fibonacci.retracements?.[0.618],
                 fib50: a.fibonacci.retracements?.[0.5],
                 fib382: a.fibonacci.retracements?.[0.382],
-                // Key extension levels
                 ext1272: a.fibonacci.extensions?.[1.272],
                 ext1618: a.fibonacci.extensions?.[1.618]
             } : null,
-            timestamp: new Date().toISOString(),
             sourceInfo: {
                 sources: symbols.find(s => s.symbol === a.symbol)?.sources || ['watchlist'],
                 score: a.totalScore,
                 direction: a.direction,
                 signals: a.signals,
-                isWatchlist: symbols.find(s => s.symbol === a.symbol)?.sources?.includes('watchlist') || false
+                isWatchlist: symbols.find(s => s.symbol === a.symbol)?.sources?.includes('watchlist') || false,
+                tier: a.tier
             },
             history_status: computeHistoryStatus(a.symbol)
-        }))
-    };
+        }));
 
-    fs.writeFileSync(
-        path.join(__dirname, '..', 'data', 'dynamic_scan.json'),
-        JSON.stringify(dynamicOutput, null, 2)
-    );
+        signalDb.insertBloodhoundResults(scanId, resultsForDb);
 
-    // Also write bloodhound.json for backward compatibility
-    fs.writeFileSync(
-        path.join(__dirname, '..', 'data', 'bloodhound.json'),
-        JSON.stringify({
-            timestamp: new Date().toISOString(),
-            marketContext: dynamicOutput.marketContext,
-            symbolsScanned: analyses.length,
-            topOpportunities: tieredAnalyses.slice(0, 15).map(a => ({
-                symbol: a.symbol,
-                score: a.totalScore,
-                direction: a.direction,
-                tier: a.tier,
-                signals: a.signals,
-                atWall: a.atWall,
-                wallActivity: a.wallActivity
-            })),
-            alertsSent: highConviction.length,
-            watchListCount: watchList.length
-        }, null, 2)
-    );
+        // Cleanup old scans (keep 7 days)
+        signalDb.cleanupOldBloodhoundScans(7);
+
+        console.log(`[Bloodhound] Wrote ${analyses.length} results to database (scan_id: ${scanId})`);
+    } catch (e) {
+        console.error('[Bloodhound] Database write error:', e.message);
+    }
 
     // Update scanner state
     scannerState.isScanning = false;

@@ -35,14 +35,22 @@ docs/RULES.md → data/ACTIVE_SESSION.md → data/positions.json
 
 When reviewing Bloodhound scanner data OR the Zone Scanner dashboard, follow this process EXACTLY:
 
-### Step 1: USE SUBAGENT FOR SCANNER DATA (Context Efficiency)
+### Step 1: USE API FOR SCANNER DATA (Context Efficiency)
 
-**DO NOT read dynamic_scan.json directly** - it's 1200+ lines and burns context.
+**Use the API endpoint** - scanner data is now stored in SQLite database.
 
-Instead, spawn an Explore agent:
+```bash
+# Get full scanner data (same format as old dynamic_scan.json)
+curl http://localhost:8080/api/scan/latest
+
+# Get summary format (same format as old scanner.json)
+curl http://localhost:8080/api/scan/summary
+```
+
+For context efficiency, spawn an Explore agent:
 ```
 Task tool with subagent_type=Explore:
-"Read data/dynamic_scan.json and return a compact summary:
+"Fetch http://localhost:8080/api/scan/latest and return a compact summary:
 1. Total ticker count
 2. ALL symbols listed (e.g., SPY, QQQ, NVDA...)
 3. Tradeable setups with zone and action
@@ -50,7 +58,7 @@ Task tool with subagent_type=Explore:
 Format as a table. Miss no tickers."
 ```
 
-The agent reads the big file in its own context and returns only the summary.
+The agent fetches the API in its own context and returns only the summary.
 
 ### Step 2: VERIFY THE COUNT
 - Agent should report exact ticker count (usually 20)
@@ -72,7 +80,7 @@ Show EVERY ticker from the agent's summary:
 - NEVER skip the "show all" step
 
 ### FAILURES TO AVOID
-- DO NOT read dynamic_scan.json directly (use subagent)
+- DO NOT read the raw database directly (use API or subagent)
 - DO NOT skip low-score tickers
 - DO NOT assume "they probably don't care about that one"
 - If user shows a screenshot, enumerate FROM THE SCREENSHOT first
@@ -104,8 +112,8 @@ If the validator shows ❌ FAIL, I missed tickers and must correct immediately.
 
 | Task | Use Subagent? | Why |
 |------|---------------|-----|
-| Scanner review | YES | dynamic_scan.json is 1200+ lines |
-| Signal tracking check | YES | Read file + call APIs + compare |
+| Scanner review | YES | API response can be large (20+ tickers) |
+| Signal tracking check | YES | Query DB + call APIs + compare |
 | Deep ticker analysis | YES | Multiple API calls, lots of data |
 | Quick price check | NO | Single API call, small response |
 | File edits | NO | Need direct access |
@@ -115,14 +123,14 @@ If the validator shows ❌ FAIL, I missed tickers and must correct immediately.
 **Scanner Summary:**
 ```
 subagent_type=Explore
-"Read data/dynamic_scan.json. Return: ticker count, all symbols,
+"Fetch http://localhost:8080/api/scan/latest. Return: ticker count, all symbols,
 tradeable setups table, market context. Be complete, be compact."
 ```
 
 **Signal Tracking Check:**
 ```
 subagent_type=general-purpose
-"Read data/signal_tracking.json for entry prices.
+"Query signals from SQLite database (opportunity_history.db).
 Call /api/technicals/{symbol} for current prices.
 Compare and return: Symbol | Entry | Current | Change% | Grade | Outcome"
 ```
@@ -192,7 +200,8 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
          │              │  - High conviction signals           │
          ▼              └──────────────────────────────────────┘
 ┌─────────────────┐
-│  scanner.json   │────► Scanner Dashboard (scanner.html)
+│  SQLite DB      │────► Scanner Dashboard (via /api/scan/*)
+│  (bloodhound_*) │
 └─────────────────┘
 ```
 
@@ -221,19 +230,19 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 ### Data Files
 | File | Purpose | Update Trigger |
 |------|---------|----------------|
-| `data/bloodhound.json` | **Bloodhound scan results** | Every 2 min scan |
+| `data/opportunity_history.db` | **SQLite database** - Bloodhound scans, signals, checkpoints, scanner history, premarket, watchlist, gap_ticker_stats | Every scan |
 | `data/watchlist.json` | Symbols to always scan (legacy, now backed by SQLite) | Manual or auto-add |
-| `data/dynamic_scan.json` | Full technical data for dashboard | Every scan |
 | `data/positions.json` | Open trades | Position change |
 | `data/trades_journal.json` | Trade history | Trade closes |
 | `data/account_summary.json` | P&L metrics | EOD |
-| `data/scanner.json` | Live market data | Every 2 min (bloodhound) |
 | `data/premarket.json` | Pre-market gaps and movers | Every 5 min (6-9:30 AM ET) |
-| `data/opportunity_history.db` | **SQLite database** - Signals, checkpoints, scanner history, premarket, **watchlist**, **gap_ticker_stats** | Every scan |
 | `data/ACTIVE_SESSION.md` | Session state | Hourly |
 | `data/daily_log.md` | Today's journal | Throughout day |
 
 **Deprecated files (archived in data/archive/):**
+- `scanner.json` - Replaced by SQLite bloodhound_scans table + API `/api/scan/summary`
+- `dynamic_scan.json` - Replaced by SQLite bloodhound_results table + API `/api/scan/latest`
+- `bloodhound.json` - Replaced by SQLite bloodhound_scans table
 - `signal_log.json` - Replaced by SQLite signals table
 - `scanner_history.json` - Replaced by SQLite scanner_history table
 - `signal_tracking.json` - Replaced by signals table
@@ -401,14 +410,19 @@ The tradeable decision uses both wall proximity AND confluence score:
 - SELL action + bearish/neutral trend = aligned
 - SELL action + bullish trend = counter-trend → WATCH tier
 
-### Output Files
+### Output (Database + API)
 
-| File | Content |
-|------|---------|
-| `data/bloodhound.json` | Latest scan results with all opportunities |
-| `data/dynamic_scan.json` | Full technical data for dashboard |
+| Storage | Content |
+|---------|---------|
+| `bloodhound_scans` table | Scan metadata (market context, VIX, counts) |
+| `bloodhound_results` table | Individual ticker results with all data |
 | `data/watchlist.json` | Legacy watchlist (now backed by SQLite) |
-| `data/opportunity_history.db` | SQLite database with signals, checkpoints, scanner history, watchlist, gap_ticker_stats |
+
+**API Endpoints:**
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /api/scan/latest` | Full scan data (replaces dynamic_scan.json) |
+| `GET /api/scan/summary` | Summary format (replaces scanner.json) |
 
 ### Signal Validation System (Database-Backed)
 
@@ -787,7 +801,7 @@ End of day      → account_summary.json + archive
 - Filtering by zone type (tradeable, buy zones, sell zones, etc.)
 - Click any ticker for detailed modal view
 
-Auto-refreshes every 30 seconds from `data/dynamic_scan.json`.
+Auto-refreshes every 30 seconds from `/api/scan/latest`.
 
 ### Legacy Dashboard
 
@@ -807,7 +821,7 @@ Shows:
 - High conviction signals
 - Recent alerts
 
-Auto-refreshes every 30 seconds from `data/scanner.json`.
+Auto-refreshes every 30 seconds from `/api/scan/summary`.
 
 ### Analytics Dashboard
 
