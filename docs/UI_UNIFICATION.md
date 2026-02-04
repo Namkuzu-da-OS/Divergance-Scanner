@@ -55,6 +55,28 @@ For opportunity-scanner.html and earnings-scanner.html:
 | scanner.html | WINGMAN MARKET SCANNER | MARKET SCANNER |
 | analytics.html | Signal Analytics | ANALYTICS |
 
+### 6. Session Gaps Table Consolidation (premarket.html)
+
+Combined two redundant sections into one unified table:
+
+**Before:**
+- "Pre-Market Movers" section (from JSON, latest scan only)
+- "Session Watchlist" section (from database, all day's discoveries)
+
+**After:**
+- Single "Session Gaps" table with all columns:
+  - Symbol, Gap%, Prev Close, Pre-Mkt Price, Type, Score, Tier, Volume, Catalyst, First Seen
+
+**Technical Changes:**
+- Updated `getSessionWatchlist()` in signal-db.js to return all needed columns
+- Uses subquery to join aggregated stats with latest row per symbol
+- UI reads directly from database instead of JSON lookup
+- Removed dead code (`updateMoversTable`, `moverLookup`)
+
+**Catalyst Detection:**
+- Currently detects earnings only (earnings_bmo, earnings_amc)
+- Symbols without catalyst = gapping for unknown reason (sympathy, macro, etc.)
+
 ## Files Changed
 
 ### Modified HTML Files
@@ -66,6 +88,9 @@ For opportunity-scanner.html and earnings-scanner.html:
 - scanner.html
 - analytics.html
 - strategies.html
+
+### Modified JS Files
+- monitor/signal-db.js - Updated getSessionWatchlist() query
 
 ### New Files
 - css/nav.css - Shared navigation styles
@@ -90,8 +115,27 @@ Edit css/nav.css:
 
 The nav.css file is loaded AFTER inline styles in each HTML file to ensure it takes precedence. The link tag appears right before the closing head tag.
 
+## Rollback Instructions
+
+If needed, revert these commits:
+```bash
+# View recent commits
+git log --oneline -10
+
+# Revert specific commit (creates new commit)
+git revert <commit-hash>
+
+# Or reset to before changes (destructive)
+git reset --hard <commit-hash-before-changes>
+```
+
+Key commits:
+- `28f617b` - Fix Session Gaps table to use database data directly
+- `207c402` - UI unification changes (check git log for exact hash)
+
 ## Future Improvements
 
 - [ ] Consider moving more shared styles to external CSS
 - [ ] Add mobile hamburger menu for very small screens
-- [ ] Possibly adjust centering for perfect visual balance
+- [ ] Add news detection for catalyst field
+- [ ] Add "sympathy" detection (related ticker has earnings)
