@@ -519,6 +519,33 @@ These ETFs aren't in S&P 500/NASDAQ indices but have high options activity:
 
 **To revert:** Remove `ETF_CATEGORIES` constant and SOURCE 6 in `discoverSymbols()` function in `monitor/opportunity-scanner.js`.
 
+### Swing Trading Filter (Added 2026-02-04)
+
+The scanner filters unusual options activity to focus on swing trading timeframes:
+
+| Setting | Value | Purpose |
+|---------|-------|---------|
+| `strike_count` | 100 | Request 100 strikes above/below ATM (catches spread legs) |
+| `MAX_DTE` | 60 | Only show options expiring within 60 days (exclude LEAPs) |
+
+**Why this matters:**
+- Default `strike_count=20` missed far OTM spread legs (e.g., $160C on HOOD spread)
+- LEAPs (6+ month expirations) are institutional positioning, not swing trades
+- This filter focuses alerts on tradeable timeframes: weeklies, monthlies, quarterlies
+
+**To adjust DTE window:**
+```javascript
+// In monitor/opportunity-scanner.js SETTINGS object:
+MAX_DTE: 60  // Change to 30 for weeklies only, 90 for longer swings
+```
+
+**To revert to original behavior:**
+```javascript
+// In fetchOptionsAnalysis(), change:
+strike_count=100  →  strike_count=20
+// And remove the filterByDTE logic
+```
+
 ### SQLite Historical Data
 
 Every scan saves to `data/opportunity_history.db` for future analysis:
