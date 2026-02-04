@@ -19,6 +19,8 @@
             padding: 20px;
         }
 
+        .container { max-width: 1600px; margin: 0 auto; }
+
         .header {
             display: flex;
             justify-content: space-between;
@@ -65,16 +67,6 @@
             50% { opacity: 0.5; }
         }
 
-        .last-update {
-            font-size: 0.85rem;
-            color: #8b92a8;
-        }
-
-        .controls {
-            display: flex;
-            gap: 10px;
-        }
-
         .control-btn {
             padding: 8px 16px;
             border: 1px solid #2a3641;
@@ -95,55 +87,68 @@
             background: #00d4aa;
             color: #0a0e1a;
         }
-
-        /* Navigation Links */
-        .nav-links {
-            display: flex;
-            gap: 8px;
-            margin-left: 20px;
-            align-items: center;
+        /* Status Indicator with Popup */
+        .status-indicator {
+            position: relative;
         }
 
-        .nav-link {
-            padding: 8px 14px;
-            border: 1px solid #2a3641;
-            background: transparent;
-            color: #8b92a8;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-
-        .nav-link:hover { border-color: #00d4aa; color: #00d4aa; }
-        .nav-link.active { border-color: #00d4aa; color: #00d4aa; background: rgba(0, 212, 170, 0.1); }
-        .nav-link.morning { border-color: #f59e0b; color: #f59e0b; }
-        .nav-link.morning:hover, .nav-link.morning.active { background: rgba(245, 158, 11, 0.1); }
-        .nav-link.premarket { border-color: #f59e0b; color: #f59e0b; }
-        .nav-link.premarket:hover, .nav-link.premarket.active { background: rgba(245, 158, 11, 0.1); }
-        .nav-link.earnings { border-color: #f59e0b; color: #f59e0b; }
-        .nav-link.earnings:hover, .nav-link.earnings.active { background: rgba(245, 158, 11, 0.1); }
-        .nav-link.opportunity { border-color: #3b82f6; color: #3b82f6; }
-        .nav-link.opportunity:hover, .nav-link.opportunity.active { background: rgba(59, 130, 246, 0.1); }
-
-        .nav-dropdown { position: relative; }
-        .nav-dropdown-toggle {
-            padding: 8px 14px;
-            border: 1px solid #2a3641;
-            background: transparent;
-            color: #8b92a8;
-            border-radius: 6px;
-            font-size: 0.8rem;
+        .status-dot {
             cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
-        .nav-dropdown-toggle:hover { border-color: #00d4aa; color: #00d4aa; }
-        .nav-dropdown-toggle.has-active { border-color: #00d4aa; color: #00d4aa; }
-        .nav-dropdown-toggle::after { content: '▾'; font-size: 10px; }
-        .nav-dropdown-menu {
+
+        .status-popup {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 12px 16px;
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px);
+            transition: all 0.2s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .status-popup.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .status-popup-content {
+            color: #e5e7eb;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* Controls Dropdown */
+        .controls-dropdown {
+            position: relative;
+        }
+
+        .controls-toggle {
+            background: transparent;
+            border: 1px solid #2a3641;
+            color: #8b92a8;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .controls-toggle:hover {
+            border-color: #00d4aa;
+            color: #00d4aa;
+        }
+
+        .controls-menu {
             position: absolute;
             top: 100%;
             right: 0;
@@ -151,27 +156,44 @@
             background: #151821;
             border: 1px solid #2a3641;
             border-radius: 6px;
-            min-width: 140px;
+            overflow: hidden;
             opacity: 0;
             visibility: hidden;
             transform: translateY(-8px);
-            transition: all 0.2s;
-            z-index: 100;
+            transition: all 0.2s ease;
+            z-index: 1000;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
-        .nav-dropdown:hover .nav-dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
-        .nav-dropdown-menu a {
-            display: block;
-            padding: 10px 14px;
-            color: #8b92a8;
-            text-decoration: none;
-            font-size: 0.8rem;
-            transition: all 0.2s;
+
+        .controls-menu.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
         }
-        .nav-dropdown-menu a:hover { background: rgba(0, 212, 170, 0.1); color: #00d4aa; }
-        .nav-dropdown-menu a.active { color: #00d4aa; background: rgba(0, 212, 170, 0.1); }
-        .nav-dropdown-menu a:first-child { border-radius: 6px 6px 0 0; }
-        .nav-dropdown-menu a:last-child { border-radius: 0 0 6px 6px; }
+
+        .controls-menu button {
+            display: block;
+            width: 100%;
+            padding: 10px 16px;
+            background: transparent;
+            border: none;
+            color: #8b92a8;
+            font-size: 12px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .controls-menu button:hover {
+            background: rgba(0, 212, 170, 0.1);
+            color: #00d4aa;
+        }
+
+        .controls-menu button:not(:last-child) {
+            border-bottom: 1px solid #2a3641;
+        }
+
+
 
         /* Market Context Banner */
         .market-context {
@@ -823,20 +845,21 @@
             gap: 10px;
         }
     </style>
+    <link rel="stylesheet" href="css/nav.css">
 </head>
 <body>
+    <div class="container">
     <div class="header">
-        <div style="display: flex; align-items: center;">
-            <h1>
-                <span>📊</span>
-                OPTIONS FLOW SCANNER
-            </h1>
+        <div class="header-left">
+            <h1>OPTIONS SCANNER</h1>
+        </div>
+        <div class="header-center">
             <nav class="nav-links">
-                <a href="morning.html" class="nav-link morning">MORNING</a>
+                <a href="morning.html" class="nav-link">MORNING</a>
                 <a href="zone-scanner.html" class="nav-link">ZONES</a>
-                <a href="premarket.html" class="nav-link premarket">GAPS</a>
-                <a href="earnings-scanner.html" class="nav-link earnings">EARNINGS</a>
-                <a href="opportunity-scanner.html" class="nav-link opportunity active">FLOW</a>
+                <a href="premarket.html" class="nav-link">GAPS</a>
+                <a href="earnings-scanner.html" class="nav-link">EARNINGS</a>
+                <a href="opportunity-scanner.html" class="nav-link active">FLOW</a>
                 <a href="scanner.html" class="nav-link">MARKET</a>
                 <div class="nav-dropdown">
                     <div class="nav-dropdown-toggle">INSIGHTS</div>
@@ -847,13 +870,19 @@
                 </div>
             </nav>
         </div>
-        <div class="status-section">
-            <div class="status-dot" id="status-dot"></div>
-            <span class="last-update" id="last-update">Loading...</span>
-            <div class="controls">
-                <button class="control-btn" id="pause-btn" onclick="togglePause()">PAUSE</button>
-                <button class="control-btn" onclick="manualScan()">SCAN NOW</button>
-                <button class="control-btn" onclick="loadData()">REFRESH</button>
+        <div class="header-right">
+            <div class="status-indicator">
+                <div class="status-dot" id="status-dot" onclick="toggleStatusPopup()"></div>
+                <div class="status-popup" id="status-popup">
+                    <div class="status-popup-content" id="status-popup-content">Loading...</div>
+                </div>
+            </div>
+            <div class="controls-dropdown">
+                <button class="controls-toggle" onclick="toggleControlsMenu()">⚙</button>
+                <div class="controls-menu" id="controls-menu">
+                    <button onclick="togglePause()" id="pause-btn">PAUSE</button>
+                    <button onclick="manualScan()">SCAN NOW</button>
+                </div>
             </div>
         </div>
     </div>
@@ -933,6 +962,31 @@
         let currentData = null;
         let currentFilter = 'all';
         let scannerStatus = null;
+        // Toggle status popup
+        function toggleStatusPopup() {
+            const popup = document.getElementById('status-popup');
+            const controlsMenu = document.getElementById('controls-menu');
+            controlsMenu.classList.remove('visible');
+            popup.classList.toggle('visible');
+        }
+
+        // Toggle controls menu
+        function toggleControlsMenu() {
+            const menu = document.getElementById('controls-menu');
+            const popup = document.getElementById('status-popup');
+            popup.classList.remove('visible');
+            menu.classList.toggle('visible');
+        }
+
+        // Close popups when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.status-indicator') && !e.target.closest('.controls-dropdown')) {
+                document.getElementById('status-popup').classList.remove('visible');
+                document.getElementById('controls-menu').classList.remove('visible');
+            }
+        });
+
+
 
         // Format numbers
         function formatNumber(num, decimals = 2) {
@@ -1057,15 +1111,17 @@
             // Update last update time with full date
             const dateStr = timestamp.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
             const timeStr = timestamp.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-            const updateEl = document.getElementById('last-update');
+            const popupContent = document.getElementById("status-popup-content");
+            const dot = document.getElementById("status-dot");
 
             if (staleCheck.stale) {
-                updateEl.innerHTML = `<span style="color: #ff6b6b;">⚠️ STALE: ${dateStr} ${timeStr} (${staleCheck.age})</span>`;
-                document.getElementById('status-dot').className = 'status-dot error';
+                popupContent.innerHTML = `<strong style="color: #ff6b6b;">⚠️ STALE</strong><br>${dateStr} ${timeStr}<br><span style="color: #8b92a8;">${staleCheck.age}</span>`;
+                dot.className = "status-dot error";
                 showStaleState(staleCheck);
-                return; // Don't render stale data
+                return;
             } else {
-                updateEl.textContent = `Updated: ${dateStr} ${timeStr}`;
+                popupContent.innerHTML = `<strong style="color: #00d4aa;">✓ Live</strong><br>Updated: ${timeStr}`;
+                dot.className = "status-dot";
             }
 
             // Check if scanner is starting up (no market context yet)
@@ -1517,6 +1573,7 @@ GET  http://localhost:8083/status      # Scanner status
                 </pre>
             </div>
         </div>
+    </div>
     </div>
 </body>
 </html>

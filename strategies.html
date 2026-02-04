@@ -16,7 +16,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        .container { max-width: 1400px; margin: 0 auto; }
+        .container { max-width: 1600px; margin: 0 auto; }
 
         .header {
             display: flex;
@@ -39,86 +39,7 @@
             gap: 16px;
         }
 
-        /* Navigation Links */
-        .nav-links {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .nav-link {
-            padding: 8px 14px;
-            border: 1px solid #2a3641;
-            background: transparent;
-            color: #8b92a8;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 500;
-            text-decoration: none;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-
-        .nav-link:hover { border-color: #00d4aa; color: #00d4aa; }
-        .nav-link.active { border-color: #00d4aa; color: #00d4aa; background: rgba(0, 212, 170, 0.1); }
-        .nav-link.morning { border-color: #f59e0b; color: #f59e0b; }
-        .nav-link.morning:hover, .nav-link.morning.active { background: rgba(245, 158, 11, 0.1); }
-        .nav-link.premarket { border-color: #f59e0b; color: #f59e0b; }
-        .nav-link.premarket:hover, .nav-link.premarket.active { background: rgba(245, 158, 11, 0.1); }
-        .nav-link.earnings { border-color: #f59e0b; color: #f59e0b; }
-        .nav-link.earnings:hover, .nav-link.earnings.active { background: rgba(245, 158, 11, 0.1); }
-        .nav-link.opportunity { border-color: #3b82f6; color: #3b82f6; }
-        .nav-link.opportunity:hover, .nav-link.opportunity.active { background: rgba(59, 130, 246, 0.1); }
-
-        .nav-dropdown { position: relative; }
-        .nav-dropdown-toggle {
-            padding: 8px 14px;
-            border: 1px solid #2a3641;
-            background: transparent;
-            color: #8b92a8;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .nav-dropdown-toggle:hover { border-color: #00d4aa; color: #00d4aa; }
-        .nav-dropdown-toggle.has-active { border-color: #00d4aa; color: #00d4aa; }
-        .nav-dropdown-toggle::after { content: '▾'; font-size: 10px; }
-        .nav-dropdown-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            margin-top: 4px;
-            background: #151821;
-            border: 1px solid #2a3641;
-            border-radius: 6px;
-            min-width: 140px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-8px);
-            transition: all 0.2s;
-            z-index: 100;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-        .nav-dropdown:hover .nav-dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
-        .nav-dropdown-menu a {
-            display: block;
-            padding: 10px 14px;
-            color: #8b92a8;
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-        .nav-dropdown-menu a:hover { background: rgba(0, 212, 170, 0.1); color: #00d4aa; }
-        .nav-dropdown-menu a.active { color: #00d4aa; background: rgba(0, 212, 170, 0.1); }
-        .nav-dropdown-menu a:first-child { border-radius: 6px 6px 0 0; }
-        .nav-dropdown-menu a:last-child { border-radius: 0 0 6px 6px; }
+        
 
         /* Strategy Cards */
         .strategies-grid {
@@ -457,27 +378,32 @@
             margin: 32px 0;
         }
     </style>
+    <link rel="stylesheet" href="css/nav.css">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>STRATEGIES</h1>
-            <div class="header-controls">
-                <div class="nav-links">
-                    <a href="morning.html" class="nav-link morning">MORNING</a>
+            <div class="header-left">
+                <h1>STRATEGIES</h1>
+            </div>
+            <div class="header-center">
+                <nav class="nav-links">
+                    <a href="morning.html" class="nav-link">MORNING</a>
                     <a href="zone-scanner.html" class="nav-link">ZONES</a>
-                    <a href="premarket.html" class="nav-link premarket">GAPS</a>
-                    <a href="earnings-scanner.html" class="nav-link earnings">EARNINGS</a>
-                    <a href="opportunity-scanner.html" class="nav-link opportunity">FLOW</a>
+                    <a href="premarket.html" class="nav-link">GAPS</a>
+                    <a href="earnings-scanner.html" class="nav-link">EARNINGS</a>
+                    <a href="opportunity-scanner.html" class="nav-link">FLOW</a>
                     <a href="scanner.html" class="nav-link">MARKET</a>
                     <div class="nav-dropdown">
-                        <div class="nav-dropdown-toggle has-active">INSIGHTS</div>
+                        <div class="nav-dropdown-toggle active">INSIGHTS</div>
                         <div class="nav-dropdown-menu">
                             <a href="analytics.html">Analytics</a>
                             <a href="strategies.html" class="active">Strategies</a>
                         </div>
                     </div>
-                </div>
+                </nav>
+            </div>
+            <div class="header-right">
             </div>
         </div>
 

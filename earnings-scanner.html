@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Earnings Season Scanner</title>
+    <title>Earnings Scanner</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -16,7 +16,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        .container { max-width: 1400px; margin: 0 auto; }
+        .container { max-width: 1600px; margin: 0 auto; }
 
         .header {
             display: flex;
@@ -39,18 +39,29 @@
             gap: 16px;
         }
 
+        .status-indicator {
+            position: relative;
+        }
+
         .status-dot {
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
-            background: #f59e0b;
-            box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+            background: #00d4aa;
+            box-shadow: 0 0 8px rgba(0, 212, 170, 0.4);
             animation: pulse 2s infinite;
+            cursor: pointer;
         }
 
         .status-dot.paused {
-            background: #ef4444;
-            box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+            background: #ffc107;
+            box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
+            animation: none;
+        }
+
+        .status-dot.error {
+            background: #ff6b6b;
+            box-shadow: 0 0 8px rgba(255, 107, 107, 0.4);
             animation: none;
         }
 
@@ -59,7 +70,101 @@
             50% { opacity: 0.5; }
         }
 
-        .last-update { color: #8b92a8; font-size: 12px; }
+        .status-popup {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 8px;
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 12px 16px;
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px);
+            transition: all 0.2s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .status-popup.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .status-popup-content {
+            color: #e5e7eb;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .controls-dropdown {
+            position: relative;
+        }
+
+        .controls-toggle {
+            background: transparent;
+            border: 1px solid #2a3641;
+            color: #8b92a8;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .controls-toggle:hover {
+            border-color: #00d4aa;
+            color: #00d4aa;
+        }
+
+        .controls-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 4px;
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 6px;
+            overflow: hidden;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px);
+            transition: all 0.2s ease;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls-menu.visible {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .controls-menu button {
+            display: block;
+            width: 100%;
+            padding: 10px 16px;
+            background: transparent;
+            border: none;
+            color: #8b92a8;
+            font-size: 12px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .controls-menu button:hover {
+            background: rgba(0, 212, 170, 0.1);
+            color: #00d4aa;
+        }
+
+        .controls-menu button:not(:last-child) {
+            border-bottom: 1px solid #2a3641;
+        }
 
         .btn {
             background: transparent;
@@ -113,84 +218,7 @@
         }
 
         /* Navigation Links */
-        .nav-links {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .nav-link {
-            padding: 8px 14px;
-            border: 1px solid #2a3641;
-            background: transparent;
-            color: #8b92a8;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 500;
-            text-decoration: none;
-            transition: all 0.2s;
-            white-space: nowrap;
-        }
-
-        .nav-link:hover { border-color: #00d4aa; color: #00d4aa; }
-        .nav-link.active { border-color: #f59e0b; color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
-        .nav-link.morning { border-color: #f59e0b; color: #f59e0b; }
-        .nav-link.morning:hover, .nav-link.morning.active { background: rgba(245, 158, 11, 0.1); }
-        .nav-link.premarket { border-color: #f59e0b; color: #f59e0b; }
-        .nav-link.premarket:hover, .nav-link.premarket.active { background: rgba(245, 158, 11, 0.1); }
-        .nav-link.earnings { border-color: #f59e0b; color: #f59e0b; }
-        .nav-link.earnings:hover, .nav-link.earnings.active { background: rgba(245, 158, 11, 0.1); }
-        .nav-link.opportunity { border-color: #3b82f6; color: #3b82f6; }
-        .nav-link.opportunity:hover, .nav-link.opportunity.active { background: rgba(59, 130, 246, 0.1); }
-
-        .nav-dropdown { position: relative; }
-        .nav-dropdown-toggle {
-            padding: 8px 14px;
-            border: 1px solid #2a3641;
-            background: transparent;
-            color: #8b92a8;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .nav-dropdown-toggle:hover { border-color: #00d4aa; color: #00d4aa; }
-        .nav-dropdown-toggle.has-active { border-color: #00d4aa; color: #00d4aa; }
-        .nav-dropdown-toggle::after { content: '▾'; font-size: 10px; }
-        .nav-dropdown-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            margin-top: 4px;
-            background: #151821;
-            border: 1px solid #2a3641;
-            border-radius: 6px;
-            min-width: 140px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-8px);
-            transition: all 0.2s;
-            z-index: 100;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-        .nav-dropdown:hover .nav-dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
-        .nav-dropdown-menu a {
-            display: block;
-            padding: 10px 14px;
-            color: #8b92a8;
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-        .nav-dropdown-menu a:hover { background: rgba(0, 212, 170, 0.1); color: #00d4aa; }
-        .nav-dropdown-menu a.active { color: #00d4aa; background: rgba(0, 212, 170, 0.1); }
-        .nav-dropdown-menu a:first-child { border-radius: 6px 6px 0 0; }
-        .nav-dropdown-menu a:last-child { border-radius: 0 0 6px 6px; }
+        
 
         /* Summary Cards */
         .summary-grid {
@@ -561,18 +589,21 @@
             color: #8b92a8;
         }
     </style>
+    <link rel="stylesheet" href="css/nav.css">
 </head>
 <body>
     <div class="container">
-        <header class="header">
-            <div style="display: flex; align-items: center; gap: 20px;">
-                <h1>📈 Earnings Season Scanner</h1>
+        <div class="header">
+            <div class="header-left">
+                <h1>EARNINGS SCANNER</h1>
+            </div>
+            <div class="header-center">
                 <nav class="nav-links">
-                    <a href="morning.html" class="nav-link morning">MORNING</a>
+                    <a href="morning.html" class="nav-link">MORNING</a>
                     <a href="zone-scanner.html" class="nav-link">ZONES</a>
-                    <a href="premarket.html" class="nav-link premarket">GAPS</a>
-                    <a href="earnings-scanner.html" class="nav-link earnings active">EARNINGS</a>
-                    <a href="opportunity-scanner.html" class="nav-link opportunity">FLOW</a>
+                    <a href="premarket.html" class="nav-link">GAPS</a>
+                    <a href="earnings-scanner.html" class="nav-link active">EARNINGS</a>
+                    <a href="opportunity-scanner.html" class="nav-link">FLOW</a>
                     <a href="scanner.html" class="nav-link">MARKET</a>
                     <div class="nav-dropdown">
                         <div class="nav-dropdown-toggle">INSIGHTS</div>
@@ -583,15 +614,23 @@
                     </div>
                 </nav>
             </div>
-            <div class="header-controls">
-                <div id="status-indicator" class="status-dot"></div>
-                <span id="scanner-status">Loading...</span>
-                <span class="last-update">Last update: <span id="last-update">--</span></span>
-                <button class="btn" id="scan-btn" onclick="triggerScan()">SCAN NOW</button>
-                <button class="btn" id="refresh-btn" onclick="refreshCalendar()">REFRESH CALENDAR</button>
-                <button class="btn danger" id="pause-btn" onclick="togglePause()">PAUSE</button>
+            <div class="header-right">
+                <span id="scanner-status" style="color: #8b92a8; font-size: 12px;">Loading...</span>
+                <div class="status-indicator">
+                    <div id="status-indicator" class="status-dot" onclick="toggleStatusPopup()"></div>
+                    <div class="status-popup" id="status-popup">
+                        <div class="status-popup-content" id="status-popup-content">Loading...</div>
+                    </div>
+                </div>
+                <div class="controls-dropdown">
+                    <button class="controls-toggle" onclick="toggleControlsMenu()">⚙</button>
+                    <div class="controls-menu" id="controls-menu">
+                        <button onclick="togglePause()" id="pause-btn">PAUSE</button>
+                        <button onclick="triggerScan()" id="scan-btn">SCAN NOW</button>
+                    </div>
+                </div>
             </div>
-        </header>
+        </div>
 
         <!-- Summary Cards -->
         <div class="summary-grid">
@@ -776,6 +815,31 @@
     </div>
 
     <script>
+        
+        // Toggle status popup
+        function toggleStatusPopup() {
+            const popup = document.getElementById('status-popup');
+            const controlsMenu = document.getElementById('controls-menu');
+            controlsMenu.classList.remove('visible');
+            popup.classList.toggle('visible');
+        }
+
+        // Toggle controls menu
+        function toggleControlsMenu() {
+            const menu = document.getElementById('controls-menu');
+            const popup = document.getElementById('status-popup');
+            popup.classList.remove('visible');
+            menu.classList.toggle('visible');
+        }
+
+        // Close popups when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.status-indicator') && !e.target.closest('.controls-dropdown')) {
+                document.getElementById('status-popup').classList.remove('visible');
+                document.getElementById('controls-menu').classList.remove('visible');
+            }
+        });
+
         const SCANNER_API = `http://${window.location.hostname}:8082`;
         let isPaused = false;
 
@@ -810,7 +874,8 @@
                 document.getElementById('scan-count').textContent = data.scanCount || 0;
 
                 if (data.lastScanAt) {
-                    document.getElementById('last-update').textContent = new Date(data.lastScanAt).toLocaleTimeString();
+                    const timeStr = new Date(data.lastScanAt).toLocaleTimeString();
+                    document.getElementById('status-popup-content').innerHTML = '<strong style="color: #00d4aa;">✓ Live</strong><br>Last scan: ' + timeStr;
                 }
             } catch (e) {
                 document.getElementById('scanner-status').textContent = 'Offline';

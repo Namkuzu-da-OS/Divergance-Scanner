@@ -1,0 +1,213 @@
+/* ===========================================
+   WINGMAN UNIFIED NAVIGATION
+   Shared navigation styles for all pages
+   =========================================== */
+
+/* ===========================================
+   HEADER LAYOUT - True centered navigation
+   =========================================== */
+
+.header {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #2a3641;
+    min-height: 50px;
+}
+
+.header-left {
+    z-index: 1;
+}
+
+.header-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 1;
+}
+
+.header h1 {
+    font-size: 1.1rem;
+    color: #00d4aa;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.header-subtitle {
+    font-size: 0.7rem;
+    color: #8b92a8;
+    margin-top: 2px;
+}
+
+/* ===========================================
+   NAVIGATION LINKS
+   =========================================== */
+
+.nav-links {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.nav-link {
+    padding: 6px 12px;
+    border: 1px solid #2a3641;
+    background: transparent;
+    color: #8b92a8;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.nav-link:hover {
+    border-color: #00d4aa;
+    color: #00d4aa;
+    background: rgba(0, 212, 170, 0.05);
+}
+
+.nav-link.active {
+    border-color: #00d4aa;
+    color: #00d4aa;
+    background: rgba(0, 212, 170, 0.15);
+}
+
+/* ===========================================
+   DROPDOWN MENU
+   =========================================== */
+
+.nav-dropdown {
+    position: relative;
+}
+
+.nav-dropdown-toggle {
+    padding: 6px 12px;
+    border: 1px solid #2a3641;
+    background: transparent;
+    color: #8b92a8;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.nav-dropdown-toggle:hover {
+    border-color: #00d4aa;
+    color: #00d4aa;
+}
+
+.nav-dropdown-toggle.active {
+    border-color: #00d4aa;
+    color: #00d4aa;
+    background: rgba(0, 212, 170, 0.15);
+}
+
+.nav-dropdown-toggle::after {
+    content: '▾';
+    font-size: 10px;
+    transition: transform 0.2s ease;
+}
+
+.nav-dropdown:hover .nav-dropdown-toggle::after {
+    transform: rotate(180deg);
+}
+
+.nav-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+    background: #151821;
+    border: 1px solid #2a3641;
+    border-radius: 6px;
+    min-width: 150px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all 0.2s ease;
+    z-index: 1000;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.nav-dropdown:hover .nav-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.nav-dropdown-menu a {
+    display: block;
+    padding: 10px 14px;
+    color: #8b92a8;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #2a3641;
+}
+
+.nav-dropdown-menu a:last-child {
+    border-bottom: none;
+}
+
+.nav-dropdown-menu a:hover {
+    background: rgba(0, 212, 170, 0.1);
+    color: #00d4aa;
+}
+
+.nav-dropdown-menu a.active {
+    color: #00d4aa;
+    background: rgba(0, 212, 170, 0.15);
+}
+
+.nav-dropdown-menu a:first-child {
+    border-radius: 5px 5px 0 0;
+}
+
+.nav-dropdown-menu a:last-child {
+    border-radius: 0 0 5px 5px;
+}
+
+/* ===========================================
+   RESPONSIVE
+   =========================================== */
+
+@media (max-width: 1100px) {
+    .nav-links {
+        gap: 4px;
+    }
+    
+    .nav-link,
+    .nav-dropdown-toggle {
+        padding: 5px 8px;
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 900px) {
+    .header-center {
+        position: static;
+        transform: none;
+    }
+    
+    .header {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+}
