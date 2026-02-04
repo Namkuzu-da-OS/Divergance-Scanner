@@ -1722,28 +1722,49 @@ function getSessionWatchlist(date = null) {
         date = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
     }
 
+    // Get session stats with latest data for each symbol
+    // Uses subquery to get the most recent row per symbol for price data
     return getDb().prepare(`
         SELECT
-            symbol,
-            COUNT(*) as scan_count,
-            ROUND(MAX(ABS(gap_pct)), 2) as peak_gap_pct,
-            CASE WHEN MAX(gap_pct) > 0 THEN 'UP' ELSE 'DOWN' END as direction,
-            MAX(score) as peak_score,
-            CASE
-                WHEN MAX(score) >= 70 THEN 'HIGH_CONVICTION'
-                WHEN MAX(score) >= 50 THEN 'TRADEABLE'
-                ELSE 'WATCH'
-            END as tier,
-            MIN(timestamp) as first_seen,
-            MAX(timestamp) as last_seen,
-            MAX(premarket_volume) as peak_volume,
-            MAX(catalyst) as catalyst
-        FROM premarket_movers
-        WHERE DATE(timestamp) = ?
-          AND gap_pct IS NOT NULL
-          AND ABS(gap_pct) >= 2
-        GROUP BY symbol
-        ORDER BY peak_gap_pct DESC
+            m.symbol,
+            stats.scan_count,
+            stats.peak_gap_pct,
+            stats.direction,
+            stats.peak_score,
+            stats.tier,
+            stats.first_seen,
+            stats.last_seen,
+            stats.peak_volume,
+            stats.catalyst,
+            m.prev_close,
+            m.premarket_price,
+            m.gap_pct,
+            m.gap_type,
+            m.score
+        FROM premarket_movers m
+        INNER JOIN (
+            SELECT
+                symbol,
+                COUNT(*) as scan_count,
+                ROUND(MAX(ABS(gap_pct)), 2) as peak_gap_pct,
+                CASE WHEN MAX(gap_pct) > 0 THEN 'UP' ELSE 'DOWN' END as direction,
+                MAX(score) as peak_score,
+                CASE
+                    WHEN MAX(score) >= 70 THEN 'HIGH_CONVICTION'
+                    WHEN MAX(score) >= 50 THEN 'TRADEABLE'
+                    ELSE 'WATCH'
+                END as tier,
+                MIN(timestamp) as first_seen,
+                MAX(timestamp) as last_seen,
+                MAX(premarket_volume) as peak_volume,
+                MAX(catalyst) as catalyst
+            FROM premarket_movers
+            WHERE DATE(timestamp) = ?
+              AND gap_pct IS NOT NULL
+              AND ABS(gap_pct) >= 2
+            GROUP BY symbol
+        ) stats ON m.symbol = stats.symbol AND m.timestamp = stats.last_seen
+        ORDER BY stats.peak_gap_pct DESC
     `).all(date);
 }
 

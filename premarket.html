@@ -506,14 +506,6 @@
             const countEl = document.getElementById('sessionCount');
             const items = sessionData?.watchlist || [];
 
-            // Create lookup map from premarket movers data
-            const moverLookup = {};
-            if (premarketData?.movers) {
-                for (const m of premarketData.movers) {
-                    moverLookup[m.symbol] = m;
-                }
-            }
-
             if (items.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state" style="padding: 30px;">
@@ -556,12 +548,11 @@
                 const volume = item.peak_volume ? (item.peak_volume > 1000000 ? (item.peak_volume / 1000000).toFixed(1) + 'M' : (item.peak_volume / 1000).toFixed(0) + 'K') : '--';
                 const catalyst = item.catalyst ? item.catalyst.replace('earnings_', '').toUpperCase() : '--';
 
-                // Get mover data for this symbol if available
-                const mover = moverLookup[item.symbol] || {};
-                const prevClose = mover.prev_close ? '$' + mover.prev_close.toFixed(2) : '--';
-                const preMktPrice = mover.premarket_price ? '$' + mover.premarket_price.toFixed(2) : '--';
-                const gapType = mover.gap_type || '--';
-                const score = mover.score || '--';
+                // Data now comes directly from database
+                const prevClose = item.prev_close ? '$' + item.prev_close.toFixed(2) : '--';
+                const preMktPrice = item.premarket_price ? '$' + item.premarket_price.toFixed(2) : '--';
+                const gapType = item.gap_type || '--';
+                const score = item.score || '--';
 
                 html += `
                     <tr>
