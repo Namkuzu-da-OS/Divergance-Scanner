@@ -364,15 +364,16 @@
         <div class="section" id="sessionSection" style="border-color: #f59e0b;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                 <h2 class="section-title" style="margin-bottom: 0;">
-                    📋 Today's Session Watchlist
-                    <span id="sessionDate" style="font-size: 12px; color: #8b92a8; font-weight: 400; margin-left: 8px;"></span>
+                    📋 Session Watchlist
                 </h2>
                 <div style="display: flex; align-items: center; gap: 12px;">
+                    <select id="session-date-picker" onchange="loadSessionForDate(this.value)" style="background: #1a1f2e; color: #e4e7ec; border: 1px solid #2d3548; border-radius: 4px; padding: 4px 8px; font-size: 12px;">
+                        <option value="">Today</option>
+                    </select>
                     <span id="sessionCount" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">0 symbols</span>
-                    <button class="btn" onclick="clearSession()" style="font-size: 10px; padding: 4px 8px;">CLEAR</button>
                 </div>
             </div>
-            <p style="font-size: 11px; color: #8b92a8; margin-bottom: 12px;">All gaps discovered today (persists even if symbol drops from current scan). Resets daily at midnight ET.</p>
+            <p style="font-size: 11px; color: #8b92a8; margin-bottom: 12px;">All gaps discovered for selected date. Data persists in database - use date picker to view historical sessions.</p>
             <div id="sessionContainer">
                 <div class="empty-state" style="padding: 30px;">
                     <div class="empty-state-text">No symbols discovered yet today</div>
@@ -435,6 +436,44 @@
 
     <script>
         let premarketData = null;
+        let sessionData = null;
+        let sessionDatesLoaded = false;
+
+        // Load available session dates for the date picker
+        async function loadSessionDates() {
+            if (sessionDatesLoaded) return;
+            try {
+                const response = await fetch('/api/gaps/sessions?limit=14');
+                if (!response.ok) return;
+                const data = await response.json();
+                const picker = document.getElementById('session-date-picker');
+
+                picker.innerHTML = '<option value="">Today</option>';
+                for (const session of data.sessions.slice(1)) {
+                    const opt = document.createElement('option');
+                    opt.value = session.date;
+                    const dateLabel = new Date(session.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                    opt.textContent = `${dateLabel} (${session.symbol_count})`;
+                    picker.appendChild(opt);
+                }
+                sessionDatesLoaded = true;
+            } catch (e) {
+                console.error('Failed to load session dates:', e);
+            }
+        }
+
+        // Load session watchlist from database API
+        async function loadSessionForDate(date) {
+            try {
+                const url = date ? `/api/gaps/session?date=${date}&_=${Date.now()}` : `/api/gaps/session?_=${Date.now()}`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to load session');
+                sessionData = await response.json();
+                updateSessionWatchlistFromDb();
+            } catch (e) {
+                console.error('Failed to load session:', e);
+            }
+        }
 
         async function loadData() {
             try {
@@ -519,8 +558,8 @@
             // Movers table
             updateMoversTable();
 
-            // Session watchlist
-            updateSessionWatchlist();
+            // Session watchlist is now loaded from database via loadSessionForDate()
+            // No longer using the JSON-based updateSessionWatchlist()
         }
 
         function updateMoversTable() {
@@ -596,24 +635,22 @@
             document.getElementById('watch').textContent = '0';
         }
 
-        function updateSessionWatchlist() {
-            const session = premarketData?.session;
+        // Render session watchlist from database API
+        function updateSessionWatchlistFromDb() {
             const container = document.getElementById('sessionContainer');
             const countEl = document.getElementById('sessionCount');
-            const dateEl = document.getElementById('sessionDate');
+            const items = sessionData?.watchlist || [];
 
-            if (!session || !session.watchlist || session.watchlist.length === 0) {
+            if (items.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state" style="padding: 30px;">
-                        <div class="empty-state-text">No symbols discovered yet today</div>
+                        <div class="empty-state-text">No gaps found for this date</div>
                     </div>`;
                 countEl.textContent = '0 symbols';
-                dateEl.textContent = '';
                 return;
             }
 
-            dateEl.textContent = session.date || '';
-            countEl.textContent = `${session.watchlist.length} symbols`;
+            countEl.textContent = `${items.length} symbols`;
 
             let html = `
                 <table>
@@ -621,47 +658,43 @@
                         <tr>
                             <th>Symbol</th>
                             <th>Peak Gap</th>
-                            <th>Current Gap</th>
-                            <th>Type</th>
+                            <th>Dir</th>
                             <th>Scans</th>
-                            <th>First Seen</th>
+                            <th>Volume</th>
                             <th>Tier</th>
+                            <th>Catalyst</th>
+                            <th>First Seen</th>
                         </tr>
                     </thead>
                     <tbody>`;
 
-            for (const item of session.watchlist) {
-                const peakDir = item.peak_gap_pct >= 0 ? 'up' : 'down';
-                const currentDir = item.current_gap_pct >= 0 ? 'up' : 'down';
-                const peakIcon = item.peak_gap_pct >= 0 ? '↑' : '↓';
-                const currentIcon = item.current_gap_pct >= 0 ? '↑' : '↓';
+            for (const item of items) {
+                const peakDir = item.direction === 'UP' ? 'up' : 'down';
+                const peakIcon = item.direction === 'UP' ? '↑' : '↓';
 
                 let tierClass = 'filtered';
-                if (item.current_tier === 'HIGH_CONVICTION') tierClass = 'high';
-                else if (item.current_tier === 'TRADEABLE') tierClass = 'tradeable';
-                else if (item.current_tier === 'WATCH') tierClass = 'watch';
+                if (item.tier === 'HIGH_CONVICTION') tierClass = 'high';
+                else if (item.tier === 'TRADEABLE') tierClass = 'tradeable';
+                else if (item.tier === 'WATCH') tierClass = 'watch';
 
-                // Format first seen time
-                const firstSeen = new Date(item.first_seen);
-                const timeStr = firstSeen.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                const firstSeen = item.first_seen ? new Date(item.first_seen).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : '--';
+                const volume = item.peak_volume ? (item.peak_volume > 1000000 ? (item.peak_volume / 1000000).toFixed(1) + 'M' : (item.peak_volume / 1000).toFixed(0) + 'K') : '--';
+                const catalyst = item.catalyst ? item.catalyst.replace('earnings_', '').toUpperCase() : '--';
 
                 html += `
                     <tr>
                         <td style="font-weight: 700;">${item.symbol}</td>
                         <td>
                             <span class="gap-badge ${peakDir}">
-                                ${peakIcon} ${Math.abs(item.peak_gap_pct).toFixed(2)}%
+                                ${peakIcon} ${item.peak_gap_pct?.toFixed(1)}%
                             </span>
                         </td>
-                        <td>
-                            <span class="gap-badge ${currentDir}">
-                                ${currentIcon} ${Math.abs(item.current_gap_pct).toFixed(2)}%
-                            </span>
-                        </td>
-                        <td>${item.gap_type || '-'}</td>
+                        <td class="${peakDir === 'up' ? 'positive' : 'negative'}">${item.direction}</td>
                         <td style="text-align: center;">${item.scan_count}</td>
-                        <td style="color: #8b92a8;">${timeStr}</td>
-                        <td><span class="tier-badge ${tierClass}">${item.current_tier}</span></td>
+                        <td>${volume}</td>
+                        <td><span class="tier-badge ${tierClass}">${item.tier}</span></td>
+                        <td>${catalyst}</td>
+                        <td style="color: #8b92a8; font-size: 11px;">${firstSeen}</td>
                     </tr>`;
             }
 
@@ -963,9 +996,12 @@
         loadData();
         loadStatus();
         loadAnalytics();
+        loadSessionDates();
+        loadSessionForDate(''); // Load today's session from database
         setInterval(loadData, 60000);
         setInterval(loadStatus, 30000);
         setInterval(loadAnalytics, 300000); // Refresh analytics every 5 minutes
+        setInterval(() => loadSessionForDate(document.getElementById('session-date-picker').value), 60000);
     </script>
 
     <!-- Documentation Section -->

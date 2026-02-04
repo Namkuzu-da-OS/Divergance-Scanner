@@ -320,6 +320,50 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // API: Session watchlist - persists after premarket.json clears
+    // GET /api/gaps/session?date=2026-02-03 (optional date, defaults to today)
+    if (req.method === 'GET' && urlPath === '/api/gaps/session') {
+        try {
+            const signalDb = require('./signal-db');
+            const url = new URL(req.url, `http://${req.headers.host}`);
+            const date = url.searchParams.get('date') || null;
+
+            const watchlist = signalDb.getSessionWatchlist(date);
+            const effectiveDate = date || new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+                date: effectiveDate,
+                count: watchlist.length,
+                watchlist
+            }));
+        } catch (e) {
+            console.error('[Web Server] Error loading session watchlist:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
+    // API: Available session dates for lookback
+    // GET /api/gaps/sessions?limit=30
+    if (req.method === 'GET' && urlPath === '/api/gaps/sessions') {
+        try {
+            const signalDb = require('./signal-db');
+            const url = new URL(req.url, `http://${req.headers.host}`);
+            const limit = parseInt(url.searchParams.get('limit') || '30');
+
+            const sessions = signalDb.getSessionDates(limit);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ sessions }));
+        } catch (e) {
+            console.error('[Web Server] Error loading session dates:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
     // API: Morning Briefing - aggregates all scanner data
     if (req.method === 'GET' && urlPath === '/api/morning-briefing') {
         try {

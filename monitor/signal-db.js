@@ -1707,6 +1707,65 @@ function getAllTickerStats(options = {}) {
 }
 
 // ============================================
+// SESSION WATCHLIST FUNCTIONS
+// Reconstructs daily gap session from premarket_movers
+// ============================================
+
+/**
+ * Get session watchlist for a specific date
+ * Reconstructs from premarket_movers table - persists after premarket.json clears
+ * @param {string} date - Date in YYYY-MM-DD format (defaults to today)
+ */
+function getSessionWatchlist(date = null) {
+    // Default to today in EST
+    if (!date) {
+        date = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+    }
+
+    return getDb().prepare(`
+        SELECT
+            symbol,
+            COUNT(*) as scan_count,
+            ROUND(MAX(ABS(gap_pct)), 2) as peak_gap_pct,
+            CASE WHEN MAX(gap_pct) > 0 THEN 'UP' ELSE 'DOWN' END as direction,
+            MAX(score) as peak_score,
+            CASE
+                WHEN MAX(score) >= 70 THEN 'HIGH_CONVICTION'
+                WHEN MAX(score) >= 50 THEN 'TRADEABLE'
+                ELSE 'WATCH'
+            END as tier,
+            MIN(timestamp) as first_seen,
+            MAX(timestamp) as last_seen,
+            MAX(premarket_volume) as peak_volume,
+            MAX(catalyst) as catalyst
+        FROM premarket_movers
+        WHERE DATE(timestamp) = ?
+          AND gap_pct IS NOT NULL
+          AND ABS(gap_pct) >= 2
+        GROUP BY symbol
+        ORDER BY peak_gap_pct DESC
+    `).all(date);
+}
+
+/**
+ * Get list of available session dates for lookback
+ * @param {number} limit - Max number of dates to return
+ */
+function getSessionDates(limit = 30) {
+    return getDb().prepare(`
+        SELECT DISTINCT
+            DATE(timestamp) as date,
+            COUNT(DISTINCT symbol) as symbol_count,
+            COUNT(*) as scan_count
+        FROM premarket_movers
+        WHERE gap_pct IS NOT NULL
+        GROUP BY DATE(timestamp)
+        ORDER BY date DESC
+        LIMIT ?
+    `).all(limit);
+}
+
+// ============================================
 // WATCHLIST FUNCTIONS
 // ============================================
 
@@ -2260,6 +2319,9 @@ module.exports = {
     getTodayGapsWithHistory,
     updateTickerStats,
     getAllTickerStats,
+    // Session watchlist functions (database-backed, persists after premarket.json clears)
+    getSessionWatchlist,
+    getSessionDates,
     // Watchlist functions
     addToWatchlist,
     removeFromWatchlist,

@@ -667,11 +667,16 @@
             </div>
         </div>
 
-        <!-- Pre-Market Gaps -->
+        <!-- Pre-Market Gaps (Session Watchlist) -->
         <div class="section" id="section-gaps">
-            <div class="section-header" onclick="toggleSection('gaps')">
-                <span class="section-title gaps">PRE-MARKET GAPS</span>
-                <span class="section-count" id="count-gaps">0</span>
+            <div class="section-header">
+                <span class="section-title gaps" onclick="toggleSection('gaps')" style="cursor: pointer;">SESSION GAPS</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <select id="gaps-date-picker" onchange="loadGapsForDate(this.value)" style="background: #1a1f2e; color: #e4e7ec; border: 1px solid #2d3548; border-radius: 4px; padding: 4px 8px; font-size: 12px;">
+                        <option value="">Today</option>
+                    </select>
+                    <span class="section-count" id="count-gaps">0</span>
+                </div>
             </div>
             <div class="section-body" id="body-gaps">
                 <div class="loading">Loading...</div>
@@ -767,6 +772,48 @@
             }
         }
 
+        // Session Gaps - loads from database (persists after premarket.json clears)
+        let gapsData = null;
+        let gapsSessionsLoaded = false;
+
+        async function loadGapsSessions() {
+            if (gapsSessionsLoaded) return;
+            try {
+                const response = await fetch('/api/gaps/sessions?limit=14');
+                if (!response.ok) return;
+                const data = await response.json();
+                const picker = document.getElementById('gaps-date-picker');
+
+                // Clear existing options except "Today"
+                picker.innerHTML = '<option value="">Today</option>';
+
+                // Add historical dates
+                for (const session of data.sessions.slice(1)) { // Skip today since we have "Today" option
+                    const opt = document.createElement('option');
+                    opt.value = session.date;
+                    const dateLabel = new Date(session.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                    opt.textContent = `${dateLabel} (${session.symbol_count})`;
+                    picker.appendChild(opt);
+                }
+                gapsSessionsLoaded = true;
+            } catch (e) {
+                console.error('Failed to load gap sessions:', e);
+            }
+        }
+
+        async function loadGapsForDate(date) {
+            try {
+                const url = date ? `/api/gaps/session?date=${date}&_=${Date.now()}` : `/api/gaps/session?_=${Date.now()}`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to load gaps');
+                gapsData = await response.json();
+                renderGaps();
+                document.getElementById('count-gaps').textContent = gapsData.count || 0;
+            } catch (e) {
+                console.error('Failed to load gaps:', e);
+            }
+        }
+
         function render() {
             if (!data) return;
 
@@ -836,14 +883,13 @@
 
             // Render sections
             renderConviction();
-            renderGaps();
+            // renderGaps() is called separately via loadGapsForDate()
             renderFlow();
             renderEarningsFlow();
             renderEarnings();
 
-            // Update counts
+            // Update counts (gaps count updated in loadGapsForDate)
             document.getElementById('count-conviction').textContent = data.highConviction?.length || 0;
-            document.getElementById('count-gaps').textContent = data.gaps?.length || 0;
             document.getElementById('count-flow').textContent = data.optionsFlow?.length || 0;
             document.getElementById('count-earnings-flow').textContent = data.earningsFlow?.filter(e => e.tier !== 'WATCH').length || 0;
             document.getElementById('count-earnings').textContent = data.earnings?.length || 0;
@@ -896,42 +942,48 @@
 
         function renderGaps() {
             const container = document.getElementById('body-gaps');
-            const items = data.gaps || [];
+            const items = gapsData?.watchlist || [];
 
             if (items.length === 0) {
                 container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">--</div>No gaps detected</div>';
                 return;
             }
 
+            // Show date if viewing historical data
+            const dateLabel = gapsData?.date ? gapsData.date : 'Today';
+
             let html = `<table>
                 <thead>
                     <tr>
                         <th>Symbol</th>
-                        <th>Price</th>
-                        <th>Gap</th>
+                        <th>Peak Gap</th>
+                        <th>Dir</th>
+                        <th>Scans</th>
                         <th>Volume</th>
                         <th>Tier</th>
-                        <th>Direction</th>
-                        <th>Earnings</th>
+                        <th>Catalyst</th>
+                        <th>First Seen</th>
                     </tr>
                 </thead>
                 <tbody>`;
 
             for (const item of items) {
-                const gapClass = item.gapPct > 0 ? 'positive' : 'negative';
+                const gapClass = item.direction === 'UP' ? 'positive' : 'negative';
                 const tierClass = item.tier === 'HIGH_CONVICTION' ? 'high-conviction' : item.tier === 'TRADEABLE' ? 'tradeable' : 'watch';
-                const volume = item.volume ? (item.volume > 1000000 ? (item.volume / 1000000).toFixed(1) + 'M' : (item.volume / 1000).toFixed(0) + 'K') : '--';
-                const earnings = item.earnings ? `${new Date(item.earnings).toLocaleDateString('en-US', {month: 'short', day: 'numeric'})} (${item.daysToEarnings}d)` : '--';
-                const dirClass = item.direction === 'bullish' ? 'positive' : item.direction === 'bearish' ? 'negative' : '';
+                const volume = item.peak_volume ? (item.peak_volume > 1000000 ? (item.peak_volume / 1000000).toFixed(1) + 'M' : (item.peak_volume / 1000).toFixed(0) + 'K') : '--';
+                const dirIcon = item.direction === 'UP' ? '↑' : '↓';
+                const catalyst = item.catalyst ? item.catalyst.replace('earnings_', '').toUpperCase() : '--';
+                const firstSeen = item.first_seen ? new Date(item.first_seen).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : '--';
 
                 html += `<tr>
                     <td class="symbol-cell">${item.symbol}</td>
-                    <td>$${item.price?.toFixed(2) || '--'}</td>
-                    <td class="${gapClass}">${item.gapPct > 0 ? '+' : ''}${item.gapPct?.toFixed(2)}%</td>
+                    <td class="${gapClass}">${dirIcon} ${item.peak_gap_pct?.toFixed(1)}%</td>
+                    <td class="${gapClass}">${item.direction}</td>
+                    <td style="text-align: center;">${item.scan_count}</td>
                     <td>${volume}</td>
                     <td><span class="tier-badge ${tierClass}">${item.tier}</span></td>
-                    <td class="${dirClass}">${item.direction || '--'}</td>
-                    <td>${earnings}</td>
+                    <td>${catalyst}</td>
+                    <td style="font-size: 11px; color: #8b92a8;">${firstSeen}</td>
                 </tr>`;
             }
 
@@ -1133,7 +1185,10 @@
 
         // Initial load and auto-refresh
         loadData();
+        loadGapsSessions();
+        loadGapsForDate(''); // Load today's gaps from database
         setInterval(loadData, 60000); // Refresh every 60 seconds
+        setInterval(() => loadGapsForDate(document.getElementById('gaps-date-picker').value), 60000);
     </script>
 
     <!-- Documentation Section -->
