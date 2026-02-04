@@ -247,6 +247,27 @@
             color: #8b92a8;
         }
 
+        .tier-badge.high {
+            background: rgba(0, 212, 170, 0.2);
+            color: #00d4aa;
+        }
+
+        .tier-badge.filtered {
+            background: rgba(139, 146, 168, 0.2);
+            color: #8b92a8;
+        }
+
+        /* Gap Badges (matches premarket.html) */
+        .gap-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .gap-badge.up { background: rgba(0, 212, 170, 0.2); color: #00d4aa; }
+        .gap-badge.down { background: rgba(255, 107, 107, 0.2); color: #ff6b6b; }
+
         /* Zone Badges */
         .zone-badge {
             display: inline-block;
@@ -507,19 +528,21 @@
             </div>
         </div>
 
-        <!-- Pre-Market Gaps (Session Watchlist) -->
-        <div class="section" id="section-gaps">
+        <!-- Session Gaps (matches premarket.html) -->
+        <div class="section" id="section-session">
             <div class="section-header">
-                <span class="section-title gaps" onclick="toggleSection('gaps')" style="cursor: pointer;">SESSION GAPS</span>
+                <span class="section-title gaps" onclick="toggleSection('session')" style="cursor: pointer;">SESSION GAPS</span>
                 <div style="display: flex; align-items: center; gap: 8px;">
-                    <select id="gaps-date-picker" onchange="loadGapsForDate(this.value)" style="background: #1a1f2e; color: #e4e7ec; border: 1px solid #2d3548; border-radius: 4px; padding: 4px 8px; font-size: 12px;">
+                    <select id="session-date-picker" onchange="loadSessionForDate(this.value)" style="background: #1a1f2e; color: #e4e7ec; border: 1px solid #2d3548; border-radius: 4px; padding: 4px 8px; font-size: 12px;">
                         <option value="">Today</option>
                     </select>
-                    <span class="section-count" id="count-gaps">0</span>
+                    <span class="section-count" id="count-session">0</span>
                 </div>
             </div>
-            <div class="section-body" id="body-gaps">
-                <div class="loading">Loading...</div>
+            <div class="section-body" id="body-session">
+                <div id="sessionContainer">
+                    <div class="loading">Loading...</div>
+                </div>
             </div>
         </div>
 
@@ -612,45 +635,41 @@
             }
         }
 
-        // Session Gaps - loads from database (persists after premarket.json clears)
-        let gapsData = null;
-        let gapsSessionsLoaded = false;
+        // Session Gaps - loads from database (matches premarket.html)
+        let sessionData = null;
+        let sessionDatesLoaded = false;
 
-        async function loadGapsSessions() {
-            if (gapsSessionsLoaded) return;
+        async function loadSessionDates() {
+            if (sessionDatesLoaded) return;
             try {
                 const response = await fetch('/api/gaps/sessions?limit=14');
                 if (!response.ok) return;
                 const data = await response.json();
-                const picker = document.getElementById('gaps-date-picker');
+                const picker = document.getElementById('session-date-picker');
 
-                // Clear existing options except "Today"
                 picker.innerHTML = '<option value="">Today</option>';
-
-                // Add historical dates
-                for (const session of data.sessions.slice(1)) { // Skip today since we have "Today" option
+                for (const session of data.sessions.slice(1)) {
                     const opt = document.createElement('option');
                     opt.value = session.date;
                     const dateLabel = new Date(session.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
                     opt.textContent = `${dateLabel} (${session.symbol_count})`;
                     picker.appendChild(opt);
                 }
-                gapsSessionsLoaded = true;
+                sessionDatesLoaded = true;
             } catch (e) {
-                console.error('Failed to load gap sessions:', e);
+                console.error('Failed to load session dates:', e);
             }
         }
 
-        async function loadGapsForDate(date) {
+        async function loadSessionForDate(date) {
             try {
                 const url = date ? `/api/gaps/session?date=${date}&_=${Date.now()}` : `/api/gaps/session?_=${Date.now()}`;
                 const response = await fetch(url);
-                if (!response.ok) throw new Error('Failed to load gaps');
-                gapsData = await response.json();
-                renderGaps();
-                document.getElementById('count-gaps').textContent = gapsData.count || 0;
+                if (!response.ok) throw new Error('Failed to load session');
+                sessionData = await response.json();
+                updateSessionGaps();
             } catch (e) {
-                console.error('Failed to load gaps:', e);
+                console.error('Failed to load session:', e);
             }
         }
 
@@ -780,51 +799,94 @@
             container.innerHTML = html;
         }
 
-        function renderGaps() {
-            const container = document.getElementById('body-gaps');
-            const items = gapsData?.watchlist || [];
+        // Render history badge for consecutive day tracking (matches premarket.html)
+        function renderHistoryBadge(historyStatus) {
+            if (!historyStatus) return '';
+            const badgeMap = {
+                'NEW': { emoji: '🆕', text: 'NEW', color: '#3b82f6' },
+                'DAY_2': { emoji: '📈', text: 'Day 2', color: '#00d4aa' },
+                'STREAK': { emoji: '🔥', text: `${historyStatus.consecutive_days}d`, color: '#f97316' },
+                'RETURNED': { emoji: '↩️', text: 'Back', color: '#8b92a8' }
+            };
+            const badge = badgeMap[historyStatus.label];
+            if (!badge) return '';
+            return `<span style="background: ${badge.color}20; color: ${badge.color}; border: 1px solid ${badge.color}40; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-left: 6px;">${badge.emoji} ${badge.text}</span>`;
+        }
+
+        // Render session gaps table (matches premarket.html exactly)
+        function updateSessionGaps() {
+            const container = document.getElementById('sessionContainer');
+            const countEl = document.getElementById('count-session');
+            const items = sessionData?.watchlist || [];
 
             if (items.length === 0) {
-                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">--</div>No gaps detected</div>';
+                container.innerHTML = `
+                    <div class="empty-state" style="padding: 30px;">
+                        <div class="empty-state-icon">--</div>
+                        <div class="empty-state-text">No gaps found for this date</div>
+                    </div>`;
+                countEl.textContent = '0';
                 return;
             }
 
-            // Show date if viewing historical data
-            const dateLabel = gapsData?.date ? gapsData.date : 'Today';
+            countEl.textContent = items.length;
 
-            let html = `<table>
-                <thead>
-                    <tr>
-                        <th>Symbol</th>
-                        <th>Peak Gap</th>
-                        <th>Dir</th>
-                        <th>Scans</th>
-                        <th>Volume</th>
-                        <th>Tier</th>
-                        <th>Catalyst</th>
-                        <th>First Seen</th>
-                    </tr>
-                </thead>
-                <tbody>`;
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th title="Current premarket price vs yesterday's close">Current Gap</th>
+                            <th title="Highest absolute gap seen during this session">Peak</th>
+                            <th>Prev Close</th>
+                            <th>Pre-Mkt</th>
+                            <th>Type</th>
+                            <th>Score</th>
+                            <th>Tier</th>
+                            <th>Volume</th>
+                            <th>Catalyst</th>
+                            <th>First Seen</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
 
             for (const item of items) {
-                const gapClass = item.direction === 'UP' ? 'positive' : 'negative';
-                const tierClass = item.tier === 'HIGH_CONVICTION' ? 'high-conviction' : item.tier === 'TRADEABLE' ? 'tradeable' : 'watch';
-                const volume = item.peak_volume ? (item.peak_volume > 1000000 ? (item.peak_volume / 1000000).toFixed(1) + 'M' : (item.peak_volume / 1000).toFixed(0) + 'K') : '--';
-                const dirIcon = item.direction === 'UP' ? '↑' : '↓';
-                const catalyst = item.catalyst ? item.catalyst.replace('earnings_', '').toUpperCase() : '--';
-                const firstSeen = item.first_seen ? new Date(item.first_seen).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : '--';
+                // Current gap - derive direction from gap_pct sign (this is the actionable data)
+                const currentDir = item.gap_pct >= 0 ? 'up' : 'down';
+                const currentIcon = item.gap_pct >= 0 ? '↑' : '↓';
 
-                html += `<tr>
-                    <td class="symbol-cell">${item.symbol}</td>
-                    <td class="${gapClass}">${dirIcon} ${item.peak_gap_pct?.toFixed(1)}%</td>
-                    <td class="${gapClass}">${item.direction}</td>
-                    <td style="text-align: center;">${item.scan_count}</td>
-                    <td>${volume}</td>
-                    <td><span class="tier-badge ${tierClass}">${item.tier}</span></td>
-                    <td>${catalyst}</td>
-                    <td style="font-size: 11px; color: #8b92a8;">${firstSeen}</td>
-                </tr>`;
+                let tierClass = 'filtered';
+                if (item.tier === 'HIGH_CONVICTION') tierClass = 'high';
+                else if (item.tier === 'TRADEABLE') tierClass = 'tradeable';
+                else if (item.tier === 'WATCH') tierClass = 'watch';
+
+                const firstSeen = item.first_seen ? new Date(item.first_seen).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : '--';
+                const volume = item.peak_volume ? (item.peak_volume > 1000000 ? (item.peak_volume / 1000000).toFixed(1) + 'M' : (item.peak_volume / 1000).toFixed(0) + 'K') : '--';
+                const catalyst = item.catalyst ? item.catalyst.replace('earnings_', '').toUpperCase() : '--';
+
+                const prevClose = item.prev_close ? '$' + item.prev_close.toFixed(2) : '--';
+                const preMktPrice = item.premarket_price ? '$' + item.premarket_price.toFixed(2) : '--';
+                const gapType = item.gap_type || '--';
+                const score = item.score || '--';
+
+                html += `
+                    <tr>
+                        <td style="font-weight: 700;">${item.symbol}${renderHistoryBadge(item.history_status)}</td>
+                        <td>
+                            <span class="gap-badge ${currentDir}">
+                                ${currentIcon} ${Math.abs(item.gap_pct).toFixed(1)}%
+                            </span>
+                        </td>
+                        <td style="font-size: 10px; color: #8b92a8; text-align: center;">${item.peak_gap_pct?.toFixed(1)}%</td>
+                        <td style="color: #8b92a8;">${prevClose}</td>
+                        <td style="color: #8b92a8;">${preMktPrice}</td>
+                        <td style="font-size: 10px; color: #8b92a8;">${gapType}</td>
+                        <td style="text-align: center; font-weight: 600;">${score}</td>
+                        <td><span class="tier-badge ${tierClass}">${item.tier}</span></td>
+                        <td>${volume}</td>
+                        <td>${catalyst}</td>
+                        <td style="color: #8b92a8; font-size: 11px;">${firstSeen}</td>
+                    </tr>`;
             }
 
             html += '</tbody></table>';
@@ -1025,10 +1087,10 @@
 
         // Initial load and auto-refresh
         loadData();
-        loadGapsSessions();
-        loadGapsForDate(''); // Load today's gaps from database
+        loadSessionDates();
+        loadSessionForDate(''); // Load today's gaps from database
         setInterval(loadData, 60000); // Refresh every 60 seconds
-        setInterval(() => loadGapsForDate(document.getElementById('gaps-date-picker').value), 60000);
+        setInterval(() => loadSessionForDate(document.getElementById('session-date-picker').value), 60000);
     </script>
 
     <!-- Documentation Section -->

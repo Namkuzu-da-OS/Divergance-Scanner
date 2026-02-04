@@ -1006,6 +1006,63 @@ function computeHistoryStatus(symbol) {
 }
 
 /**
+ * Compute history status for gap symbols from premarket_movers table
+ * Similar to computeHistoryStatus but queries premarket_movers instead of scanner_history
+ * @param {string} symbol - The symbol to check
+ * @returns {object} - { label, consecutive_days, trend }
+ */
+function computeGapHistoryStatus(symbol) {
+    // Get distinct dates this symbol appeared in premarket_movers
+    const history = getDb().prepare(`
+        SELECT DISTINCT date(timestamp) as date
+        FROM premarket_movers
+        WHERE symbol = ?
+        ORDER BY date DESC
+        LIMIT 14
+    `).all(symbol);
+
+    if (history.length === 0) {
+        return { label: 'NEW', consecutive_days: 0, trend: null };
+    }
+
+    // Get today's date in EST (same as getSessionWatchlist)
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+
+    // Check consecutive days backwards from today
+    let consecutiveDays = 0;
+    for (let i = 0; i < history.length; i++) {
+        // Calculate expected date (today - i days)
+        const expected = new Date();
+        expected.setDate(expected.getDate() - i);
+        const expectedDate = expected.toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+
+        if (history[i].date === expectedDate) {
+            consecutiveDays++;
+        } else {
+            break;
+        }
+    }
+
+    // Determine label
+    let label;
+    if (consecutiveDays >= 3) {
+        label = 'STREAK';
+    } else if (consecutiveDays === 2) {
+        label = 'DAY_2';
+    } else if (consecutiveDays === 1 && history.length > 1) {
+        label = 'RETURNED';
+    } else {
+        label = 'NEW';
+    }
+
+    return {
+        label,
+        consecutive_days: consecutiveDays,
+        trend: null  // Gap history doesn't track score trend like scanner_history
+    };
+}
+
+/**
  * Get all symbols with their history status
  */
 function getAllHistoryStatuses() {
@@ -1724,12 +1781,12 @@ function getSessionWatchlist(date = null) {
 
     // Get session stats with latest data for each symbol
     // Uses subquery to get the most recent row per symbol for price data
-    return getDb().prepare(`
+    const results = getDb().prepare(`
         SELECT
             m.symbol,
             stats.scan_count,
             stats.peak_gap_pct,
-            stats.direction,
+            stats.peak_direction,
             stats.peak_score,
             stats.tier,
             stats.first_seen,
@@ -1747,7 +1804,8 @@ function getSessionWatchlist(date = null) {
                 symbol,
                 COUNT(*) as scan_count,
                 ROUND(MAX(ABS(gap_pct)), 2) as peak_gap_pct,
-                CASE WHEN MAX(gap_pct) > 0 THEN 'UP' ELSE 'DOWN' END as direction,
+                -- Peak direction (historical reference only, UI uses gap_pct sign for current)
+                CASE WHEN MAX(gap_pct) > 0 THEN 'UP' ELSE 'DOWN' END as peak_direction,
                 MAX(score) as peak_score,
                 CASE
                     WHEN MAX(score) >= 70 THEN 'HIGH_CONVICTION'
@@ -1766,6 +1824,12 @@ function getSessionWatchlist(date = null) {
         ) stats ON m.symbol = stats.symbol AND m.timestamp = stats.last_seen
         ORDER BY stats.peak_gap_pct DESC
     `).all(date);
+
+    // Add history status to each result
+    return results.map(r => ({
+        ...r,
+        history_status: computeGapHistoryStatus(r.symbol)
+    }));
 }
 
 /**
@@ -2315,6 +2379,7 @@ module.exports = {
     upsertScannerHistory,
     getScannerHistory,
     computeHistoryStatus,
+    computeGapHistoryStatus,
     getAllHistoryStatuses,
     // Velocity tracking (replaces signal_tracking.json)
     getSymbolVelocity,

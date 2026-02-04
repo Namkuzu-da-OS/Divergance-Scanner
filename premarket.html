@@ -500,6 +500,20 @@
             document.getElementById('watch').textContent = '0';
         }
 
+        // Render history badge for consecutive day tracking
+        function renderHistoryBadge(historyStatus) {
+            if (!historyStatus) return '';
+            const badgeMap = {
+                'NEW': { emoji: '🆕', text: 'NEW', color: '#3b82f6' },
+                'DAY_2': { emoji: '📈', text: 'Day 2', color: '#00d4aa' },
+                'STREAK': { emoji: '🔥', text: `${historyStatus.consecutive_days}d`, color: '#f97316' },
+                'RETURNED': { emoji: '↩️', text: 'Back', color: '#8b92a8' }
+            };
+            const badge = badgeMap[historyStatus.label];
+            if (!badge) return '';
+            return `<span style="background: ${badge.color}20; color: ${badge.color}; border: 1px solid ${badge.color}40; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; margin-left: 6px;">${badge.emoji} ${badge.text}</span>`;
+        }
+
         // Render session watchlist from database API
         function updateSessionWatchlistFromDb() {
             const container = document.getElementById('sessionContainer');
@@ -522,7 +536,8 @@
                     <thead>
                         <tr>
                             <th>Symbol</th>
-                            <th>Gap</th>
+                            <th title="Current premarket price vs yesterday's close">Current Gap</th>
+                            <th title="Highest absolute gap seen during this session">Peak</th>
                             <th>Prev Close</th>
                             <th>Pre-Mkt</th>
                             <th>Type</th>
@@ -536,8 +551,9 @@
                     <tbody>`;
 
             for (const item of items) {
-                const peakDir = item.direction === 'UP' ? 'up' : 'down';
-                const peakIcon = item.direction === 'UP' ? '↑' : '↓';
+                // Current gap - derive direction from gap_pct sign (this is the actionable data)
+                const currentDir = item.gap_pct >= 0 ? 'up' : 'down';
+                const currentIcon = item.gap_pct >= 0 ? '↑' : '↓';
 
                 let tierClass = 'filtered';
                 if (item.tier === 'HIGH_CONVICTION') tierClass = 'high';
@@ -556,12 +572,13 @@
 
                 html += `
                     <tr>
-                        <td style="font-weight: 700;">${item.symbol}</td>
+                        <td style="font-weight: 700;">${item.symbol}${renderHistoryBadge(item.history_status)}</td>
                         <td>
-                            <span class="gap-badge ${peakDir}">
-                                ${peakIcon} ${item.peak_gap_pct?.toFixed(1)}%
+                            <span class="gap-badge ${currentDir}">
+                                ${currentIcon} ${Math.abs(item.gap_pct).toFixed(1)}%
                             </span>
                         </td>
+                        <td style="font-size: 10px; color: #8b92a8; text-align: center;">${item.peak_gap_pct?.toFixed(1)}%</td>
                         <td style="color: #8b92a8;">${prevClose}</td>
                         <td style="color: #8b92a8;">${preMktPrice}</td>
                         <td style="font-size: 10px; color: #8b92a8;">${gapType}</td>
