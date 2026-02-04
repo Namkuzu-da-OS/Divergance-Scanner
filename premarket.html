@@ -283,19 +283,11 @@
             </div>
         </div>
 
-        <!-- Movers Table -->
-        <div class="section">
-            <h2 class="section-title">Pre-Market Movers</h2>
-            <div id="moversContainer">
-                <div class="loading">Loading pre-market data...</div>
-            </div>
-        </div>
-
-        <!-- Session Watchlist -->
+        <!-- Session Watchlist (Combined with Pre-Market Movers) -->
         <div class="section" id="sessionSection" style="border-color: #f59e0b;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
                 <h2 class="section-title" style="margin-bottom: 0;">
-                    📋 Session Watchlist
+                    📋 Session Gaps
                 </h2>
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <select id="session-date-picker" onchange="loadSessionForDate(this.value)" style="background: #1a1f2e; color: #e4e7ec; border: 1px solid #2d3548; border-radius: 4px; padding: 4px 8px; font-size: 12px;">
@@ -486,70 +478,12 @@
             document.getElementById('tradeable').textContent = summary.tradeable || 0;
             document.getElementById('watch').textContent = summary.watch || 0;
 
-            // Movers table
-            updateMoversTable();
-
             // Session watchlist is now loaded from database via loadSessionForDate()
             // No longer using the JSON-based updateSessionWatchlist()
         }
 
-        function updateMoversTable() {
-            const movers = premarketData.movers || [];
-            const container = document.getElementById('moversContainer');
-
-            if (movers.length === 0) {
-                showEmptyState();
-                return;
-            }
-
-            let html = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Symbol</th>
-                            <th>Gap</th>
-                            <th>Prev Close</th>
-                            <th>Pre-Market</th>
-                            <th>Type</th>
-                            <th>Score</th>
-                            <th>Tier</th>
-                            <th>Catalyst</th>
-                        </tr>
-                    </thead>
-                    <tbody>`;
-
-            for (const mover of movers) {
-                const gapDir = mover.gap_pct >= 0 ? 'up' : 'down';
-                const gapIcon = mover.gap_pct >= 0 ? '↑' : '↓';
-
-                let tierClass = 'filtered';
-                if (mover.tier === 'HIGH_CONVICTION') tierClass = 'high';
-                else if (mover.tier === 'TRADEABLE') tierClass = 'tradeable';
-                else if (mover.tier === 'WATCH') tierClass = 'watch';
-
-                html += `
-                    <tr>
-                        <td style="font-weight: 700;">${mover.symbol}</td>
-                        <td>
-                            <span class="gap-badge ${gapDir}">
-                                ${gapIcon} ${Math.abs(mover.gap_pct).toFixed(2)}%
-                            </span>
-                        </td>
-                        <td>$${mover.prev_close?.toFixed(2) || '-'}</td>
-                        <td>$${mover.premarket_price?.toFixed(2) || '-'}</td>
-                        <td>${mover.gap_type || '-'}</td>
-                        <td>${mover.score || '-'}</td>
-                        <td><span class="tier-badge ${tierClass}">${mover.tier}</span></td>
-                        <td style="color: #8b92a8;">${mover.catalyst || '-'}</td>
-                    </tr>`;
-            }
-
-            html += '</tbody></table>';
-            container.innerHTML = html;
-        }
-
         function showEmptyState() {
-            document.getElementById('moversContainer').innerHTML = `
+            document.getElementById('sessionContainer').innerHTML = `
                 <div class="empty-state">
                     <div class="empty-state-icon">🌅</div>
                     <div class="empty-state-title">No pre-market data yet</div>
@@ -572,6 +506,14 @@
             const countEl = document.getElementById('sessionCount');
             const items = sessionData?.watchlist || [];
 
+            // Create lookup map from premarket movers data
+            const moverLookup = {};
+            if (premarketData?.movers) {
+                for (const m of premarketData.movers) {
+                    moverLookup[m.symbol] = m;
+                }
+            }
+
             if (items.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state" style="padding: 30px;">
@@ -588,11 +530,13 @@
                     <thead>
                         <tr>
                             <th>Symbol</th>
-                            <th>Peak Gap</th>
-                            <th>Dir</th>
-                            <th>Scans</th>
-                            <th>Volume</th>
+                            <th>Gap</th>
+                            <th>Prev Close</th>
+                            <th>Pre-Mkt</th>
+                            <th>Type</th>
+                            <th>Score</th>
                             <th>Tier</th>
+                            <th>Volume</th>
                             <th>Catalyst</th>
                             <th>First Seen</th>
                         </tr>
@@ -612,6 +556,13 @@
                 const volume = item.peak_volume ? (item.peak_volume > 1000000 ? (item.peak_volume / 1000000).toFixed(1) + 'M' : (item.peak_volume / 1000).toFixed(0) + 'K') : '--';
                 const catalyst = item.catalyst ? item.catalyst.replace('earnings_', '').toUpperCase() : '--';
 
+                // Get mover data for this symbol if available
+                const mover = moverLookup[item.symbol] || {};
+                const prevClose = mover.prev_close ? '$' + mover.prev_close.toFixed(2) : '--';
+                const preMktPrice = mover.premarket_price ? '$' + mover.premarket_price.toFixed(2) : '--';
+                const gapType = mover.gap_type || '--';
+                const score = mover.score || '--';
+
                 html += `
                     <tr>
                         <td style="font-weight: 700;">${item.symbol}</td>
@@ -620,10 +571,12 @@
                                 ${peakIcon} ${item.peak_gap_pct?.toFixed(1)}%
                             </span>
                         </td>
-                        <td class="${peakDir === 'up' ? 'positive' : 'negative'}">${item.direction}</td>
-                        <td style="text-align: center;">${item.scan_count}</td>
-                        <td>${volume}</td>
+                        <td style="color: #8b92a8;">${prevClose}</td>
+                        <td style="color: #8b92a8;">${preMktPrice}</td>
+                        <td style="font-size: 10px; color: #8b92a8;">${gapType}</td>
+                        <td style="text-align: center; font-weight: 600;">${score}</td>
                         <td><span class="tier-badge ${tierClass}">${item.tier}</span></td>
+                        <td>${volume}</td>
                         <td>${catalyst}</td>
                         <td style="color: #8b92a8; font-size: 11px;">${firstSeen}</td>
                     </tr>`;
