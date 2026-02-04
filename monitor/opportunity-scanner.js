@@ -46,7 +46,10 @@ const SETTINGS = {
     // Key insight: 5+ scans = 98-100% accuracy vs 50-55% for <5 scans
     MIN_PERSISTENCE_ALERT: 5,           // Minimum scans before alerting (~25 min of signal)
     HIGH_PERSISTENCE: 20,               // Considered "high" persistence (very high conviction)
-    TREAT_PUT_HEAVY_AS_BULLISH: true    // Heavy puts = institutional hedging = bullish
+    TREAT_PUT_HEAVY_AS_BULLISH: true,   // Heavy puts = institutional hedging = bullish
+
+    // Swing trading filter - exclude LEAPs
+    MAX_DTE: 60                          // Only show options expiring within 60 days
 };
 
 // Display timezone for alerts (user's local time)
@@ -382,8 +385,29 @@ async function fetchMarketContext() {
 
 async function fetchOptionsAnalysis(symbol) {
     try {
-        const data = await httpGet(`${APIS.options}/api/options/${symbol}/analysis`);
-        return data.analysis || data;
+        // Request wider strike range to catch spread legs
+        const data = await httpGet(`${APIS.options}/api/options/${symbol}/analysis?strike_count=100`);
+        const analysis = data.analysis || data;
+
+        // Filter to swing trading window (exclude LEAPs)
+        const filterByDTE = (strikes) => {
+            if (!strikes) return [];
+            const now = new Date();
+            return strikes.filter(s => {
+                if (!s.expiration) return true;
+                const dte = Math.ceil((new Date(s.expiration) - now) / (1000 * 60 * 60 * 24));
+                return dte <= SETTINGS.MAX_DTE;
+            });
+        };
+
+        if (analysis.unusual_calls) {
+            analysis.unusual_calls = filterByDTE(analysis.unusual_calls);
+        }
+        if (analysis.unusual_puts) {
+            analysis.unusual_puts = filterByDTE(analysis.unusual_puts);
+        }
+
+        return analysis;
     } catch (e) {
         return null;
     }
