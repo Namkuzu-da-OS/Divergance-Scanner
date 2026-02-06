@@ -216,6 +216,7 @@
                         <div class="nav-dropdown-menu">
                             <a href="analytics.html">Analytics</a>
                             <a href="strategies.html">Strategies</a>
+                            <a href="options-lab.html">Options Lab</a>
                         </div>
                     </div>
                 </nav>
@@ -402,9 +403,7 @@
             try {
                 // Try API first, fall back to JSON file
                 let response = await fetch('/api/premarket?_=' + Date.now());
-                if (!response.ok) {
-                    response = await fetch('/data/premarket.json?_=' + Date.now());
-                }
+                // No fallback needed - premarket data is in SQLite via /api/premarket
                 if (!response.ok) {
                     if (response.status === 404) {
                         showEmptyState();
@@ -912,7 +911,7 @@
                 <p style="margin-bottom: 16px;">The Gaps Scanner <strong>dynamically discovers</strong> stocks gapping 2%+ from their previous close. It scans the entire S&P 500 and NASDAQ to find opportunities - NOT a fixed watchlist. Best used during pre-market (6:00 AM - 9:30 AM ET).</p>
 
                 <h3 style="color: #f59e0b; margin-bottom: 12px; font-size: 14px;">DATA SOURCE</h3>
-                <p style="margin-bottom: 8px;"><strong>File:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">data/premarket.json</code></p>
+                <p style="margin-bottom: 8px;"><strong>Source:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">SQLite via /api/premarket</code></p>
                 <p style="margin-bottom: 8px;"><strong>Scanner:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">monitor/premarket-scanner.js</code></p>
                 <p style="margin-bottom: 16px;"><strong>Update Frequency:</strong> Every 5 minutes</p>
 

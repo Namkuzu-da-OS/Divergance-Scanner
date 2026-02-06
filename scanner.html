@@ -405,6 +405,7 @@ Auto-refreshes every 30 seconds.
                         <div class="nav-dropdown-menu">
                             <a href="analytics.html">Analytics</a>
                             <a href="strategies.html">Strategies</a>
+                            <a href="options-lab.html">Options Lab</a>
                         </div>
                     </div>
                 </nav>
@@ -576,7 +577,7 @@ Auto-refreshes every 30 seconds.
     </div>
 
     <script>
-        // Data is read from local scanner.json (written by monitor)
+        // Data is loaded from SQLite via /api/scan/summary
 
         async function fetchJson(url) {
             try {
@@ -596,7 +597,7 @@ Auto-refreshes every 30 seconds.
                 // Load from database via API (replaces scanner.json)
                 const [scannerData, alerts] = await Promise.all([
                     fetchJson('/api/scan/summary'),
-                    fetchJson('./data/alerts_log.json').catch(() => [])
+                    fetchJson('/api/alerts').then(d => d.alerts || []).catch(() => [])
                 ]);
 
                 if (!scannerData) {
@@ -818,7 +819,7 @@ Auto-refreshes every 30 seconds.
                 <p style="margin-bottom: 16px;">The Market Dashboard shows <strong>real-time market context</strong> from the Bloodhound scanner. It displays VIX regime, gamma regime, market bias, and recent high-conviction alerts. This is the legacy dashboard - for most purposes, use the <strong>Zone Scanner</strong> instead.</p>
 
                 <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">DATA SOURCE</h3>
-                <p style="margin-bottom: 8px;"><strong>File:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">data/scanner.json</code></p>
+                <p style="margin-bottom: 8px;"><strong>Source:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">SQLite via /api/scan/summary</code></p>
                 <p style="margin-bottom: 8px;"><strong>Scanner:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">monitor/bloodhound-scanner.js</code></p>
                 <p style="margin-bottom: 16px;"><strong>Update Frequency:</strong> Every 2 minutes (from Bloodhound)</p>
 

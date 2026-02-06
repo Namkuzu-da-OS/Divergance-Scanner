@@ -5,7 +5,7 @@
  * Runs 6:00 AM - 9:30 AM ET to identify pre-market opportunities.
  * Focuses on: gaps, futures direction, earnings, and pre-market volume.
  *
- * Data stored in SQLite (opportunity_history.db)
+ * Data stored in SQLite (wingman.db)
  */
 
 const http = require('http');
@@ -27,8 +27,7 @@ const CONFIG = {
     PREMARKET_START_HOUR: 6,          // 6 AM ET
     PREMARKET_END_HOUR: 9,            // 9:30 AM ET
     PREMARKET_END_MINUTE: 30,
-    MIN_GAP_PCT: 2.0,                 // Minimum gap to track
-    OUTPUT_FILE: path.join(__dirname, '..', 'data', 'premarket.json')
+    MIN_GAP_PCT: 2.0                  // Minimum gap to track
 };
 
 // Scanner state
@@ -251,6 +250,14 @@ async function sendGapAlert(mover, marketContext) {
 
     // Skip if already alerted today
     if (alertedToday.has(symbol)) {
+        return;
+    }
+
+    // Only send Telegram alerts during pre-market and first 30 min after open (6:00 AM - 10:00 AM ET)
+    const now = new Date();
+    const etOffset = isDST(now) ? -4 : -5;
+    const etHour = (now.getUTCHours() + etOffset + 24) % 24;
+    if (etHour >= 10) {
         return;
     }
 
@@ -693,8 +700,8 @@ async function runScan() {
     // Check if we're in pre-market hours
     const inPremarket = isPremarketHours();
     if (!inPremarket) {
-        log('Outside pre-market hours (6:00 AM - 9:30 AM ET)');
-        log('Scanner will continue monitoring but data may be stale');
+        log('Outside pre-market hours (6:00 AM - 9:30 AM ET) - skipping scan');
+        return;
     }
 
     // Fetch market data
@@ -951,8 +958,7 @@ async function runScan() {
         }
     };
 
-    fs.writeFileSync(CONFIG.OUTPUT_FILE, JSON.stringify(output, null, 2));
-    log(`Wrote ${CONFIG.OUTPUT_FILE}`);
+    // Removed: JSON file write (premarket.json) - data now served from SQLite via /api/premarket
 
     lastScanTime = new Date();
     log(`Scan complete. Next scan in ${CONFIG.SCAN_INTERVAL_MS / 60000} minutes`);

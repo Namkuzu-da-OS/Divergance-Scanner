@@ -6,7 +6,6 @@
  * Automates end-of-day tasks:
  * - Archives daily_log.md to archive/daily_logs/trading_log_YYYY-MM-DD.md
  * - Updates account_summary.json timestamp
- * - Appends EOD note to ACTIVE_SESSION.md
  * - Creates fresh daily_log.md for next day
  *
  * Usage: node eod.js
@@ -49,14 +48,7 @@ try {
     console.log('✓ Updated account_summary.json timestamp');
   }
 
-  // 4. Append EOD note to ACTIVE_SESSION.md
-  const activeSessionPath = path.join(__dirname, 'data', 'ACTIVE_SESSION.md');
-  const eodNote = `\n---\n\n**EOD Complete:** ${today} at ${new Date().toLocaleTimeString()}\n\nSession archived. Ready for next trading day.\n`;
-
-  if (fs.existsSync(activeSessionPath)) {
-    fs.appendFileSync(activeSessionPath, eodNote);
-    console.log('✓ Updated ACTIVE_SESSION.md with EOD note');
-  }
+  // 4. ACTIVE_SESSION.md removed - session state lives in MARKET_INTEL.md
 
   // 5. Create fresh daily_log.md for tomorrow
   const freshLogTemplate = `# Trading Log - ${tomorrowFormatted}

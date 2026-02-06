@@ -26,7 +26,7 @@ Wingman Trading System - AI Instructions
 
 **Orientation Path:**
 ```
-docs/RULES.md → data/ACTIVE_SESSION.md → /api/positions
+docs/RULES.md → data/MARKET_INTEL.md → /api/positions
 ```
 
 ---
@@ -214,14 +214,20 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 | 8080 | Web Server | `monitor/web-server.js` | Serves HTML dashboards |
 | 8081 | Bloodhound | `monitor/bloodhound-scanner.js` | Bloodhound control API |
 | 8082 | Earnings | `monitor/earnings-scanner.js` | Earnings scanner control API |
+| 8083 | Opportunity | `monitor/opportunity-scanner.js` | Opportunity scanner control API |
 | 8084 | Pre-Market | `monitor/premarket-scanner.js` | Pre-market scanner control API |
 
 **Dashboard URLs:**
+- Morning Briefing: `http://localhost:8080/morning.html` (default page)
 - Zone Scanner: `http://localhost:8080/zone-scanner.html`
 - Pre-Market Scanner: `http://localhost:8080/premarket.html`
 - Earnings Scanner: `http://localhost:8080/earnings-scanner.html`
+- Opportunity Scanner: `http://localhost:8080/opportunity-scanner.html`
 - Analytics: `http://localhost:8080/analytics.html`
 - Strategies: `http://localhost:8080/strategies.html`
+- Dashboard: `http://localhost:8080/dashboard.html`
+- Options Lab: `http://localhost:8080/options-lab.html`
+- Scanner (legacy): `http://localhost:8080/scanner.html`
 
 ---
 
@@ -235,8 +241,7 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 | `data/wingman.db` (positions table) | Open trades | Position change via `/api/positions` |
 | `data/trades_journal.json` | Trade history | Trade closes |
 | `data/account_summary.json` | P&L metrics | EOD |
-| `data/ACTIVE_SESSION.md` | Session state | Hourly |
-| `data/MARKET_INTEL.md` | **Living market intelligence** - Swing watchlist, sector rotation, session recaps, next-day focus, trade ideas pipeline | Each session |
+| `data/MARKET_INTEL.md` | **Living market intelligence** - Regime, sector rotation, swing watchlist, session recaps, next-day focus | Each session |
 | `data/daily_log.md` | Today's journal | Throughout day |
 
 **Deprecated files (archived in data/archive/):**
@@ -250,6 +255,8 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 - `premarket.json` - Replaced by SQLite premarket_scans/premarket_movers tables + API `/api/premarket`
 - `opportunities.json` - Replaced by SQLite opportunities table + API `/api/opportunities/latest`
 - `earnings-scan.json` - Replaced by SQLite earnings_scans/earnings_results tables + API via earnings scanner `/results`
+- `positions.json` - Replaced by SQLite positions table + API `/api/positions`
+- `ACTIVE_SESSION.md` - Removed, session state lives in `MARKET_INTEL.md`
 
 ### Monitor System
 | File | Purpose |
@@ -289,7 +296,7 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 pm2 start ecosystem.config.js
 ```
 
-This starts all 4 services: bloodhound, opportunity, earnings, webserver.
+This starts all 6 services: bloodhound, opportunity, earnings, premarket, webserver, eod-tracker.
 
 **Common PM2 commands:**
 ```bash
@@ -316,7 +323,7 @@ pm2 restart bloodhound       # Restart after changes
 
 ### Web Control Interface
 
-Dashboard: `http://localhost:8080` (zone-scanner.html)
+Dashboard: `http://localhost:8080` (defaults to morning.html)
 Control API: `http://localhost:8081`
 
 | Endpoint | Method | Purpose |
@@ -359,20 +366,11 @@ Non-tradeable symbols are mapped to liquid ETF equivalents:
 | CL | USO | Crude Oil futures → ETF |
 | GC | GLD | Gold futures → ETF |
 
-### Confluence Scoring (0-80)
+### Confluence Scoring (0-100)
 
-Each symbol is scored across multiple factors:
+Each symbol is scored across multiple factors (base, high-edge, standard). Score is clamped to 0-100.
 
-| Category | Max Points | Signals |
-|----------|------------|---------|
-| Technical | 25 | RSI momentum extremes, Bollinger Band position, trend |
-| Levels | 25 | At gamma walls, VWAP, confluence zones, breakout/breakdown |
-| Volume | 15 | Volume spike (2x+), elevated volume (1.5x+) |
-| Context | 15 | Aligned with SPY trend, market regime |
-
-**Alert threshold: 48/80** (configurable in SETTINGS)
-
-Note: Sentiment scoring was removed (unreliable). Max score reduced from 100 to 80.
+**Alert threshold: 35/100** (configurable via `minConfluenceScore` in SETTINGS)
 
 ### Alert Types
 
@@ -384,28 +382,20 @@ Note: Sentiment scoring was removed (unreliable). Max score reduced from 100 to 
 
 ### Tradeable Tiers (Score-Aware)
 
-The tradeable decision uses both wall proximity AND confluence score:
+The tradeable decision uses wall proximity, confluence score, and zone:
 
 | Tier | Criteria | Paper Trade? |
 |------|----------|--------------|
-| **HIGH_CONVICTION** | Score >= 56 + at wall (0.5%), OR Score >= 64 + near wall (1.5%) | Yes |
-| **TRADEABLE** | Score >= 48 + at wall (0.5%) + trend-aligned | Yes |
-| **WATCH** | Score >= 40 + near wall (2%), OR EXTENDED_LOW + RSI < 35, OR Score >= 56 mid-range | No (alert only) |
+| **HIGH_CONVICTION** | Prime setup (AT_WALL + EXTENDED_RSI) + score >= 40, OR score >= 50 at wall | Yes |
+| **TRADEABLE** | Score >= 35 at wall + action | Yes |
+| **WATCH** | Score >= 20 near wall, OR EXTENDED_LOW + oversold RSI, OR MID_RANGE/PINNED + score >= 35 | No (alert only) |
 | **FILTERED** | Everything else | No |
 
 **Key Rules:**
 1. **Score gates tradeability** - Low-score symbols at walls are NOT tradeable
-2. **High scores loosen threshold** - Score 64+ can be 1.5% from wall instead of 0.5%
-3. **Trend alignment matters** - Counter-trend trades downgraded to WATCH
-4. **EXTENDED_LOW reversals** - Below put wall with RSI < 35 = potential bounce watch
-
-**Wall Threshold by Score:**
-| Score | Wall Threshold |
-|-------|---------------|
-| 64+ | 1.5% (looser - high conviction) |
-| 56-63 | 1.0% (moderate) |
-| 48-55 | 0.5% (strict - lower conviction) |
-| < 48 | Not tradeable at any distance |
+2. **Bad zones excluded** - EXTENDED_HIGH and HIGH_MOMENTUM never get tradeable tiers
+3. **EXTENDED_LOW reversals** - Below put wall with oversold RSI = WATCH tier
+4. **Mid-range/Pinned** - Good scores (35+) in these zones get WATCH, not FILTERED
 
 **Trend Alignment:**
 - BUY action + bullish/neutral trend = aligned
@@ -475,8 +465,8 @@ Bloodhound automatically logs HIGH_CONVICTION signals to SQLite for multi-checkp
 
 Edit `monitor/config.json` for API endpoints and Telegram credentials.
 Edit `monitor/bloodhound-scanner.js` SETTINGS for:
-- `scanIntervalMs` - Scan frequency (default: 2 min)
-- `minConfluenceScore` - Alert threshold (default: 60)
+- `scanIntervalMs` - Scan frequency (default: 5 min)
+- `minConfluenceScore` - Alert threshold (default: 35)
 - `maxSymbols` - Max symbols per scan (default: 20)
 - `alertCooldownMs` - Per-symbol cooldown (default: 30 min)
 
@@ -804,7 +794,7 @@ When user proposes a trade, auto-pull from APIs and check:
 Trade executed  → POST /api/trades (server captures snapshot)
                 → POST /api/positions (SQLite) + trades_journal.json (local)
 
-Position change → PATCH /api/positions/close (SQLite) + ACTIVE_SESSION.md
+Position change → PATCH /api/positions/close (SQLite)
 
 Trade closed    → PATCH /api/trades/:id/close (server calculates P&L)
                 → trades_journal.json + account_summary.json
@@ -818,7 +808,7 @@ End of day      → account_summary.json + archive
 
 ### Zone Scanner (Primary)
 
-**URL:** [http://localhost:8080](http://localhost:8080) (`zone-scanner.html`)
+**URL:** [http://localhost:8080/zone-scanner.html](http://localhost:8080/zone-scanner.html)
 
 **Features:**
 - Real-time ticker cards with zones (BUY_ZONE, SELL_ZONE, PINNED, etc.)
@@ -880,7 +870,7 @@ Analyzes signal validation performance from the SQLite database.
 - Shows if score threshold should be adjusted
 - Identifies which market conditions favor signals
 
-Auto-refreshes every 30 seconds from `/api/signals` (falls back to `signal_log.json` for compatibility).
+Auto-refreshes every 30 seconds from `/api/signals`.
 
 ---
 
@@ -1049,7 +1039,7 @@ When analyzing ANY symbol:
 
 - `-note [text]` → appends to daily_log.md with timestamp
 - Dashboard auto-refreshes every 10s
-- Goals in goals.json ($2,500/month target)
+- Monthly goal: $2,500/month target
 - Full rules in `docs/RULES.md`
 - Full strategies in `docs/STRATEGIES.md`
 - Signals stored in SQLite (`data/wingman.db`) with multi-checkpoint validation

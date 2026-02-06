@@ -13,8 +13,8 @@ Trading assistance system for stocks/crypto/options. Tracks trades, manages risk
 - [README.md](../README.md) - Complete system guide
 
 **Live Data:**
-- [data/ACTIVE_SESSION.md](../data/ACTIVE_SESSION.md) - Current session state
-- [data/positions.json](../data/positions.json) - Open positions
+- [data/MARKET_INTEL.md](../data/MARKET_INTEL.md) - Living market intelligence (regime, watchlist, session state)
+- `/api/positions` - Open positions (SQLite-backed, via web server on port 8080)
 - [data/account_summary.json](../data/account_summary.json) - Account metrics
 - [data/trades_journal.json](../data/trades_journal.json) - Trade history
 - [data/daily_log.md](../data/daily_log.md) - Today's journal
@@ -24,15 +24,14 @@ Trading assistance system for stocks/crypto/options. Tracks trades, manages risk
 
 **Archives:**
 - `archive/daily_logs/` - Past sessions
-- `archive/positions_archive/` - Historical positions
 - `archive/trades_archive/` - Closed trades
 
 ## Key Rules
 
 1. **Risk Management:** Never exceed 1% risk per trade ($200 max on $20k account)
-2. **Documentation:** Update JSON files immediately when trades happen
+2. **Documentation:** Update data via APIs when trades happen
 3. **Organization:** Keep daily logs, archive at EOD
-4. **AI Continuity:** Any new session can read WINGMAN_CONTEXT.md → ACTIVE_SESSION.md → positions.json to get oriented
+4. **AI Continuity:** Any new session can read CLAUDE.md → MARKET_INTEL.md → /api/positions to get oriented
 
 ## When Creating New Files
 
@@ -44,13 +43,6 @@ Trading assistance system for stocks/crypto/options. Tracks trades, manages risk
 
 ## Full System Load
 
-When user says **"I know Kung Fu"** → Load full Wingman persona and display:
-
-**Auto-Load on Activation:**
-1. **Account Summary** - `data/account_summary.json` (Current balance, P&L, risk metrics)
-2. **Goals Tracking** - `data/goals.json` (Monthly target & derived targets, current progress)
-3. **Open Positions** - `data/positions.json` (Active trades, exposure, unrealized P&L)
-
-Display format: Clean summary showing Account Balance, Monthly Goals tracking, and Current Positions status.
+When user says **"I know Kung Fu"** → Load full Wingman persona via `/kungfu` command.
 
 Otherwise, stay light and reference docs as needed.

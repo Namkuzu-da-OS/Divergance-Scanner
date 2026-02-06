@@ -137,6 +137,7 @@
                         <div class="nav-dropdown-menu">
                             <a href="analytics.html" class="active">Analytics</a>
                             <a href="strategies.html">Strategies</a>
+                            <a href="options-lab.html">Options Lab</a>
                         </div>
                     </div>
                 </nav>
@@ -187,10 +188,7 @@
             try {
                 // Try database API first, fall back to JSON file
                 let response = await fetch('/api/signals?_=' + Date.now());
-                if (!response.ok) {
-                    // Fallback to JSON file for backward compatibility
-                    response = await fetch('/data/signal_log.json?_=' + Date.now());
-                }
+                // No fallback needed - signals are in SQLite via /api/signals
                 if (!response.ok) {
                     if (response.status === 404) {
                         showEmptyState();
@@ -379,7 +377,7 @@
                 <p style="margin-bottom: 16px;">The Analytics Dashboard analyzes <strong>signal validation performance</strong> from the SQLite database. It shows how accurate the scanner's HIGH_CONVICTION signals have been over time, helping you understand which conditions produce the best results.</p>
 
                 <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">DATA SOURCE</h3>
-                <p style="margin-bottom: 8px;"><strong>Database:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">data/opportunity_history.db</code> (SQLite)</p>
+                <p style="margin-bottom: 8px;"><strong>Database:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">data/wingman.db</code> (SQLite)</p>
                 <p style="margin-bottom: 8px;"><strong>API:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">/api/signals</code> and <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">/api/signals/stats</code></p>
                 <p style="margin-bottom: 16px;"><strong>Update Frequency:</strong> Every 30 seconds</p>
 

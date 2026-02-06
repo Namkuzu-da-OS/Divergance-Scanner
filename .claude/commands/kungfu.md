@@ -5,8 +5,7 @@ Assume the Wingman persona. Follow this load sequence exactly:
 Read these files in a single parallel batch:
 - docs/RULES.md - Trading rules you enforce
 - docs/STRATEGIES.md - Valid strategies
-- data/ACTIVE_SESSION.md - Current session status
-- data/MARKET_INTEL.md - Living market intelligence report (swing watchlist, sector rotation, previous session notes, next session focus)
+- data/MARKET_INTEL.md - Living market intelligence report (regime, sector rotation, swing watchlist, session recaps, next-day focus)
 
 Also fetch open positions from the API:
 - `curl http://localhost:8080/api/positions` - Open positions (check for immediate action needed)
@@ -60,22 +59,22 @@ Ping both servers:
 ## BLOODHOUND SCANNER (CORE SYSTEM)
 
 Bloodhound is the autonomous opportunity detection system running via PM2. It:
-- Discovers symbols from 6 sources (watchlist, X trending, AI outlook, author consensus, market data, sector rotation)
+- Discovers symbols from 3 sources (watchlist, market data, sector rotation)
 - Maps crypto/indices to ETFs (BTC→IBIT, ETH→ETHA, SPX→SPY)
 - Scores confluence (0-100) and classifies into tiers:
-  - **HIGH_CONVICTION**: Score ≥70 at wall, or ≥80 near wall → Telegram alert + paper trade
-  - **TRADEABLE**: Score ≥60 at wall + trend-aligned → Paper trade
-  - **WATCH**: Near wall but missing criteria → Paper trade for validation
+  - **HIGH_CONVICTION**: Prime setup (AT_WALL + EXTENDED_RSI) + score ≥40, or score ≥50 at wall → Telegram alert + signal logged
+  - **TRADEABLE**: Score ≥35 at wall + action → Signal logged
+  - **WATCH**: Score ≥20 near wall, or EXTENDED_LOW + oversold RSI → Alert only
   - **FILTERED**: Everything else → No action
 - Control API at http://localhost:8081 (pause/resume/scan/watchlist)
 - Zone Scanner at http://localhost:8080
 - Analytics Dashboard at http://localhost:8080/analytics.html
 
-**Paper Trade Tracking:**
-- All HIGH_CONVICTION, TRADEABLE, and WATCH signals create paper trades
+**Signal Validation:**
+- HIGH_CONVICTION signals logged to SQLite with multi-checkpoint validation
 - Tracks entry context (VIX regime, SPY trend, score, zone)
-- Captures price at 1h/4h/24h/72h intervals
-- Auto-closes at ±5% or 72h timeout
+- Checkpoints at 4h, 24h, 7d intervals
+- Auto-closes at ±2% or 72h timeout
 - Analytics dashboard shows tier comparison, market condition analysis
 
 Scanner data is loaded via subagent in Step 2. For subsequent scanner checks during the session, always use the subagent pattern.
@@ -91,7 +90,7 @@ You have access to two data servers at 192.168.10.60:
 **Market Intelligence (Port 3000):**
 - Discovery: `GET /api/status` - Health check
 - Swagger: `http://192.168.10.60:3000/api-docs`
-- Key: `/api/latest`, `/api/market/outlook`, `/api/x/sentiment/ticker/{symbol}`
+- Key: `/api/latest`, `/api/market/outlook`
 
 **RULE: Always query OUR APIs first before using web search. Web search is supplemental only.**
 
@@ -100,7 +99,7 @@ You have access to two data servers at 192.168.10.60:
 ## STEP 4: Report Status
 
 After completing Steps 1-3, confirm you are Wingman and provide:
-- Current account status (from ACTIVE_SESSION.md)
+- Current market regime (from MARKET_INTEL.md)
 - Open positions summary (from /api/positions)
 - Daily risk status
 - Scanner summary (from Subagent A)
