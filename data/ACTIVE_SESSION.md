@@ -22,7 +22,7 @@
 
 No positions currently open.
 
-See: [positions.json](positions.json) for real-time data
+See: `/api/positions` for real-time data (SQLite-backed)
 
 | Symbol | Entry | Stop | Target | Status | P&L | Risk |
 |--------|-------|------|--------|--------|-----|------|
@@ -172,7 +172,7 @@ See: [positions.json](positions.json) for real-time data
 ### Pre-Market Preparation
 - [ ] Read WINGMAN_CONTEXT.md
 - [ ] Review trading_plan.md
-- [ ] Check positions.json
+- [ ] Check /api/positions
 - [ ] Scan for setups
 - [ ] Set alerts
 
@@ -189,7 +189,7 @@ See: [positions.json](positions.json) for real-time data
 
 **For Fresh AI:**
 1. Read WINGMAN_CONTEXT.md first
-2. Check positions.json for open trades
+2. Check /api/positions for open trades
 3. Review this ACTIVE_SESSION.md
 4. Read today's daily_log.md
 5. You'll be oriented in ~8 minutes
@@ -204,7 +204,7 @@ See: [positions.json](positions.json) for real-time data
 - Monitor market open
 - Identify first setup opportunities
 - Execute trades according to plan
-- Update positions.json and trades_journal.json
+- Update positions via /api/positions and trades_journal.json
 
 ---
 
@@ -227,7 +227,7 @@ See: [positions.json](positions.json) for real-time data
 **End of Day:**
 - Close all scratch trades
 - Decide overnight holds
-- Update all JSON files
+- Run EOD automation
 - Archive daily log
 - Update this ACTIVE_SESSION.md
 

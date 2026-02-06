@@ -26,7 +26,7 @@ Wingman Trading System - AI Instructions
 
 **Orientation Path:**
 ```
-docs/RULES.md → data/ACTIVE_SESSION.md → data/positions.json
+docs/RULES.md → data/ACTIVE_SESSION.md → /api/positions
 ```
 
 ---
@@ -230,12 +230,11 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 ### Data Files
 | File | Purpose | Update Trigger |
 |------|---------|----------------|
-| `data/wingman.db` | **SQLite database** - Bloodhound scans, signals, checkpoints, scanner history, premarket, watchlist, gap_ticker_stats | Every scan |
+| `data/wingman.db` | **SQLite database** - Bloodhound scans, signals, checkpoints, scanner history, premarket, watchlist, gap_ticker_stats, positions | Every scan / position change |
 | `data/watchlist.json` | Symbols to always scan (legacy, now backed by SQLite) | Manual or auto-add |
-| `data/positions.json` | Open trades | Position change |
+| `data/wingman.db` (positions table) | Open trades | Position change via `/api/positions` |
 | `data/trades_journal.json` | Trade history | Trade closes |
 | `data/account_summary.json` | P&L metrics | EOD |
-| `data/premarket.json` | Pre-market gaps and movers | Every 5 min (6-9:30 AM ET) |
 | `data/ACTIVE_SESSION.md` | Session state | Hourly |
 | `data/MARKET_INTEL.md` | **Living market intelligence** - Swing watchlist, sector rotation, session recaps, next-day focus, trade ideas pipeline | Each session |
 | `data/daily_log.md` | Today's journal | Throughout day |
@@ -248,6 +247,9 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 - `scanner_history.json` - Replaced by SQLite scanner_history table
 - `signal_tracking.json` - Replaced by signals table
 - `alerts_log.json` - Replaced by signals table
+- `premarket.json` - Replaced by SQLite premarket_scans/premarket_movers tables + API `/api/premarket`
+- `opportunities.json` - Replaced by SQLite opportunities table + API `/api/opportunities/latest`
+- `earnings-scan.json` - Replaced by SQLite earnings_scans/earnings_results tables + API via earnings scanner `/results`
 
 ### Monitor System
 | File | Purpose |
@@ -571,8 +573,7 @@ console.log(db.getTopSymbols(7, 10)); // Top 10 symbols
 
 | File | Content |
 |------|---------|
-| `data/opportunities.json` | Latest scan results (overwrites each cycle) |
-| `data/wingman.db` | SQLite historical data for analysis |
+| `data/wingman.db` | SQLite database - scan results + historical analysis |
 
 ---
 
@@ -646,7 +647,6 @@ This ensures premarket discoveries flow into the main scanner without manual int
 
 | File | Content |
 |------|---------|
-| `data/premarket.json` | Latest scan with gaps and market context |
 | `data/wingman.db` | SQLite tables: `premarket_scans`, `premarket_movers` |
 
 ### Configuration
@@ -802,9 +802,9 @@ When user proposes a trade, auto-pull from APIs and check:
 
 ```
 Trade executed  → POST /api/trades (server captures snapshot)
-                → positions.json + trades_journal.json (local)
+                → POST /api/positions (SQLite) + trades_journal.json (local)
 
-Position change → positions.json + ACTIVE_SESSION.md
+Position change → PATCH /api/positions/close (SQLite) + ACTIVE_SESSION.md
 
 Trade closed    → PATCH /api/trades/:id/close (server calculates P&L)
                 → trades_journal.json + account_summary.json

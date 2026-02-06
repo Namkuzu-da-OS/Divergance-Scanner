@@ -12,7 +12,7 @@ PURPOSE:
 - Auto-refresh every 10 seconds
 
 DATA SOURCES:
-- positions.json: Open positions, exposure, unrealized P&L
+- /api/positions (SQLite): Open positions, exposure, risk
 - account_summary.json: Daily/weekly/monthly P&L for goal tracking
 - goals.json: Goal targets (customizable - default $2,500/month)
 - daily_log.md: Session notes with timestamps
@@ -728,6 +728,7 @@ LAST UPDATED: November 2, 2025
                         <div class="nav-dropdown-menu">
                             <a href="analytics.html">Analytics</a>
                             <a href="strategies.html">Strategies</a>
+                            <a href="options-lab.html">Options Lab</a>
                         </div>
                     </div>
                     <a href="dashboard.html" class="nav-link active">DASHBOARD</a>
@@ -919,16 +920,16 @@ LAST UPDATED: November 2, 2025
                 const now = new Date();
                 document.getElementById('last-update').textContent = now.toLocaleTimeString();
 
-                // Load from JSON files using relative paths (works with web servers)
-                let positions = { active_positions: [], summary: { total_open: 0, total_exposure: 0, total_risk: 0, total_unrealized_pnl: 0, total_unrealized_pnl_pct: 0 } };
+                // Load positions from API (backed by SQLite)
+                let positions = { positions: [], summary: { total_open: 0, total_exposure: 0, total_risk: 0, total_unrealized_pnl: 0, total_unrealized_pnl_pct: 0 } };
 
                 try {
-                    const response = await fetch('./data/positions.json');
+                    const response = await fetch('/api/positions');
                     if (response.ok) {
                         positions = await response.json();
                     }
                 } catch (e) {
-                    console.log('Could not load positions.json:', e.message);
+                    console.log('Could not load positions:', e.message);
                 }
 
                 // Update account info
@@ -937,7 +938,7 @@ LAST UPDATED: November 2, 2025
                 document.getElementById('account-change').textContent = 'Current balance';
 
                 // Update position count
-                const posCount = positions.active_positions?.length || 0;
+                const posCount = positions.positions?.length || 0;
                 document.getElementById('position-count').textContent = posCount;
                 document.getElementById('position-exposure').textContent = '$' + (positions.summary?.total_exposure || 0).toFixed(2) + ' exposure';
                 document.getElementById('position-slots').textContent = (5 - posCount) + ' / 5 available';
@@ -976,19 +977,19 @@ LAST UPDATED: November 2, 2025
                 if (posCount === 0) {
                     posContainer.innerHTML = '<div class="empty-message">No positions currently open</div>';
                 } else {
-                    posContainer.innerHTML = positions.active_positions.map(pos => `
+                    posContainer.innerHTML = positions.positions.map(pos => `
                         <div class="position-item">
                             <div class="position-header">
                                 <span class="position-symbol">${pos.symbol}</span>
-                                <span class="position-pnl ${pos.unrealized_pnl >= 0 ? 'positive' : 'negative'}">
-                                    ${pos.unrealized_pnl >= 0 ? '+' : ''}$${pos.unrealized_pnl.toFixed(2)}
+                                <span class="position-pnl ${(pos.pnl || 0) >= 0 ? 'positive' : 'negative'}">
+                                    ${(pos.pnl || 0) >= 0 ? '+' : ''}$${(pos.pnl || 0).toFixed(2)}
                                 </span>
                             </div>
                             <div class="position-details">
                                 <div>Entry: $${pos.entry_price.toFixed(2)}</div>
                                 <div>Stop: $${pos.stop_price.toFixed(2)}</div>
                                 <div>Target: $${pos.target_price.toFixed(2)}</div>
-                                <div>Shares: ${pos.quantity}</div>
+                                <div>Shares: ${pos.shares || 0}</div>
                             </div>
                         </div>
                     `).join('');

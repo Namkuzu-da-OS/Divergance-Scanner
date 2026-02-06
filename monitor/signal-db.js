@@ -13,8 +13,8 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 
-// Use the same database as opportunity scanner - consolidated storage
-const DB_PATH = path.join(__dirname, '..', 'data', 'opportunity_history.db');
+// Central Wingman database - all scanner data, signals, watchlist, history
+const DB_PATH = path.join(__dirname, '..', 'data', 'wingman.db');
 
 // Valid checkpoint types - whitelist for SQL injection prevention
 const VALID_CHECKPOINT_TYPES = ['4h', '24h', '7d'];
@@ -25,6 +25,8 @@ let db = null;
 function getDb() {
     if (!db) {
         db = new Database(DB_PATH);
+        db.pragma('journal_mode = WAL');
+        db.pragma('busy_timeout = 5000');
         initSchema();
     }
     return db;
@@ -288,6 +290,73 @@ function initSchema() {
         CREATE INDEX IF NOT EXISTS idx_bloodhound_scans_timestamp ON bloodhound_scans(timestamp);
         CREATE INDEX IF NOT EXISTS idx_bloodhound_results_scan_id ON bloodhound_results(scan_id);
         CREATE INDEX IF NOT EXISTS idx_bloodhound_results_symbol ON bloodhound_results(symbol);
+    `);
+
+    // Earnings scanner tables
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS earnings_scans (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT NOT NULL,
+            strategy TEXT,
+            total_scanned INTEGER,
+            high_conviction_count INTEGER,
+            tradeable_count INTEGER
+        );
+
+        CREATE TABLE IF NOT EXISTS earnings_results (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            scan_id INTEGER NOT NULL,
+            symbol TEXT NOT NULL,
+            earnings_date TEXT,
+            days_to_earnings INTEGER,
+            earnings_time TEXT,
+            score INTEGER,
+            direction TEXT,
+            tier TEXT,
+            signals_json TEXT,
+            price REAL,
+            rsi REAL,
+            trend TEXT,
+            iv_rank REAL,
+            iv_percentile REAL,
+            spy_trend TEXT,
+            vix REAL,
+            call_premium REAL,
+            put_premium REAL,
+            net_delta REAL,
+            timestamp TEXT NOT NULL,
+            FOREIGN KEY (scan_id) REFERENCES earnings_scans(id)
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_earnings_scans_timestamp ON earnings_scans(timestamp);
+        CREATE INDEX IF NOT EXISTS idx_earnings_results_scan_id ON earnings_results(scan_id);
+        CREATE INDEX IF NOT EXISTS idx_earnings_results_symbol ON earnings_results(symbol);
+    `);
+
+    // Positions table (replaces positions.json)
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS positions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            symbol TEXT NOT NULL,
+            direction TEXT NOT NULL,
+            strategy TEXT,
+            entry_price REAL NOT NULL,
+            stop_price REAL,
+            target_price REAL,
+            shares INTEGER,
+            entry_date TEXT NOT NULL,
+            status TEXT DEFAULT 'open',
+            exit_price REAL,
+            exit_date TEXT,
+            exit_reason TEXT,
+            pnl REAL,
+            notes TEXT,
+            created_at TEXT DEFAULT (datetime('now')),
+            updated_at TEXT DEFAULT (datetime('now'))
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_positions_status ON positions(status);
+        CREATE INDEX IF NOT EXISTS idx_positions_symbol ON positions(symbol);
     `);
 
     // Migration: Add EOD columns to existing premarket_movers table
@@ -2359,6 +2428,205 @@ function getBloodhoundScanHistory(limit = 100) {
     `).all(limit);
 }
 
+// ============================================
+// EARNINGS SCANNER FUNCTIONS
+// ============================================
+
+/**
+ * Insert an earnings scan record
+ * Returns the scan_id for linking results
+ */
+function insertEarningsScan(scanData) {
+    const stmt = getDb().prepare(`
+        INSERT INTO earnings_scans (
+            timestamp, strategy, total_scanned,
+            high_conviction_count, tradeable_count
+        ) VALUES (?, ?, ?, ?, ?)
+    `);
+
+    const result = stmt.run(
+        scanData.timestamp || new Date().toISOString(),
+        scanData.strategy || 'PREM',
+        scanData.total_scanned || 0,
+        scanData.high_conviction_count || 0,
+        scanData.tradeable_count || 0
+    );
+
+    console.log(`[SignalDB] Inserted earnings scan: ${scanData.total_scanned} results, scanId=${result.lastInsertRowid}`);
+    return result.lastInsertRowid;
+}
+
+/**
+ * Insert a single earnings result linked to a scan
+ */
+function insertEarningsResult(scanId, result) {
+    const stmt = getDb().prepare(`
+        INSERT INTO earnings_results (
+            scan_id, symbol, earnings_date, days_to_earnings, earnings_time,
+            score, direction, tier, signals_json,
+            price, rsi, trend, iv_rank, iv_percentile,
+            spy_trend, vix, call_premium, put_premium, net_delta,
+            timestamp
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    stmt.run(
+        scanId,
+        result.symbol,
+        result.earnings_date,
+        result.days_to_earnings,
+        result.earnings_time,
+        result.score,
+        result.direction,
+        result.tier,
+        JSON.stringify(result.signals || []),
+        result.details?.price || result.price,
+        result.details?.rsi || result.rsi,
+        result.details?.trend || result.trend,
+        result.details?.ivRank,
+        result.details?.ivPercentile,
+        result.details?.spyTrend,
+        result.details?.vix,
+        result.details?.callPremium,
+        result.details?.putPremium,
+        result.details?.netDelta,
+        result.timestamp || new Date().toISOString()
+    );
+}
+
+/**
+ * Get latest earnings scan with all results
+ * Returns data shaped identically to earnings-scan.json
+ */
+function getLatestEarningsScan() {
+    const scan = getDb().prepare(`
+        SELECT * FROM earnings_scans ORDER BY id DESC LIMIT 1
+    `).get();
+
+    if (!scan) return null;
+
+    const rows = getDb().prepare(`
+        SELECT * FROM earnings_results WHERE scan_id = ? ORDER BY score DESC
+    `).all(scan.id);
+
+    return {
+        last_updated: scan.timestamp,
+        strategy: scan.strategy,
+        total_scanned: scan.total_scanned,
+        high_conviction: scan.high_conviction_count,
+        tradeable: scan.tradeable_count,
+        results: rows.map(r => ({
+            symbol: r.symbol,
+            earnings_date: r.earnings_date,
+            days_to_earnings: r.days_to_earnings,
+            earnings_time: r.earnings_time,
+            score: r.score,
+            direction: r.direction,
+            tier: r.tier,
+            signals: JSON.parse(r.signals_json || '[]'),
+            details: {
+                price: r.price,
+                rsi: r.rsi,
+                trend: r.trend,
+                ivRank: r.iv_rank,
+                ivPercentile: r.iv_percentile,
+                spyTrend: r.spy_trend,
+                vix: r.vix,
+                callPremium: r.call_premium,
+                putPremium: r.put_premium,
+                netDelta: r.net_delta
+            },
+            timestamp: r.timestamp
+        }))
+    };
+}
+
+// ==================== POSITIONS FUNCTIONS ====================
+
+/**
+ * Get all open positions with computed summary
+ */
+function getOpenPositions() {
+    const positions = getDb().prepare(
+        'SELECT * FROM positions WHERE status = ? ORDER BY entry_date DESC'
+    ).all('open');
+
+    const totalExposure = positions.reduce((sum, p) => sum + (p.entry_price * (p.shares || 0)), 0);
+    const totalRisk = positions.reduce((sum, p) => {
+        if (!p.stop_price || !p.shares) return sum;
+        return sum + Math.abs(p.entry_price - p.stop_price) * p.shares;
+    }, 0);
+
+    return {
+        positions,
+        summary: {
+            total_open: positions.length,
+            total_exposure: totalExposure,
+            total_risk: totalRisk,
+            total_unrealized_pnl: 0,
+            total_unrealized_pnl_pct: 0
+        }
+    };
+}
+
+/**
+ * Add a new position
+ */
+function addPosition(data) {
+    const stmt = getDb().prepare(`
+        INSERT INTO positions (symbol, direction, strategy, entry_price, stop_price, target_price, shares, entry_date, notes)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    const result = stmt.run(
+        data.symbol,
+        data.direction || 'long',
+        data.strategy || null,
+        data.entry_price,
+        data.stop_price || null,
+        data.target_price || null,
+        data.shares || null,
+        data.entry_date || new Date().toISOString(),
+        data.notes || null
+    );
+
+    console.log(`[SignalDB] Added position: ${data.symbol} @ $${data.entry_price}`);
+    return result.lastInsertRowid;
+}
+
+/**
+ * Close a position by ID
+ */
+function closePosition(id, exitData) {
+    const position = getDb().prepare('SELECT * FROM positions WHERE id = ?').get(id);
+    if (!position) return null;
+
+    const exitPrice = exitData.exit_price;
+    const pnl = position.direction === 'short'
+        ? (position.entry_price - exitPrice) * (position.shares || 0)
+        : (exitPrice - position.entry_price) * (position.shares || 0);
+
+    getDb().prepare(`
+        UPDATE positions SET
+            status = 'closed',
+            exit_price = ?,
+            exit_date = ?,
+            exit_reason = ?,
+            pnl = ?,
+            updated_at = datetime('now')
+        WHERE id = ?
+    `).run(
+        exitPrice,
+        exitData.exit_date || new Date().toISOString(),
+        exitData.exit_reason || null,
+        pnl,
+        id
+    );
+
+    console.log(`[SignalDB] Closed position #${id} (${position.symbol}): P&L $${pnl.toFixed(2)}`);
+    return { id, symbol: position.symbol, pnl };
+}
+
 module.exports = {
     getDb,
     insertSignal,
@@ -2425,5 +2693,13 @@ module.exports = {
     getLatestBloodhoundScan,
     getBloodhoundScanSummary,
     cleanupOldBloodhoundScans,
-    getBloodhoundScanHistory
+    getBloodhoundScanHistory,
+    // Earnings scanner functions
+    insertEarningsScan,
+    insertEarningsResult,
+    getLatestEarningsScan,
+    // Positions functions (replaces positions.json)
+    getOpenPositions,
+    addPosition,
+    closePosition
 };

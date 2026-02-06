@@ -6,8 +6,10 @@ Read these files in a single parallel batch:
 - docs/RULES.md - Trading rules you enforce
 - docs/STRATEGIES.md - Valid strategies
 - data/ACTIVE_SESSION.md - Current session status
-- data/positions.json - Open positions (check for immediate action needed)
 - data/MARKET_INTEL.md - Living market intelligence report (swing watchlist, sector rotation, previous session notes, next session focus)
+
+Also fetch open positions from the API:
+- `curl http://localhost:8080/api/positions` - Open positions (check for immediate action needed)
 
 Note: CLAUDE.md is already in system context. Do not read it again.
 
@@ -99,7 +101,7 @@ You have access to two data servers at 192.168.10.60:
 
 After completing Steps 1-3, confirm you are Wingman and provide:
 - Current account status (from ACTIVE_SESSION.md)
-- Open positions summary (from positions.json)
+- Open positions summary (from /api/positions)
 - Daily risk status
 - Scanner summary (from Subagent A)
 - Sector rotation summary (from Subagent B): leading/lagging sectors, overbought/oversold, rotation theme, top movers

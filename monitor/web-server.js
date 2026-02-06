@@ -25,7 +25,7 @@ const MIME_TYPES = {
 const server = http.createServer((req, res) => {
     // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     res.setHeader('Cache-Control', 'no-cache');
 
@@ -364,39 +364,74 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // Helper: derive VIX regime from raw value
+    function deriveVixRegime(vix) {
+        if (!vix) return 'unknown';
+        if (vix > 40) return 'capitulation';
+        if (vix > 30) return 'fear';
+        if (vix > 20) return 'elevated';
+        if (vix > 12) return 'normal';
+        return 'complacent';
+    }
+
+    // Helper: check if currently in pre-market hours (6:00-9:30 AM ET)
+    function isPremarketHours() {
+        const now = new Date();
+        const et = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+        const hour = et.getHours();
+        const min = et.getMinutes();
+        const totalMin = hour * 60 + min;
+        return totalMin >= 360 && totalMin < 570; // 6:00 AM - 9:30 AM ET
+    }
+
+    // API: Get latest opportunity scan (replaces opportunities.json)
+    if (req.method === 'GET' && urlPath === '/api/opportunities/latest') {
+        try {
+            const opportunityDb = require('./opportunity-db');
+            const data = opportunityDb.getLatestOpportunityScan();
+
+            if (!data) {
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ results: [], summary: {} }));
+                return;
+            }
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(data));
+        } catch (e) {
+            console.error('[Web Server] Error loading opportunities:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
     // API: Morning Briefing - aggregates all scanner data
     if (req.method === 'GET' && urlPath === '/api/morning-briefing') {
         try {
             const signalDb = require('./signal-db');
-            const dataDir = path.join(ROOT, 'data');
+            const opportunityDb = require('./opportunity-db');
 
-            // Load JSON data sources (still used for premarket, opportunities, earnings)
-            const loadJson = (file) => {
-                try {
-                    const content = fs.readFileSync(path.join(dataDir, file), 'utf8');
-                    return JSON.parse(content);
-                } catch (e) {
-                    return null;
-                }
-            };
-
-            const premarket = loadJson('premarket.json');
-            // Get dynamicScan from database instead of JSON
+            // Get premarket data from database
+            const premarketRaw = signalDb.getLatestPremarketData();
+            const premarketScan = premarketRaw?.scan || null;
+            const premarketMovers = premarketRaw?.movers || [];
+            // Get all scanner data from database
             const dynamicScan = signalDb.getLatestBloodhoundScan();
-            const opportunities = loadJson('opportunities.json');
-            const earningsScan = loadJson('earnings-scan.json');
+            const opportunities = opportunityDb.getLatestOpportunityScan();
+            const earningsScan = signalDb.getLatestEarningsScan();
 
-            // Extract market context
+            // Extract market context (prefer bloodhound, fall back to premarket DB)
             const marketContext = {
-                vix: dynamicScan?.marketContext?.vix || premarket?.market?.vix || null,
-                vixRegime: dynamicScan?.marketContext?.vixRegime || 'unknown',
-                spyPrice: dynamicScan?.marketContext?.spyPrice || premarket?.market?.spy?.price || null,
+                vix: dynamicScan?.marketContext?.vix || premarketScan?.vix || null,
+                vixRegime: dynamicScan?.marketContext?.vixRegime || deriveVixRegime(dynamicScan?.marketContext?.vix || premarketScan?.vix),
+                spyPrice: dynamicScan?.marketContext?.spyPrice || premarketScan?.es_price || null,
                 spyTrend: dynamicScan?.marketContext?.spyTrend || 'unknown',
-                qqq: premarket?.market?.qqq || null,
-                spy: premarket?.market?.spy || null,
-                bias: premarket?.market?.bias || dynamicScan?.marketContext?.intradayBias || 'unknown',
+                qqq: premarketScan ? { price: premarketScan.nq_price, change_pct: premarketScan.nq_change_pct } : null,
+                spy: premarketScan ? { price: premarketScan.es_price, change_pct: premarketScan.es_change_pct } : null,
+                bias: premarketScan?.market_bias || dynamicScan?.marketContext?.intradayBias || 'unknown',
                 riskAppetite: dynamicScan?.marketContext?.riskAppetite || 'unknown',
-                inPremarket: premarket?.in_premarket || false
+                inPremarket: isPremarketHours()
             };
 
             // Extract high conviction setups (score >= 56 AND tradeable)
@@ -422,9 +457,9 @@ const server = http.createServer((req, res) => {
                 highConviction.sort((a, b) => b.score - a.score);
             }
 
-            // Extract gaps (from premarket)
+            // Extract gaps (from premarket database)
             const gaps = [];
-            if (premarket?.movers) {
+            if (premarketMovers.length > 0) {
                 // Build earnings lookup from earnings scan
                 const earningsLookup = {};
                 if (earningsScan?.results) {
@@ -436,7 +471,7 @@ const server = http.createServer((req, res) => {
                     }
                 }
 
-                for (const mover of premarket.movers) {
+                for (const mover of premarketMovers) {
                     if (mover.tier !== 'FILTERED') {
                         // Derive direction from gap_type (e.g., "HUGE_DOWN" → bearish)
                         const gapType = mover.gap_type || '';
@@ -459,12 +494,12 @@ const server = http.createServer((req, res) => {
                             symbol: mover.symbol,
                             price: mover.premarket_price,
                             gapPct: mover.gap_pct,
-                            volume: mover.premarket_volume || mover.pre_market_volume,
+                            volume: mover.premarket_volume,
                             tier: mover.tier,
                             direction: direction,
                             earnings: earningsDate,
                             daysToEarnings: daysToEarnings,
-                            catalyst: mover.catalyst // Also pass catalyst for display
+                            catalyst: mover.catalyst
                         });
                     }
                 }
@@ -494,7 +529,7 @@ const server = http.createServer((req, res) => {
             const earnings = [];
             if (earningsScan?.results) {
                 for (const item of earningsScan.results) {
-                    // earnings-scan.json uses flat structure: earnings_date, days_to_earnings, earnings_time
+                    // Earnings DB uses flat structure: earnings_date, days_to_earnings, earnings_time
                     if (item.earnings_date) {
                         const daysTo = item.days_to_earnings ?? Math.ceil((new Date(item.earnings_date) - new Date()) / (1000 * 60 * 60 * 24));
                         if (daysTo >= 0 && daysTo <= 10) {
@@ -639,6 +674,124 @@ const server = http.createServer((req, res) => {
             console.error('[Web Server] Error building morning briefing:', e.message);
             res.writeHead(500, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
+    // API: Get open positions from database (replaces positions.json)
+    if (req.method === 'GET' && urlPath === '/api/positions') {
+        try {
+            const signalDb = require('./signal-db');
+            const data = signalDb.getOpenPositions();
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(data));
+        } catch (e) {
+            console.error('[Web Server] Error loading positions:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
+    // API: Add a new position
+    if (req.method === 'POST' && urlPath === '/api/positions') {
+        let body = '';
+        req.on('data', chunk => { body += chunk; });
+        req.on('end', () => {
+            try {
+                const data = JSON.parse(body);
+                if (!data.symbol || !data.entry_price) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'symbol and entry_price are required' }));
+                    return;
+                }
+                const signalDb = require('./signal-db');
+                const id = signalDb.addPosition(data);
+                res.writeHead(201, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: true, id }));
+                console.log(`[Web Server] Added position: ${data.symbol}`);
+            } catch (e) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: e.message }));
+            }
+        });
+        return;
+    }
+
+    // API: Close a position
+    if (req.method === 'PATCH' && urlPath === '/api/positions/close') {
+        let body = '';
+        req.on('data', chunk => { body += chunk; });
+        req.on('end', () => {
+            try {
+                const data = JSON.parse(body);
+                if (!data.id || !data.exit_price) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'id and exit_price are required' }));
+                    return;
+                }
+                const signalDb = require('./signal-db');
+                const result = signalDb.closePosition(data.id, data);
+                if (!result) {
+                    res.writeHead(404, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'Position not found' }));
+                    return;
+                }
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: true, ...result }));
+                console.log(`[Web Server] Closed position #${data.id}`);
+            } catch (e) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: e.message }));
+            }
+        });
+        return;
+    }
+
+    // Proxy: Forward requests to Options Analytics API (192.168.10.60:8000)
+    // Usage: /proxy/analytics/api/options/AAPL → http://192.168.10.60:8000/api/options/AAPL
+    if (urlPath.startsWith('/proxy/analytics/') || urlPath === '/proxy/analytics') {
+        const targetPath = req.url.replace(/^\/proxy\/analytics/, '') || '/';
+        const proxyReq = http.request({
+            hostname: '192.168.10.60',
+            port: 8000,
+            path: targetPath,
+            method: req.method,
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': req.headers['content-type'] || 'application/json'
+            },
+            timeout: 30000
+        }, (proxyRes) => {
+            // Merge CORS headers with upstream response headers
+            const headers = {
+                ...proxyRes.headers,
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Cache-Control': 'no-cache'
+            };
+            res.writeHead(proxyRes.statusCode, headers);
+            proxyRes.pipe(res);
+        });
+
+        proxyReq.on('error', (err) => {
+            console.error('[Web Server] Proxy error (analytics):', err.message);
+            res.writeHead(502, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Upstream unavailable: ' + err.message }));
+        });
+
+        proxyReq.on('timeout', () => {
+            proxyReq.destroy();
+            res.writeHead(504, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Upstream timeout' }));
+        });
+
+        // Forward request body for POST/PUT
+        if (req.method === 'POST' || req.method === 'PUT') {
+            req.pipe(proxyReq);
+        } else {
+            proxyReq.end();
         }
         return;
     }

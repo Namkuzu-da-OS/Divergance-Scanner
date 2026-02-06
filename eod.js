@@ -5,7 +5,6 @@
  *
  * Automates end-of-day tasks:
  * - Archives daily_log.md to archive/daily_logs/trading_log_YYYY-MM-DD.md
- * - Archives positions.json to archive/positions_archive/positions_YYYY-MM-DD.json
  * - Updates account_summary.json timestamp
  * - Appends EOD note to ACTIVE_SESSION.md
  * - Creates fresh daily_log.md for next day
@@ -38,17 +37,7 @@ try {
     console.log('⚠ daily_log.md not found - skipping');
   }
 
-  // 2. Archive positions.json
-  const positionsPath = path.join(__dirname, 'data', 'positions.json');
-  const archivedPositionsPath = path.join(__dirname, 'archive', 'positions_archive', `positions_${today}.json`);
-
-  if (fs.existsSync(positionsPath)) {
-    const positionsContent = fs.readFileSync(positionsPath, 'utf8');
-    fs.writeFileSync(archivedPositionsPath, positionsContent);
-    console.log('✓ Archived positions.json to archive/positions_archive/');
-  } else {
-    console.log('⚠ positions.json not found - skipping');
-  }
+  // 2. Positions are now in SQLite database - no file archiving needed
 
   // 3. Update account_summary.json timestamp
   const accountSummaryPath = path.join(__dirname, 'data', 'account_summary.json');
