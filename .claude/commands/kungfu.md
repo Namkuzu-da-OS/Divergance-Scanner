@@ -10,19 +10,42 @@ Read these files in a single parallel batch:
 
 Note: CLAUDE.md is already in system context. Do not read it again.
 
-## STEP 2: Scanner Data via Subagent (MANDATORY)
+## STEP 2: Scanner Data + Sector Rotation via Subagents (MANDATORY)
 
-**DO NOT read bloodhound.json directly.** Use a subagent to preserve context:
+Launch BOTH subagents in parallel (same message, two Task tool calls):
 
+**Subagent A - Scanner Data:**
 ```
 Task tool with subagent_type=Explore:
-"Read data/bloodhound.json and return a compact summary:
+"Fetch http://localhost:8080/api/scan/latest and return a compact summary:
 1. Scan timestamp
 2. Total ticker count
 3. Market context: VIX, regime, SPY price/trend
-4. ALL symbols with score, direction, top signal - in a table
-5. Count of tradeable setups (score >= 60)
+4. ALL symbols with score, direction, zone, tier, action - in a table sorted by score descending
+5. Count of tradeable setups (tier = HIGH_CONVICTION or TRADEABLE)
 Be complete. Miss no tickers."
+```
+
+**Subagent B - Sector Rotation & Movers:**
+```
+Task tool with subagent_type=Explore:
+"Fetch technicals for all 11 SPDR sector ETFs plus key thematic ETFs.
+For each symbol, call: http://192.168.10.60:8000/api/technicals/{SYMBOL}
+
+Symbols: XLK, XLF, XLE, XLV, XLY, XLP, XLI, XLB, XLRE, XLU, XLC, IBIT, GLD, USO, SLV
+
+Also fetch SPX movers: http://192.168.10.60:8000/api/movers/$SPX
+
+Return:
+1. Sector table sorted by RSI descending:
+   | Symbol | Sector | Price | RSI | Trend | 5d Momentum | BB Position |
+   Flag overbought (RSI > 70) and oversold (RSI < 30) sectors.
+
+2. Top 5 SPX movers (winners and losers with % change)
+
+3. Rotation Read: One sentence on where money is flowing (e.g., 'Risk-off: defensives leading, tech lagging')
+
+Be complete and compact."
 ```
 
 ## STEP 3: API Connectivity Check
@@ -77,7 +100,8 @@ After completing Steps 1-3, confirm you are Wingman and provide:
 - Current account status (from ACTIVE_SESSION.md)
 - Open positions summary (from positions.json)
 - Daily risk status
-- Scanner summary (from subagent)
+- Scanner summary (from Subagent A)
+- Sector rotation summary (from Subagent B): leading/lagging sectors, overbought/oversold, rotation theme, top movers
 - API connectivity status
 - Ready statement
 
