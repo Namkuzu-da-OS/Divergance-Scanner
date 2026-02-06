@@ -130,7 +130,7 @@ tradeable setups table, market context. Be complete, be compact."
 **Signal Tracking Check:**
 ```
 subagent_type=general-purpose
-"Query signals from SQLite database (opportunity_history.db).
+"Query signals from SQLite database (wingman.db).
 Call /api/technicals/{symbol} for current prices.
 Compare and return: Symbol | Entry | Current | Change% | Grade | Outcome"
 ```
@@ -230,13 +230,14 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 ### Data Files
 | File | Purpose | Update Trigger |
 |------|---------|----------------|
-| `data/opportunity_history.db` | **SQLite database** - Bloodhound scans, signals, checkpoints, scanner history, premarket, watchlist, gap_ticker_stats | Every scan |
+| `data/wingman.db` | **SQLite database** - Bloodhound scans, signals, checkpoints, scanner history, premarket, watchlist, gap_ticker_stats | Every scan |
 | `data/watchlist.json` | Symbols to always scan (legacy, now backed by SQLite) | Manual or auto-add |
 | `data/positions.json` | Open trades | Position change |
 | `data/trades_journal.json` | Trade history | Trade closes |
 | `data/account_summary.json` | P&L metrics | EOD |
 | `data/premarket.json` | Pre-market gaps and movers | Every 5 min (6-9:30 AM ET) |
 | `data/ACTIVE_SESSION.md` | Session state | Hourly |
+| `data/MARKET_INTEL.md` | **Living market intelligence** - Swing watchlist, sector rotation, session recaps, next-day focus, trade ideas pipeline | Each session |
 | `data/daily_log.md` | Today's journal | Throughout day |
 
 **Deprecated files (archived in data/archive/):**
@@ -548,7 +549,7 @@ strike_count=100  →  strike_count=20
 
 ### SQLite Historical Data
 
-Every scan saves to `data/opportunity_history.db` for future analysis:
+Every scan saves to `data/wingman.db` for future analysis:
 
 ```javascript
 // Query recent stats
@@ -571,7 +572,7 @@ console.log(db.getTopSymbols(7, 10)); // Top 10 symbols
 | File | Content |
 |------|---------|
 | `data/opportunities.json` | Latest scan results (overwrites each cycle) |
-| `data/opportunity_history.db` | SQLite historical data for analysis |
+| `data/wingman.db` | SQLite historical data for analysis |
 
 ---
 
@@ -646,7 +647,7 @@ This ensures premarket discoveries flow into the main scanner without manual int
 | File | Content |
 |------|---------|
 | `data/premarket.json` | Latest scan with gaps and market context |
-| `data/opportunity_history.db` | SQLite tables: `premarket_scans`, `premarket_movers` |
+| `data/wingman.db` | SQLite tables: `premarket_scans`, `premarket_movers` |
 
 ### Configuration
 
@@ -721,7 +722,7 @@ When VIX crosses regime thresholds (12/20/30/40), Bloodhound sends a Telegram al
 - Signal logging to SQLite database (via signal-db.js)
 - Multi-checkpoint validation (4h, 24h, 7d)
 
-**Legacy:** `wingman-monitor.js`, `alerts_log.json`, and `signal_log.json` are deprecated. All signal tracking now uses SQLite (`opportunity_history.db`).
+**Legacy:** `wingman-monitor.js`, `alerts_log.json`, and `signal_log.json` are deprecated. All signal tracking now uses SQLite (`wingman.db`).
 
 ---
 
@@ -1051,4 +1052,4 @@ When analyzing ANY symbol:
 - Goals in goals.json ($2,500/month target)
 - Full rules in `docs/RULES.md`
 - Full strategies in `docs/STRATEGIES.md`
-- Signals stored in SQLite (`data/opportunity_history.db`) with multi-checkpoint validation
+- Signals stored in SQLite (`data/wingman.db`) with multi-checkpoint validation
