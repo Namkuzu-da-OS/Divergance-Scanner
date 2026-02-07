@@ -2,7 +2,7 @@
 /**
  * Scanner Validator
  *
- * This script validates that ALL tickers from dynamic_scan.json are accounted for.
+ * This script validates that ALL tickers from /api/scan/latest are accounted for.
  * Run after any scanner review to verify nothing was missed.
  *
  * Usage: node scanner-validator.js [list of tickers I claimed to see]

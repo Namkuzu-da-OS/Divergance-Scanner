@@ -42,7 +42,7 @@ The Gap Analytics System tracks pre-market gaps and analyzes their behavior thro
          │                                                   │
          │           ┌─────────────────────────┐             │
          └──────────►│     SQLite DATABASE     │◄────────────┘
-                     │  opportunity_history.db │
+                     │  wingman.db │
                      │                         │
                      │  Tables:                │
                      │  • premarket_movers     │
@@ -377,8 +377,8 @@ Legend: ✓ = filled, ✗ = ran (didn't fill)
 | `monitor/signal-db.js` | All database queries and schema |
 | `monitor/web-server.js` | API endpoints for analytics |
 | `premarket.html` | Dashboard with analytics UI |
-| `data/opportunity_history.db` | SQLite database |
-| `data/premarket.json` | Latest scan (JSON cache) |
+| `data/wingman.db` | SQLite database |
+| SQLite `premarket_scans`/`premarket_movers` tables | Scan data in `wingman.db` |
 
 ---
 
@@ -402,7 +402,7 @@ Legend: ✓ = filled, ✗ = ran (didn't fill)
 ### Database Size Monitoring
 ```bash
 # Check database size
-ls -lh data/opportunity_history.db
+ls -lh data/wingman.db
 
 # Expected growth: ~1-2 MB per month
 # No automatic cleanup - all data preserved for analysis

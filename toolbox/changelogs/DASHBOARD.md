@@ -8,7 +8,7 @@
 - **Account Monitoring:** Live balance, daily/weekly P&L tracking
 - **Risk Dashboard:** Visual indicators for daily/weekly risk limits
 - **Position Tracking:** Real-time open positions with entry/stop/target levels
-- **Auto-Refresh:** Updates every 10 seconds from `data/positions.json`
+- **Auto-Refresh:** Updates every 10 seconds from `/api/positions`
 - **Professional Design:** Fintech-inspired dark theme (Chainex aesthetic)
 
 ### Design Specifications
@@ -36,7 +36,7 @@
 - Manual refresh available via REFRESH button
 
 ### Data Integration
-- Reads from: `data/positions.json`
+- Reads from: `/api/positions`
 - Real-time position updates reflect in dashboard
 - No backend required
 

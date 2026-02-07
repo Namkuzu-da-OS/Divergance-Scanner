@@ -80,7 +80,7 @@
 
 **Where Badges Appear:**
 - Zone Scanner UI: [http://localhost:8080](http://localhost:8080)
-- JSON outputs: `scanner.json`, `dynamic_scan.json`, `bloodhound.json`
+- Output: SQLite database (`wingman.db`) via API endpoints
 
 ---
 
@@ -127,7 +127,7 @@ cat data/scanner_history.json | head -50
 ### 5. Verify JSON Outputs
 
 ```bash
-cat data/scanner.json | grep -A 5 "history_status"
+curl http://localhost:8080/api/scan/summary | jq '.results[].history_status'
 # Should show history_status objects with label, consecutive_days, trend
 ```
 
@@ -247,7 +247,7 @@ cat data/scanner.json | grep -A 5 "history_status"
 **Fixes:**
 1. Check if `history_status` field exists in JSON:
    ```bash
-   cat data/dynamic_scan.json | grep "history_status" | head -5
+   curl http://localhost:8080/api/scan/latest | jq '.results[].history_status' | head -5
    ```
 2. Hard refresh browser: Ctrl+Shift+R (Windows) or Cmd+Shift+R (Mac)
 3. Check browser console for JavaScript errors
@@ -296,8 +296,8 @@ cat data/scanner_history.json | jq '.symbols.SPY.daily_snapshots[].date'
 | File | Purpose | When Modified |
 |------|---------|---------------|
 | `data/scanner_history.json` | Historical ticker data | Every 2 min (on scan) |
-| `data/scanner.json` | Dashboard summary with history_status | Every 2 min |
-| `data/dynamic_scan.json` | Full scan data with history_status | Every 2 min |
+| SQLite `bloodhound_scans` | Dashboard summary (API: `/api/scan/summary`) | Every 2 min |
+| SQLite `bloodhound_results` | Full scan data (API: `/api/scan/latest`) | Every 2 min |
 | `monitor/bloodhound-scanner.js` | Scanner logic | Stage 1, 2, 3 implementation |
 | `zone-scanner.html` | Dashboard UI | Stage 2 badge display |
 | `docs/SCANNER_HISTORY.md` | Full system documentation | Reference |

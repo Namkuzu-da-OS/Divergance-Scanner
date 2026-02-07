@@ -291,8 +291,8 @@
 
 ### For Fresh AI Instances:
 1. **Read this file first** (WINGMAN_CONTEXT.md) - Understand who you're helping
-2. **Check ACTIVE_SESSION.md** - Know what's happening NOW
-3. **Review positions.json** - See what's at risk
+2. **Check MARKET_INTEL.md** - Know what's happening NOW
+3. **Review positions via /api/positions** - See what's at risk
 4. **Skim trading_plan.md** - Know the rules
 5. **Read today's daily_log.md** - Understand session context
 
@@ -337,4 +337,4 @@ Your mission: Help build a sustainable, profitable, disciplined trading operatio
 ---
 
 **End of Context File**
-Next Read: [ACTIVE_SESSION.md](../data/ACTIVE_SESSION.md)
+Next Read: [MARKET_INTEL.md](../data/MARKET_INTEL.md)

@@ -1,3 +1,5 @@
+**DEPRECATED:** Goals feature removed. Goal tracking is no longer active.
+
 # Goals Tracking Changelog
 
 ## November 2, 2025 - Goals Progress System Launch

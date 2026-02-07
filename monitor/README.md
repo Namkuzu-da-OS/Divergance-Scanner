@@ -5,39 +5,31 @@ Background service for market alerts and scanner data.
 ## Quick Start
 
 ```bash
-# Bloodhound scanner (primary) - run via PM2
-pm2 start bloodhound-scanner.js --name bloodhound
-pm2 logs bloodhound
+# Start all scanners (ONE COMMAND)
+pm2 start ecosystem.config.js
 
-# VIX monitor (regime changes only)
-pm2 start wingman-monitor.js --name monitor
-pm2 logs monitor
+# View logs
+pm2 logs bloodhound          # Bloodhound scanner
+pm2 logs opportunity          # Opportunity scanner
+pm2 logs earnings             # Earnings scanner
+pm2 logs premarket            # Pre-market scanner
+pm2 logs webserver            # Dashboard server
 ```
 
-## Dynamic Scanner (NEW)
+## Dynamic Scanner
 
-**No hardcoded watchlist.** Sources candidates from:
-1. **Author Consensus** - Tickers where 3+ authors agree on direction
-2. **High Conviction Signals** - From the sequencer endpoint
-3. **Trending Tickers** - What's hot on X/Twitter
-4. **AI Outlook Themes** - Symbols mentioned in market narrative
+**No hardcoded watchlist.** Bloodhound dynamically discovers symbols from:
+1. **Watchlist** (SQLite `watchlist` table + `data/watchlist.json` fallback)
+2. **Market Data** (`/api/latest`) - 52-week extremes, volume spikes
+3. **Sector Rotation** - Strongest/weakest sector ETFs
 
-Then applies zone filter logic to find tradeable setups.
+Then applies zone filter logic and confluence scoring to find tradeable setups.
 
-### How It Works
-```
-[Author Consensus] ──┬──► [Deduplicate] ──► [Score & Rank] ──► [Zone Filter] ──► [Alert]
-[High Conviction]  ──┤                      (by source count)   (BUY/SELL only)
-[Trending on X]    ──┤
-[AI Outlook]       ──┘
-```
-
-### Scoring
-- Core symbols (SPY, QQQ): 100 points (always included)
-- Author consensus: +40 points
-- High conviction signals: +30 points
-- Trending on X: +20 points
-- AI outlook themes: +10 points
+### Scoring (0-80)
+- Technical: up to 25 points (RSI, Bollinger, trend)
+- Levels: up to 25 points (gamma walls, VWAP, confluence zones)
+- Volume: up to 15 points (volume spikes)
+- Context: up to 15 points (SPY alignment, market regime)
 
 Higher score = scanned first, shown first in results.
 
@@ -73,38 +65,37 @@ Edit `../data/watchlist.json` - symbols here are always included in Bloodhound s
 
 ### Bloodhound Scanner (Primary)
 
-1. **Discovers symbols** from 6 sources (trending, consensus, watchlist, etc.)
-2. **Scores confluence** across technicals, levels, sentiment, volume, context
+1. **Discovers symbols** from 3 sources (watchlist, market data, sector rotation)
+2. **Scores confluence** across technicals, levels, volume, context (0-80)
 3. **Sends Telegram alerts** for tradeable zones (BUY_ZONE, SELL_ZONE, etc.)
-4. **Writes scanner.json** and **dynamic_scan.json** for dashboard
+4. **Writes to SQLite database** (`data/wingman.db`) and serves via API (`/api/scan/latest`, `/api/scan/summary`)
+5. **VIX regime alerts** - Detects regime changes (complacent/normal/elevated/fear/capitulation)
+6. **Signal validation** - Logs HIGH_CONVICTION signals with multi-checkpoint tracking (4h, 24h, 7d)
 
-### VIX Monitor (Secondary)
-
-1. **Polls VIX** every 2 minutes
-2. **Checks Bloodhound pause state** before alerting (unified control)
-3. **Sends Telegram alerts** for VIX regime changes ONLY:
-   - low (<15) → normal → elevated → high → extreme
-4. Does NOT send wall/signal alerts (Bloodhound handles those)
+> **Note:** VIX monitoring is consolidated into Bloodhound. The separate `wingman-monitor.js` is deprecated.
 
 ## Configuration
 
-Edit `wingman-monitor.js`:
+Edit `monitor/config.json` for API endpoints and Telegram credentials:
 
-```javascript
-const CONFIG = {
-  telegram: {
-    botToken: 'YOUR_BOT_TOKEN',
-    chatId: 'YOUR_CHAT_ID'
+```json
+{
+  "apis": {
+    "intel": "http://192.168.10.60:3000",
+    "options": "http://192.168.10.60:8000"
   },
-  apis: {
-    intel: 'http://192.168.10.60:3000',
-    options: 'http://192.168.10.60:8000'
-  },
-  checkIntervalMs: 2 * 60 * 1000  // 2 minutes
-};
+  "telegram": {
+    "botToken": "YOUR_BOT_TOKEN",
+    "chatId": "YOUR_CHAT_ID"
+  }
+}
 ```
 
-**Note:** Wall proximity and conviction thresholds removed - Bloodhound handles those alerts now.
+Edit `bloodhound-scanner.js` SETTINGS for scan behavior:
+- `scanIntervalMs` - Scan frequency (default: 2 min)
+- `minConfluenceScore` - Alert threshold (default: 60)
+- `maxSymbols` - Max symbols per scan (default: 20)
+- `alertCooldownMs` - Per-symbol cooldown (default: 30 min)
 
 ## Trade Client
 
@@ -119,14 +110,17 @@ node trade-client.js stats
 node trade-client.js context SPY
 ```
 
-## Files Written
+## Data Storage
 
-| File | Purpose |
-|------|---------|
-| `../data/bloodhound.json` | Bloodhound scan results |
-| `../data/dynamic_scan.json` | Full technical data for Zone Scanner dashboard |
-| `../data/scanner.json` | Market state for dashboard |
-| `../data/alerts_log.json` | Alert history (last 500) |
+All scanner data is stored in SQLite (`data/wingman.db`):
+
+| Table | Purpose | API |
+|-------|---------|-----|
+| `bloodhound_scans` | Scan metadata (market context, VIX, counts) | `GET /api/scan/summary` |
+| `bloodhound_results` | Individual ticker results with all data | `GET /api/scan/latest` |
+| `signals` | HIGH_CONVICTION signal tracking with checkpoints | `GET /api/signals` |
+
+> **Deprecated:** `bloodhound.json`, `dynamic_scan.json`, `scanner.json`, `alerts_log.json` are no longer written. These have been archived in `data/archive/`.
 
 ## Telegram Setup
 
@@ -134,4 +128,4 @@ node trade-client.js context SPY
 2. Get bot token
 3. Message your bot, then get chat ID from:
    `https://api.telegram.org/bot<TOKEN>/getUpdates`
-4. Update CONFIG in wingman-monitor.js
+4. Update credentials in `monitor/config.json`

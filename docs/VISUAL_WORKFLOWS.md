@@ -178,8 +178,8 @@ The core scanner that finds high-confluence trading opportunities.
 ║  │ STEP 6: OUTPUT                                                          │ ║
 ║  │                                                                          │ ║
 ║  │   ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐      │ ║
-║  │   │ dynamic_scan.json│  │ paper_trades.json│  │ Telegram Alert   │      │ ║
-║  │   │ (Dashboard)      │  │ (Validation)     │  │ (HIGH_CONVICTION)│      │ ║
+║  │   │ SQLite DB        │  │ Signal Tracking  │  │ Telegram Alert   │      │ ║
+║  │   │ /api/scan/latest │  │ (Validation)     │  │ (HIGH_CONVICTION)│      │ ║
 ║  │   └──────────────────┘  └──────────────────┘  └──────────────────┘      │ ║
 ║  └─────────────────────────────────────────────────────────────────────────┘ ║
 ║                                                                               ║
@@ -272,9 +272,9 @@ Finds unusual options activity and smart money positioning.
 ║  │ STEP 4: OUTPUT                                                          │ ║
 ║  │                                                                          │ ║
 ║  │   ┌────────────────────┐  ┌────────────────────┐  ┌──────────────────┐  │ ║
-║  │   │ opportunities.json │  │ opportunity_history│  │ Telegram Alert   │  │ ║
-║  │   │ (Dashboard)        │  │ .db (SQLite)       │  │ (HIGH_CONVICTION)│  │ ║
-║  │   │                    │  │                    │  │                  │  │ ║
+║  │   │ SQLite DB          │  │ SQLite DB          │  │ Telegram Alert   │  │ ║
+║  │   │ /api/opportunities │  │ (Historical)       │  │ (HIGH_CONVICTION)│  │ ║
+║  │   │ /latest            │  │                    │  │                  │  │ ║
 ║  │   │ Overwrites each    │  │ Historical data    │  │ With 30min       │  │ ║
 ║  │   │ scan cycle         │  │ for analysis       │  │ cooldown         │  │ ║
 ║  │   └────────────────────┘  └────────────────────┘  └──────────────────┘  │ ║
@@ -344,9 +344,9 @@ Finds pre-earnings momentum (PREM) candidates.
 ║  │ STEP 4: OUTPUT                                                          │ ║
 ║  │                                                                          │ ║
 ║  │   ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐      │ ║
-║  │   │ earnings-scan    │  │ earnings-paper-  │  │ Telegram Alert   │      │ ║
-║  │   │ .json            │  │ trades.json      │  │                  │      │ ║
-║  │   │ (Candidates)     │  │ (Tracking)       │  │ (Score ≥ 70)     │      │ ║
+║  │   │ SQLite DB        │  │ earnings-paper-  │  │ Telegram Alert   │      │ ║
+║  │   │ earnings_scans/  │  │ trades.json      │  │                  │      │ ║
+║  │   │ earnings_results │  │ (Tracking)       │  │ (Score ≥ 70)     │      │ ║
 ║  │   └──────────────────┘  └──────────────────┘  └──────────────────┘      │ ║
 ║  └─────────────────────────────────────────────────────────────────────────┘ ║
 ║                                                                               ║
@@ -368,12 +368,12 @@ How data moves through the system.
 ║   ────────────                      ────────                    ───────       ║
 ║                                                                               ║
 ║   ┌─────────────┐                 ┌────────────┐              ┌────────────┐ ║
-║   │ Options API │ ──────────────► │ Bloodhound │ ───────────► │JSON Files  │ ║
+║   │ Options API │ ──────────────► │ Bloodhound │ ───────────► │SQLite DB   │ ║
 ║   │ Port 8000   │    Technicals   │            │              │            │ ║
-║   │             │    Levels       │            │              │dynamic_scan│ ║
-║   │             │    Flow         │            │              │bloodhound  │ ║
-║   └─────────────┘                 └─────┬──────┘              │scanner     │ ║
-║                                         │                      │paper_trades│ ║
+║   │             │    Levels       │            │              │wingman.db  │ ║
+║   │             │    Flow         │            │              │(scans,     │ ║
+║   └─────────────┘                 └─────┬──────┘              │ signals)   │ ║
+║                                         │                      │            │ ║
 ║                                         │                      └─────┬──────┘ ║
 ║   ┌─────────────┐                       │                            │       ║
 ║   │ Intel API   │ ──────────────────────┘                            │       ║
@@ -384,8 +384,8 @@ How data moves through the system.
 ║          │                        ┌────────────┐              ┌──────▼──────┐║
 ║          └──────────────────────► │Opportunity │ ───────────► │SQLite DB    │║
 ║                                   │            │              │             │║
-║                                   │            │ ───────────► │opportunity_ │║
-║                                   │            │   JSON       │history.db   │║
+║                                   │            │              │wingman.db   │║
+║                                   │            │              │(opportun.)  │║
 ║                                   └────────────┘              └──────┬──────┘║
 ║                                                                      │       ║
 ║                                   ┌────────────┐                     │       ║
@@ -394,10 +394,10 @@ How data moves through the system.
 ║                                   └────────────┘              │ Port 8080   │║
 ║                                                               │             │║
 ║                                                               │ zone-scanner│║
-║                                   ┌────────────┐              │ opportunity │║
-║                                   │ VIX Monitor│              │ earnings    │║
-║                                   │            │ ───────────► │ analytics   │║
-║                                   └────────────┘  alerts_log  └─────────────┘║
+║                                   (VIX alerts now in           │ opportunity │║
+║                                    Bloodhound - no separate    │ earnings    │║
+║                                    monitor needed)             │ analytics   │║
+║                                                                └─────────────┘║
 ║                                                                               ║
 ║                                                               ┌─────────────┐║
 ║                                   ALL SCANNERS ─────────────► │  Telegram   │║
@@ -430,8 +430,8 @@ How data moves through the system.
 ║   │                 │    │                 │    │                 │         ║
 ║   │ ┌─────────────┐ │    │ ┌─────────────┐ │    │ ┌─────────────┐ │         ║
 ║   │ │Data Source: │ │    │ │Data Source: │ │    │ │Data Source: │ │         ║
-║   │ │dynamic_scan │ │    │ │opportunities│ │    │ │API :8082    │ │         ║
-║   │ │   .json     │ │    │ │   .json     │ │    │ │/results     │ │         ║
+║   │ │/api/scan/   │ │    │ │/api/opportu-│ │    │ │API :8082    │ │         ║
+║   │ │latest       │ │    │ │nities/latest│ │    │ │/results     │ │         ║
 ║   │ └─────────────┘ │    │ └─────────────┘ │    │ └─────────────┘ │         ║
 ║   │                 │    │                 │    │                 │         ║
 ║   │ ┌─────────────┐ │    │ ┌─────────────┐ │    │ ┌─────────────┐ │         ║
@@ -467,8 +467,8 @@ How data moves through the system.
 ║          │                 │    │                 │                          ║
 ║          │ ┌─────────────┐ │    │ ┌─────────────┐ │                          ║
 ║          │ │Data Source: │ │    │ │Data Source: │ │                          ║
-║          │ │paper_trades │ │    │ │scanner.json │ │                          ║
-║          │ │   .json     │ │    │ │alerts_log   │ │                          ║
+║          │ │SQLite DB    │ │    │ │/api/scan/   │ │                          ║
+║          │ │signals table│ │    │ │summary      │ │                          ║
 ║          │ └─────────────┘ │    │ └─────────────┘ │                          ║
 ║          └─────────────────┘    └─────────────────┘                          ║
 ║                                                                               ║
@@ -524,19 +524,19 @@ How data moves through the system.
 ║   bloodhound-scanner.js     │  Main confluence scanner (2 min cycle)        ║
 ║   opportunity-scanner.js    │  Unusual options scanner (5 min cycle)        ║
 ║   earnings-scanner.js       │  PREM earnings scanner (30 min cycle)         ║
-║   wingman-monitor.js        │  VIX regime alerts                            ║
+║   wingman-monitor.js        │  DEPRECATED - VIX alerts now in bloodhound    ║
 ║   web-server.js             │  Dashboard server (port 8080)                 ║
 ║   opportunity-db.js         │  SQLite database module                       ║
 ║   paper-trade-manager.js    │  Paper trade tracking                         ║
 ║                                                                               ║
 ║   DATA FILES (data/)                                                         ║
 ║   ──────────────────                                                         ║
-║   dynamic_scan.json         │  Zone scanner dashboard data                  ║
-║   opportunities.json        │  Opportunity scanner dashboard data           ║
-║   opportunity_history.db    │  SQLite historical data (NEW)                 ║
+║   wingman.db                │  SQLite DB: scans, signals, opportunities     ║
+║   (dynamic_scan.json)       │  DEPRECATED - use /api/scan/latest            ║
+║   (opportunities.json)      │  DEPRECATED - use /api/opportunities/latest   ║
 ║   paper_trades.json         │  Paper trade validation (460+ trades)         ║
 ║   watchlist.json            │  User watchlist symbols                       ║
-║   alerts_log.json           │  Telegram alert history                       ║
+║   (alerts_log.json)         │  DEPRECATED - use SQLite signals table        ║
 ║                                                                               ║
 ║   DASHBOARDS (root)                                                          ║
 ║   ─────────────────                                                          ║

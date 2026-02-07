@@ -90,7 +90,7 @@ If result > available capital, REDUCE POSITION SIZE, don't increase stop
 - Full review required
 
 **Tracking:**
-- ACTIVE_SESSION.md tracks weekly P&L
+- MARKET_INTEL.md tracks session context
 - Wingman alerts at $750 (75% of limit)
 - HARD STOP at $1,000
 

@@ -9,7 +9,7 @@
 
 ### For Trading (Right Now)
 1. **Before Each Session:** [WINGMAN_CONTEXT.md](WINGMAN_CONTEXT.md) (5 min read)
-2. **Active Session Status:** [../../data/ACTIVE_SESSION.md](../../data/ACTIVE_SESSION.md) (2 min read)
+2. **Market Intelligence:** [../../data/MARKET_INTEL.md](../../data/MARKET_INTEL.md) (2 min read)
 3. **Today's Plan:** [../../data/daily_log.md](../../data/daily_log.md) (ongoing)
 4. **Real-Time Dashboard:** Open `dashboard.html` in browser (pin to second monitor)
 
@@ -35,18 +35,16 @@
 ### 📊 Data Files (Machine Truth - JSON)
 
 **Active/Current:**
-- `data/positions.json` - Open trades (real-time)
+- `/api/positions` - Open trades (real-time, via SQLite)
 - `data/daily_log.md` - Today's session notes (append throughout day)
-- `data/ACTIVE_SESSION.md` - Current session snapshot (update hourly)
+- `data/MARKET_INTEL.md` - Living market intelligence (session context, swing watchlist)
 
 **Updated EOD:**
 - `data/account_summary.json` - Account balance, daily/weekly/monthly P&L, statistics
 - `data/trades_journal.json` - Permanent trade history (append when trade closes)
-- `data/goals.json` - Daily/weekly/monthly/yearly targets (edit if changing monthly goal)
 
 **Archival (Old Sessions):**
 - `archive/daily_logs/trading_log_YYYY-MM-DD.md` - Historical session notes
-- `archive/positions_archive/positions_YYYY-MM-DD.json` - Historical positions
 
 ### 📚 Documentation Files (Human Context - Markdown)
 
@@ -84,7 +82,7 @@
    - Review trader profile & goals
    - Check current market conditions
 
-2. **Check Active Session (2 min)** → [../../data/ACTIVE_SESSION.md](../../data/ACTIVE_SESSION.md)
+2. **Check Market Intel (2 min)** → [../../data/MARKET_INTEL.md](../../data/MARKET_INTEL.md)
    - What happened last session?
    - Any open positions? (should be none)
    - Today's focus areas?
@@ -92,7 +90,7 @@
 3. **Open Dashboard** → `dashboard.html`
    - Pin to second monitor
    - Auto-refreshes every 10 seconds
-   - Shows goals progress, risk usage, session notes
+   - Shows risk usage, session notes
 
 4. **Load TradingView Script** → `Divergence + VWAP Reversion v4`
    - Set to 5-minute chart
@@ -115,7 +113,7 @@
    ```
 
 3. Execute & Update:
-   - Add to `positions.json` (if still open)
+   - Log via `POST /api/positions` (if still open)
    - Add to `daily_log.md` with `-note` (automatic timestamp)
    - Log in `trades_journal.json` when trade closes
 
@@ -128,16 +126,14 @@ node eod.js
 
 This automatically:
 - ✓ Archives `daily_log.md` → `archive/daily_logs/trading_log_YYYY-MM-DD.md`
-- ✓ Archives `positions.json` → `archive/positions_archive/positions_YYYY-MM-DD.json`
 - ✓ Updates `account_summary.json` timestamp
-- ✓ Appends EOD note to `ACTIVE_SESSION.md`
 - ✓ Creates fresh `daily_log.md` for tomorrow
 
 **OR Manual (if eod.js unavailable):**
 1. Update `account_summary.json` with daily totals
 2. Copy files with YYYY-MM-DD naming to archive folders
 3. Create fresh `daily_log.md`
-4. Update `ACTIVE_SESSION.md` snapshot
+4. Update `MARKET_INTEL.md` with session recap
 
 ### Weekly Review (30 minutes)
 
@@ -244,14 +240,8 @@ VWAP Reversion Settings:
 ### "How do I end my trading day?"
 → Run `node eod.js` (or see QUICK_START.md "End of Day" section)
 
-### "What's my monthly goal?"
-→ Edit `monthly_target` in `data/goals.json` (currently $2,500)
-
 ### "How do I adjust positions mid-trade?"
-→ Update `current_price` and `unrealized_pnl` in `data/positions.json`
-
-### "How do I know if I'm on track?"
-→ Check Dashboard "Goals Progress" section (auto-updates every 10s)
+→ Update positions via `/api/positions`
 
 ---
 
@@ -260,12 +250,11 @@ VWAP Reversion Settings:
 | Trigger | Files to Update | When |
 |---------|-----------------|------|
 | Trade executed | `trades_journal.json` | Immediately when trade closes |
-| Trade opened | `positions.json` | Immediately when entry filled |
-| Position change | `ACTIVE_SESSION.md` | After each position change |
+| Trade opened | `POST /api/positions` | Immediately when entry filled |
+| Position change | `MARKET_INTEL.md` | After each position change |
 | Daily P&L finalized | `account_summary.json` | End of trading day |
 | Session ending | Run `eod.js` | Before leaving for the day |
 | Weekly review | `WINGMAN_MIND.md` | Friday close |
-| Monthly adjustments | `goals.json` (if needed) | When changing monthly target |
 
 ---
 
@@ -290,13 +279,12 @@ VWAP Reversion Settings:
 - Schema: `toolbox/docs/TRADES_JOURNAL_SCHEMA.md`
 
 **Data & Tracking:**
-- Current: `data/positions.json`, `data/daily_log.md`, `data/ACTIVE_SESSION.md`
-- Summary: `data/account_summary.json`, `data/trades_journal.json`, `data/goals.json`
+- Current: `/api/positions`, `data/daily_log.md`, `data/MARKET_INTEL.md`
+- Summary: `data/account_summary.json`, `data/trades_journal.json`
 - Dashboard: `dashboard.html` (open in browser)
 
 **Archive:**
 - Past Sessions: `archive/daily_logs/trading_log_YYYY-MM-DD.md`
-- Past Positions: `archive/positions_archive/positions_YYYY-MM-DD.json`
 
 ---
 
@@ -308,11 +296,10 @@ Wingman Trading System
 ├── Configuration & Context
 │   ├── WINGMAN_CONTEXT.md (account, trader profile, goals)
 │   ├── trading_plan.md (4 strategies with entry/exit)
-│   ├── TRADING_RULES.md (5 core + 6 supporting rules)
-│   └── goals.json (monthly/weekly/daily targets)
+│   └── TRADING_RULES.md (5 core + 6 supporting rules)
 │
 ├── Real-Time Tracking
-│   ├── positions.json (open trades)
+│   ├── /api/positions (open trades via SQLite)
 │   ├── daily_log.md (session notes)
 │   └── dashboard.html (visual monitor)
 │
@@ -327,7 +314,7 @@ Wingman Trading System
 │       └── trades_journal.json (permanent history)
 │
 ├── Session Management
-│   ├── ACTIVE_SESSION.md (current state snapshot)
+│   ├── MARKET_INTEL.md (living market intelligence)
 │   ├── eod.js (end-of-day automation)
 │   └── archive/ (historical data)
 │

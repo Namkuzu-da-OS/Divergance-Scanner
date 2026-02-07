@@ -28,27 +28,36 @@ Complete mapping of all components, data flows, and dependencies.
     │  (Background PM2 Processes)   │       │     (Background PM2 Processes)     │
     │                               │       │                                    │
     │  ┌─────────────────────────┐  │       │  ┌──────────────────────────────┐  │
-    │  │ bloodhound-scanner.js  │  │       │  │ wingman-monitor.js           │  │
-    │  │ Port 8081 (Control)    │  │       │  │ No HTTP (VIX alerts only)    │  │
-    │  │ • 2min scan cycle      │──┼───────┼─▶│ • Checks 8081 pause state    │  │
-    │  │ • Confluence scoring   │  │       │  │ • 2min check cycle           │  │
-    │  │ • Zone classification  │  │       │  └──────────────────────────────┘  │
+    │  │ bloodhound-scanner.js  │  │       │  │ web-server.js                │  │
+    │  │ Port 8081 (Control)    │  │       │  │ Port 8080 (HTTP)             │  │
+    │  │ • 2min scan cycle      │  │       │  │ • Serves dashboards          │  │
+    │  │ • Confluence scoring   │  │       │  │ • Default: morning.html      │  │
+    │  │ • Zone classification  │  │       │  │ • REST API proxy to SQLite   │  │
+    │  │ • VIX regime alerts    │  │       │  └──────────────────────────────┘  │
     │  └───────────┬────────────┘  │       │                                    │
     │              │               │       │  ┌──────────────────────────────┐  │
-    │  ┌───────────▼────────────┐  │       │  │ web-server.js                │  │
-    │  │ earnings-scanner.js   │  │       │  │ Port 8080 (HTTP)             │  │
-    │  │ Port 8082 (Control)   │  │       │  │ • Serves dashboards          │  │
-    │  │ • 30min scan cycle    │  │       │  │ • Default: zone-scanner.html │  │
-    │  │ • PREM strategy       │  │       │  │ • POST /api/save-paper-trades│  │
-    │  │ • Position tracking   │  │       │  └──────────────────────────────┘  │
-    │  └───────────┬────────────┘  │       │                                    │
-    │              │               │       └────────────────────────────────────┘
+    │  ┌───────────▼────────────┐  │       │  │ eod-gap-tracker.js           │  │
+    │  │ earnings-scanner.js   │  │       │  │ No HTTP (cron-scheduled)     │  │
+    │  │ Port 8082 (Control)   │  │       │  │ • Runs at 4:15 PM ET        │  │
+    │  │ • 30min scan cycle    │  │       │  │ • Captures EOD gap data      │  │
+    │  │ • PREM strategy       │  │       │  └──────────────────────────────┘  │
+    │  │ • Position tracking   │  │       │                                    │
+    │  └───────────┬────────────┘  │       └────────────────────────────────────┘
+    │              │               │
     │  ┌───────────▼────────────┐  │
     │  │ opportunity-scanner.js│  │
     │  │ Port 8083 (Control)   │  │
     │  │ • 5min scan cycle     │  │
     │  │ • Unusual options     │  │
     │  │ • Vol/OI detection    │  │
+    │  └───────────┬────────────┘  │
+    │              │               │
+    │  ┌───────────▼────────────┐  │
+    │  │ premarket-scanner.js  │  │
+    │  │ Port 8084 (Control)   │  │
+    │  │ • 5min scan cycle     │  │
+    │  │ • 6:00-9:30 AM ET     │  │
+    │  │ • Gap detection       │  │
     │  └────────────────────────┘  │
     └───────────────┬──────────────┘
                     │
@@ -57,29 +66,36 @@ Complete mapping of all components, data flows, and dependencies.
     ┌───────────────────────────────────────────────────────────────────────────┐
     │                              data/                                        │
     │                                                                           │
-    │  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────────┐    │
-    │  │ dynamic_scan.json│  │ scanner.json     │  │ scanner_history.json │    │
-    │  │ (1200+ lines)    │  │ (legacy summary) │  │ (history badges)     │    │
-    │  │ MAIN DASHBOARD   │  │                  │  │                      │    │
-    │  └────────┬─────────┘  └────────┬─────────┘  └──────────────────────┘    │
-    │           │                     │                                         │
-    │  ┌────────┼─────────────────────┼─────────────────────────────────┐      │
-    │  │        │                     │                                  │      │
-    │  │  ┌─────▼────────┐  ┌────────▼───────┐  ┌──────────────────┐   │      │
-    │  │  │ paper_trades │  │ alerts_log.json│  │ watchlist.json   │   │      │
-    │  │  │ .json        │  │ (Telegram log) │  │ (user symbols)   │   │      │
-    │  │  └──────────────┘  └────────────────┘  └──────────────────┘   │      │
-    │  │                                                                │      │
-    │  │  ┌──────────────┐  ┌────────────────┐  ┌──────────────────┐   │      │
-    │  │  │ earnings-    │  │ earnings-scan  │  │ opportunities    │   │      │
-    │  │  │ calendar.json│  │ .json          │  │ .json            │   │      │
-    │  │  └──────────────┘  └────────────────┘  └──────────────────┘   │      │
-    │  │                                                                │      │
-    │  │  ┌──────────────┐  ┌────────────────┐  ┌──────────────────┐   │      │
-    │  │  │ positions    │  │ account_summary│  │ goals.json       │   │      │
-    │  │  │ .json        │  │ .json          │  │                  │   │      │
-    │  │  └──────────────┘  └────────────────┘  └──────────────────┘   │      │
-    │  └────────────────────────────────────────────────────────────────┘      │
+    │  ┌──────────────────────────────────────────────────────────────────┐    │
+    │  │                    wingman.db (SQLite)                            │    │
+    │  │                                                                   │    │
+    │  │  bloodhound_scans    ── Scan metadata (market context, VIX)      │    │
+    │  │  bloodhound_results  ── Per-ticker results (zones, scores)       │    │
+    │  │  scanner_history     ── History badges (NEW/Day2/Streak)         │    │
+    │  │  signals             ── Signal tracking + validation             │    │
+    │  │  checkpoints         ── Multi-checkpoint validation (4h/24h/7d)  │    │
+    │  │  watchlist           ── User watchlist + auto-added symbols      │    │
+    │  │  premarket_scans     ── Pre-market scan metadata                 │    │
+    │  │  premarket_movers    ── Pre-market gap movers                    │    │
+    │  │  gap_ticker_stats    ── Gap fill analytics per ticker            │    │
+    │  │  earnings_scans      ── Earnings scan metadata                   │    │
+    │  │  earnings_results    ── PREM candidates                          │    │
+    │  │  positions           ── Open positions                           │    │
+    │  │  opportunities       ── Unusual options activity                 │    │
+    │  │  alerts              ── Telegram alert history                   │    │
+    │  └──────────────────────────────────────────────────────────────────┘    │
+    │                                                                           │
+    │  ┌──────────────────────────────────────────────────────────────────┐    │
+    │  │                    Flat Files (remaining)                         │    │
+    │  │                                                                   │    │
+    │  │  watchlist.json         ── Legacy fallback (SQLite is primary)   │    │
+    │  │  earnings-calendar.json ── Earnings dates                        │    │
+    │  │  account_summary.json   ── P&L summary                          │    │
+    │  │  MARKET_INTEL.md        ── Living market intelligence            │    │
+    │  │  daily_log.md           ── Trading journal                       │    │
+    │  │  .bloodhound_paused     ── Pause state flag                     │    │
+    │  │  .earnings_paused       ── Earnings pause flag                  │    │
+    │  └──────────────────────────────────────────────────────────────────┘    │
     └───────────────────────────────────────────────────────────────────────────┘
                     │
                     │ READS
@@ -90,15 +106,19 @@ Complete mapping of all components, data flows, and dependencies.
     │                                                                           │
     │  ┌─────────────────────────────────────────────────────────────────────┐ │
     │  │                     INTER-DASHBOARD NAVIGATION                      │ │
+    │  │              (Shared nav bar across all 10 dashboards)               │ │
     │  │                                                                      │ │
-    │  │   zone-scanner ◄──────► scanner ◄──────► dashboard                  │ │
-    │  │        │                   │                                         │ │
-    │  │        ▼                   │                                         │ │
-    │  │   analytics ◄─────────────┼───────────► earnings-scanner            │ │
-    │  │        │                   │                   │                     │ │
-    │  │        └───────────────────┼───────────────────┘                     │ │
-    │  │                            │                                         │ │
-    │  │                   opportunity-scanner                                │ │
+    │  │   morning ◄──► zone-scanner ◄──► scanner ◄──► dashboard             │ │
+    │  │     │               │                │                               │ │
+    │  │     ▼               ▼                ▼                               │ │
+    │  │   premarket    analytics       earnings-scanner                      │ │
+    │  │                    │                  │                               │ │
+    │  │              opportunity-scanner      │                               │ │
+    │  │                    │                  │                               │ │
+    │  │              INSIGHTS dropdown:       │                               │ │
+    │  │              ├── analytics            │                               │ │
+    │  │              ├── strategies           │                               │ │
+    │  │              └── options-lab          │                               │ │
     │  └─────────────────────────────────────────────────────────────────────┘ │
     └───────────────────────────────────────────────────────────────────────────┘
                     │
@@ -112,6 +132,7 @@ Complete mapping of all components, data flows, and dependencies.
     │  zone-scanner.html  ──► Port 8081  ──► bloodhound-scanner.js             │
     │  earnings-scanner   ──► Port 8082  ──► earnings-scanner.js               │
     │  opportunity-scanner──► Port 8083  ──► opportunity-scanner.js            │
+    │  premarket.html     ──► Port 8084  ──► premarket-scanner.js              │
     │                                                                           │
     │  All Control Endpoints:                                                  │
     │  • GET  /status          - Scanner state, next scan countdown            │
@@ -143,12 +164,16 @@ Complete mapping of all components, data flows, and dependencies.
 
 | Dashboard | Primary Data Source | Control Port | Purpose |
 |-----------|---------------------|--------------|---------|
-| **zone-scanner.html** | dynamic_scan.json | 8081 | Bloodhound confluence zones, tradeable setups |
-| **scanner.html** | scanner.json, alerts_log.json | - | Legacy market structure, VIX regime |
-| **dashboard.html** | positions.json, account_summary.json, goals.json | - | Account P&L, positions, goals |
-| **analytics.html** | paper_trades.json | - | Signal validation, performance analysis |
+| **morning.html** | `/api/morning-briefing` | - | Morning briefing, session overview |
+| **zone-scanner.html** | `/api/scan/latest` (SQLite) | 8081 | Bloodhound confluence zones, tradeable setups |
+| **scanner.html** | `/api/scan/summary`, `/api/alerts` (SQLite) | - | Legacy market structure, VIX regime |
+| **dashboard.html** | `/api/positions`, account_summary.json | - | Account P&L, positions |
+| **analytics.html** | `/api/signals`, `/api/signals/stats` (SQLite) | - | Signal validation, performance analysis |
 | **earnings-scanner.html** | (API only - port 8082) | 8082 | PREM candidates, earnings calendar |
-| **opportunity-scanner.html** | opportunities.json | 8083 | Unusual options activity |
+| **opportunity-scanner.html** | `/api/opportunities/latest` (SQLite) | 8083 | Unusual options activity |
+| **premarket.html** | `/api/premarket`, `/api/premarket/today` (SQLite) | 8084 | Pre-market gaps and movers |
+| **strategies.html** | (static) | - | Strategy browser |
+| **options-lab.html** | Options API (8000) | - | Options analysis tools |
 
 ---
 
@@ -156,31 +181,53 @@ Complete mapping of all components, data flows, and dependencies.
 
 ### Written by bloodhound-scanner.js (every 2 min)
 ```
+data/wingman.db (SQLite tables)
+├── bloodhound_scans      # Scan metadata (market context, VIX, counts)
+├── bloodhound_results    # Per-ticker results (zone, score, signals, levels)
+├── scanner_history       # History badges (NEW/Day2/Streak)
+├── signals               # Signal tracking + multi-checkpoint validation
+├── checkpoints           # 4h/24h/7d validation checkpoints
+├── watchlist             # Via /watchlist/add|remove API
+└── alerts                # Telegram alert history
+
 data/
-├── dynamic_scan.json      # PRIMARY - Zone Scanner dashboard data
-├── bloodhound.json        # Legacy format (compatibility)
-├── scanner.json           # Legacy format (compatibility)
-├── scanner_history.json   # History badges (NEW/Day2/Streak)
-├── signal_tracking.json   # Signal outcome tracking
-└── watchlist.json         # Via /watchlist/add|remove API
+└── watchlist.json         # Legacy fallback (SQLite watchlist table is primary)
 ```
+
+**API access (via web-server.js on port 8080):**
+- `GET /api/scan/latest` -- full scan data (replaces dynamic_scan.json)
+- `GET /api/scan/summary` -- summary format (replaces scanner.json)
+- `GET /api/signals` -- signal tracking data
+- `GET /api/alerts` -- alert history (replaces alerts_log.json)
 
 ### Written by earnings-scanner.js (every 30 min)
 ```
+data/wingman.db (SQLite tables)
+├── earnings_scans            # Earnings scan metadata
+└── earnings_results          # PREM candidates
+
 data/
-├── earnings-scan.json         # PREM candidates
-├── earnings-positions.json    # Open earnings positions
+├── earnings-calendar.json    # Earnings dates (prerequisite)
 └── earnings-paper-trades.json # Earnings paper trades
 ```
 
+**API access (via earnings scanner control API on port 8082):**
+- `GET /results` -- PREM scan results
+- `GET /calendar` -- earnings dates
+- `GET /positions` -- open earnings positions
+- `GET /analytics` -- performance stats
+
 ### Written by opportunity-scanner.js (every 5 min)
 ```
-data/
-├── opportunities.json         # Unusual options opportunities (JSON, overwrites each scan)
-└── opportunity_history.db     # SQLite database for historical analysis
+data/wingman.db (SQLite tables)
+├── scans                     # Opportunity scan metadata
+└── opportunities             # Unusual options opportunities (per scan)
 ```
 
-**SQLite Schema (opportunity_history.db):**
+**API access (via web-server.js on port 8080):**
+- `GET /api/opportunities/latest` -- latest opportunity scan results
+
+**SQLite Schema (wingman.db):**
 ```sql
 -- Scan metadata
 CREATE TABLE scans (
@@ -215,11 +262,29 @@ CREATE TABLE opportunities (
 );
 ```
 
-### Written by wingman-monitor.js (on VIX regime change)
+### Written by premarket-scanner.js (every 5 min, 6:00-9:30 AM ET)
 ```
-data/
-└── alerts_log.json        # Alert history (30-day retention)
+data/wingman.db (SQLite tables)
+├── premarket_scans          # Pre-market scan metadata
+├── premarket_movers         # Gap movers per scan
+└── watchlist                # Auto-adds HIGH_CONVICTION gaps (7-day expiry)
 ```
+
+**API access (via web-server.js on port 8080):**
+- `GET /api/premarket` -- latest premarket scan
+- `GET /api/premarket/today` -- today's stats and top gappers
+
+### Written by eod-gap-tracker.js (daily at 4:15 PM ET)
+```
+data/wingman.db (SQLite tables)
+└── gap_ticker_stats         # Gap fill rates, EOD outcomes per ticker
+```
+
+**API access (via web-server.js on port 8080):**
+- `GET /api/gaps/analytics?days=30` -- fill rates by tier, size, catalyst
+- `GET /api/gaps/ticker/:symbol` -- ticker-specific gap history
+- `GET /api/gaps/repeat-offenders` -- frequent gappers with fill rates
+- `GET /api/gaps/today-with-history` -- today's gaps with historical context
 
 ### Written by paper-trade-manager.js (called by scanners)
 ```
@@ -233,21 +298,30 @@ data/
 └── earnings-calendar.json # Earnings dates (prerequisite for earnings-scanner)
 ```
 
+### VIX Regime Alerts (consolidated into bloodhound-scanner.js)
+
+VIX regime change detection was previously handled by `wingman-monitor.js` (deprecated).
+It is now built directly into `bloodhound-scanner.js`. When VIX crosses regime thresholds
+(12/20/30/40), Bloodhound sends a Telegram alert. Alerts are stored in the `alerts` table
+in `wingman.db`. No separate process is needed.
+
 ### Written by eod.js (daily)
 ```
 data/
 ├── account_summary.json   # Updates timestamp
 ├── daily_log.md           # Creates fresh template
-└── ACTIVE_SESSION.md      # Appends EOD marker
+└── MARKET_INTEL.md        # Appends EOD session recap
 ```
 
 ### Manual / UI-written
 ```
 data/
-├── watchlist.json         # Also via zone-scanner.html UI
-├── goals.json             # Via dashboard.html or manual
-├── positions.json         # Via trading activity
+├── watchlist.json         # Also via zone-scanner.html UI (SQLite is primary)
+├── MARKET_INTEL.md        # Living market intelligence (swing watchlist, session recaps)
 └── daily_log.md           # User journaling via -note command
+
+data/wingman.db (SQLite tables)
+└── positions              # Via /api/positions endpoint or dashboard UI
 ```
 
 ---
@@ -262,7 +336,7 @@ data/
 │  1. DISCOVERY                                                               │
 │     ┌──────────────────┐                                                    │
 │     │ Load watchlist   │──► Always-scanned symbols (user curated)          │
-│     │ from JSON        │                                                    │
+│     │ from SQLite      │    (fallback: watchlist.json)                      │
 │     └────────┬─────────┘                                                    │
 │              │                                                               │
 │     ┌────────▼─────────┐                                                    │
@@ -322,12 +396,13 @@ data/
 │              │                                                               │
 │  5. OUTPUT                                                                  │
 │     ┌────────▼─────────┐                                                    │
-│     │ Write JSON files │                                                    │
+│     │ Write to SQLite  │                                                    │
+│     │ (wingman.db)     │                                                    │
 │     │                  │                                                    │
-│     │ • dynamic_scan.json (full data for dashboard)                        │
-│     │ • scanner.json (legacy summary)                                      │
-│     │ • bloodhound.json (legacy format)                                    │
-│     │ • scanner_history.json (badge tracking)                              │
+│     │ • bloodhound_scans   (scan metadata)                                 │
+│     │ • bloodhound_results (per-ticker data → /api/scan/latest)            │
+│     │ • scanner_history    (badge tracking)                                │
+│     │ • signals            (HIGH_CONVICTION → validation)                  │
 │     └────────┬─────────┘                                                    │
 │              │                                                               │
 │  6. ALERTS                                                                  │
@@ -425,25 +500,12 @@ data/
 │  │  • Sets paused = true                                                 │ │
 │  │  • Creates data/.bloodhound_paused file                               │ │
 │  │  • Stops scan cycles                                                  │ │
+│  │  • Stops VIX regime alerts (consolidated into Bloodhound)             │ │
 │  │  • Control API still responds to /status                              │ │
 │  └───────────────────────────────────────────────────────────────────────┘ │
-│                              │                                              │
-│                              │ wingman-monitor.js checks                    │
-│                              │ before each alert cycle                      │
-│                              ▼                                              │
-│  ┌───────────────────────────────────────────────────────────────────────┐ │
-│  │ GET http://localhost:8081/status                                      │ │
-│  │                              │                                         │ │
-│  │                              ▼                                         │ │
-│  │  if (response.paused === true) {                                      │ │
-│  │      // Skip all checks, return early                                 │ │
-│  │      // No VIX regime alerts sent                                     │ │
-│  │  }                                                                    │ │
-│  └───────────────────────────────────────────────────────────────────────┘ │
 │                                                                             │
-│  RESULT: Pausing Bloodhound silences entire system                         │
-│  • Bloodhound stops scanning                                               │
-│  • Monitor stops alerting                                                  │
+│  RESULT: Pausing Bloodhound silences scanning + VIX alerts                 │
+│  • Bloodhound stops scanning and alerting                                  │
 │  • Dashboards still display last data (no refresh)                         │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -457,10 +519,11 @@ data/
 |------|---------|------|------------|
 | **3000** | Intel API | External | (remote server) |
 | **8000** | Options API | External | (remote server) |
-| **8080** | Web Server | HTTP Static | web-server.js |
+| **8080** | Web Server | HTTP Static + API | web-server.js |
 | **8081** | Bloodhound Control | HTTP API | bloodhound-scanner.js |
 | **8082** | Earnings Control | HTTP API | earnings-scanner.js |
 | **8083** | Opportunity Control | HTTP API | opportunity-scanner.js |
+| **8084** | Pre-Market Control | HTTP API | premarket-scanner.js |
 
 ---
 
@@ -472,21 +535,23 @@ wingman/
 ├── CLAUDE.md              # AI instructions
 ├── README.md              # Project readme
 ├── package.json           # Node dependencies
+├── ecosystem.config.js    # PM2 process config (starts all scanners)
 ├── eod.js                 # End-of-day script
 │
-├── zone-scanner.html      # PRIMARY DASHBOARD
-├── scanner.html           # Market structure dashboard
+├── morning.html           # DEFAULT - Morning briefing dashboard
+├── zone-scanner.html      # Bloodhound confluence zones
+├── scanner.html           # Legacy market structure dashboard
 ├── dashboard.html         # Account/positions dashboard
 ├── analytics.html         # Signal validation dashboard
 ├── earnings-scanner.html  # Earnings dashboard
 ├── opportunity-scanner.html # Unusual options dashboard
+├── premarket.html         # Pre-market gaps dashboard
+├── strategies.html        # Strategy browser
+├── options-lab.html       # Options analysis tools
+├── options-explainer.html # Options education
 │
-├── DOCUMENTATION_SUMMARY.md   # Orphan doc
-├── QUICK_REFERENCE_CARD.md    # Orphan doc
-├── QUICK_START.md             # Orphan doc
-├── SYSTEM_AUDIT.md            # Orphan doc
-├── SYSTEM_STATUS.md           # Orphan doc
-└── nul                        # Windows artifact (delete)
+├── css/
+│   └── nav.css            # Shared navigation styles
 ```
 
 ### monitor/
@@ -494,60 +559,75 @@ wingman/
 monitor/
 ├── config.json                    # API endpoints, Telegram credentials
 │
-├── bloodhound-scanner.js          # PRIMARY SCANNER (103 KB)
-├── earnings-scanner.js            # Earnings PREM scanner (45 KB)
-├── opportunity-scanner.js         # Unusual options scanner (25 KB)
-├── dynamic-scanner.js             # Zone classification module (19 KB)
+├── bloodhound-scanner.js          # PRIMARY SCANNER - confluence scoring, VIX alerts
+├── earnings-scanner.js            # Earnings PREM scanner
+├── opportunity-scanner.js         # Unusual options scanner
+├── premarket-scanner.js           # Pre-market gap detection (6:00-9:30 AM ET)
+├── eod-gap-tracker.js             # EOD gap fill tracking (4:15 PM ET)
+├── dynamic-scanner.js             # Zone classification module
 │
-├── wingman-monitor.js             # VIX regime alerts (11 KB)
-├── web-server.js                  # Dashboard server (3 KB)
-├── paper-trade-manager.js         # Paper trade tracking (11 KB)
-├── earnings-calendar-scraper.js   # Earnings date fetcher (9 KB)
-├── trade-client.js                # Trade logging client (7 KB)
-├── watchlist.js                   # Watchlist CLI (7 KB)
-├── scanner-validator.js           # Validation tool (6 KB)
+├── signal-db.js                   # SQLite database layer (all tables)
+├── signal-logger.js               # Signal tracking wrapper
+├── opportunity-db.js              # Opportunity SQLite storage
+├── web-server.js                  # Dashboard server + REST API proxy
+├── paper-trade-manager.js         # Paper trade tracking
+├── earnings-calendar-scraper.js   # Earnings date fetcher
+├── trade-client.js                # Trade logging client
+├── watchlist.js                   # Watchlist CLI
+├── migrate-to-db.js               # Migration: JSON files → SQLite
+├── migrate-watchlist.js           # Migration: watchlist.json → SQLite
+├── scanner-validator.js           # Validation tool
 │
-├── README.md
-├── SETUP.md
+├── wingman-monitor.js             # DEPRECATED - VIX alerts now in bloodhound
 ├── _legacy/                       # Old/deprecated code
-│
-├── tmpclaude-0205-cwd             # TEMP FILE (delete)
-├── tmpclaude-1f2e-cwd             # TEMP FILE (delete)
-├── tmpclaude-573c-cwd             # TEMP FILE (delete)
-├── tmpclaude-598f-cwd             # TEMP FILE (delete)
-└── tmpclaude-998a-cwd             # TEMP FILE (delete)
 ```
 
 ### data/
 ```
 data/
-├── dynamic_scan.json          # PRIMARY - Zone scanner data (1200+ lines)
-├── scanner.json               # Legacy scanner summary
-├── bloodhound.json            # Legacy bloodhound format
-├── scanner_history.json       # History badges
-├── signal_tracking.json       # Signal outcomes
-├── paper_trades.json          # Paper trade tracking
-├── alerts_log.json            # Alert history
-├── watchlist.json             # User watchlist
+├── wingman.db                 # PRIMARY - SQLite database (all scanner data)
+│   ├── bloodhound_scans      #   Scan metadata (replaces scanner.json)
+│   ├── bloodhound_results    #   Per-ticker data (replaces dynamic_scan.json)
+│   ├── scanner_history       #   History badges (replaces scanner_history.json)
+│   ├── signals               #   Signal tracking (replaces signal_tracking.json)
+│   ├── checkpoints           #   Multi-checkpoint validation (4h/24h/7d)
+│   ├── watchlist             #   User watchlist (replaces watchlist.json)
+│   ├── premarket_scans       #   Pre-market scan metadata
+│   ├── premarket_movers      #   Pre-market gap movers
+│   ├── gap_ticker_stats      #   Gap fill analytics per ticker
+│   ├── earnings_scans        #   Earnings scan metadata (replaces earnings-scan.json)
+│   ├── earnings_results      #   PREM candidates
+│   ├── positions             #   Open positions (replaces positions.json)
+│   ├── opportunities         #   Unusual options (replaces opportunities.json)
+│   ├── alerts                #   Alert history (replaces alerts_log.json)
+│   └── scans                 #   Opportunity scan metadata
 │
+├── watchlist.json             # Legacy fallback for watchlist (SQLite is primary)
 ├── earnings-calendar.json     # Earnings dates
-├── earnings-scan.json         # PREM candidates
 ├── earnings-paper-trades.json # Earnings paper trades
-├── opportunities.json         # Unusual options
-│
-├── positions.json             # Open positions
 ├── account_summary.json       # P&L summary
-├── goals.json                 # Trading goals
-├── trades_journal.json        # Trade history (API-only?)
 │
+├── MARKET_INTEL.md            # Living market intelligence (replaced ACTIVE_SESSION.md)
 ├── daily_log.md               # Trading journal
-├── ACTIVE_SESSION.md          # Session state
-├── scanner_config.json        # (unused?)
 │
 ├── .bloodhound_paused         # Pause state flag
 ├── .earnings_paused           # Earnings pause flag
-└── HANDOFF_2026-01-15.md      # (should be in docs)
+└── archive/                   # Archived deprecated JSON files
 ```
+
+**Deprecated files (moved to data/archive/ or deleted):**
+- `dynamic_scan.json` → SQLite `bloodhound_results` + `GET /api/scan/latest`
+- `scanner.json` → SQLite `bloodhound_scans` + `GET /api/scan/summary`
+- `bloodhound.json` → SQLite `bloodhound_scans`
+- `signal_tracking.json` → SQLite `signals` table
+- `alerts_log.json` → SQLite `alerts` table + `GET /api/alerts`
+- `scanner_history.json` → SQLite `scanner_history` table
+- `positions.json` → SQLite `positions` table + `GET /api/positions`
+- `earnings-scan.json` → SQLite `earnings_scans`/`earnings_results` tables
+- `opportunities.json` → SQLite `opportunities` table + `GET /api/opportunities/latest`
+- `premarket.json` → SQLite `premarket_scans`/`premarket_movers` tables
+- `ACTIVE_SESSION.md` → Removed; session state now in `MARKET_INTEL.md`
+- `goals.json` → Removed (feature not active)
 
 ### docs/
 ```
@@ -596,30 +676,46 @@ toolbox/
 
 ```
 bloodhound-scanner.js
-    └── requires: paper-trade-manager.js (calls createPaperTrade, updatePaperTrades)
+    ├── requires: signal-db.js (SQLite storage for scans, signals, watchlist)
+    ├── requires: signal-logger.js (signal tracking wrapper)
+    ├── requires: paper-trade-manager.js (calls createPaperTrade, updatePaperTrades)
+    └── includes: VIX regime alerts (consolidated from wingman-monitor.js)
 
 earnings-scanner.js
-    └── requires: paper-trade-manager.js (calls functions)
+    ├── requires: signal-db.js (SQLite storage for earnings scans/results)
+    ├── requires: paper-trade-manager.js (calls functions)
     └── can call: earnings-calendar-scraper.js (via /refresh-calendar)
 
 opportunity-scanner.js
-    └── requires: opportunity-db.js (SQLite historical data)
-    └── discovery: Dynamic from 7 sources (core, watchlist, movers, extremes)
+    ├── requires: opportunity-db.js (SQLite historical data)
+    └── discovery: Dynamic from 7 sources (core, watchlist, ETFs, movers, extremes)
+
+premarket-scanner.js
+    ├── requires: signal-db.js (SQLite storage for premarket scans/movers)
+    └── auto-adds: HIGH_CONVICTION gaps to SQLite watchlist (7-day expiry)
+
+eod-gap-tracker.js
+    └── requires: signal-db.js (SQLite storage for gap_ticker_stats)
 
 opportunity-db.js
-    └── exports: getDb(), saveScanResults(), getRecentScans(), getTierStats(), getTopSymbols()
+    ├── exports: getDb(), saveScanResults(), getRecentScans(), getTierStats(), getTopSymbols()
+    └── uses: better-sqlite3 (npm package)
+
+signal-db.js
+    ├── exports: All SQLite table operations (signals, scans, watchlist, premarket, etc.)
     └── uses: better-sqlite3 (npm package)
 
 dynamic-scanner.js
-    └── exports: runDynamicScan(), buildDynamicWatchlist(), analyzeSymbol(), ZONES
+    ├── exports: runDynamicScan(), buildDynamicWatchlist(), analyzeSymbol(), ZONES
     └── imported by: bloodhound-scanner.js (optional module usage)
 
-wingman-monitor.js
-    └── checks: bloodhound-scanner.js (via GET /status on port 8081)
-
 web-server.js
-    └── serves: All HTML files from root
-    └── writes: paper_trades.json (via POST /api/save-paper-trades)
+    ├── requires: signal-db.js (reads SQLite for API responses)
+    ├── requires: opportunity-db.js (reads opportunity data)
+    ├── serves: All HTML files from root
+    ├── proxies: /proxy/analytics/* to Intel API (port 3000)
+    └── API: /api/scan/*, /api/signals/*, /api/alerts, /api/premarket/*,
+             /api/gaps/*, /api/opportunities/*, /api/positions, /api/morning-briefing
 ```
 
 ---
@@ -628,11 +724,10 @@ web-server.js
 
 | Category | Count |
 |----------|-------|
-| HTML Dashboards | 6 |
-| Monitor Scripts | 11 |
-| Data Files | 18+ |
-| Control Ports | 3 (8081, 8082, 8083) |
+| HTML Dashboards | 10 |
+| Monitor Scripts (active) | 12 |
+| SQLite Database | 1 (wingman.db with 15+ tables) |
+| Flat Data Files | ~6 (legacy/supplemental) |
+| Control Ports | 4 (8081, 8082, 8083, 8084) |
 | External API Ports | 2 (3000, 8000) |
-| Static Server Port | 1 (8080) |
-| Orphan Docs (root) | 5 |
-| Temp Files (monitor) | 5 |
+| Web Server Port | 1 (8080 - static + API) |

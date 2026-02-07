@@ -209,7 +209,7 @@ What chart did you use for entry?
 - **status** - How it closed:
   - "closed" = Hit target or manually exited
   - "stopped_out" = Stop loss hit
-  - "open" = Still holding (rare in journal, more for positions.json)
+  - "open" = Still holding (rare in journal, more for /api/positions)
 
 ### Risk Fields
 - **stop_price** - Your predetermined stop loss level

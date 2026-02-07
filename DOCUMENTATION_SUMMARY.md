@@ -25,8 +25,7 @@
 |------|---------|--------|
 | `data/trades_journal.json` | Added schema fields: `higher_timeframe_context`, `divergence_confirmed_by`, `divergence_count`, `vwap_distance_atr` | ✓ Updated |
 | `data/account_summary.json` | Updated with real account data: balance $23,526.10, real YTD P&L, daily/weekly/monthly performance | ✓ Updated |
-| `data/goals.json` | Updated tracking fields with current P&L values | ✓ Updated |
-| `data/ACTIVE_SESSION.md` | Updated with real account status and trade information | ✓ Updated |
+| `data/MARKET_INTEL.md` | Market intelligence, session state, trade information | ✓ Updated |
 | `QUICK_START.md` | Added primary VWAP + Divergence workflow, updated file references | ✓ Updated |
 | `dashboard.html` | Added date dropdown for historical session notes viewing | ✓ Updated |
 | `toolbox/docs/TradingView/Divergence for Many Indicators.md` | Added alert conditions (pre-existing, now documented) | ✓ Verified |
@@ -119,7 +118,7 @@ WINGMAN Trading System Documentation
 │
 ├─ MONITORING & TRACKING
 │  ├─ dashboard.html (real-time)
-│  ├─ data/positions.json (open trades)
+│  ├─ /api/positions (open trades, SQLite)
 │  ├─ data/trades_journal.json (history)
 │  ├─ data/daily_log.md (session notes)
 │  └─ data/account_summary.json (daily summary)
@@ -179,7 +178,7 @@ WINGMAN Trading System Documentation
 ### Daily Trading Checklist
 ✓ Open dashboard.html
 ✓ Read WINGMAN_CONTEXT.md
-✓ Check ACTIVE_SESSION.md
+✓ Check MARKET_INTEL.md
 ✓ Load TradingView indicator
 ✓ Execute trades per checklist
 ✓ Log all trades with divergence data
@@ -314,10 +313,10 @@ Target 2: Opposite extreme
 **What gets updated when:**
 
 - `daily_log.md` → Throughout trading day (via `-note`)
-- `positions.json` → When trade opens/closes
+- `/api/positions` → When trade opens/closes (via API)
 - `trades_journal.json` → When trade closes (include divergence data)
 - `account_summary.json` → End of day (or automated via eod.js)
-- `ACTIVE_SESSION.md` → End of hour or significant event
+- `MARKET_INTEL.md` → Each session (market intelligence, session recaps)
 - `QUICK_REFERENCE_CARD.md` → Updated numbers (weekly)
 - Documentation files → Only when system changes (rarely)
 

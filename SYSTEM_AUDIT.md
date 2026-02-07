@@ -10,37 +10,25 @@
 **Dashboard → Data Files Connection:**
 ```
 Dashboard (dashboard.html)
-├── Reads: positions.json ✓
+├── Reads: /api/positions (SQLite) ✓
 ├── Reads: account_summary.json ✓
-├── Reads: goals.json ✓
 └── Reads: daily_log.md ✓
 
 Auto-refresh: Every 10 seconds
-Functions: loadData() → loadNotes() → loadGoals()
+Functions: loadData() → loadNotes()
 ```
 
-**All file paths verified:**
-- ✅ positions.json - reads unrealized P&L, position details
-- ✅ account_summary.json - reads daily/weekly/monthly P&L for goals
-- ✅ goals.json - reads monthly_target and derived_targets
-- ✅ daily_log.md - parses [HH:MM] [CATEGORY] - text format
+**All data sources verified:**
+- /api/positions (SQLite) - reads unrealized P&L, position details
+- account_summary.json - reads daily/weekly/monthly P&L
+- daily_log.md - parses [HH:MM] [CATEGORY] - text format
 
 ---
 
 ## ✅ DATA FILE INTEGRITY
 
-### goals.json Structure
-```json
-{
-  "monthly_target": 2500,
-  "derived_targets": {
-    "daily": 83.33,
-    "weekly": 577.25,
-    "yearly": 30000
-  }
-}
-```
-**Status:** ✅ Correct. Auto-calculates: daily = 2500/30, weekly = 2500/4.33, yearly = 2500*12
+### goals.json
+**Status:** Deprecated. Goal tracking feature is no longer active.
 
 ### account_summary.json Structure
 ```json
@@ -52,17 +40,9 @@ Functions: loadData() → loadNotes() → loadGoals()
 ```
 **Status:** ✅ Correct. Dashboard reads these exact paths for goals.
 
-### positions.json Structure
-```json
-{
-  "active_positions": [],
-  "summary": {
-    "total_unrealized_pnl": 0.00,
-    "total_exposure": 0.00
-  }
-}
-```
-**Status:** ✅ Correct. Dashboard reads for position cards and balance.
+### Positions (SQLite)
+Positions are now stored in the SQLite database (`data/wingman.db`) and accessed via `GET /api/positions`.
+**Status:** Migrated from positions.json to SQLite. Dashboard reads via API for position cards and balance.
 
 ### daily_log.md Format
 - Current: Template-based structure (sections like PRE-MARKET, MARKET OPEN, etc.)
@@ -175,9 +155,8 @@ Functions: loadData() → loadNotes() → loadGoals()
 ### What Writes To Files
 | File | Writer | Frequency |
 |------|--------|-----------|
-| positions.json | Trading system | Every trade |
+| /api/positions (SQLite) | Trading system | Every trade |
 | account_summary.json | Trading system | EOD |
-| goals.json | Manual (user edits) | When goals change |
 | daily_log.md | Manual + Claude notes | Throughout day |
 | trades_journal.json | Trading system | When trades close |
 
@@ -186,9 +165,8 @@ Functions: loadData() → loadNotes() → loadGoals()
 ### What Dashboard Reads
 | File | Dashboard Function | Frequency |
 |------|-------------------|-----------|
-| positions.json | loadData() | Every 10s |
-| account_summary.json | loadGoals() | Every 10s |
-| goals.json | loadGoals() | Every 10s |
+| /api/positions (SQLite) | loadData() | Every 10s |
+| account_summary.json | loadData() | Every 10s |
 | daily_log.md | loadNotes() | Every 10s |
 
 **Status:** ✅ All connections working
@@ -207,10 +185,8 @@ Functions: loadData() → loadNotes() → loadGoals()
 **Solution:** Claude should handle this - when user says "-note observation: test", append formatted entry to daily_log.md
 **Status:** Awaiting confirmation if this is desired behavior
 
-### Issue 3: Yearly P&L Calculation
-**Problem:** goals.json calculated as expectancy × trades, but might be misleading
-**Better Approach:** Use actual YTD (year-to-date) P&L from account_summary.json
-**Current:** Shows $0 since no trades yet, so not critical
+### Issue 3: Goal Tracking (Deprecated)
+The goals.json feature is no longer active. Goal tracking has been removed from the system.
 
 ---
 

@@ -9,7 +9,7 @@
 ```
 □ Open dashboard.html (pin to 2nd monitor)
 □ Read WINGMAN_CONTEXT.md (5 min)
-□ Check ACTIVE_SESSION.md (2 min)
+□ Check MARKET_INTEL.md (2 min)
 □ Load TradingView, set to 5-min chart
 □ Load "Divergence + VWAP Reversion v4" indicator
 □ Set TradingView alerts
@@ -63,7 +63,7 @@ Entry $X.XX, Stop $X.XX, Target $X.XX
 □ Place entry limit order
 □ Place stop loss (1 ATR below entry)
 □ Place target orders (50% at VWAP, 50% runner)
-□ Add to positions.json
+□ Log position via /api/positions
 □ Add to daily_log.md with -note
 □ Monitor on dashboard
 ```
@@ -226,7 +226,7 @@ MONTHLY Level (Rare but useful)
 -note [text]              → Add session note (auto-timestamps)
 node eod.js              → End of day automation (archives all)
 dashboard.html           → Open real-time monitor
-data/positions.json      → View open trades
+GET /api/positions       → View open trades
 data/trades_journal.json → View closed trades
 ```
 
@@ -287,7 +287,6 @@ Best ATR Distance:     _______________
 
 That's it! Automatic:
 - Archives daily_log.md
-- Archives positions.json
 - Updates account_summary.json
 - Creates fresh daily_log.md for tomorrow
 
@@ -368,7 +367,7 @@ RULES:
 □ trading_plan.md
 
 DATA:
-□ data/positions.json
+□ /api/positions (open trades)
 □ data/trades_journal.json
 □ data/daily_log.md
 ```

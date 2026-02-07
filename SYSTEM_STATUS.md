@@ -79,11 +79,9 @@
 **Command:** `node eod.js`
 
 **What It Does (Automatic):**
-- ✓ Archives daily_log.md → archive/daily_logs/trading_log_YYYY-MM-DD.md
-- ✓ Archives positions.json → archive/positions_archive/positions_YYYY-MM-DD.json
-- ✓ Updates account_summary.json timestamp
-- ✓ Appends EOD note to ACTIVE_SESSION.md
-- ✓ Creates fresh daily_log.md for next session
+- Archives daily_log.md to archive/daily_logs/trading_log_YYYY-MM-DD.md
+- Updates account_summary.json timestamp
+- Creates fresh daily_log.md for next session
 - Completes in <1 second
 
 **No More Manual Work:** Single command replaces 5+ manual steps
@@ -94,10 +92,9 @@
 **Status:** ✓ LIVE
 
 **Files:**
-- `data/positions.json` - Open trades (real-time)
+- `GET /api/positions` - Open trades (SQLite, real-time)
 - `data/trades_journal.json` - Closed trades (permanent history)
 - `data/account_summary.json` - Daily/weekly/monthly summaries
-- `data/goals.json` - Target goals (customizable)
 
 **Current Account Data:**
 - Starting balance: $20,000 (Sept 3, 2025)
@@ -144,7 +141,7 @@
 ### Morning (8 minutes)
 1. Open `dashboard.html` (pin to 2nd monitor)
 2. Read `WINGMAN_CONTEXT.md` (5 min)
-3. Check `ACTIVE_SESSION.md` (2 min)
+3. Check `MARKET_INTEL.md` (2 min)
 4. Load TradingView with `Divergence + VWAP Reversion v4` script
 5. Set alerts on TradingView
 
@@ -152,7 +149,7 @@
 1. Watch 5-min chart for entry signals
 2. Follow `VWAP_Reversion_with_Divergence_Checklist.md` pre-entry
 3. Validate trade with Wingman
-4. Update `positions.json` on entry
+4. Log position via `/api/positions` on entry
 5. Use `-note` command for observations
 6. Exit per plan, update `trades_journal.json` when closed
 
@@ -193,15 +190,14 @@ Will track:
 - `toolbox/docs/TRADING_RULES.md` → Enforce discipline
 
 ### Data Tracking
-- `data/positions.json` → Update when trade opens/closes
+- `/api/positions` → Log when trade opens/closes (SQLite)
 - `data/trades_journal.json` → Append when trade closes (include divergence data)
 - `data/daily_log.md` → Add notes with `-note` command
 - `data/account_summary.json` → Updated by eod.js or manually
 
 ### Monitoring
 - `dashboard.html` → Open in browser, pin to 2nd monitor (auto-refresh 10s)
-- `data/ACTIVE_SESSION.md` → Session snapshot (updated hourly)
-- `data/goals.json` → Your targets (edit if changing monthly goal)
+- `data/MARKET_INTEL.md` → Market intelligence and session state
 
 ### Documentation
 - `QUICK_START.md` → Quick reference (read at start of day)
@@ -305,11 +301,10 @@ Will track:
 | File | Purpose | Update Frequency |
 |------|---------|------------------|
 | dashboard.html | Monitor account | View constantly |
-| data/positions.json | Open trades | On trade entry/exit |
+| /api/positions (SQLite) | Open trades | On trade entry/exit |
 | data/daily_log.md | Session notes | During trading (-note) |
 | data/trades_journal.json | Trade history | When trade closes |
 | data/account_summary.json | Daily summary | EOD (automatic) |
-| data/goals.json | Goal targets | Monthly (if adjusting) |
 | VWAP_Reversion_with_Divergence_Checklist.md | Trade rules | Read before each trade |
 | TradingView/Divergence + VWAP Reversion v4.md | Chart script | Load once, stays loaded |
 
@@ -372,14 +367,14 @@ WINGMAN System
 │
 ├── Real-Time Tracking
 │   ├── dashboard.html
-│   ├── data/positions.json
+│   ├── /api/positions (SQLite)
 │   ├── data/daily_log.md
-│   └── data/ACTIVE_SESSION.md
+│   └── data/MARKET_INTEL.md
 │
 ├── Historical Data
 │   ├── data/trades_journal.json
 │   ├── data/account_summary.json
-│   └── archive/ (daily_logs, positions_archive)
+│   └── archive/ (daily_logs)
 │
 └── Documentation
     ├── QUICK_START.md

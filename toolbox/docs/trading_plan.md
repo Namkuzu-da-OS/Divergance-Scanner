@@ -291,8 +291,8 @@ Example:
 ## DAILY ROUTINE
 
 ### Pre-Market (8:30-9:30 AM)
-- [ ] Read WINGMAN_CONTEXT.md + ACTIVE_SESSION.md
-- [ ] Review open positions (positions.json)
+- [ ] Read WINGMAN_CONTEXT.md + MARKET_INTEL.md
+- [ ] Review open positions (/api/positions)
 - [ ] Check overnight news and market movers
 - [ ] Identify potential setups for the day
 - [ ] Set alerts for key levels
@@ -302,7 +302,7 @@ Example:
 - [ ] Monitor open positions
 - [ ] Track daily P&L in real-time
 - [ ] Execute setups matching approved strategies
-- [ ] Update positions.json with any changes
+- [ ] Update positions via API
 - [ ] Log all trades in trades_journal.json
 - [ ] Ask Wingman to validate trades before entry
 
@@ -311,7 +311,7 @@ Example:
 - [ ] Update account_summary.json
 - [ ] Review trades with Wingman
 - [ ] Archive positions and trades to /archive
-- [ ] Update ACTIVE_SESSION.md for next session
+- [ ] Update MARKET_INTEL.md for next session
 - [ ] Identify lessons learned
 
 ---
@@ -447,4 +447,4 @@ Example:
 This is a living document. Update as you learn and grow.
 Discipline + Edge + Time = Success
 
-Next: [ACTIVE_SESSION.md](../data/ACTIVE_SESSION.md)
+Next: [MARKET_INTEL.md](../data/MARKET_INTEL.md)

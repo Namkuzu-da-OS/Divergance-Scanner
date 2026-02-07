@@ -21,7 +21,7 @@
 
 2. **Read Current Context**
    - `docs/WINGMAN_CONTEXT.md` (who/what/why)
-   - `data/ACTIVE_SESSION.md` (what's happening now)
+   - `data/MARKET_INTEL.md` (what's happening now)
    - Takes ~8 minutes total
 
 3. **Check Risk Limits** (Hard Stops - Non-Negotiable)
@@ -78,7 +78,7 @@
 
 5. **Execute & Log**
    - Place entry + stop + target orders
-   - Add to `data/positions.json` (if still open)
+   - Log via `POST /api/positions` (if still open)
    - Log to `data/trades_journal.json` when closed
    - Include: `divergence_confirmed_by: ["MACD", "RSI"]` (which indicators?)
 
@@ -117,7 +117,7 @@
 - R/R acceptable (min 1.5:1)? ✓
 
 **Step 6: Take the Trade**
-- Update positions.json
+- Log position via `/api/positions`
 - Monitor on dashboard
 
 ### Add a Note (Quick Journaling)
@@ -166,7 +166,7 @@ Position Size: $200 / (Entry - Stop)
 ## After Each Trade
 
 1. Update `data/trades_journal.json` (when trade closes)
-2. Update `data/positions.json` (remove closed positions)
+2. Close position via `PATCH /api/positions/close`
 3. Dashboard automatically reflects changes
 
 ---
@@ -178,17 +178,15 @@ Position Size: $200 / (Entry - Stop)
 node eod.js
 ```
 This single command handles everything:
-- ✓ Archives daily_log.md → `archive/daily_logs/trading_log_YYYY-MM-DD.md`
-- ✓ Archives positions.json → `archive/positions_archive/positions_YYYY-MM-DD.json`
-- ✓ Updates account_summary.json timestamp
-- ✓ Appends EOD note to ACTIVE_SESSION.md
-- ✓ Creates fresh daily_log.md for tomorrow
+- Archives daily_log.md to `archive/daily_logs/trading_log_YYYY-MM-DD.md`
+- Updates account_summary.json timestamp
+- Creates fresh daily_log.md for tomorrow
 
 **Alternative (Manual):**
 1. Update account_summary.json (daily_pnl, weekly_pnl, stats)
 2. Copy files with YYYY-MM-DD naming to archive folders
 3. Create fresh daily_log.md for next session
-4. Update ACTIVE_SESSION.md with snapshot
+4. Update MARKET_INTEL.md with session recap
 
 ---
 
@@ -238,16 +236,16 @@ These files enable your main 5-min scalp strategy:
 - `toolbox/docs/WINGMAN_CONTEXT.md` - Core strategy understanding, trading styles, account limits
 - `toolbox/docs/TRADING_RULES.md` - The five immutable rules (CRITICAL)
 - `toolbox/docs/trading_plan.md` - Entry/exit criteria for each strategy, ATR settings
-- `data/ACTIVE_SESSION.md` - Current session state, open positions
+- `data/MARKET_INTEL.md` - Market intelligence, session state, open positions
 
 ### Reference During Trading
-- `data/positions.json` - Real-time open trades
+- `GET /api/positions` - Real-time open trades (SQLite)
 - `data/daily_log.md` - Session notes and observations
 - `dashboard.html` - Real-time dashboard (open in browser, pin to 2nd monitor)
 - TradingView 5-min chart with `Divergence + VWAP Reversion v4` loaded
 
 ### Update These Files
-- `data/positions.json` - When you open/close trades
+- `/api/positions` - When you open/close trades (via API)
 - `data/trades_journal.json` - When trades close (permanent record, include divergence details)
 - `data/account_summary.json` - EOD (daily P&L, stats)
 - `data/daily_log.md` - Session notes (via `-note` command)
@@ -256,7 +254,6 @@ These files enable your main 5-min scalp strategy:
 - `toolbox/ai/WINGMAN_MIND.md` - After trading sessions (pattern insights for next AI session)
 
 ### Don't Edit
-- `data/goals.json` - Only edit if changing monthly target ($2,500)
 - `CLAUDE.md` - AI reference only
 - `dashboard.html` - System file, don't modify
 - `toolbox/docs/DOCUMENTATION_MAP.md` - Reference only
@@ -282,8 +279,8 @@ Every 4 hours, take 10 minutes to:
 
 ### "End of day - wrap everything up"
 → Run: `node eod.js`
-→ Automatically archives: daily_log.md, positions.json
-→ Updates: account_summary.json, ACTIVE_SESSION.md
+→ Automatically archives: daily_log.md
+→ Updates: account_summary.json
 → Creates: fresh daily_log.md for tomorrow
 → Completes in <1 second
 

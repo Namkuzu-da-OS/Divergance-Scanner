@@ -7,19 +7,17 @@ PURPOSE:
 - Display live account metrics and position tracking
 - Monitor risk exposure (daily/weekly limits)
 - Visual P&L tracking and position details
-- Real-time goal progress visualization (daily/weekly/monthly/yearly)
+- Real-time P&L tracking
 - Session note journaling with timestamps and categories
 - Auto-refresh every 10 seconds
 
 DATA SOURCES:
 - /api/positions (SQLite): Open positions, exposure, risk
-- account_summary.json: Daily/weekly/monthly P&L for goal tracking
-- goals.json: Goal targets (customizable - default $2,500/month)
+- account_summary.json: Daily/weekly/monthly P&L tracking
 - daily_log.md: Session notes with timestamps
 - Browser file access via Fetch API (no backend required)
 
 FEATURES:
-- Goals Progress: Real-time tracking against $2,500/month target (daily/weekly/monthly/yearly)
 - Session Notes: Collapsible journaling section with timestamped entries
   * Timestamps: Auto-added (HH:MM format)
 - Risk Dashboard: Visual indicators for daily/weekly loss limits
@@ -39,7 +37,7 @@ USAGE:
 - Manual refresh via REFRESH button (or auto-refresh every 10s)
 - Click "?" button in header for Quick Start Guide and help
 - Add notes using `-note` command (stored in daily_log.md)
-- Monitor goals for real-time accountability
+- Monitor P&L for real-time accountability
 
 LAST UPDATED: November 2, 2025
 -->
@@ -389,86 +387,7 @@ LAST UPDATED: November 2, 2025
             text-align: center;
         }
 
-        .goals-section {
-            margin-bottom: 24px;
-        }
-
-        .goals-header {
-            color: #8b92a8;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1.2px;
-            margin-bottom: 16px;
-            border-top: 1px solid #2a3641;
-            padding-top: 16px;
-            font-weight: 600;
-        }
-
-        .goal-card {
-            background: #151821;
-            border: 1px solid #2a3641;
-            border-radius: 10px;
-            padding: 16px;
-            margin-bottom: 12px;
-        }
-
-        .goal-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-
-        .goal-name {
-            color: #00d4aa;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .goal-progress-text {
-            color: #8b92a8;
-            font-size: 11px;
-        }
-
-        .goal-values {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-
-        .goal-current {
-            font-size: 16px;
-            font-weight: 700;
-            color: #e5e7eb;
-        }
-
-        .goal-target {
-            font-size: 12px;
-            color: #8b92a8;
-        }
-
-        .goal-bar-container {
-            background: #2a3641;
-            height: 20px;
-            border-radius: 6px;
-            overflow: hidden;
-            margin-bottom: 6px;
-            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
-        }
-
-        .goal-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #00d4aa 0%, #ffc107 80%, #ff6b6b 100%);
-            transition: width 0.3s ease;
-            border-radius: 6px;
-        }
-
-        .goal-percent {
-            text-align: right;
-            font-size: 11px;
-            color: #8b92a8;
-            font-weight: 500;
-        }
+        /* Goals section removed - feature no longer active */
 
         .help-btn {
             background: rgba(0, 212, 170, 0.1);
@@ -808,66 +727,7 @@ LAST UPDATED: November 2, 2025
             </div>
         </div>
 
-        <div class="goals-section">
-            <h2 class="goals-header">Goals Progress</h2>
-            <div id="goals-container">
-                <div class="goal-card">
-                    <div class="goal-header">
-                        <span class="goal-name">Daily Goal</span>
-                        <span class="goal-progress-text" id="daily-goal-percent">0%</span>
-                    </div>
-                    <div class="goal-values">
-                        <span class="goal-current" id="daily-goal-current">$0.00</span>
-                        <span class="goal-target">/ $83.33</span>
-                    </div>
-                    <div class="goal-bar-container">
-                        <div class="goal-bar-fill" id="daily-goal-bar" style="width: 0%"></div>
-                    </div>
-                </div>
-
-                <div class="goal-card">
-                    <div class="goal-header">
-                        <span class="goal-name">Weekly Goal</span>
-                        <span class="goal-progress-text" id="weekly-goal-percent">0%</span>
-                    </div>
-                    <div class="goal-values">
-                        <span class="goal-current" id="weekly-goal-current">$0.00</span>
-                        <span class="goal-target">/ $577.25</span>
-                    </div>
-                    <div class="goal-bar-container">
-                        <div class="goal-bar-fill" id="weekly-goal-bar" style="width: 0%"></div>
-                    </div>
-                </div>
-
-                <div class="goal-card">
-                    <div class="goal-header">
-                        <span class="goal-name">Monthly Goal</span>
-                        <span class="goal-progress-text" id="monthly-goal-percent">0%</span>
-                    </div>
-                    <div class="goal-values">
-                        <span class="goal-current" id="monthly-goal-current">$0.00</span>
-                        <span class="goal-target">/ $2,500.00</span>
-                    </div>
-                    <div class="goal-bar-container">
-                        <div class="goal-bar-fill" id="monthly-goal-bar" style="width: 0%"></div>
-                    </div>
-                </div>
-
-                <div class="goal-card">
-                    <div class="goal-header">
-                        <span class="goal-name">Yearly Goal</span>
-                        <span class="goal-progress-text" id="yearly-goal-percent">0%</span>
-                    </div>
-                    <div class="goal-values">
-                        <span class="goal-current" id="yearly-goal-current">$0.00</span>
-                        <span class="goal-target">/ $30,000.00</span>
-                    </div>
-                    <div class="goal-bar-container">
-                        <div class="goal-bar-fill" id="yearly-goal-bar" style="width: 0%"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Goals section removed - feature no longer active -->
 
         <div class="notes-section">
             <div class="notes-header" onclick="toggleNotes()">
@@ -999,9 +859,8 @@ LAST UPDATED: November 2, 2025
                 console.error('Error loading data:', error);
             }
 
-            // Load notes and goals
+            // Load notes
             loadNotes();
-            loadGoals();
         }
 
         async function loadNotes(date = 'today') {
@@ -1102,52 +961,7 @@ LAST UPDATED: November 2, 2025
             return div.innerHTML;
         }
 
-        async function loadGoals() {
-            try {
-                const goalsResponse = await fetch('./data/goals.json');
-                if (!goalsResponse.ok) {
-                    console.log('Could not load goals.json');
-                    return;
-                }
-
-                const goals = await goalsResponse.json();
-
-                // Try to load account summary for actual P&L data
-                let dailyPnl = 0, weeklyPnl = 0, monthlyPnl = 0, yearlyPnl = 0;
-
-                try {
-                    const accountResponse = await fetch('./data/account_summary.json');
-                    if (accountResponse.ok) {
-                        const accountData = await accountResponse.json();
-                        dailyPnl = accountData.daily_performance?.total_pnl || 0;
-                        weeklyPnl = accountData.weekly_performance?.total_pnl || 0;
-                        monthlyPnl = accountData.monthly_performance?.total_pnl || 0;
-                        // Calculate yearly from statistics
-                        yearlyPnl = (accountData.statistics?.expectancy || 0) * (accountData.statistics?.total_trades_alltime || 0);
-                    }
-                } catch (e) {
-                    console.log('Could not load account_summary.json - using defaults');
-                }
-
-                // Update goal displays
-                updateGoalDisplay('daily', dailyPnl, goals.derived_targets.daily);
-                updateGoalDisplay('weekly', weeklyPnl, goals.derived_targets.weekly);
-                updateGoalDisplay('monthly', monthlyPnl, goals.monthly_target);
-                updateGoalDisplay('yearly', yearlyPnl, goals.derived_targets.yearly);
-
-            } catch (error) {
-                console.error('Error loading goals:', error);
-            }
-        }
-
-        function updateGoalDisplay(period, current, target) {
-            const percent = Math.min((current / target) * 100, 100);
-            const clamped = Math.max(percent, 0);
-
-            document.getElementById(`${period}-goal-current`).textContent = '$' + current.toFixed(2);
-            document.getElementById(`${period}-goal-percent`).textContent = Math.round(clamped) + '%';
-            document.getElementById(`${period}-goal-bar`).style.width = clamped + '%';
-        }
+        // Goals feature removed - goal tracking is no longer active
 
         // Load Quick Start Guide from markdown
         async function loadQuickStart() {

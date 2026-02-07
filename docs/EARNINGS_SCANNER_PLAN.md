@@ -74,8 +74,8 @@ When implemented:
 │         │                    │                    │          │
 │         ▼                    ▼                    ▼          │
 │  ┌──────────────┐     ┌──────────────┐     ┌─────────────┐  │
-│  │ earnings-    │     │ earnings-    │     │ paper-      │  │
-│  │ calendar.json│     │ scan.json    │     │ trades.json │  │
+│  │ earnings-    │     │ SQLite DB    │     │ paper-      │  │
+│  │ calendar.json│     │ earnings_*   │     │ trades.json │  │
 │  └──────────────┘     └──────────────┘     └─────────────┘  │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
@@ -231,7 +231,7 @@ Each stock builds a profile over multiple earnings cycles:
 | File | Purpose | Consumers |
 |------|---------|-----------|
 | `data/earnings-calendar.json` | All upcoming earnings with metadata | Scanner, dashboard |
-| `data/earnings-scan.json` | Current scan results with scores | Dashboard |
+| SQLite `earnings_scans`/`earnings_results` | Current scan results with scores | Dashboard |
 | `data/earnings-signals.json` | Active signals (PREM/PEAD/GAPS) | Alerts, paper trades |
 | `data/earnings-profiles.json` | Per-stock historical patterns | Scoring algorithm |
 | `data/earnings-paper-trades.json` | Strategy validation tracking | Analytics |
@@ -316,7 +316,7 @@ When Bloodhound runs every 2 min, it already has:
 - Sentiment data
 - Market context
 
-**Option A:** Earnings Scanner reads `data/dynamic_scan.json` (Bloodhound's output)
+**Option A:** Earnings Scanner reads Bloodhound's output via `/api/scan/latest`
 **Option B:** Earnings Scanner calls same APIs (independent but redundant)
 **Option C (Best):** Share a common data fetching layer both scanners use
 

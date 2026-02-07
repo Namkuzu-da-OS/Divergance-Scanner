@@ -157,7 +157,7 @@ function renderHistoryBadge(historyStatus) {
 ### Where It Shows
 
 - **Zone Scanner Dashboard:** [http://localhost:8080](http://localhost:8080)
-- **JSON Outputs:** `scanner.json`, `dynamic_scan.json`, `bloodhound.json`
+- **Output:** SQLite database (`wingman.db`) via API endpoints (`/api/scan/summary`, `/api/scan/latest`)
 
 ---
 
@@ -305,7 +305,7 @@ Day 2 continuation works **only with filtering**:
    - No separate alert - single message
 
 3. **Outcome tracking**
-   - Extend `signal_tracking.json`
+   - Extend `signals` table in `wingman.db`
    - Track Day 2 win rate by grade
    - Tune filters based on results
 

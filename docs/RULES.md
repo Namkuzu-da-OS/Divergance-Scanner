@@ -43,7 +43,7 @@
 
 | Parameter | Value | Notes |
 |-----------|-------|-------|
-| Account Size | $20,000 | Updates in ACTIVE_SESSION.md |
+| Account Size | $20,000 | Updates in MARKET_INTEL.md |
 | Standard Risk | $200 (1%) | Scales with account |
 | Reduced Risk | $100 (0.5%) | After -$1,000 weekly or -10% account |
 | Emergency Risk | $50 (0.25%) | After -20% account |

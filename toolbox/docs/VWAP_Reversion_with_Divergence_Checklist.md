@@ -109,7 +109,7 @@ Example:
    - Target orders (50% at VWAP, 50% runner with trail)
 
 5. **Update Records**
-   - Add to `positions.json` immediately with:
+   - Log via `POST /api/positions` immediately with:
      - `trade_type: "scalp"`
      - `strategy: "vwap_reversion"`
      - `divergence_confirmed_by: ["MACD", "RSI"]` (which indicators triggered it)
@@ -278,7 +278,7 @@ Track these after each VWAP reversion scalp:
 
 After each trading session:
 1. Update [data/trades_journal.json](../data/trades_journal.json) with all trades
-2. Note in [data/ACTIVE_SESSION.md](../data/ACTIVE_SESSION.md) which indicator combos worked
+2. Note in [data/MARKET_INTEL.md](../data/MARKET_INTEL.md) which indicator combos worked
 3. Update [toolbox/ai/WINGMAN_MIND.md](../ai/WINGMAN_MIND.md) with patterns (weekly)
 
 ---

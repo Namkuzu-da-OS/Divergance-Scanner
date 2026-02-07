@@ -54,10 +54,10 @@ pm2 startup
 │                                                                      │
 │   DATA STORAGE                                                      │
 │   ────────────                                                      │
-│   data/opportunity_history.db  │ SQLite - All historical data       │
-│   data/dynamic_scan.json       │ Bloodhound dashboard data          │
-│   data/opportunities.json      │ Opportunity scanner output         │
-│   data/premarket.json          │ Pre-market gaps                    │
+│   data/wingman.db  │ SQLite - All scanner/signal data    │
+│     → bloodhound_scans/results │ API: GET /api/scan/latest          │
+│     → opportunities            │ API: GET /api/opportunities/latest │
+│     → premarket_scans/movers   │ API: GET /api/premarket            │
 │                                                                      │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -66,7 +66,7 @@ pm2 startup
 
 ## Database Status: COMPLETE
 
-### SQLite Database: `data/opportunity_history.db`
+### SQLite Database: `data/wingman.db`
 
 **Tables (8 total):**
 1. `signals` - Core signal data with market context
@@ -109,10 +109,9 @@ wingman/
 │   └── paper-trade-manager.js   # Paper trade tracking
 │
 ├── data/
-│   ├── opportunity_history.db   # SQLite database (COPY THIS!)
-│   ├── watchlist.json           # User watchlist
-│   ├── positions.json           # Open positions
-│   └── *.json                   # Other data files
+│   ├── wingman.db   # SQLite database (COPY THIS!)
+│   ├── watchlist.json           # User watchlist (legacy, backed by SQLite)
+│   └── *.json                   # Other data files (most migrated to SQLite)
 │
 ├── docs/
 │   ├── VISUAL_WORKFLOWS.md      # 10 ASCII system diagrams
@@ -229,12 +228,12 @@ http://<server-ip>:8080/analytics.html           # Signal validation
 
 ```bash
 # Check database tables
-sqlite3 data/opportunity_history.db ".tables"
+sqlite3 data/wingman.db ".tables"
 # Expected: checkpoints opportunities premarket_movers premarket_scans
 #           price_snapshots scanner_history scans signals
 
 # Count opportunity records
-sqlite3 data/opportunity_history.db "SELECT COUNT(*) FROM opportunities"
+sqlite3 data/wingman.db "SELECT COUNT(*) FROM opportunities"
 
 # Check signal database
 node -e "const db = require('./monitor/signal-db'); console.log(db.getDatabaseStats())"
@@ -279,14 +278,14 @@ cat monitor/config.json          # Check IPs
 
 ## Cleanup Tasks (Optional)
 
-### Delete deprecated JSON files
-```bash
-# Already archived in data/archive/
-rm data/signal_log.json
-rm data/scanner_history.json
-rm data/signal_tracking.json
-rm data/alerts_log.json
-```
+### Deprecated JSON files
+These files have been migrated to SQLite (`data/wingman.db`) and archived in `data/archive/`:
+- `signal_log.json` → SQLite `signals` table
+- `scanner_history.json` → SQLite `scanner_history` table
+- `signal_tracking.json` → SQLite `signals` table
+- `alerts_log.json` → SQLite `signals` table
+
+If archive copies exist and database is verified, these can be safely removed.
 
 ### Delete temp files
 ```bash
@@ -313,6 +312,6 @@ rm nul   # Windows artifact
 
 1. **One command start:** `pm2 start ecosystem.config.js`
 2. **5 scanners:** bloodhound, opportunity, earnings, premarket, webserver
-3. **SQLite database:** All historical data in `opportunity_history.db`
+3. **SQLite database:** All historical data in `wingman.db`
 4. **Dynamic discovery:** No more hardcoded symbol lists
 5. **Dashboards:** Access via port 8080

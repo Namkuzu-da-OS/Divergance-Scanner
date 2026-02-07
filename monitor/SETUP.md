@@ -50,18 +50,21 @@
 
 ## Step 3: Configure the Monitor
 
-### Option A: Edit the file directly
+### Option A: Edit config.json directly
 
-Open `wingman-monitor.js` and update the CONFIG section:
+Open `monitor/config.json` and update the credentials:
 
-```javascript
-const CONFIG = {
-  telegram: {
-    botToken: '7123456789:AAHxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',  // Your token
-    chatId: '123456789'  // Your chat ID
+```json
+{
+  "apis": {
+    "intel": "http://192.168.10.60:3000",
+    "options": "http://192.168.10.60:8000"
   },
-  // ... rest of config
-};
+  "telegram": {
+    "botToken": "7123456789:AAHxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "chatId": "123456789"
+  }
+}
 ```
 
 ### Option B: Use environment variables (recommended for security)
@@ -77,47 +80,55 @@ export TELEGRAM_CHAT_ID="123456789"
 
 ### Test it first:
 ```bash
-cd monitor
-node wingman-monitor.js
+# Start all scanners with PM2
+pm2 start ecosystem.config.js
+
+# Check they're running
+pm2 list
 ```
 
-You should see:
-```
-========================================
-       WINGMAN MARKET MONITOR
-========================================
-Intel API: http://192.168.10.60:3000
-Options API: http://192.168.10.60:8000
-Check Interval: 120s
-Symbols: SPY, QQQ
-========================================
+You should see all 5 processes (bloodhound, opportunity, earnings, premarket, webserver) with status "online".
 
-[2026-01-06T18:30:00.000Z] Running market check...
-[Monitor] Initializing state...
-[Telegram] Message sent: 🤖 <b>Wingman Monitor Online</b>...
+Check Bloodhound logs:
+```bash
+pm2 logs bloodhound --lines 20
 ```
 
-And you should receive a Telegram message!
+You should see scan cycles running and receive a Telegram startup message.
 
 ---
 
 ## Step 5: Run as Background Service
 
-### On Linux (systemd):
+### Recommended: PM2 (all platforms)
 
-Create `/etc/systemd/system/wingman-monitor.service`:
+```bash
+# Install PM2 globally
+npm install -g pm2
+
+# Start all scanners
+pm2 start ecosystem.config.js
+
+# Save config and enable auto-restart on reboot
+pm2 save
+pm2 startup    # Follow the instructions it prints
+```
+
+### Alternative: systemd (Linux)
+
+Create `/etc/systemd/system/wingman.service`:
 ```ini
 [Unit]
-Description=Wingman Market Monitor
+Description=Wingman Trading System
 After=network.target
 
 [Service]
-Type=simple
+Type=forking
 User=your-username
-WorkingDirectory=/path/to/wingman/monitor
-Environment=TELEGRAM_BOT_TOKEN=your-token
-Environment=TELEGRAM_CHAT_ID=your-chat-id
-ExecStart=/usr/bin/node wingman-monitor.js
+WorkingDirectory=/path/to/wingman
+ExecStart=/usr/bin/pm2 start ecosystem.config.js
+ExecReload=/usr/bin/pm2 restart all
+ExecStop=/usr/bin/pm2 stop all
 Restart=always
 RestartSec=10
 
@@ -128,18 +139,8 @@ WantedBy=multi-user.target
 Then:
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable wingman-monitor
-sudo systemctl start wingman-monitor
-```
-
-### On Windows:
-
-Use PM2 or run as a scheduled task.
-
-```bash
-npm install -g pm2
-pm2 start wingman-monitor.js --name wingman-monitor
-pm2 save
+sudo systemctl enable wingman
+sudo systemctl start wingman
 ```
 
 ---
@@ -158,7 +159,7 @@ pm2 save
 
 ## Customizing Alerts
 
-Edit `CONFIG.thresholds` in the monitor script:
+Edit SETTINGS in `bloodhound-scanner.js`:
 
 ```javascript
 thresholds: {
