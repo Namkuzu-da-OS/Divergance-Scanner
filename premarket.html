@@ -373,7 +373,11 @@
                 const picker = document.getElementById('session-date-picker');
 
                 picker.innerHTML = '<option value="">Today</option>';
-                for (const session of data.sessions.slice(1)) {
+                // Skip the first session only if it matches today's date
+                // (on weekends/holidays, the most recent session is a prior trading day and must be shown)
+                const today = new Date().toISOString().slice(0, 10);
+                const sessions = (data.sessions[0]?.date === today) ? data.sessions.slice(1) : data.sessions;
+                for (const session of sessions) {
                     const opt = document.createElement('option');
                     opt.value = session.date;
                     const dateLabel = new Date(session.date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
