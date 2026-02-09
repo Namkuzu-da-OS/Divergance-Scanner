@@ -24,10 +24,11 @@ function sleep(ms) {
  * Log a new signal when alert fires
  * Deduplicates: only one active signal per symbol allowed
  * Logs condition changes when they occur on existing signals
+ * If an unusual option is flagged, also fetches its current mark price
  * @param {object} alertData - Alert data from Bloodhound
  * @returns {string} Signal ID (existing or new)
  */
-function logSignal(alertData) {
+async function logSignal(alertData) {
   // Check if symbol already has an active signal
   const activeSignals = signalDb.getActiveSignals();
   const existingSignal = activeSignals.find(s => s.symbol === alertData.symbol);
@@ -59,6 +60,25 @@ function logSignal(alertData) {
   const timestamp = new Date().toISOString();
   const id = `${alertData.symbol}_${Date.now()}`;
 
+  // If there's an unusual option, try to fetch its current mark price as entry premium
+  let optionEntryPrice = null;
+  if (alertData.option_contract && alertData.option_strike) {
+    try {
+      const optPrice = await fetchOptionPrice(
+        alertData.symbol,
+        alertData.option_strike,
+        alertData.option_expiration,
+        alertData.option_type
+      );
+      if (optPrice && optPrice.mark > 0) {
+        optionEntryPrice = optPrice;
+        console.log(`[Signal Logger] Option entry: ${alertData.option_contract} mark=$${optPrice.mark.toFixed(2)} delta=${optPrice.delta || '?'}`);
+      }
+    } catch (e) {
+      console.error(`[Signal Logger] Failed to fetch option entry price for ${alertData.option_contract}:`, e.message);
+    }
+  }
+
   const success = signalDb.insertSignal({
     id,
     timestamp,
@@ -77,11 +97,37 @@ function logSignal(alertData) {
     intraday_bias: alertData.intraday_bias,
     signal_type: alertData.signal_type,
     history_status: alertData.history_status,
-    consecutive_days: alertData.consecutive_days
+    consecutive_days: alertData.consecutive_days,
+    // Option tracking fields
+    option_contract: alertData.option_contract || null,
+    option_type: alertData.option_type || null,
+    option_strike: alertData.option_strike || null,
+    option_expiration: alertData.option_expiration || null,
+    option_dte: alertData.option_dte != null ? alertData.option_dte : null,
+    option_vol_oi: alertData.option_vol_oi || null,
+    option_premium_flow: alertData.option_premium_flow || null,
+    option_premium_entry: optionEntryPrice?.mark || null,
+    option_delta_entry: optionEntryPrice?.delta || null,
+    option_iv_entry: optionEntryPrice?.iv || null
   });
 
   if (success) {
-    console.log(`[Signal Logger] Logged ${id} @ $${alertData.price} (${alertData.direction}, score ${alertData.score})`);
+    const optInfo = alertData.option_contract
+      ? ` | Option: ${alertData.option_contract} ${optionEntryPrice ? '$' + optionEntryPrice.mark.toFixed(2) : '(price pending)'}`
+      : '';
+    console.log(`[Signal Logger] Logged ${id} @ $${alertData.price} (${alertData.direction}, score ${alertData.score})${optInfo}`);
+
+    // Auto-add to watchlist so this symbol stays in the scan universe
+    // while the signal is active. This ensures price tracking always uses
+    // the scan cache instead of making separate API calls that can timeout.
+    const expiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString(); // 72h = signal time stop
+    signalDb.addToWatchlist(alertData.symbol, {
+      source: 'signal_tracking',
+      notes: `Active signal ${id}`,
+      scoreAtAdd: alertData.score,
+      tierAtAdd: alertData.tier || 'HIGH_CONVICTION',
+      expiresAt
+    });
   }
 
   return id;
@@ -123,6 +169,52 @@ async function getCurrentPrice(symbol, priceCache = null) {
 }
 
 /**
+ * Fetch current price data for a specific option contract from the chain API
+ * @param {string} symbol - Stock symbol (e.g., 'AMZN')
+ * @param {number} strike - Strike price (e.g., 207.5)
+ * @param {string} expiration - Expiration date (e.g., '2026-02-09')
+ * @param {string} optionType - 'CALL' or 'PUT'
+ * @returns {object|null} { bid, ask, mark, delta, iv, theta } or null
+ */
+async function fetchOptionPrice(symbol, strike, expiration, optionType) {
+  try {
+    const response = await axios.get(`${CONFIG.OPTIONS_API}/api/options/${symbol}`, {
+      timeout: 15000
+    });
+    const chain = response.data?.chain;
+    if (!chain) return null;
+
+    const dateMap = optionType === 'CALL' ? chain.callExpDateMap : chain.putExpDateMap;
+    if (!dateMap) return null;
+
+    // Find the expiration key (format: "YYYY-MM-DD:DTE")
+    const expiryKey = Object.keys(dateMap).find(k => k.startsWith(expiration));
+    if (!expiryKey) return null;
+
+    const strikes = dateMap[expiryKey];
+    if (!strikes) return null;
+
+    // Find the strike (try exact match, then with .0 suffix)
+    const strikeStr = String(strike);
+    const contracts = strikes[strikeStr] || strikes[strikeStr + '.0'];
+    if (!contracts || contracts.length === 0) return null;
+
+    const contract = contracts[0];
+    return {
+      bid: contract.bid || 0,
+      ask: contract.ask || 0,
+      mark: contract.mark || 0,
+      delta: contract.delta || null,
+      iv: contract.volatility || null,
+      theta: contract.theta || null
+    };
+  } catch (e) {
+    console.error(`[Signal Logger] Option price fetch failed for ${symbol} $${strike} ${expiration}:`, e.message);
+    return null;
+  }
+}
+
+/**
  * Update prices for all active signals
  * Call this every scan cycle to track peak/trough
  * Optimized: uses price cache from scan, only fetches missing symbols
@@ -145,6 +237,7 @@ async function updateActiveSignalPrices(priceCache = null) {
   }
 
   let updated = 0;
+  let optionsUpdated = 0;
   let cacheHits = 0;
   let apiCalls = 0;
   const uniqueSymbols = Object.keys(symbolGroups).length;
@@ -159,9 +252,50 @@ async function updateActiveSignalPrices(priceCache = null) {
 
       const currentPrice = await getCurrentPrice(symbol, priceCache);
       if (currentPrice) {
-        // Update ALL signals for this symbol with same price
+        // Check if any signal for this symbol needs option price tracking
+        // Fetch chain ONCE per symbol if needed (avoid duplicate chain calls)
+        let chainFetched = false;
+        let chainData = null;
+
         for (const signal of signals) {
-          signalDb.updatePriceTracking(signal.signal_id, currentPrice);
+          let optionPrice = null;
+
+          // Fetch option price if this signal tracks an option contract
+          if (signal.option_contract && signal.option_strike && signal.option_expiration) {
+            if (!chainFetched) {
+              // Fetch chain once for all signals on this symbol
+              optionPrice = await fetchOptionPrice(
+                symbol,
+                signal.option_strike,
+                signal.option_expiration,
+                signal.option_type
+              );
+              chainData = optionPrice;
+              chainFetched = true;
+            } else {
+              optionPrice = chainData;
+            }
+
+            // Update option price tracking on the signal
+            if (optionPrice) {
+              const optResult = signalDb.updateOptionPriceTracking(signal.signal_id, optionPrice);
+              if (optResult) optionsUpdated++;
+            } else {
+              // Option not found in chain — may have expired
+              const expDate = new Date(signal.option_expiration + 'T16:00:00-05:00');
+              if (Date.now() > expDate.getTime()) {
+                // Option has expired — close the option signal
+                signalDb.closeOptionSignal(signal.signal_id, 0);
+                console.log(`[Signal Logger] Option ${signal.option_contract} expired — closed`);
+              }
+            }
+
+            // Check if stock hit the target wall
+            signalDb.checkWallHit(signal.signal_id, currentPrice);
+          }
+
+          // Update stock price tracking (includes option data in snapshot if available)
+          signalDb.updatePriceTracking(signal.signal_id, currentPrice, optionPrice);
           updated++;
         }
       }
@@ -172,7 +306,8 @@ async function updateActiveSignalPrices(priceCache = null) {
 
   if (updated > 0) {
     const cacheInfo = priceCache ? ` (${cacheHits} cached, ${apiCalls} API)` : ` (${uniqueSymbols} API calls)`;
-    console.log(`[Signal Logger] Updated prices for ${updated} signal(s)${cacheInfo}`);
+    const optInfo = optionsUpdated > 0 ? `, ${optionsUpdated} option(s)` : '';
+    console.log(`[Signal Logger] Updated prices for ${updated} signal(s)${optInfo}${cacheInfo}`);
   }
 }
 
@@ -360,5 +495,7 @@ module.exports = {
   getSignalById,
   getSignalCheckpoints,
   getSignalPriceHistory,
-  getCurrentPrice
+  getCurrentPrice,
+  // Option signal tracking
+  fetchOptionPrice
 };

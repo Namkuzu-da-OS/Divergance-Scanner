@@ -3,7 +3,7 @@
  * DATABASE MIGRATION SCRIPT
  *
  * Migrates existing JSON data to SQLite database.
- * Run once to consolidate signal_log.json and scanner_history.json into opportunity_history.db.
+ * Run once to consolidate signal_log.json and scanner_history.json into wingman.db.
  *
  * Usage: node monitor/migrate-to-db.js
  *
@@ -263,8 +263,8 @@ async function runMigration() {
     console.log('='.repeat(60));
     console.log('');
     console.log('Next steps:');
-    console.log('  1. Verify data in database: sqlite3 data/opportunity_history.db ".tables"');
-    console.log('  2. Check signal count: sqlite3 data/opportunity_history.db "SELECT COUNT(*) FROM signals"');
+    console.log('  1. Verify data in database: sqlite3 data/wingman.db ".tables"');
+    console.log('  2. Check signal count: sqlite3 data/wingman.db "SELECT COUNT(*) FROM signals"');
     console.log('  3. Restart Bloodhound scanner: pm2 restart bloodhound');
     console.log('');
     console.log('Archived files are in: data/archive/');

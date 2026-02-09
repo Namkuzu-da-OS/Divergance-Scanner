@@ -866,6 +866,7 @@
                     <div class="nav-dropdown-menu">
                         <a href="analytics.html">Analytics</a>
                         <a href="strategies.html">Strategies</a>
+                        <a href="options-lab.html">Options Lab</a>
                     </div>
                 </div>
             </nav>
@@ -1003,7 +1004,7 @@
         // Load data
         async function loadData() {
             try {
-                const response = await fetch('./data/opportunities.json?' + Date.now());
+                const response = await fetch('/api/opportunities/latest?' + Date.now());
                 if (!response.ok) throw new Error('Failed to fetch data');
                 currentData = await response.json();
                 updateUI();
@@ -1510,7 +1511,7 @@
                 <p style="margin-bottom: 16px;">The Options Flow Scanner detects <strong>unusual options activity</strong> that may signal institutional positioning. It focuses purely on options-specific data: volume/OI ratios, premium flow, IV rank, and call/put imbalances. <strong>Note:</strong> Options don't trade pre-market (6-9:30 AM ET) - this scanner is most useful during market hours.</p>
 
                 <h3 style="color: #3b82f6; margin-bottom: 12px; font-size: 14px;">DATA SOURCE</h3>
-                <p style="margin-bottom: 8px;"><strong>File:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">data/opportunities.json</code></p>
+                <p style="margin-bottom: 8px;"><strong>Source:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">/api/opportunities/latest</code></p>
                 <p style="margin-bottom: 8px;"><strong>Scanner:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">monitor/opportunity-scanner.js</code></p>
                 <p style="margin-bottom: 16px;"><strong>Update Frequency:</strong> Every 5 minutes</p>
 

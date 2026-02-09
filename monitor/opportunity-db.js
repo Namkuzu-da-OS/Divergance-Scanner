@@ -8,13 +8,15 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 
-const DB_PATH = path.join(__dirname, '..', 'data', 'opportunity_history.db');
+const DB_PATH = path.join(__dirname, '..', 'data', 'wingman.db');
 
 let db = null;
 
 function getDb() {
     if (!db) {
         db = new Database(DB_PATH);
+        db.pragma('journal_mode = WAL');
+        db.pragma('busy_timeout = 5000');
         initSchema();
     }
     return db;
@@ -57,6 +59,34 @@ function initSchema() {
         CREATE INDEX IF NOT EXISTS idx_opportunities_timestamp ON opportunities(timestamp);
         CREATE INDEX IF NOT EXISTS idx_opportunities_tier ON opportunities(tier);
     `);
+
+    // Migration: Add new columns for full JSON migration
+    migrateOpportunities();
+}
+
+function migrateOpportunities() {
+    const columns = [
+        { name: 'direction', type: 'TEXT' },
+        { name: 'call_put_ratio', type: 'REAL' },
+        { name: 'net_premium', type: 'REAL' },
+        { name: 'top_strikes_json', type: 'TEXT' },
+        { name: 'call_volume', type: 'INTEGER' },
+        { name: 'put_volume', type: 'INTEGER' },
+        { name: 'volume_ratio', type: 'REAL' },
+        { name: 'earnings_date', type: 'TEXT' },
+        { name: 'earnings_days_to', type: 'INTEGER' },
+        { name: 'earnings_time', type: 'TEXT' },
+        { name: 'opportunity_tags', type: 'TEXT' }
+    ];
+
+    for (const col of columns) {
+        try {
+            db.exec(`ALTER TABLE opportunities ADD COLUMN ${col.name} ${col.type}`);
+            console.log(`[OpportunityDB] Added column ${col.name} to opportunities`);
+        } catch (e) {
+            // Column already exists, ignore
+        }
+    }
 }
 
 function insertScan(scanMeta) {
@@ -86,8 +116,12 @@ function insertOpportunity(scanId, opp) {
         INSERT INTO opportunities (scan_id, symbol, timestamp, discovery_score,
                                    discovery_sources, opportunity_score, tier,
                                    price, vol_oi_ratio, unusual_activity,
-                                   gap_percent, iv_percentile, rsi, signals)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                   gap_percent, iv_percentile, rsi, signals,
+                                   direction, call_put_ratio, net_premium,
+                                   top_strikes_json, call_volume, put_volume,
+                                   volume_ratio, earnings_date, earnings_days_to,
+                                   earnings_time, opportunity_tags)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     stmt.run(
@@ -104,7 +138,18 @@ function insertOpportunity(scanId, opp) {
         opp.gapPercent,
         opp.ivPercentile,
         opp.rsi,
-        JSON.stringify(opp.signals || [])
+        JSON.stringify(opp.signals || []),
+        opp.direction,
+        opp.callPutRatio,
+        opp.netPremium,
+        JSON.stringify(opp.topStrikes || null),
+        opp.callVolume,
+        opp.putVolume,
+        opp.volumeRatio,
+        opp.earningsDate,
+        opp.earningsDaysTo,
+        opp.earningsTime,
+        JSON.stringify(opp.opportunityTags || [])
     );
 }
 
@@ -156,7 +201,18 @@ function saveScanResults(results, marketContext) {
             gapPercent: opp.technicals?.gap,
             ivPercentile: opp.technicals?.ivRank,
             rsi: opp.technicals?.rsi,
-            signals: opp.signals
+            signals: opp.signals,
+            opportunityTags: opp.opportunities,
+            direction: opp.direction,
+            callPutRatio: opp.unusual?.callPutRatio,
+            netPremium: opp.unusual?.netPremium,
+            topStrikes: opp.unusual?.topStrikes,
+            callVolume: opp.unusual?.callVolume,
+            putVolume: opp.unusual?.putVolume,
+            volumeRatio: opp.technicals?.volumeRatio,
+            earningsDate: opp.earnings?.date,
+            earningsDaysTo: opp.earnings?.daysTo,
+            earningsTime: opp.earnings?.time
         });
     }
 
@@ -193,10 +249,75 @@ function getTopSymbols(days = 7, limit = 10) {
     `).all();
 }
 
+/**
+ * Get latest opportunity scan with full nested structure
+ * Returns data shaped identically to opportunities.json
+ */
+function getLatestOpportunityScan() {
+    const latestScan = getDb().prepare(`
+        SELECT * FROM scans ORDER BY id DESC LIMIT 1
+    `).get();
+
+    if (!latestScan) return null;
+
+    const rows = getDb().prepare(`
+        SELECT * FROM opportunities WHERE scan_id = ? ORDER BY opportunity_score DESC
+    `).all(latestScan.id);
+
+    return {
+        timestamp: latestScan.timestamp,
+        scannerStatus: 'running',
+        scannerMode: 'dynamic',
+        marketContext: {
+            vix: latestScan.market_vix,
+            spyPrice: latestScan.market_spy_price,
+            spyTrend: latestScan.market_spy_trend
+        },
+        symbolsScanned: latestScan.symbols_scanned,
+        results: rows.map(r => ({
+            symbol: r.symbol,
+            score: r.opportunity_score,
+            tier: r.tier,
+            price: r.price,
+            direction: r.direction,
+            discovery_score: r.discovery_score,
+            discovery_sources: JSON.parse(r.discovery_sources || '[]'),
+            signals: JSON.parse(r.signals || '[]'),
+            opportunities: JSON.parse(r.opportunity_tags || '[]'),
+            unusual: {
+                callPutRatio: r.call_put_ratio,
+                netPremium: r.net_premium,
+                callVolume: r.call_volume,
+                putVolume: r.put_volume,
+                volOiRatio: r.vol_oi_ratio,
+                topStrikes: JSON.parse(r.top_strikes_json || 'null')
+            },
+            technicals: {
+                gap: r.gap_percent,
+                ivRank: r.iv_percentile,
+                rsi: r.rsi,
+                volumeRatio: r.volume_ratio
+            },
+            earnings: r.earnings_date ? {
+                date: r.earnings_date,
+                daysTo: r.earnings_days_to,
+                time: r.earnings_time
+            } : null
+        })),
+        summary: {
+            highConviction: rows.filter(r => r.tier === 'HIGH_CONVICTION').length,
+            tradeable: rows.filter(r => r.tier === 'TRADEABLE').length,
+            watch: rows.filter(r => r.tier === 'WATCH').length,
+            filtered: 0
+        }
+    };
+}
+
 module.exports = {
     getDb,
     saveScanResults,
     getRecentScans,
     getTierStats,
-    getTopSymbols
+    getTopSymbols,
+    getLatestOpportunityScan
 };

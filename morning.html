@@ -472,6 +472,7 @@
                         <div class="nav-dropdown-menu">
                             <a href="analytics.html">Analytics</a>
                             <a href="strategies.html">Strategies</a>
+                            <a href="options-lab.html">Options Lab</a>
                         </div>
                     </div>
                 </nav>
@@ -1117,8 +1118,8 @@
 │           │                       │                       │                      │
 │           ▼                       ▼                       ▼                      │
 │  ┌──────────────────┐    ┌──────────────────┐    ┌──────────────────┐          │
-│  │ dynamic_scan.json│    │ premarket.json   │    │ opportunities.json│          │
-│  │                  │    │                  │    │                  │          │
+│  │ SQLite DB        │    │ SQLite DB        │    │ SQLite DB        │          │
+│  │ bloodhound_*     │    │ premarket_*      │    │ opportunities    │          │
 │  │ • Gamma walls    │    │ • Gap %          │    │ • Vol/OI ratios  │          │
 │  │ • RSI/trend      │    │ • Pre-mkt volume │    │ • Premium flow   │          │
 │  │ • Confluence     │    │ • Discovery src  │    │ • IV rank        │          │
@@ -1141,12 +1142,12 @@
                 </pre>
 
                 <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">HIGH CONVICTION SETUPS</h3>
-                <p style="margin-bottom: 8px;"><strong>Source:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">dynamic_scan.json</code> from Bloodhound Scanner</p>
+                <p style="margin-bottom: 8px;"><strong>Source:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">SQLite bloodhound_scans/results</code> from Bloodhound Scanner</p>
                 <p style="margin-bottom: 8px;"><strong>Criteria:</strong> Score ≥ 56/80 AND (tradeable OR tier = HIGH_CONVICTION)</p>
                 <p style="margin-bottom: 16px;"><strong>What it means:</strong> These are stocks at gamma walls (support/resistance) with multiple technical signals aligned. The score represents confluence across technicals, gamma levels, volume, and market context.</p>
 
                 <h3 style="color: #f59e0b; margin-bottom: 12px; font-size: 14px;">PRE-MARKET GAPS</h3>
-                <p style="margin-bottom: 8px;"><strong>Source:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">premarket.json</code> from Pre-Market Scanner</p>
+                <p style="margin-bottom: 8px;"><strong>Source:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">SQLite premarket_scans/movers</code> from Pre-Market Scanner</p>
                 <p style="margin-bottom: 8px;"><strong>Criteria:</strong> Gap ≥ 2% from previous close, tier ≠ FILTERED</p>
                 <p style="margin-bottom: 8px;"><strong>Discovery Sources:</strong></p>
                 <ul style="margin-left: 20px; margin-bottom: 16px;">
@@ -1160,7 +1161,7 @@
                 <p style="margin-bottom: 16px;"><strong>How it works:</strong> The scanner queries <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">/api/movers/$SPX</code> and <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">/api/movers/$COMPX</code> to DYNAMICALLY discover what's moving across the entire market. This is NOT a fixed watchlist - it finds new opportunities each scan.</p>
 
                 <h3 style="color: #3b82f6; margin-bottom: 12px; font-size: 14px;">UNUSUAL OPTIONS FLOW</h3>
-                <p style="margin-bottom: 8px;"><strong>Source:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">opportunities.json</code> from Opportunity Scanner</p>
+                <p style="margin-bottom: 8px;"><strong>Source:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">SQLite opportunities</code> from Opportunity Scanner</p>
                 <p style="margin-bottom: 8px;"><strong>Criteria:</strong> Score ≥ 50 (only options-specific signals)</p>
                 <p style="margin-bottom: 8px;"><strong>Signals tracked:</strong></p>
                 <ul style="margin-left: 20px; margin-bottom: 16px;">
@@ -1172,7 +1173,7 @@
                 <p style="margin-bottom: 16px;"><strong>Note:</strong> Options don't trade pre-market (6-9:30 AM ET). This section only shows data during market hours.</p>
 
                 <h3 style="color: #a855f7; margin-bottom: 12px; font-size: 14px;">EARNINGS THIS WEEK</h3>
-                <p style="margin-bottom: 8px;"><strong>Source:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">earnings-scan.json</code> from Earnings Scanner</p>
+                <p style="margin-bottom: 8px;"><strong>Source:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">SQLite earnings_scans/results</code> from Earnings Scanner</p>
                 <p style="margin-bottom: 8px;"><strong>Criteria:</strong> Earnings date within next 10 days, sorted by date</p>
                 <p style="margin-bottom: 12px;"><strong>What it means:</strong> Stocks with upcoming earnings events. IV typically spikes before earnings (premium selling opportunity) and crushes after (avoid holding through unless playing the move).</p>
                 <table style="width: 100%; margin-bottom: 16px; font-size: 12px;">

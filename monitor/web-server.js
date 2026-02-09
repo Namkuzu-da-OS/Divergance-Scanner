@@ -87,6 +87,23 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // API: Get option signal tracking stats
+    if (req.method === 'GET' && urlPath === '/api/signals/options') {
+        try {
+            const signalDb = require('./signal-db');
+            const url = new URL(req.url, `http://${req.headers.host}`);
+            const days = parseInt(url.searchParams.get('days') || '30');
+            const stats = signalDb.getOptionSignalStats(days);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(stats));
+        } catch (e) {
+            console.error('[Web Server] Error loading option stats:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
     // API: Get alerts from database (replaces alerts_log.json)
     if (req.method === 'GET' && urlPath === '/api/alerts') {
         try {

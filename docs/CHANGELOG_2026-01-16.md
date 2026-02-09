@@ -35,7 +35,7 @@ Replaced hardcoded symbols with 7 dynamic discovery sources:
 
 ### SQLite Historical Data Collection
 
-**New file:** `data/opportunity_history.db`
+**New file:** `data/wingman.db`
 
 Every scan now stores results to SQLite for future analysis:
 
@@ -69,7 +69,7 @@ CREATE TABLE opportunities (
 | `monitor/opportunity-scanner.js` | Added dynamic discovery, SQLite integration |
 | `monitor/opportunity-db.js` | **NEW** - SQLite database module |
 | `package.json` | Added `better-sqlite3` dependency |
-| `data/opportunity_history.db` | **NEW** - Historical data storage |
+| `data/wingman.db` | **NEW** - Historical data storage |
 
 ### Query Examples for Future Analysis
 

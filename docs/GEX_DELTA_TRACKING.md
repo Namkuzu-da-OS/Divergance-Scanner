@@ -146,7 +146,7 @@ Key fields to track:
 ## Related Files
 
 - `monitor/bloodhound-scanner.js` - Main scanner (would add wall tracking)
-- `data/opportunity_history.db` - Could add wall_history table
+- `data/wingman.db` - Could add wall_history table
 - `docs/CHANGELOG_2026-01-16.md` - Related scanner improvements
 
 ## Status
