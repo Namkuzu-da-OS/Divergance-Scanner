@@ -1,8 +1,8 @@
 # MARKET INTELLIGENCE REPORT
 
-**Last Updated:** 2026-02-06 14:45 UTC
-**Session:** Thursday Feb 6, 2026
-**Market Status:** Regular Hours
+**Last Updated:** 2026-02-09 15:15 UTC
+**Session:** Sunday Feb 9, 2026 (Pre-session review)
+**Market Status:** Weekend - Markets Closed
 
 ---
 
@@ -10,52 +10,52 @@
 
 | Metric | Value | Read |
 |--------|-------|------|
-| VIX | 19.53 | Normal (just below elevated threshold) |
-| SPY | $683.97 | Bearish trend, below 5 & 20 SMA |
-| SPY Gamma | Negative | Dealers amplify moves |
-| IV Rank (SPY) | 100 | Maximum - options expensive |
-| Expected Move | $4.47 (0.65%) | $679.42 - $688.36 |
-| Risk Appetite | Moderate | Cautious positioning |
+| VIX | 17.97 | Normal (pulled back from 19.5) |
+| SPY | $691.46 | Neutral trend, reclaimed 5 & 20 SMA |
+| SPY Gamma | Pinned at $690 | Call/put walls identical = range-bound |
+| IV Rank (SPY) | High | Options still expensive |
+| Risk Appetite | Moderate | Standard positioning |
 
-**Regime Summary:** Risk-off environment. SPY bearish with negative gamma = amplified moves. VIX at upper end of normal range. Defensive sectors leading, tech under pressure. Not a day for aggressive entries - let setups come to us.
+**Regime Summary:** Improved from bearish to neutral. SPY pinned at $690 by gamma walls. VIX retreated from elevated threshold. Bifurcated rotation continues - cyclicals + defensives both bid while tech/discretionary lag. AMZN and GOOGL showing high-conviction setups at oversold levels. Prepare for Monday entries.
 
 ---
 
 ## SECTOR ROTATION
 
 ### Current Rotation Theme
-**Risk-off: Money flowing from growth/tech into defensives and energy.**
+**Bifurcated: Cyclicals (Energy, Materials, Industrials) AND defensives (Staples) both bid. Tech/Discretionary still lagging.**
 
 ### Sector Rankings (by RSI, strongest first)
 
 | Rank | Sector | ETF | RSI | 5d Move | Status |
 |------|--------|-----|-----|---------|--------|
-| 1 | Consumer Staples | XLP | 78.9 | +5.8% | OVERBOUGHT - defensive rotation |
-| 2 | Energy | XLE | 78.7 | +3.4% | OVERBOUGHT - oil rally |
-| 3 | Materials | XLB | 60.3 | +1.0% | Strong, room to run |
-| 4 | Industrials | XLI | 57.1 | +1.5% | Steady strength |
-| 5 | Communications | XLC | 50.0 | -3.0% | Neutral, AMZN/GOOGL drag |
-| 6 | Real Estate | XLRE | 44.8 | -0.3% | Holding flat |
-| 7 | Healthcare | XLV | 43.7 | +0.7% | Mixed |
-| 8 | Utilities | XLU | 43.0 | -0.5% | Defensive, stable |
-| 9 | Financials | XLF | 41.4 | -0.5% | Rolling over |
-| 10 | Consumer Disc | XLY | 33.3 | -3.0% | OVERSOLD - below lower BB |
-| 11 | Technology | XLK | 32.3 | -7.7% | OVERSOLD - heavy selling |
+| 1 | Consumer Staples | XLP | 83.8 | +5.3% | OVERBOUGHT - extended further |
+| 2 | Energy | XLE | 81.0 | +4.3% | OVERBOUGHT - extended further |
+| 3 | Materials | XLB | 67.2 | +4.6% | Strong, approaching overbought |
+| 4 | Industrials | XLI | 64.3 | +4.7% | Strong momentum |
+| 5 | Healthcare | XLV | 55.4 | +1.9% | Healthy, improving |
+| 6 | Communications | XLC | 52.0 | -3.6% | Weak, GOOGL drag |
+| 7 | Utilities | XLU | 49.5 | +0.2% | Flat |
+| 8 | Financials | XLF | 48.8 | +1.5% | Recovered from rolling over |
+| 9 | Real Estate | XLRE | 47.7 | +1.4% | Solid |
+| 10 | Technology | XLK | 43.2 | -1.9% | Still weakest sector |
+| 11 | Consumer Disc | XLY | 36.2 | -2.6% | AT LOWER BB - oversold |
 
 ### Thematic ETFs
 
 | ETF | Sector | RSI | 5d Move | Note |
 |-----|--------|-----|---------|------|
-| IBIT | Bitcoin | 7.6 | -24.2% | EXTREME OVERSOLD - capitulation |
-| GLD | Gold | 55.0 | -10.9% | Weakening |
-| USO | Oil | 63.7 | -3.1% | Pullback in uptrend |
-| SLV | Silver | 39.9 | -36.8% | Collapsed |
+| GLD | Gold | 58.7 | +2.4% | Recovering, macro hedge |
+| USO | Oil | 63.3 | -3.2% | Pullback in uptrend |
+| SLV | Silver | 43.5 | -7.0% | Weak |
+| IBIT | Bitcoin | 20.2 | -16.5% | OVERSOLD - some recovery from RSI 7.6 |
 
 ### Key Observations
-- XLP/XLE overbought = extended, don't chase. Watch for exhaustion.
-- XLK/XLY oversold = bounce candidates. Semis (NVDA, AMD, INTC) showing relative strength today.
-- IBIT at RSI 7.6 is historically extreme - snap-back candidate but crypto is unpredictable.
-- MPC and VLO are the only energy names with bearish options flow (C/P < 1.0) - refiners seeing profit-taking.
+- XLP RSI 84 and XLE RSI 81 = dangerously extended. Don't chase. Exhaustion imminent.
+- XLK/XLY still oversold = continue to watch for bounce setups in quality tech names.
+- IBIT recovered from RSI 7.6 to 20.2 but still deeply oversold. Crypto volatile.
+- Gold recovering (+2.4%) = macro uncertainty hedge still active.
+- Semis showing relative strength: NVDA +3%, AMD +2.9% despite XLK weakness.
 
 ---
 
@@ -65,31 +65,35 @@
 
 | Ticker | Dir | Entry Zone | Stop | T1 | T2 | R:R | IV Pctl | Earnings | Status | Notes |
 |--------|-----|-----------|------|-----|-----|-----|---------|----------|--------|-------|
-| **AMZN** | LONG | $200-202 | $195 | $210 | $217 | 3.4:1 | 95th | Done (today) | WATCHING | Post-earnings washout -9%. RSI 35, 4-level confluence at $200, 2.32x volume = panic. Next earnings 83d away. Best R:R on board. |
-| **SLB** | LONG | $49.50 (VWAP) | $48.00 | $52 | $53.10 | 1.67:1 | **19th** | Done (1/23) | WATCHING | Cheapest IV in energy. 5.0x C/P, $886K premium. 1,537 calls at $57.50. Cleanest energy trade. |
+| **AMZN** | LONG | $200-206 | $195 | $210 | $217 | 2.5:1 | High | Done (Feb 6) | **SCANNER: SCORE 97** | Bounced off $200 support. RSI 27.8, BUY_ZONE, HIGH_CONVICTION. Scanner's top pick. Held the level we identified. |
+| **GOOGL** | LONG | $318-322 | TBD | TBD | TBD | TBD | TBD | TBD | **SCANNER: SCORE 58** | NEW - HIGH_CONVICTION BUY. RSI 43.7, at put wall. Need to pull full levels for targets. |
 
 ### Tier 2: Strong, Need Patience
 
 | Ticker | Dir | Entry Zone | Stop | T1 | T2 | R:R | IV Pctl | Earnings | Status | Notes |
 |--------|-----|-----------|------|-----|-----|-----|---------|----------|--------|-------|
-| **NVDA** | LONG | $178-180 | $174.50 | $184.66 | $188.33 | 2.1:1 | 32nd | Feb 25 (19d) | WATCHING | Relative strength +3.7% in bearish tape. RSI 33.67 at lower BB. 83K call OI at $190. Must exit by Feb 20. |
-| **OXY** | LONG | $45.23 (VWAP) | $44.00 | $47 | $48.10 | 2.33:1 | 58th | Feb 18 (12d) | WATCHING | Best R:R in energy. 5.3x C/P, $507K premium. Must exit by Feb 16. |
+| **SLB** | LONG | $49.50 (VWAP) | $48.00 | $52 | $53.10 | 1.67:1 | **19th** | Done (1/23) | WATCHING | Cheapest IV in energy. Still waiting for pullback to VWAP. Not in scanner. |
 
 ### Tier 3: Watch List
 
 | Ticker | Dir | What We're Waiting For |
 |--------|-----|----------------------|
-| **AMD** | LONG | +5.7% bounce hit $205 call wall. Need break above or pullback to $200 put wall. Dead cat lean until $205 breaks with volume. |
-| **COP** | LONG | Just reported today. IV at 88th = too expensive. Need pullback to $105.60 and IV to cool. Alert set. |
-| **EOG** | LONG | Weakest energy R:R (1.54:1). Earnings Feb 24. Pass unless deep pull to $112.50. |
+| **ORCL** | LONG | +9.4% today but RSI 19.9, strong_downtrend. LOW_MOMENTUM score 52. Oversold but falling knife. Need confirmation. |
+| **QCOM** | LONG | RSI 20.2, strong_downtrend. Score 37 WATCH. Oversold but no wall support yet. |
+| **RGTI** | LONG | RSI 28.1, BUY_ZONE score 30. Speculative - strong_downtrend. Small size only. |
 
 ### Removed / Passed
 
 | Ticker | Why | Date |
 |--------|-----|------|
-| HOOD | RSI 3 extreme but earnings Mon Feb 10. Can't swing - S-6 rule. | 2026-02-06 |
-| HAL | Smart money buying puts (7x unusual at $33). C/P 0.83 = bearish. IV 81st. | 2026-02-06 |
-| ENPH | Already +38.6% post-earnings. Solar, not traditional energy. No entry level. Wait for $50 pullback. | 2026-02-06 |
+| NVDA | Rallied to $191 (+6.7% from $179 entry zone). Missed the move. Earnings Feb 25 approaching. | 2026-02-09 |
+| OXY | Earnings Feb 18 approaching. Need to reassess post-earnings. S-6 window. | 2026-02-09 |
+| HOOD | Earnings Mon Feb 10 (tomorrow). S-6 rule. | 2026-02-06 |
+| HAL | Smart money buying puts. C/P 0.83 = bearish. | 2026-02-06 |
+| ENPH | Already extended post-earnings. No entry level. | 2026-02-06 |
+| AMD | Rallied to $214.42 (+2.9%). Above our entry zone. Missed. | 2026-02-09 |
+| COP | IV too high, need pullback. | 2026-02-06 |
+| EOG | Weak R:R. Earnings Feb 24. | 2026-02-06 |
 
 ---
 
@@ -97,10 +101,9 @@
 
 | Ticker | Entry | Stop | Risk/Share | Shares | Position $ | Notes |
 |--------|-------|------|------------|--------|-----------|-------|
-| AMZN | $200 | $195 | $5.00 | 40 | $8,000 | Max 2 positions at a time |
-| SLB | $49.50 | $48.00 | $1.50 | 133 | $6,584 | |
-| NVDA | $179 | $174.50 | $4.50 | 44 | $7,876 | |
-| OXY | $45.23 | $44.00 | $1.23 | 162 | $7,327 | |
+| AMZN | $206 | $195 | $11.00 | 18 | $3,708 | Max 2 positions at a time. Wider stop now that it bounced. |
+| GOOGL | $321 | TBD | TBD | TBD | TBD | Need full levels to size properly |
+| SLB | $49.50 | $48.00 | $1.50 | 133 | $6,584 | If it pulls back |
 
 **Risk Budget:** $200/trade (1% of $20K). Max 2 concurrent = $400 total risk.
 
@@ -129,46 +132,63 @@
 
 ## PREVIOUS SESSION RECAP
 
-### Feb 6, 2026 (Thursday) - Key Events
-- **AMZN earnings miss** - down 9.2%, #1 volume on SPX. Guidance weak on AWS/cloud spending.
-- **COP reported earnings** - trading post-report, elevated IV
-- **Semis bounced hard** - NVDA +3.7%, AMD +5.7%, INTC +3.9% showing relative strength
-- **HOOD +11.8%** - massive bounce off RSI 3 capitulation, but earnings Monday
-- **Sector rotation continued** - XLP +5.8% (defensives), XLK -7.7% (tech sold)
-- **SPY bearish** - negative gamma regime, amplified moves
-- **VIX 19.53** - normal but at upper boundary, could flip to elevated
+### Feb 7 (Friday) & Feb 9 (Sunday Pre-Session Review)
+- **AMZN $200 held** - bounced to $205.87. Scanner has it at Score 97 HIGH_CONVICTION. Our thesis validated.
+- **Semis continued rally** - NVDA $191 (+3%), AMD $214 (+2.9%). Both moved above our entry zones. Missed.
+- **GOOGL emerged** as new HIGH_CONVICTION setup - Score 58, RSI 43.7 at put wall. Wasn't on our radar.
+- **SPY improved** - bearish to neutral, reclaimed $691. Gamma pinned at $690.
+- **VIX dropped** from 19.53 to 17.97 - pulled back from elevated threshold.
+- **ORCL +9.4%** biggest SPX mover, but RSI 19.9 = oversold, strong_downtrend.
+- **HOOD earnings tomorrow** (Feb 10) - RSI 23.4, S-6 rule prevents entry.
 
 ### What Worked
-- Energy sector thesis validated - all 5 names in strong uptrends
-- SLB identified as best energy setup (cheap IV + massive flow)
-- Sector rotation analysis correctly identified XLK/XLY oversold bounce candidates
+- AMZN $200 support call was spot-on. It held and bounced.
+- Sector rotation read correct - cyclicals/defensives leading, tech lagging.
+- VIX direction call (stay normal) was correct.
 
-### What to Track
-- Does AMZN $200 hold? Critical for swing entry thesis
-- Do semis continue relative strength or was today a dead cat bounce?
-- VIX direction - if it crosses 20 into elevated, sizing adjusts to 0.75x
+### What We Missed
+- NVDA entry at $179 - rallied to $191 without us. Need to be faster on execution.
+- GOOGL wasn't on our watchlist - scanner caught it before we did.
 
 ---
 
-## NEXT SESSION FOCUS (Feb 7, Friday)
+## NEXT SESSION FOCUS (Feb 10, Monday)
+
+### SYSTEM CHANGE: Bloodhound Discovery Overhaul (deployed Feb 9 evening)
+
+Three bugs fixed in one deploy. **Expect different scan output Monday.**
+
+**What changed:**
+1. **Manual watchlist protection** — `addToWatchlist()` now refuses to overwrite `source='manual'` entries. Previously, signal_tracking or premarket_gap could corrupt SPY/QQQ with a 72h expiry, causing them to get auto-deleted. Fixed in `signal-db.js`.
+2. **Static/dynamic slot separation** — 9 manual symbols (SPY, QQQ, NVDA, TSLA, AMD, AAPL, META, MSFT, IBIT) get **reserved slots** that never compete. Dynamic entries (premarket_gap, market_data, sector_rotation) compete for the remaining slots. Previously all 28 watchlist entries scored 100, crowding out all discovery.
+3. **maxSymbols bumped 20 → 50** — No API rate limit issues at 20, opportunity scanner already does 30. Now: 9 reserved + up to 41 dynamic = room for real discovery again.
+
+**What to verify Monday:**
+- Logs should show: `[Watchlist] DB: 9 static, 19 dynamic`
+- Logs should show: `[Discovery] 9 reserved + N dynamic = N total` (N should be >20)
+- `/api/scan/latest` should return >20 symbols
+- Look for market_data or sector_rotation sources in scan results (these were completely missing before)
+- SPY should still show `source='manual'`, `expires_at=NULL` in watchlist
+
+**If something breaks:** revert `maxSymbols` to 20 in `monitor/bloodhound-scanner.js` line 39 and restart. The manual protection fix is independent and safe.
 
 ### Priority Checks
-1. **AMZN overnight** - Did $200 hold in after-hours? Gap up or gap down?
-2. **SLB pullback** - Did it come to $49.50 VWAP? Limit order zone.
-3. **NVDA continuation** - Does relative strength persist or fade?
-4. **VIX direction** - Stays normal or crosses to elevated?
-5. **XLE/XLP** - Do overbought sectors finally exhaust?
+1. **AMZN** - Score 97. Still in buy zone at $206? RSI 27.8 still oversold? Pull fresh levels/flow.
+2. **GOOGL** - Score 58. NEW on radar. Pull full technicals, levels, flow for proper sizing.
+3. **HOOD earnings** - Reports Monday. Watch for post-earnings reaction. S-6 = no trade until 24h after.
+4. **SLB pullback** - Energy still overbought (XLE RSI 81). Individual name pullbacks possible.
+5. **VIX** - 17.97. Stable normal. Watch for any weekend events.
 
-### Friday Considerations
-- End of week = options expiration dynamics. Max pain gravitational pull.
-- Position trimming typical on Fridays. Could get pullbacks we want.
-- Weekend risk - any weekend holdings need justification.
+### Monday Considerations
+- Weekend gap risk from any news events.
+- HOOD earnings could move the fintech space (PYPL, SQ).
+- AMZN is the highest conviction setup on the board. If it's still in zone, build the trade plan.
+- GOOGL needs full analysis before any entry decision.
 
 ### Alerts to Set
-- AMZN $200 (support test)
-- SLB $49.50 (entry zone)
-- NVDA $178 (pullback entry)
-- OXY $45.23 (VWAP entry)
+- AMZN $200 (support re-test)
+- GOOGL $318 (put wall zone)
+- SLB $49.50 (VWAP entry)
 - VIX $20.00 (regime change)
 
 ---
@@ -177,6 +197,7 @@
 
 | Date | Key Actions | Market Theme |
 |------|-------------|--------------|
+| 2026-02-09 | Pre-session review + Bloodhound discovery overhaul. Fixed manual watchlist corruption bug. Separated static/dynamic slots. Bumped maxSymbols 20→50. Discovery engine restored. | SPY neutral (improved). VIX 17.97. Bifurcated rotation. AMZN Score 97, GOOGL Score 58. |
 | 2026-02-06 | Full sector rotation analysis. Energy deep dive (SLB/HAL/OXY/EOG/COP). AMZN/AMD/NVDA swing research. Built initial watchlist. | Risk-off rotation. Tech -7.7%, Defensives +5.8%. AMZN -9% post-earnings. Semis bounced. |
 
 ---

@@ -338,17 +338,26 @@ Control API: `http://localhost:8081`
 | `/watchlist/add` | POST | Add symbol `{"symbol":"AAPL"}` |
 | `/watchlist/remove` | POST | Remove symbol `{"symbol":"AAPL"}` |
 
-### 3 Discovery Sources
+### Discovery System (Static/Dynamic Slots)
 
-Bloodhound dynamically discovers symbols from:
+Bloodhound uses a two-tier discovery system. Static symbols get **reserved slots** (always scanned). Dynamic symbols compete for remaining slots.
 
-1. **Watchlist** (SQLite `watchlist` table + `data/watchlist.json` fallback) - Always scanned, highest priority
-   - Manual symbols (permanent)
-   - Premarket gaps auto-added by premarket-scanner (7-day expiry)
-2. **Market Data** (`/api/latest`) - 52-week extremes, volume spikes
-3. **Sector Rotation** - Strongest/weakest sector ETFs
+**Static (reserved):** SQLite `watchlist` table where `source='manual'`. Currently 9 symbols (SPY, QQQ, NVDA, TSLA, AMD, AAPL, META, MSFT, IBIT). These are protected — automation cannot overwrite or expire them.
 
-Note: Social sentiment sources (X/Twitter trending, author consensus) were removed as unreliable.
+**Dynamic (competitive):** Remaining slots filled by highest-scoring entries from:
+
+| Source | Score | Description |
+|--------|-------|-------------|
+| Watchlist (premarket_gap, signal_tracking) | 60 | Auto-added by premarket/signal systems |
+| Market Data: 52wk extreme + volume spike | 55 | Both conditions met |
+| Sector rotation leader | 30 | Strongest XL* ETF |
+| Market Data: 52wk extreme | 25 | Near highs or lows |
+| Sector rotation laggard | 25 | Weakest XL* ETF with volume |
+| Market Data: volume spike | 20-30 | High relative volume |
+
+**Slot math:** `maxSymbols` (50) - static count (9) = 41 dynamic slots.
+
+Note: `data/watchlist.json` is no longer read by the discovery path. The database is the sole source of truth for watchlist. The JSON file is still used by the HTTP watchlist API endpoints.
 
 ### Symbol Mapping
 
@@ -461,13 +470,41 @@ Bloodhound automatically logs HIGH_CONVICTION signals to SQLite for multi-checkp
 
 **Database Files:** `monitor/signal-db.js`, `monitor/signal-logger.js`
 
+### Option Signal Tracking
+
+When Bloodhound fires a HIGH_CONVICTION alert with unusual options (vol/OI ≥ 5x), it also tracks the specific option contract:
+
+**At alert time:**
+- Captures contract symbol (e.g., `.AMZN260209C207.5`), type, strike, expiration, DTE
+- Captures vol/OI ratio and total premium flow
+- Fetches current option mark/bid/ask/delta/IV from chain API
+
+**Every scan cycle:**
+- Fetches option chain and updates mark price
+- Tracks option_premium_peak and peak_gain_pct
+- Records option data in price_snapshots alongside stock data
+- Detects when stock hits target wall (call wall for bullish, put wall for bearish)
+- Auto-closes expired options
+
+**Outcome classification:**
+| Outcome | Criteria |
+|---------|----------|
+| WIN | Peak gain ≥ 100% |
+| PARTIAL_WIN | Peak gain ≥ 50% |
+| BREAKEVEN | Close gain ≥ 0% |
+| LOSS | Close gain < 0% |
+
+**API endpoint:** `GET /api/signals/options?days=30` — Returns overall stats, active signals, stats by score range, stats by DTE
+
+**R&D doc:** `toolbox/RnD/OPTION_SIGNAL_TRACKER.md`
+
 ### Configuration
 
 Edit `monitor/config.json` for API endpoints and Telegram credentials.
 Edit `monitor/bloodhound-scanner.js` SETTINGS for:
 - `scanIntervalMs` - Scan frequency (default: 5 min)
 - `minConfluenceScore` - Alert threshold (default: 35)
-- `maxSymbols` - Max symbols per scan (default: 20)
+- `maxSymbols` - Max symbols per scan (default: 50)
 - `alertCooldownMs` - Per-symbol cooldown (default: 30 min)
 
 ---

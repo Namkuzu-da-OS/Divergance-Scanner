@@ -367,6 +367,9 @@ function initSchema() {
 
     // Migration: Create alerts table
     migrateAlerts();
+
+    // Migration: Add option signal tracking columns
+    migrateOptionTracking();
 }
 
 /**
@@ -469,6 +472,67 @@ function migratePremarketMovers() {
 }
 
 /**
+ * Add option signal tracking columns to signals and price_snapshots tables
+ * Tracks unusual option contracts flagged by Bloodhound alerts
+ */
+function migrateOptionTracking() {
+    // Option tracking columns on signals table
+    const signalColumns = [
+        { name: 'option_contract', type: 'TEXT' },
+        { name: 'option_type', type: 'TEXT' },
+        { name: 'option_strike', type: 'REAL' },
+        { name: 'option_expiration', type: 'TEXT' },
+        { name: 'option_dte', type: 'INTEGER' },
+        { name: 'option_premium_entry', type: 'REAL' },
+        { name: 'option_delta_entry', type: 'REAL' },
+        { name: 'option_iv_entry', type: 'REAL' },
+        { name: 'option_vol_oi', type: 'REAL' },
+        { name: 'option_premium_flow', type: 'REAL' },
+        { name: 'option_premium_peak', type: 'REAL' },
+        { name: 'option_premium_peak_time', type: 'TEXT' },
+        { name: 'option_premium_close', type: 'REAL' },
+        { name: 'option_peak_gain_pct', type: 'REAL' },
+        { name: 'option_close_gain_pct', type: 'REAL' },
+        { name: 'option_hit_wall', type: 'INTEGER DEFAULT 0' },
+        { name: 'option_outcome', type: 'TEXT' }
+    ];
+
+    for (const col of signalColumns) {
+        try {
+            db.exec(`ALTER TABLE signals ADD COLUMN ${col.name} ${col.type}`);
+            console.log(`[SignalDB] Added column ${col.name} to signals`);
+        } catch (e) {
+            // Column already exists, ignore
+        }
+    }
+
+    // Option price columns on price_snapshots table
+    const snapshotColumns = [
+        { name: 'option_bid', type: 'REAL' },
+        { name: 'option_ask', type: 'REAL' },
+        { name: 'option_mark', type: 'REAL' },
+        { name: 'option_gain_pct', type: 'REAL' }
+    ];
+
+    for (const col of snapshotColumns) {
+        try {
+            db.exec(`ALTER TABLE price_snapshots ADD COLUMN ${col.name} ${col.type}`);
+            console.log(`[SignalDB] Added column ${col.name} to price_snapshots`);
+        } catch (e) {
+            // Column already exists, ignore
+        }
+    }
+
+    // Indexes for option signal queries
+    try {
+        db.exec('CREATE INDEX IF NOT EXISTS idx_signals_option_contract ON signals(option_contract)');
+        db.exec('CREATE INDEX IF NOT EXISTS idx_signals_option_outcome ON signals(option_outcome)');
+    } catch (e) {
+        // Indexes already exist, ignore
+    }
+}
+
+/**
  * Validate checkpoint type to prevent SQL injection
  */
 function validateCheckpointType(checkpointType) {
@@ -489,11 +553,18 @@ function insertSignal(signalData) {
             vix, vix_regime, spy_trend, spy_price, gamma_regime, intraday_bias,
             current_price, peak_price, trough_price, last_updated,
             signal_type, history_status, consecutive_days,
+            option_contract, option_type, option_strike, option_expiration,
+            option_dte, option_premium_entry, option_delta_entry, option_iv_entry,
+            option_vol_oi, option_premium_flow,
+            option_premium_peak, option_premium_peak_time,
             status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')
     `);
 
     try {
+        // Option premium entry initializes peak if available
+        const premEntry = signalData.option_premium_entry || null;
         stmt.run(
             signalData.id,
             signalData.timestamp,
@@ -516,9 +587,23 @@ function insertSignal(signalData) {
             signalData.timestamp,
             signalData.signal_type || null,
             signalData.history_status || null,
-            signalData.consecutive_days || null
+            signalData.consecutive_days || null,
+            // Option tracking fields
+            signalData.option_contract || null,
+            signalData.option_type || null,
+            signalData.option_strike || null,
+            signalData.option_expiration || null,
+            signalData.option_dte != null ? signalData.option_dte : null,
+            premEntry,
+            signalData.option_delta_entry || null,
+            signalData.option_iv_entry || null,
+            signalData.option_vol_oi || null,
+            signalData.option_premium_flow || null,
+            premEntry,                        // peak starts at entry premium
+            premEntry ? signalData.timestamp : null  // peak time starts at entry
         );
-        console.log(`[SignalDB] Inserted signal ${signalData.id} @ $${signalData.entry_price}`);
+        const optInfo = signalData.option_contract ? ` | Option: ${signalData.option_contract}` : '';
+        console.log(`[SignalDB] Inserted signal ${signalData.id} @ $${signalData.entry_price}${optInfo}`);
         return true;
     } catch (e) {
         if (e.message.includes('UNIQUE constraint')) {
@@ -532,8 +617,11 @@ function insertSignal(signalData) {
 /**
  * Update price tracking for an active signal
  * Returns false if signal not found, not active, or price is null/invalid
+ * @param {string} signalId - Signal ID
+ * @param {number} currentPrice - Current stock price
+ * @param {object|null} optionPrice - Optional option price data { bid, ask, mark }
  */
-function updatePriceTracking(signalId, currentPrice) {
+function updatePriceTracking(signalId, currentPrice, optionPrice = null) {
     // Null price guard
     if (currentPrice === null || currentPrice === undefined || isNaN(currentPrice) || currentPrice <= 0) {
         console.log(`[SignalDB] Skipping price update for ${signalId} - invalid price: ${currentPrice}`);
@@ -581,14 +669,232 @@ function updatePriceTracking(signalId, currentPrice) {
         WHERE signal_id = ?
     `).run(currentPrice, newPeak, newTrough, peakGainPct, maxDrawdownPct, now, signalId);
 
-    // Record price snapshot (every update)
+    // Record price snapshot (every update) — includes option data if available
     const hoursElapsed = (Date.now() - new Date(signal.timestamp).getTime()) / (1000 * 60 * 60);
+    const optMark = optionPrice?.mark || null;
+    const optBid = optionPrice?.bid || null;
+    const optAsk = optionPrice?.ask || null;
+    const optGainPct = (optMark && signal.option_premium_entry && signal.option_premium_entry > 0)
+        ? ((optMark - signal.option_premium_entry) / signal.option_premium_entry) * 100
+        : null;
+
     getDb().prepare(`
-        INSERT INTO price_snapshots (signal_id, timestamp, hours_elapsed, price, pct_change)
-        VALUES (?, ?, ?, ?, ?)
-    `).run(signalId, now, hoursElapsed, currentPrice, pctChange);
+        INSERT INTO price_snapshots (signal_id, timestamp, hours_elapsed, price, pct_change,
+                                     option_bid, option_ask, option_mark, option_gain_pct)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(signalId, now, hoursElapsed, currentPrice, pctChange,
+           optBid, optAsk, optMark, optGainPct);
 
     return true;
+}
+
+/**
+ * Update option price tracking on the signal itself (peak, entry, outcome)
+ * Called alongside updatePriceTracking for signals with option contracts
+ * @param {string} signalId - Signal ID
+ * @param {object} optionPrice - { bid, ask, mark, delta, iv }
+ * @returns {object|false} Tracking result or false if not applicable
+ */
+function updateOptionPriceTracking(signalId, optionPrice) {
+    if (!optionPrice || !optionPrice.mark || optionPrice.mark <= 0) return false;
+
+    const signal = getDb().prepare('SELECT * FROM signals WHERE signal_id = ?').get(signalId);
+    if (!signal || signal.status !== 'active' || !signal.option_contract) return false;
+
+    const now = new Date().toISOString();
+    const mark = optionPrice.mark;
+
+    // If no entry premium set yet, this is the first price fetch — establish entry
+    if (!signal.option_premium_entry || signal.option_premium_entry <= 0) {
+        getDb().prepare(`
+            UPDATE signals SET
+                option_premium_entry = ?,
+                option_delta_entry = ?,
+                option_iv_entry = ?,
+                option_premium_peak = ?,
+                option_premium_peak_time = ?
+            WHERE signal_id = ?
+        `).run(mark, optionPrice.delta || null, optionPrice.iv || null, mark, now, signalId);
+        console.log(`[SignalDB] Set option entry premium for ${signalId}: $${mark.toFixed(2)}`);
+        return { mark, gainPct: 0, peakGainPct: 0, isNewPeak: false, entrySet: true };
+    }
+
+    // Calculate gain from entry
+    const entryPremium = signal.option_premium_entry;
+    const gainPct = ((mark - entryPremium) / entryPremium) * 100;
+
+    // Update peak if new high
+    const currentPeak = signal.option_premium_peak || entryPremium;
+    const isNewPeak = mark > currentPeak;
+    const newPeak = isNewPeak ? mark : currentPeak;
+    const peakTime = isNewPeak ? now : signal.option_premium_peak_time;
+    const peakGainPct = ((newPeak - entryPremium) / entryPremium) * 100;
+
+    getDb().prepare(`
+        UPDATE signals SET
+            option_premium_peak = ?,
+            option_premium_peak_time = ?,
+            option_peak_gain_pct = ?
+        WHERE signal_id = ?
+    `).run(newPeak, peakTime, peakGainPct, signalId);
+
+    return { mark, gainPct, peakGainPct, isNewPeak, entrySet: false };
+}
+
+/**
+ * Close an option signal with final outcome
+ * Called when the option expires or when the signal is closed
+ * @param {string} signalId - Signal ID
+ * @param {number|null} closePremium - Final option mark price (null if expired worthless)
+ */
+function closeOptionSignal(signalId, closePremium) {
+    const signal = getDb().prepare('SELECT * FROM signals WHERE signal_id = ?').get(signalId);
+    if (!signal || !signal.option_contract) return;
+
+    const entryPremium = signal.option_premium_entry;
+    if (!entryPremium || entryPremium <= 0) {
+        // Never got entry price, can't calculate
+        getDb().prepare(`
+            UPDATE signals SET
+                option_premium_close = ?,
+                option_outcome = 'UNKNOWN'
+            WHERE signal_id = ?
+        `).run(closePremium || 0, signalId);
+        return;
+    }
+
+    const finalPremium = closePremium || 0;
+    const closeGainPct = ((finalPremium - entryPremium) / entryPremium) * 100;
+    const peakGainPct = signal.option_peak_gain_pct || 0;
+
+    // Determine outcome based on peak gain
+    let outcome;
+    if (peakGainPct >= 100) {
+        outcome = 'WIN';        // Option doubled
+    } else if (peakGainPct >= 50) {
+        outcome = 'PARTIAL_WIN'; // Solid gain but didn't double
+    } else if (closeGainPct >= 0) {
+        outcome = 'BREAKEVEN';   // Didn't lose money
+    } else {
+        outcome = 'LOSS';        // Lost money
+    }
+
+    getDb().prepare(`
+        UPDATE signals SET
+            option_premium_close = ?,
+            option_close_gain_pct = ?,
+            option_outcome = ?
+        WHERE signal_id = ?
+    `).run(finalPremium, closeGainPct, outcome, signalId);
+
+    console.log(`[SignalDB] Closed option signal ${signalId}: ${outcome} (peak +${peakGainPct.toFixed(0)}%, close ${closeGainPct >= 0 ? '+' : ''}${closeGainPct.toFixed(0)}%)`);
+}
+
+/**
+ * Check if stock price hit the target wall (call wall for bullish, put wall for bearish)
+ * @param {string} signalId - Signal ID
+ * @param {number} currentPrice - Current stock price
+ */
+function checkWallHit(signalId, currentPrice) {
+    const signal = getDb().prepare(`
+        SELECT s.*, br.call_wall, br.put_wall
+        FROM signals s
+        LEFT JOIN bloodhound_results br ON br.symbol = s.symbol
+            AND br.scan_id = (SELECT MAX(scan_id) FROM bloodhound_results WHERE symbol = s.symbol)
+        WHERE s.signal_id = ?
+    `).get(signalId);
+
+    if (!signal || !signal.option_contract || signal.option_hit_wall) return false;
+
+    let hitWall = false;
+    if (signal.direction === 'bullish' && signal.call_wall && currentPrice >= signal.call_wall) {
+        hitWall = true;
+    } else if (signal.direction === 'bearish' && signal.put_wall && currentPrice <= signal.put_wall) {
+        hitWall = true;
+    }
+
+    if (hitWall) {
+        getDb().prepare('UPDATE signals SET option_hit_wall = 1 WHERE signal_id = ?').run(signalId);
+        console.log(`[SignalDB] ${signalId} hit target wall! Stock at $${currentPrice.toFixed(2)}`);
+    }
+
+    return hitWall;
+}
+
+/**
+ * Get option signal performance stats
+ * @param {number} days - Lookback period
+ * @returns {object} Stats breakdown
+ */
+function getOptionSignalStats(days = 30) {
+    const db = getDb();
+
+    // Overall stats for signals that have option tracking
+    const overall = db.prepare(`
+        SELECT
+            COUNT(*) as total,
+            SUM(CASE WHEN option_outcome = 'WIN' THEN 1 ELSE 0 END) as wins,
+            SUM(CASE WHEN option_outcome = 'PARTIAL_WIN' THEN 1 ELSE 0 END) as partial_wins,
+            SUM(CASE WHEN option_outcome = 'LOSS' THEN 1 ELSE 0 END) as losses,
+            SUM(CASE WHEN option_outcome = 'BREAKEVEN' THEN 1 ELSE 0 END) as breakevens,
+            SUM(CASE WHEN option_hit_wall = 1 THEN 1 ELSE 0 END) as wall_hits,
+            ROUND(AVG(option_peak_gain_pct), 1) as avg_peak_gain,
+            ROUND(AVG(option_close_gain_pct), 1) as avg_close_gain,
+            ROUND(MAX(option_peak_gain_pct), 1) as max_peak_gain,
+            ROUND(MIN(option_close_gain_pct), 1) as worst_close
+        FROM signals
+        WHERE option_contract IS NOT NULL
+        AND timestamp > datetime('now', '-' || ? || ' days')
+    `).get(days);
+
+    // Active option signals (still being tracked)
+    const active = db.prepare(`
+        SELECT signal_id, symbol, option_contract, option_type, option_strike,
+               option_premium_entry, option_premium_peak, option_peak_gain_pct,
+               option_expiration, option_dte, score, direction, timestamp
+        FROM signals
+        WHERE option_contract IS NOT NULL AND status = 'active'
+        ORDER BY timestamp DESC
+    `).all();
+
+    // Stats by score range
+    const byScore = db.prepare(`
+        SELECT
+            CASE
+                WHEN score >= 90 THEN '90-100'
+                WHEN score >= 80 THEN '80-89'
+                WHEN score >= 70 THEN '70-79'
+                ELSE '50-69'
+            END as score_range,
+            COUNT(*) as total,
+            SUM(CASE WHEN option_outcome IN ('WIN', 'PARTIAL_WIN') THEN 1 ELSE 0 END) as wins,
+            ROUND(AVG(option_peak_gain_pct), 1) as avg_peak_gain
+        FROM signals
+        WHERE option_contract IS NOT NULL AND option_outcome IS NOT NULL
+        AND timestamp > datetime('now', '-' || ? || ' days')
+        GROUP BY score_range
+        ORDER BY score_range DESC
+    `).all(days);
+
+    // Stats by DTE
+    const byDTE = db.prepare(`
+        SELECT
+            CASE
+                WHEN option_dte = 0 THEN '0DTE'
+                WHEN option_dte <= 2 THEN '1-2 DTE'
+                WHEN option_dte <= 5 THEN '3-5 DTE'
+                ELSE '5+ DTE'
+            END as dte_range,
+            COUNT(*) as total,
+            SUM(CASE WHEN option_outcome IN ('WIN', 'PARTIAL_WIN') THEN 1 ELSE 0 END) as wins,
+            ROUND(AVG(option_peak_gain_pct), 1) as avg_peak_gain
+        FROM signals
+        WHERE option_contract IS NOT NULL AND option_outcome IS NOT NULL
+        AND timestamp > datetime('now', '-' || ? || ' days')
+        GROUP BY dte_range
+    `).all(days);
+
+    return { overall, active, byScore, byDTE };
 }
 
 /**
@@ -1944,7 +2250,12 @@ function addToWatchlist(symbol, options = {}) {
     const existing = getDb().prepare('SELECT * FROM watchlist WHERE symbol = ?').get(symbol);
 
     if (existing) {
-        // Update existing - re-enable if disabled, update notes/metadata
+        // PROTECT manual entries — automation NEVER overwrites them
+        if (existing.source === 'manual') {
+            console.log(`[Watchlist] Skipped ${symbol} — manual entry protected (attempted by ${source})`);
+            return { action: 'skipped_manual', symbol };
+        }
+        // Update existing non-manual entry - re-enable if disabled, update notes/metadata
         getDb().prepare(`
             UPDATE watchlist SET
                 enabled = 1,
@@ -2011,6 +2322,33 @@ function getWatchlistFull() {
         SELECT * FROM watchlist
         ORDER BY enabled DESC, added_at DESC
     `).all();
+}
+
+/**
+ * Get watchlist partitioned into static (manual) and dynamic (automated) entries.
+ * Static entries get reserved slots in discovery — they always scan.
+ * Dynamic entries compete for remaining slots.
+ */
+function getWatchlistPartitioned() {
+    const rows = getDb().prepare(`
+        SELECT symbol, source FROM watchlist
+        WHERE enabled = 1
+        AND (expires_at IS NULL OR expires_at > datetime('now'))
+        ORDER BY added_at DESC
+    `).all();
+
+    const staticSymbols = [];
+    const dynamicSymbols = [];
+
+    for (const row of rows) {
+        if (row.source === 'manual') {
+            staticSymbols.push(row.symbol);
+        } else {
+            dynamicSymbols.push({ symbol: row.symbol, source: row.source });
+        }
+    }
+
+    return { static: staticSymbols, dynamic: dynamicSymbols };
 }
 
 /**
@@ -2682,11 +3020,17 @@ module.exports = {
     setWatchlistEnabled,
     getWatchlist,
     getWatchlistFull,
+    getWatchlistPartitioned,
     isInWatchlist,
     updateWatchlistScanned,
     cleanExpiredWatchlist,
     migrateWatchlistFromJson,
     getWatchlistStats,
+    // Option signal tracking functions
+    updateOptionPriceTracking,
+    closeOptionSignal,
+    checkWallHit,
+    getOptionSignalStats,
     // Bloodhound scanner functions
     insertBloodhoundScan,
     insertBloodhoundResults,

@@ -36,7 +36,7 @@ const APIS = {
 const SETTINGS = {
     scanIntervalMs: 5 * 60 * 1000,  // 5 minutes
     minConfluenceScore: 35,          // Minimum score to alert (0-100 scale, data-driven)
-    maxSymbols: 20,                  // Max symbols to scan per cycle
+    maxSymbols: 50,                  // Max symbols to scan per cycle
     alertCooldownMs: 30 * 60 * 1000, // 30 min cooldown per symbol
     ignoreMarketHours: false,        // Set true to bypass market hours check
     // Signal tracking settings
@@ -649,47 +649,33 @@ function classifyWallActivity(optionsAnalysis, wallPrice, wallType, wallExpirati
 }
 
 // ============================================
-// WATCHLIST LOADING (Database + JSON fallback)
+// WATCHLIST LOADING (Database only)
 // ============================================
 
 const WATCHLIST_PATH = path.join(__dirname, '..', 'data', 'watchlist.json');
 
 function loadWatchlist() {
-    const symbols = new Set();
-
-    // 1. Try database first (includes premarket gaps, manual adds, etc.)
     try {
-        const dbSymbols = signalDb.getWatchlist();
-        if (dbSymbols.length > 0) {
-            dbSymbols.forEach(s => symbols.add(s));
-            console.log(`[Watchlist] Loaded ${dbSymbols.length} from database`);
+        // Clean expired entries first
+        try { signalDb.cleanExpiredWatchlist(); } catch (e) { /* ignore */ }
+
+        const partitioned = signalDb.getWatchlistPartitioned();
+
+        // Remove dynamic entries that duplicate a static symbol (static wins)
+        const staticSet = new Set(partitioned.static);
+        const dynamic = partitioned.dynamic.filter(d => !staticSet.has(d.symbol));
+
+        if (partitioned.static.length === 0 && dynamic.length === 0) {
+            console.log('[Watchlist] DB empty, using defaults: SPY, QQQ');
+            return { static: ['SPY', 'QQQ'], dynamic: [] };
         }
+
+        console.log(`[Watchlist] DB: ${partitioned.static.length} static, ${dynamic.length} dynamic`);
+        return { static: partitioned.static, dynamic };
     } catch (e) {
-        console.log(`[Watchlist] Database read failed: ${e.message}`);
+        console.log(`[Watchlist] Database read failed: ${e.message}, using defaults`);
+        return { static: ['SPY', 'QQQ'], dynamic: [] };
     }
-
-    // 2. Also load from JSON (manual baseline, ensures SPY/QQQ always present)
-    try {
-        const data = JSON.parse(fs.readFileSync(WATCHLIST_PATH, 'utf8'));
-        const jsonSymbols = data.symbols.filter(s => s.enabled).map(s => s.symbol);
-        jsonSymbols.forEach(s => symbols.add(s));
-        console.log(`[Watchlist] Loaded ${jsonSymbols.length} from JSON`);
-    } catch (e) {
-        console.log('[Watchlist] Could not load watchlist.json');
-    }
-
-    // 3. Fallback to defaults if nothing loaded
-    if (symbols.size === 0) {
-        console.log('[Watchlist] Using defaults: SPY, QQQ');
-        return ['SPY', 'QQQ'];
-    }
-
-    // Clean expired entries periodically
-    try {
-        signalDb.cleanExpiredWatchlist();
-    } catch (e) { /* ignore */ }
-
-    return Array.from(symbols);
 }
 
 // ============================================
@@ -697,23 +683,29 @@ function loadWatchlist() {
 // ============================================
 
 async function discoverSymbols() {
-    const symbols = new Map(); // symbol -> { score, sources }
+    // --- Load watchlist: static (reserved) + dynamic (compete) ---
+    const watchlist = loadWatchlist();
+    const staticSymbols = watchlist.static;
+    const staticSet = new Set(staticSymbols);
 
-    // Load watchlist - these are ALWAYS included with highest priority
-    const watchlistSymbols = loadWatchlist();
-    console.log(`[Watchlist] Loaded ${watchlistSymbols.length} symbols: ${watchlistSymbols.join(', ')}`);
-    watchlistSymbols.forEach(s => symbols.set(s, { score: 100, sources: ['watchlist'] }));
+    // Dynamic pool — watchlist dynamic entries + market_data + sector_rotation
+    const dynamicPool = new Map(); // symbol -> { score, sources, ... }
 
-    // 1. AI Market Outlook - themes and bias only (sentiment removed)
-    const outlook = await fetchJSON(`${APIS.intel}/api/market/outlook`);
-    if (outlook?.success && outlook.data) {
-        // Store themes for context
-        symbols._themes = outlook.data.key_themes || [];
-        symbols._intraday_bias = outlook.data.intraday_bias;
-        symbols._swing_bias = outlook.data.swing_bias;
+    // Seed dynamic pool with watchlist dynamic entries (premarket_gap, signal_tracking, etc.)
+    for (const entry of watchlist.dynamic) {
+        dynamicPool.set(entry.symbol, { score: 60, sources: [`watchlist_${entry.source}`] });
     }
 
-    // 2. Sector rotation from XL* ETFs (find strongest/weakest sectors)
+    // --- Context: AI Market Outlook ---
+    let themes, intradayBias, swingBias;
+    const outlook = await fetchJSON(`${APIS.intel}/api/market/outlook`);
+    if (outlook?.success && outlook.data) {
+        themes = outlook.data.key_themes || [];
+        intradayBias = outlook.data.intraday_bias;
+        swingBias = outlook.data.swing_bias;
+    }
+
+    // --- Market data + sector rotation ---
     const latest = await fetchJSON(`${APIS.intel}/api/latest`);
     const sectorETFs = [];
     if (latest?.success && latest.data) {
@@ -737,6 +729,12 @@ async function discoverSymbols() {
             if (item.symbol === 'VIX' || item.symbol === 'VXX') return;
             if (item.symbol.startsWith('XL')) return; // Handle sectors separately
 
+            const ticker = mapSymbol(item.symbol); // Map BTC→IBIT, etc.
+            if (!ticker) return;
+
+            // Skip static symbols — they already have reserved slots
+            if (staticSet.has(ticker)) return;
+
             // Check for interesting conditions
             const pos52wk = item.fifty_two_week_range_position || 50;
             const volRatio = item.todays_volume && item.volume_avg_30_day
@@ -745,22 +743,20 @@ async function discoverSymbols() {
 
             // Score boost for extremes
             let boost = 0;
-            if (pos52wk > 95) boost += 25; // Near 52-week high - breakout potential
-            if (pos52wk < 10) boost += 25; // Near 52-week low - reversal potential
-            if (volRatio > 1.5) boost += 20; // High relative volume - something happening
+            if (pos52wk > 95) boost += 25; // Near 52-week high
+            if (pos52wk < 10) boost += 25; // Near 52-week low
+            if (volRatio > 1.5) boost += 20; // High relative volume
             if (volRatio > 2.0) boost += 10; // Extra boost for volume spike
 
             if (boost > 0) {
-                const ticker = mapSymbol(item.symbol); // Map BTC→IBIT, etc.
-                if (!ticker) return;
-                const existing = symbols.get(ticker) || { score: 0, sources: [] };
+                const existing = dynamicPool.get(ticker) || { score: 0, sources: [] };
                 existing.score += boost;
                 existing.sources.push('market_data');
                 existing.price = parseFloat(item.current_price);
                 existing.pos52wk = pos52wk;
                 existing.volRatio = volRatio;
                 if (item.symbol !== ticker) existing.mappedFrom = item.symbol;
-                symbols.set(ticker, existing);
+                dynamicPool.set(ticker, existing);
             }
         });
 
@@ -770,52 +766,50 @@ async function discoverSymbols() {
             const strongestSector = sectorETFs[0];
             const weakestSector = sectorETFs[sectorETFs.length - 1];
 
-            // Add strongest sector if showing momentum
-            if (strongestSector.pos52wk > 90 || strongestSector.volRatio > 1.3) {
-                const existing = symbols.get(strongestSector.symbol) || { score: 0, sources: [] };
+            // Add strongest sector if showing momentum (skip if static)
+            if ((strongestSector.pos52wk > 90 || strongestSector.volRatio > 1.3) && !staticSet.has(strongestSector.symbol)) {
+                const existing = dynamicPool.get(strongestSector.symbol) || { score: 0, sources: [] };
                 existing.score += 30;
                 existing.sources.push('sector_leader');
                 existing.pos52wk = strongestSector.pos52wk;
-                symbols.set(strongestSector.symbol, existing);
+                dynamicPool.set(strongestSector.symbol, existing);
             }
 
-            // Add weakest sector if showing reversal potential
-            if (weakestSector.pos52wk < 30 && weakestSector.volRatio > 1.2) {
-                const existing = symbols.get(weakestSector.symbol) || { score: 0, sources: [] };
+            // Add weakest sector if showing reversal potential (skip if static)
+            if (weakestSector.pos52wk < 30 && weakestSector.volRatio > 1.2 && !staticSet.has(weakestSector.symbol)) {
+                const existing = dynamicPool.get(weakestSector.symbol) || { score: 0, sources: [] };
                 existing.score += 25;
                 existing.sources.push('sector_laggard');
                 existing.pos52wk = weakestSector.pos52wk;
-                symbols.set(weakestSector.symbol, existing);
+                dynamicPool.set(weakestSector.symbol, existing);
             }
         }
     }
 
-    // Remove metadata keys before sorting
-    const themes = symbols._themes;
-    const intradayBias = symbols._intraday_bias;
-    const swingBias = symbols._swing_bias;
-    symbols.delete('_themes');
-    symbols.delete('_intraday_bias');
-    symbols.delete('_swing_bias');
-
-    // Filter out non-tradeable symbols (crypto, futures, indices)
-    for (const symbol of symbols.keys()) {
+    // --- Filter non-tradeable from dynamic pool ---
+    for (const symbol of dynamicPool.keys()) {
         if (NON_TRADEABLE.has(symbol)) {
-            symbols.delete(symbol);
+            dynamicPool.delete(symbol);
         }
     }
 
-    // Sort by score and take top N
-    const sorted = Array.from(symbols.entries())
+    // --- Assemble final list: reserved static + top dynamic ---
+    const dynamicSlots = Math.max(0, SETTINGS.maxSymbols - staticSymbols.length);
+    const sortedDynamic = Array.from(dynamicPool.entries())
         .sort((a, b) => b[1].score - a[1].score)
-        .slice(0, SETTINGS.maxSymbols);
+        .slice(0, dynamicSlots);
 
-    const result = sorted.map(([symbol, data]) => ({ symbol, ...data }));
+    // Build result: static first (score 100, source 'watchlist'), then dynamic
+    const result = staticSymbols.map(symbol => ({ symbol, score: 100, sources: ['watchlist'] }));
+    for (const [symbol, data] of sortedDynamic) {
+        result.push({ symbol, ...data });
+    }
 
     // Attach context to result
     result._context = { themes, intradayBias, swingBias };
 
-    console.log(`[Discovery] Sources: watchlist, market data, sector rotation`);
+    const dynamicCount = sortedDynamic.length;
+    console.log(`[Discovery] ${staticSymbols.length} reserved + ${dynamicCount} dynamic = ${result.length} total`);
 
     return result;
 }
@@ -1149,6 +1143,8 @@ async function analyzeSymbol(symbol, discoveryData) {
     }
 
     // --- OPTIONS FLOW SCORE (0-25) ---
+    let unusualOption = null;  // Structured data for option signal tracking
+
     if (optionsAnalysis?.analysis) {
         const opts = optionsAnalysis.analysis;
 
@@ -1185,6 +1181,19 @@ async function analyzeSymbol(symbol, discoveryData) {
                 const prem = ((topCall.premium || 0) / 1000000).toFixed(1);
                 signals.push(`🔥 Unusual CALL $${topCall.strike} ${exp} (${maxCallVolOI.toFixed(1)}x, $${prem}M)`);
                 if (direction === 'neutral') direction = 'bullish';
+
+                // Capture structured option data for signal tracking
+                const callDTE = getDTE(topCall.expiration);
+                const expFmt = (topCall.expiration || '').replace(/-/g, '').slice(2);
+                unusualOption = {
+                    contract: `.${symbol}${expFmt}C${topCall.strike}`,
+                    type: 'CALL',
+                    strike: topCall.strike,
+                    expiration: topCall.expiration,
+                    dte: callDTE,
+                    vol_oi: maxCallVolOI,
+                    premium_flow: topCall.premium || 0
+                };
             } else {
                 // Context-aware PUT interpretation based on research:
                 // - ITM puts (strike > spot) = bearish conviction (paying intrinsic value)
@@ -1219,6 +1228,18 @@ async function analyzeSymbol(symbol, discoveryData) {
                     signals.push(`🔥 Unusual PUT $${strike} OTM (hedge, ${maxPutVolOI.toFixed(1)}x, $${prem}M)`);
                     // OTM puts are hedges - don't flag as bearish
                 }
+
+                // Capture structured option data for signal tracking (all PUT cases)
+                const expFmt = (topPut.expiration || '').replace(/-/g, '').slice(2);
+                unusualOption = {
+                    contract: `.${symbol}${expFmt}P${strike}`,
+                    type: 'PUT',
+                    strike: strike,
+                    expiration: topPut.expiration,
+                    dte: dte,
+                    vol_oi: maxPutVolOI,
+                    premium_flow: topPut.premium || 0
+                };
             }
         } else if (maxCallVolOI >= 2 || maxPutVolOI >= 2) {
             scores.standard += 5;
@@ -1512,7 +1533,9 @@ async function analyzeSymbol(symbol, discoveryData) {
         // Wall activity data for filtering/display
         atWall,
         wallActivity: wallActivity?.status || null,
-        wallVolOiRatio: wallActivity?.volOiRatio || null
+        wallVolOiRatio: wallActivity?.volOiRatio || null,
+        // Top unusual option contract (for option signal tracking)
+        unusualOption
     };
 }
 
@@ -2151,7 +2174,7 @@ async function runScan() {
             alertCooldowns.set(analysis.symbol, Date.now());
 
             // Log signal for validation tracking
-            signalLogger.logSignal({
+            const logData = {
                 symbol: analysis.symbol,
                 price: analysis.price,
                 direction: analysis.direction,
@@ -2168,7 +2191,21 @@ async function runScan() {
                 signal_type: analysis.tier,
                 history_status: analysis.history_status?.label,
                 consecutive_days: analysis.history_status?.consecutive_days
-            });
+            };
+
+            // Include unusual option data for option signal tracking
+            if (analysis.unusualOption) {
+                const opt = analysis.unusualOption;
+                logData.option_contract = opt.contract;
+                logData.option_type = opt.type;
+                logData.option_strike = opt.strike;
+                logData.option_expiration = opt.expiration;
+                logData.option_dte = opt.dte;
+                logData.option_vol_oi = opt.vol_oi;
+                logData.option_premium_flow = opt.premium_flow;
+            }
+
+            await signalLogger.logSignal(logData);
         }
     } else {
         console.log(`\n[Alerts] No high-conviction opportunities (${tradeable.length} tradeable, ${watchList.length} on watch)`);
