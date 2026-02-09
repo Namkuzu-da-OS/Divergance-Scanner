@@ -19,6 +19,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const signalDb = require('./signal-db');
 
 // Load config
 let CONFIG;
@@ -42,8 +43,7 @@ const TELEGRAM = CONFIG.earnings_telegram || CONFIG.telegram;
 // Data files
 const DATA_DIR = path.join(__dirname, '..', 'data');
 const CALENDAR_FILE = path.join(DATA_DIR, 'earnings-calendar.json');
-const SCAN_OUTPUT_FILE = path.join(DATA_DIR, 'earnings-scan.json');
-const SIGNALS_FILE = path.join(DATA_DIR, 'earnings-signals.json');
+
 const PAUSE_FILE = path.join(DATA_DIR, '.earnings_paused');
 
 // Settings
@@ -485,17 +485,27 @@ async function runScan() {
         // Sort by score
         results.sort((a, b) => b.score - a.score);
 
-        // Save scan results
-        const scanOutput = {
-            last_updated: new Date().toISOString(),
-            strategy: 'PREM',
-            total_scanned: results.length,
-            high_conviction: results.filter(r => r.tier === 'HIGH_CONVICTION').length,
-            tradeable: results.filter(r => r.tier === 'TRADEABLE').length,
-            results: results
-        };
+        // Save scan results to database
+        const highConvictionCount = results.filter(r => r.tier === 'HIGH_CONVICTION').length;
+        const tradeableCount = results.filter(r => r.tier === 'TRADEABLE').length;
 
-        fs.writeFileSync(SCAN_OUTPUT_FILE, JSON.stringify(scanOutput, null, 2));
+        try {
+            const scanId = signalDb.insertEarningsScan({
+                timestamp: new Date().toISOString(),
+                strategy: 'PREM',
+                total_scanned: results.length,
+                high_conviction_count: highConvictionCount,
+                tradeable_count: tradeableCount
+            });
+
+            for (const result of results) {
+                signalDb.insertEarningsResult(scanId, result);
+            }
+
+            console.log(`[Scan] Saved ${results.length} earnings results to DB (scanId=${scanId})`);
+        } catch (e) {
+            console.error('[Scan] DB save error:', e.message);
+        }
 
         // Send alerts
         for (const alert of alerts) {
@@ -692,16 +702,16 @@ function startControlServer() {
         // GET /results
         if (req.method === 'GET' && url === '/results') {
             try {
-                if (fs.existsSync(SCAN_OUTPUT_FILE)) {
-                    const data = fs.readFileSync(SCAN_OUTPUT_FILE, 'utf8');
-                    res.writeHead(200);
-                    res.end(data);
+                const data = signalDb.getLatestEarningsScan();
+                if (data) {
+                    res.writeHead(200, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify(data));
                 } else {
-                    res.writeHead(404);
+                    res.writeHead(404, { 'Content-Type': 'application/json' });
                     res.end(JSON.stringify({ error: 'No scan results yet' }));
                 }
             } catch (e) {
-                res.writeHead(500);
+                res.writeHead(500, { 'Content-Type': 'application/json' });
                 res.end(JSON.stringify({ error: e.message }));
             }
             return;

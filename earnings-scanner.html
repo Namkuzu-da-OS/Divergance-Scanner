@@ -610,6 +610,7 @@
                         <div class="nav-dropdown-menu">
                             <a href="analytics.html">Analytics</a>
                             <a href="strategies.html">Strategies</a>
+                            <a href="options-lab.html">Options Lab</a>
                         </div>
                     </div>
                 </nav>
@@ -1048,68 +1049,6 @@
             }
         }
 
-        async function refreshCalendar() {
-            const btn = document.getElementById('refresh-btn');
-            const originalText = btn.textContent;
-            btn.classList.add('loading');
-            btn.disabled = true;
-
-            try {
-                // Trigger refresh - returns immediately, runs in background
-                const res = await fetch(`${SCANNER_API}/refresh-calendar`, { method: 'POST' });
-                const data = await res.json();
-
-                if (data.success) {
-                    // Show progress - refresh runs in background for 60-90 seconds
-                    btn.classList.remove('loading');
-                    btn.textContent = 'REFRESHING...';
-
-                    // Poll for completion by checking if calendar data has changed
-                    let pollCount = 0;
-                    const maxPolls = 12; // 12 * 10s = 120 seconds max wait
-                    const pollInterval = setInterval(async () => {
-                        pollCount++;
-                        btn.textContent = `REFRESHING... ${pollCount * 10}s`;
-
-                        // Try to fetch updated calendar
-                        try {
-                            await fetchCalendar();
-                        } catch (e) {
-                            // Ignore errors during polling
-                        }
-
-                        if (pollCount >= maxPolls) {
-                            clearInterval(pollInterval);
-                            btn.textContent = '✓ DONE';
-                            setTimeout(() => {
-                                btn.textContent = originalText;
-                                btn.disabled = false;
-                            }, 2000);
-                        }
-                    }, 10000);
-
-                    // Also refresh calendar immediately after 90 seconds and stop polling
-                    setTimeout(() => {
-                        clearInterval(pollInterval);
-                        fetchCalendar();
-                        btn.textContent = '✓ REFRESHED';
-                        setTimeout(() => {
-                            btn.textContent = originalText;
-                            btn.disabled = false;
-                        }, 2000);
-                    }, 90000);
-                } else {
-                    throw new Error(data.error || 'Refresh failed');
-                }
-            } catch (e) {
-                console.error('Calendar refresh failed:', e);
-                alert('Calendar refresh failed: ' + e.message);
-                btn.textContent = originalText;
-                btn.classList.remove('loading');
-                btn.disabled = false;
-            }
-        }
-
         function showDetail(symbol) {
             // Future: show modal with detailed analysis
             alert(`Detail view for ${symbol} coming soon!`);
@@ -1161,7 +1100,7 @@
                 <p style="margin-bottom: 16px;">The Earnings Scanner tracks stocks with <strong>upcoming earnings events</strong> and analyzes their options activity leading into the announcement. Use this to identify pre-earnings setups, avoid holding positions through earnings, or find premium-selling opportunities.</p>
 
                 <h3 style="color: #a855f7; margin-bottom: 12px; font-size: 14px;">DATA SOURCE</h3>
-                <p style="margin-bottom: 8px;"><strong>File:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">data/earnings-scan.json</code></p>
+                <p style="margin-bottom: 8px;"><strong>Source:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">SQLite earnings_scans/earnings_results</code></p>
                 <p style="margin-bottom: 8px;"><strong>Scanner:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">monitor/earnings-scanner.js</code></p>
                 <p style="margin-bottom: 16px;"><strong>Update Frequency:</strong> Every 5 minutes</p>
 

@@ -350,17 +350,20 @@ function httpGet(url, timeoutMs = 10000) {
 
 function isMarketHours() {
     const now = new Date();
-    const estOffset = -5; // EST offset from UTC (simplified)
-    const utcHour = now.getUTCHours();
-    const estHour = (utcHour + estOffset + 24) % 24;
 
-    const { startHour, endHour } = SETTINGS.marketHours;
-    const day = now.getUTCDay();
+    // Convert to Eastern Time (handles EST/EDT automatically)
+    const etString = now.toLocaleString('en-US', { timeZone: 'America/New_York' });
+    const etDate = new Date(etString);
+
+    const day = etDate.getDay();
 
     // Skip weekends
     if (day === 0 || day === 6) return false;
 
-    return estHour >= startHour && estHour < endHour;
+    const { startHour, endHour } = SETTINGS.marketHours;
+    const etHour = etDate.getHours();
+
+    return etHour >= startHour && etHour < endHour;
 }
 
 // ============================================
@@ -780,12 +783,7 @@ async function runScan() {
         summary
     };
 
-    // Write to file
-    const outputPath = path.join(__dirname, '..', 'data', 'opportunities.json');
-    fs.writeFileSync(outputPath, JSON.stringify(output, null, 2));
-    console.log(`[Opportunity] Wrote ${output.results.length} opportunities to ${outputPath}`);
-
-    // Save to SQLite for historical analysis
+    // Save to SQLite database (single source of truth)
     try {
         opportunityDb.saveScanResults(results, marketContext);
     } catch (e) {
@@ -1115,72 +1113,6 @@ function startControlServer() {
 }
 
 // ============================================
-// STALE DATA CLEANUP
-// ============================================
-
-function clearStaleDataOnStartup() {
-    const outputPath = path.join(__dirname, '..', 'data', 'opportunities.json');
-
-    try {
-        if (!fs.existsSync(outputPath)) {
-            console.log('[Opportunity] No existing data file found');
-            return;
-        }
-
-        const data = JSON.parse(fs.readFileSync(outputPath, 'utf8'));
-        if (!data.timestamp) {
-            console.log('[Opportunity] No timestamp in data file, clearing');
-            writeEmptyState(outputPath);
-            return;
-        }
-
-        const dataTime = new Date(data.timestamp);
-        const now = new Date();
-
-        // Check if data is from a different day
-        if (dataTime.toDateString() !== now.toDateString()) {
-            console.log(`[Opportunity] Data is from ${dataTime.toDateString()}, today is ${now.toDateString()} - CLEARING STALE DATA`);
-            writeEmptyState(outputPath);
-            return;
-        }
-
-        // Check if data is older than 15 minutes
-        const ageMinutes = (now - dataTime) / (1000 * 60);
-        if (ageMinutes > 15) {
-            console.log(`[Opportunity] Data is ${Math.floor(ageMinutes)} minutes old - CLEARING STALE DATA`);
-            writeEmptyState(outputPath);
-            return;
-        }
-
-        console.log(`[Opportunity] Existing data is fresh (${Math.floor(ageMinutes)} min old)`);
-    } catch (e) {
-        console.error('[Opportunity] Error checking stale data:', e.message);
-        writeEmptyState(outputPath);
-    }
-}
-
-function writeEmptyState(outputPath) {
-    const emptyState = {
-        timestamp: new Date().toISOString(),
-        scannerStatus: 'starting',
-        scannerMode: 'dynamic',
-        marketContext: null,
-        symbolsScanned: 0,
-        discoverySources: [],
-        results: [],
-        summary: {
-            highConviction: 0,
-            tradeable: 0,
-            watch: 0,
-            filtered: 0
-        },
-        message: 'Waiting for first scan...'
-    };
-    fs.writeFileSync(outputPath, JSON.stringify(emptyState, null, 2));
-    console.log('[Opportunity] Wrote empty state to clear stale data');
-}
-
-// ============================================
 // CLI COMMANDS
 // ============================================
 
@@ -1219,9 +1151,6 @@ if (args.includes('pause')) {
     console.log(`[Opportunity] Persistence filtering: MIN=${SETTINGS.MIN_PERSISTENCE_ALERT}, HIGH=${SETTINGS.HIGH_PERSISTENCE}`);
     console.log(`[Opportunity] Put hedging reinterpretation: ${SETTINGS.TREAT_PUT_HEAVY_AS_BULLISH ? 'ENABLED' : 'disabled'}`);
     console.log('[Opportunity] ========================================');
-
-    // Clear stale data from previous day/session
-    clearStaleDataOnStartup();
 
     // Start control server
     startControlServer();

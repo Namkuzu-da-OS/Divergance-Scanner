@@ -36,16 +36,28 @@ api-keys.json
 
 # Logs
 *.log
-logs/
+
+# Ignore all of logs/ except pm2 archives
+logs/*
+!logs/pm2/
+!logs/pm2/*.log
 
 # Temporary files
 *.tmp
 temp/
 
+# SQLite databases
+data/*.db
+data/*.db-shm
+data/*.db-wal
+data/*.db.backup
+
+# Archived data files
+data/archive/
+
 # Data files (local-only, customize as needed)
 # Uncomment if you want to exclude data files:
 # data/daily_log.md
-# archive/
 
 # Build outputs
 dist/
