@@ -101,8 +101,8 @@ const ETF_CATEGORIES = {
     commodities: ['GLD', 'SLV', 'USO', 'UNG'] // Gold, Silver, Oil, Natural Gas
 };
 
-// Watchlist path
-const WATCHLIST_PATH = path.join(__dirname, '..', 'data', 'watchlist.json');
+// Database for watchlist (single source of truth)
+const signalDb = require('./signal-db');
 
 // ============================================
 // DYNAMIC SYMBOL DISCOVERY
@@ -110,11 +110,9 @@ const WATCHLIST_PATH = path.join(__dirname, '..', 'data', 'watchlist.json');
 
 function loadWatchlist() {
     try {
-        const data = JSON.parse(fs.readFileSync(WATCHLIST_PATH, 'utf8'));
-        return data.symbols
-            .filter(s => s.enabled)
-            .map(s => s.symbol);
+        return signalDb.getWatchlist();
     } catch (e) {
+        console.error('[Opportunity] Watchlist DB read failed:', e.message);
         return [];
     }
 }

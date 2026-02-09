@@ -2303,6 +2303,15 @@ function setWatchlistEnabled(symbol, enabled) {
 }
 
 /**
+ * Update notes for a watchlist symbol (works on manual entries too)
+ */
+function setWatchlistNotes(symbol, notes) {
+    symbol = symbol.toUpperCase();
+    const result = getDb().prepare('UPDATE watchlist SET notes = ? WHERE symbol = ?').run(notes, symbol);
+    return result.changes > 0;
+}
+
+/**
  * Get enabled watchlist symbols (for scanners)
  */
 function getWatchlist() {
@@ -3018,6 +3027,7 @@ module.exports = {
     addToWatchlist,
     removeFromWatchlist,
     setWatchlistEnabled,
+    setWatchlistNotes,
     getWatchlist,
     getWatchlistFull,
     getWatchlistPartitioned,

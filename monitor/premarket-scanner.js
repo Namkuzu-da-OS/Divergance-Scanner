@@ -335,15 +335,13 @@ async function httpGet(url) {
 }
 
 /**
- * Load watchlist from file
+ * Load watchlist from SQLite database (single source of truth)
  */
 function loadWatchlist() {
     try {
-        const watchlistPath = path.join(__dirname, '..', 'data', 'watchlist.json');
-        const content = fs.readFileSync(watchlistPath, 'utf8');
-        const data = JSON.parse(content);
-        return data.symbols || [];
+        return signalDb.getWatchlist();
     } catch (e) {
+        console.error('[Premarket] Watchlist DB read failed:', e.message);
         return [];
     }
 }

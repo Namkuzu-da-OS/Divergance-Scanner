@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Watchlist Manager
+ * Watchlist Manager (SQLite-backed)
  *
  * Usage:
  *   node watchlist.js list              - Show all symbols
@@ -11,143 +11,97 @@
  *   node watchlist.js note SYMBOL "note" - Add note to symbol
  */
 
-const fs = require('fs');
-const path = require('path');
+const signalDb = require('./signal-db');
 
-const WATCHLIST_PATH = path.join(__dirname, '..', 'data', 'watchlist.json');
+function listSymbols() {
+    const entries = signalDb.getWatchlistFull();
 
-function loadWatchlist() {
-    try {
-        return JSON.parse(fs.readFileSync(WATCHLIST_PATH, 'utf8'));
-    } catch (e) {
-        return {
-            description: "Symbols to scan for buy/sell zones",
-            updated: new Date().toISOString().split('T')[0],
-            symbols: [],
-            settings: {
-                buyZoneThresholdPct: 0.5,
-                sellZoneThresholdPct: 0.5,
-                rsiOverbought: 75,
-                rsiOversold: 30,
-                alertCooldownMinutes: 60
-            }
-        };
-    }
-}
+    console.log('\n📋 WATCHLIST (SQLite)');
+    console.log('='.repeat(60));
 
-function saveWatchlist(watchlist) {
-    watchlist.updated = new Date().toISOString().split('T')[0];
-    fs.writeFileSync(WATCHLIST_PATH, JSON.stringify(watchlist, null, 2));
-}
-
-function listSymbols(watchlist) {
-    console.log('\n📋 WATCHLIST');
-    console.log('='.repeat(50));
-
-    if (watchlist.symbols.length === 0) {
+    if (entries.length === 0) {
         console.log('  (empty)');
         return;
     }
 
-    const enabled = watchlist.symbols.filter(s => s.enabled);
-    const disabled = watchlist.symbols.filter(s => !s.enabled);
+    const enabled = entries.filter(s => s.enabled);
+    const disabled = entries.filter(s => !s.enabled);
 
     if (enabled.length > 0) {
         console.log('\n✅ Enabled:');
-        enabled.forEach(s => {
-            console.log(`   ${s.symbol.padEnd(8)} ${s.notes || ''}`);
-        });
+        for (const s of enabled) {
+            const source = s.source ? ` [${s.source}]` : '';
+            const expires = s.expires_at ? ` (expires ${s.expires_at.split('T')[0]})` : '';
+            console.log(`   ${s.symbol.padEnd(8)} ${s.notes || ''}${source}${expires}`);
+        }
     }
 
     if (disabled.length > 0) {
         console.log('\n⏸️  Disabled:');
-        disabled.forEach(s => {
-            console.log(`   ${s.symbol.padEnd(8)} ${s.notes || ''}`);
-        });
+        for (const s of disabled) {
+            const source = s.source ? ` [${s.source}]` : '';
+            console.log(`   ${s.symbol.padEnd(8)} ${s.notes || ''}${source}`);
+        }
     }
 
-    console.log('\n' + '='.repeat(50));
-    console.log(`Total: ${watchlist.symbols.length} (${enabled.length} enabled)`);
+    console.log('\n' + '='.repeat(60));
+    console.log(`Total: ${entries.length} (${enabled.length} enabled)`);
 }
 
-function addSymbol(watchlist, symbol, notes = '') {
+function addSymbol(symbol, notes = '') {
     symbol = symbol.toUpperCase();
-
-    const existing = watchlist.symbols.find(s => s.symbol === symbol);
-    if (existing) {
-        console.log(`⚠️  ${symbol} already in watchlist`);
-        if (!existing.enabled) {
-            existing.enabled = true;
-            saveWatchlist(watchlist);
-            console.log(`✅ Re-enabled ${symbol}`);
-        }
-        return;
-    }
-
-    watchlist.symbols.push({
-        symbol,
-        enabled: true,
-        notes: notes || `Added ${new Date().toLocaleDateString()}`
+    const result = signalDb.addToWatchlist(symbol, {
+        source: 'manual',
+        notes: notes || null
     });
 
-    saveWatchlist(watchlist);
-    console.log(`✅ Added ${symbol} to watchlist`);
-}
-
-function removeSymbol(watchlist, symbol) {
-    symbol = symbol.toUpperCase();
-
-    const index = watchlist.symbols.findIndex(s => s.symbol === symbol);
-    if (index === -1) {
-        console.log(`⚠️  ${symbol} not in watchlist`);
-        return;
+    if (result.action === 'skipped_manual') {
+        console.log(`⚠️  ${symbol} already in watchlist (manual entry)`);
+    } else if (result.action === 'updated') {
+        console.log(`✅ Updated ${symbol} in watchlist`);
+    } else {
+        console.log(`✅ Added ${symbol} to watchlist`);
     }
-
-    watchlist.symbols.splice(index, 1);
-    saveWatchlist(watchlist);
-    console.log(`🗑️  Removed ${symbol} from watchlist`);
 }
 
-function enableSymbol(watchlist, symbol) {
+function removeSymbol(symbol) {
     symbol = symbol.toUpperCase();
+    const removed = signalDb.removeFromWatchlist(symbol);
+    if (removed) {
+        console.log(`🗑️  Removed ${symbol} from watchlist`);
+    } else {
+        console.log(`⚠️  ${symbol} not in watchlist`);
+    }
+}
 
-    const entry = watchlist.symbols.find(s => s.symbol === symbol);
-    if (!entry) {
+function enableSymbol(symbol) {
+    symbol = symbol.toUpperCase();
+    const updated = signalDb.setWatchlistEnabled(symbol, true);
+    if (updated) {
+        console.log(`✅ Enabled ${symbol}`);
+    } else {
         console.log(`⚠️  ${symbol} not in watchlist. Use 'add' first.`);
-        return;
     }
-
-    entry.enabled = true;
-    saveWatchlist(watchlist);
-    console.log(`✅ Enabled ${symbol}`);
 }
 
-function disableSymbol(watchlist, symbol) {
+function disableSymbol(symbol) {
     symbol = symbol.toUpperCase();
-
-    const entry = watchlist.symbols.find(s => s.symbol === symbol);
-    if (!entry) {
+    const updated = signalDb.setWatchlistEnabled(symbol, false);
+    if (updated) {
+        console.log(`⏸️  Disabled ${symbol} (still in list)`);
+    } else {
         console.log(`⚠️  ${symbol} not in watchlist`);
-        return;
     }
-
-    entry.enabled = false;
-    saveWatchlist(watchlist);
-    console.log(`⏸️  Disabled ${symbol} (still in list)`);
 }
 
-function setNote(watchlist, symbol, note) {
+function setNote(symbol, note) {
     symbol = symbol.toUpperCase();
-
-    const entry = watchlist.symbols.find(s => s.symbol === symbol);
-    if (!entry) {
+    const updated = signalDb.setWatchlistNotes(symbol, note);
+    if (updated) {
+        console.log(`📝 Updated note for ${symbol}`);
+    } else {
         console.log(`⚠️  ${symbol} not in watchlist`);
-        return;
     }
-
-    entry.notes = note;
-    saveWatchlist(watchlist);
-    console.log(`📝 Updated note for ${symbol}`);
 }
 
 // Main
@@ -156,13 +110,11 @@ const command = args[0]?.toLowerCase();
 const symbol = args[1];
 const extra = args.slice(2).join(' ');
 
-const watchlist = loadWatchlist();
-
 switch (command) {
     case 'list':
     case 'ls':
     case undefined:
-        listSymbols(watchlist);
+        listSymbols();
         break;
 
     case 'add':
@@ -171,7 +123,7 @@ switch (command) {
             console.log('Usage: node watchlist.js add SYMBOL [notes]');
             process.exit(1);
         }
-        addSymbol(watchlist, symbol, extra);
+        addSymbol(symbol, extra);
         break;
 
     case 'remove':
@@ -182,7 +134,7 @@ switch (command) {
             console.log('Usage: node watchlist.js remove SYMBOL');
             process.exit(1);
         }
-        removeSymbol(watchlist, symbol);
+        removeSymbol(symbol);
         break;
 
     case 'enable':
@@ -191,7 +143,7 @@ switch (command) {
             console.log('Usage: node watchlist.js enable SYMBOL');
             process.exit(1);
         }
-        enableSymbol(watchlist, symbol);
+        enableSymbol(symbol);
         break;
 
     case 'disable':
@@ -200,7 +152,7 @@ switch (command) {
             console.log('Usage: node watchlist.js disable SYMBOL');
             process.exit(1);
         }
-        disableSymbol(watchlist, symbol);
+        disableSymbol(symbol);
         break;
 
     case 'note':
@@ -208,14 +160,14 @@ switch (command) {
             console.log('Usage: node watchlist.js note SYMBOL "your note"');
             process.exit(1);
         }
-        setNote(watchlist, symbol, extra);
+        setNote(symbol, extra);
         break;
 
     case 'help':
     case '-h':
     case '--help':
         console.log(`
-Watchlist Manager
+Watchlist Manager (SQLite-backed)
 
 Usage:
   node watchlist.js list              Show all symbols

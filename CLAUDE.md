@@ -357,7 +357,7 @@ Bloodhound uses a two-tier discovery system. Static symbols get **reserved slots
 
 **Slot math:** `maxSymbols` (50) - static count (9) = 41 dynamic slots.
 
-Note: `data/watchlist.json` is no longer read by the discovery path. The database is the sole source of truth for watchlist. The JSON file is still used by the HTTP watchlist API endpoints.
+Note: `data/watchlist.json` is no longer used by ANY production code path. The SQLite `watchlist` table (via `signal-db.js` functions) is the sole source of truth for all scanners, HTTP API endpoints, and the CLI tool.
 
 ### Symbol Mapping
 

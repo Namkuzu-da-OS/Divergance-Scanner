@@ -652,8 +652,6 @@ function classifyWallActivity(optionsAnalysis, wallPrice, wallType, wallExpirati
 // WATCHLIST LOADING (Database only)
 // ============================================
 
-const WATCHLIST_PATH = path.join(__dirname, '..', 'data', 'watchlist.json');
-
 function loadWatchlist() {
     try {
         // Clean expired entries first
@@ -1825,12 +1823,12 @@ function startControlServer() {
             return;
         }
 
-        // GET /watchlist - Get current watchlist
+        // GET /watchlist - Get current watchlist (from SQLite)
         if (req.method === 'GET' && url === '/watchlist') {
             try {
-                const data = JSON.parse(fs.readFileSync(WATCHLIST_PATH, 'utf8'));
+                const entries = signalDb.getWatchlistFull();
                 res.writeHead(200);
-                res.end(JSON.stringify(data));
+                res.end(JSON.stringify({ symbols: entries }));
             } catch (e) {
                 res.writeHead(500);
                 res.end(JSON.stringify({ error: 'Failed to load watchlist' }));
@@ -1838,7 +1836,7 @@ function startControlServer() {
             return;
         }
 
-        // POST /watchlist/add - Add symbol to watchlist
+        // POST /watchlist/add - Add symbol to watchlist (SQLite)
         if (req.method === 'POST' && url.startsWith('/watchlist/add')) {
             let body = '';
             req.on('data', chunk => body += chunk);
@@ -1851,24 +1849,19 @@ function startControlServer() {
                         return;
                     }
                     const ticker = symbol.toUpperCase().trim();
-                    const data = JSON.parse(fs.readFileSync(WATCHLIST_PATH, 'utf8'));
+                    const result = signalDb.addToWatchlist(ticker, {
+                        source: 'manual',
+                        notes: notes || null
+                    });
 
-                    // Check if already exists
-                    if (data.symbols.some(s => s.symbol === ticker)) {
+                    if (result.action === 'skipped_manual') {
                         res.writeHead(400);
                         res.end(JSON.stringify({ error: `${ticker} already in watchlist` }));
                         return;
                     }
 
-                    data.symbols.push({
-                        symbol: ticker,
-                        enabled: true,
-                        notes: notes || ''
-                    });
-                    fs.writeFileSync(WATCHLIST_PATH, JSON.stringify(data, null, 2));
-                    console.log(`[Watchlist] Added ${ticker}`);
                     res.writeHead(200);
-                    res.end(JSON.stringify({ success: true, symbol: ticker }));
+                    res.end(JSON.stringify({ success: true, symbol: ticker, action: result.action }));
                 } catch (e) {
                     res.writeHead(500);
                     res.end(JSON.stringify({ error: e.message }));
@@ -1877,7 +1870,7 @@ function startControlServer() {
             return;
         }
 
-        // POST /watchlist/remove - Remove symbol from watchlist
+        // POST /watchlist/remove - Remove symbol from watchlist (SQLite)
         if (req.method === 'POST' && url.startsWith('/watchlist/remove')) {
             let body = '';
             req.on('data', chunk => body += chunk);
@@ -1890,18 +1883,14 @@ function startControlServer() {
                         return;
                     }
                     const ticker = symbol.toUpperCase().trim();
-                    const data = JSON.parse(fs.readFileSync(WATCHLIST_PATH, 'utf8'));
-                    const idx = data.symbols.findIndex(s => s.symbol === ticker);
+                    const removed = signalDb.removeFromWatchlist(ticker);
 
-                    if (idx === -1) {
+                    if (!removed) {
                         res.writeHead(400);
                         res.end(JSON.stringify({ error: `${ticker} not in watchlist` }));
                         return;
                     }
 
-                    data.symbols.splice(idx, 1);
-                    fs.writeFileSync(WATCHLIST_PATH, JSON.stringify(data, null, 2));
-                    console.log(`[Watchlist] Removed ${ticker}`);
                     res.writeHead(200);
                     res.end(JSON.stringify({ success: true, symbol: ticker }));
                 } catch (e) {

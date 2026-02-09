@@ -19,7 +19,7 @@ pm2 logs webserver            # Dashboard server
 ## Dynamic Scanner
 
 **No hardcoded watchlist.** Bloodhound dynamically discovers symbols from:
-1. **Watchlist** (SQLite `watchlist` table + `data/watchlist.json` fallback)
+1. **Watchlist** (SQLite `watchlist` table via `signal-db.js`)
 2. **Market Data** (`/api/latest`) - 52-week extremes, volume spikes
 3. **Sector Rotation** - Strongest/weakest sector ETFs
 
@@ -49,14 +49,15 @@ Bloodhound applies these zones to determine tradeability:
 
 ### Watchlist
 
-Edit `../data/watchlist.json` - symbols here are always included in Bloodhound scans:
-```json
-{
-  "symbols": [
-    {"symbol": "SPY", "enabled": true},
-    {"symbol": "IBIT", "enabled": true}
-  ]
-}
+Manage the watchlist via CLI or API — all backed by SQLite:
+```bash
+node monitor/watchlist.js list              # Show all symbols
+node monitor/watchlist.js add SYMBOL        # Add symbol
+node monitor/watchlist.js remove SYMBOL     # Remove symbol
+
+# Or via Bloodhound HTTP API (port 8081):
+curl http://localhost:8081/watchlist
+curl -X POST http://localhost:8081/watchlist/add -H 'Content-Type: application/json' -d '{"symbol":"AAPL"}'
 ```
 
 ---

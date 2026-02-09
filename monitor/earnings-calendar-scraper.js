@@ -17,7 +17,7 @@ const path = require('path');
 const config = require('./config.json');
 const DATA_DIR = path.join(__dirname, '..', 'data');
 const OUTPUT_FILE = path.join(DATA_DIR, 'earnings-calendar.json');
-const WATCHLIST_FILE = path.join(DATA_DIR, 'watchlist.json');
+const signalDb = require('./signal-db');
 
 const OPTIONS_API = config.apis.options || 'http://192.168.10.60:8000';
 
@@ -70,16 +70,13 @@ async function fetchEarningsForSymbol(symbol) {
 }
 
 /**
- * Load watchlist symbols
+ * Load watchlist symbols from SQLite database (single source of truth)
  */
 function loadWatchlist() {
     try {
-        const data = JSON.parse(fs.readFileSync(WATCHLIST_FILE, 'utf8'));
-        return data.symbols
-            .filter(s => s.enabled !== false)
-            .map(s => s.symbol);
+        return signalDb.getWatchlist();
     } catch (error) {
-        console.error('Error reading watchlist:', error.message);
+        console.error('Error reading watchlist from DB:', error.message);
         return [];
     }
 }
