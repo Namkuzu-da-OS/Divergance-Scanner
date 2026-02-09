@@ -1,0 +1,289 @@
+
+============================================================
+[2026-02-09T20:42:41.843Z] Running Bloodhound scan...
+============================================================
+[Backoff] ⚠️ ACTIVATED - 3 slow responses (>5000ms)
+[Backoff]    Switching to batched mode: 5 symbols, 300ms delay
+[Backoff] 📊 Active (slow: 3, fast: 0)
+[Context] VIX: 17.32 (normal) | SPY: neutral
+[Watchlist] Loaded 28 from database
+[Watchlist] Loaded 9 from JSON
+[Watchlist] Loaded 28 symbols: RGTI, MSTR, LBTYB, IREN, AMZN, GOOG, GOOGL, BNAI, QCOM, CMG, BSX, UBER, ORCL, PFE, SMCI, PYPL, DIS, HOOD, ELPW, MSFT, META, AAPL, AMD, IBIT, TSLA, NVDA, QQQ, SPY
+[Discovery] Sources: watchlist, market data, sector rotation
+[Discovery] Found 20 symbols to scan
+[Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+[Bias] Intraday: NEUTRAL | Swing: BULLISH
+[Top Discoveries]
+  1. SPY (score: 125, watchlist+market_data)
+  2. RGTI (score: 100, watchlist)
+  3. MSTR (score: 100, watchlist)
+  4. LBTYB (score: 100, watchlist)
+  5. IREN (score: 100, watchlist)
+  6. AMZN (score: 100, watchlist)
+  7. GOOG (score: 100, watchlist)
+  8. GOOGL (score: 100, watchlist)
+[Backoff] Batch 1 complete, waiting 300ms...
+[Backoff] 📊 Active (slow: 4, fast: 3)
+[Backoff] Batch 2 complete, waiting 300ms...
+[Backoff] Batch 3 complete, waiting 300ms...
+[Backoff] ✅ RECOVERED - 10 fast responses, resuming parallel mode
+
+[VELOCITY ALERTS]
+  🚀 AMZN: +30 pts (65→95) 📍
+
+[History] Updating scanner history for 17 symbols...
+[History] Updated 17 symbols in database.
+
+[Results] Analyzed 17 symbols:
+  ✅ AMZN: 95/100 📍 - VELOCITY +30 pts, ⭐ PRIME SETUP: Wall + Extended RSI
+  ✅ GOOGL: 71/100 📍 - At lower Bollinger Band, 📐 At Golden Pocket (0.618 @ $322.71)
+  ✅ QCOM: 62/100 📍 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI oversold (20.2)
+  ✅ MSTR: 60/100 📍 - 📐 At Golden Pocket (0.618 @ $137.03), 🚀 BREAKOUT above call wall ($135) +1.7%
+  ✅ ORCL: 55/100 🟢 - RSI oversold (19.9), At lower Bollinger Band
+  ✅ HOOD: 55/100 🟢 - RSI oversold (23.4), 🚀 BREAKOUT above call wall ($84) +3.9%
+  ✅ IREN: 51/100 🟢 - At lower Bollinger Band, 📐 At Golden Pocket (0.618 @ $46.86)
+  ✅ GOOG: 51/100 🟢 - At lower Bollinger Band, 📐 At Golden Pocket (0.618 @ $323.43)
+  ✅ BSX: 38/100 🔴 - At lower Bollinger Band, 💥 BREAKDOWN below put wall ($82) -10.2%
+  ✅ SPY: 35/100 📍 - 📍 PINNED between walls ($694-$695), Confluence zone (4 levels)
+  ⬜ PFE: 34/100 🔴 - At upper Bollinger Band, At call wall resistance ($27)
+  ⬜ UBER: 33/100 🔴 - RSI oversold (23.7), At lower Bollinger Band
+  ⬜ PYPL: 33/100 🔴 - RSI oversold (12.0), 💥 BREAKDOWN below put wall ($42) -2.1%
+  ⬜ RGTI: 31/100 🟢 - RSI oversold (28.1), 🎯 0.618 Fib ($19) = Put Wall ($17.5)
+  ⬜ CMG: 28/100 📍 - 📐 At Golden Pocket (0.618 @ $38.95), 📍 PINNED between walls ($39-$39.5)
+  ⬜ DIS: 25/100 📍 - 📐 At Golden Pocket (0.618 @ $107.55), 📍 PINNED between walls ($107-$108)
+  ⬜ SMCI: 8/100 ⚪ - At upper Bollinger Band, 🎯 0.5 Fib ($31) = Put Wall ($33)
+
+[Tiers] HIGH_CONVICTION: 0 | TRADEABLE: 0 | WATCH: 12 | FILTERED: 5
+[WATCH LIST]
+  👀 GOOGL: 71/100 
+  👀 QCOM: 62/100 (dormant wall)
+  👀 MSTR: 60/100 
+  👀 ORCL: 55/100 
+  👀 IREN: 51/100 (waiting for level)
+
+[Alerts] No high-conviction opportunities (0 tradeable, 12 on watch)
+[SignalDB] Inserted 17 bloodhound results for scan 349
+[Bloodhound] Wrote 17 results to database (scan_id: 349)
+
+[Bloodhound] Scan complete (85s). Next scan in 5 minutes.
+[Signal Logger] Price cache built with 17 symbols
+[Signal Logger] Updated prices for 5 signal(s), 1 option(s) (5 cached, 0 API)
+
+============================================================
+[2026-02-09T20:47:41.845Z] Running Bloodhound scan...
+============================================================
+[Context] VIX: 17.28 (normal) | SPY: neutral
+[Watchlist] Loaded 28 from database
+[Watchlist] Loaded 9 from JSON
+[Watchlist] Loaded 28 symbols: RGTI, MSTR, LBTYB, IREN, AMZN, GOOG, GOOGL, BNAI, QCOM, CMG, BSX, UBER, ORCL, PFE, SMCI, PYPL, DIS, HOOD, ELPW, MSFT, META, AAPL, AMD, IBIT, TSLA, NVDA, QQQ, SPY
+[Discovery] Sources: watchlist, market data, sector rotation
+[Discovery] Found 20 symbols to scan
+[Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+[Bias] Intraday: NEUTRAL | Swing: BULLISH
+[Top Discoveries]
+  1. SPY (score: 125, watchlist+market_data)
+  2. RGTI (score: 100, watchlist)
+  3. MSTR (score: 100, watchlist)
+  4. LBTYB (score: 100, watchlist)
+  5. IREN (score: 100, watchlist)
+  6. AMZN (score: 100, watchlist)
+  7. GOOG (score: 100, watchlist)
+  8. GOOGL (score: 100, watchlist)
+[Backoff] ⚠️ ACTIVATED - 3 slow responses (>5000ms)
+[Backoff]    Switching to batched mode: 5 symbols, 300ms delay
+[Backoff] 📊 Active (slow: 3, fast: 0)
+[Backoff] Batch 1 complete, waiting 300ms...
+[Backoff] Batch 2 complete, waiting 300ms...
+[Backoff] 📊 Active (slow: 3, fast: 7)
+[Backoff] Batch 3 complete, waiting 300ms...
+
+[VELOCITY ALERTS]
+  🚀 AMZN: +30 pts (65→95) 📍
+
+[History] Updating scanner history for 17 symbols...
+[History] Updated 17 symbols in database.
+
+[Results] Analyzed 17 symbols:
+  ✅ AMZN: 95/100 📍 - VELOCITY +30 pts, ⭐ PRIME SETUP: Wall + Extended RSI
+  ✅ GOOGL: 71/100 📍 - At lower Bollinger Band, 📐 At Golden Pocket (0.618 @ $322.71)
+  ✅ QCOM: 62/100 📍 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI oversold (20.2)
+  ✅ MSTR: 60/100 📍 - 📐 At Golden Pocket (0.618 @ $137.03), 🚀 BREAKOUT above call wall ($135) +2.3%
+  ✅ ORCL: 55/100 🟢 - RSI oversold (19.9), At lower Bollinger Band
+  ✅ HOOD: 55/100 🟢 - RSI oversold (23.4), 🚀 BREAKOUT above call wall ($84) +3.7%
+  ✅ IREN: 51/100 🟢 - At lower Bollinger Band, 📐 At Golden Pocket (0.618 @ $46.86)
+  ✅ GOOG: 51/100 🟢 - At lower Bollinger Band, 📐 At Golden Pocket (0.618 @ $323.43)
+  ✅ PFE: 39/100 🔴 - At upper Bollinger Band, At call wall resistance ($27)
+  ✅ BSX: 38/100 🔴 - At lower Bollinger Band, 💥 BREAKDOWN below put wall ($82) -10.2%
+  ✅ SPY: 35/100 📍 - 📍 PINNED between walls ($695-$695), Confluence zone (4 levels)
+  ⬜ UBER: 33/100 🔴 - RSI oversold (23.7), At lower Bollinger Band
+  ⬜ PYPL: 33/100 🔴 - RSI oversold (12.0), 💥 BREAKDOWN below put wall ($42) -2.2%
+  ⬜ RGTI: 31/100 🟢 - RSI oversold (28.1), 🎯 0.618 Fib ($19) = Put Wall ($17.5)
+  ⬜ CMG: 28/100 📍 - 📐 At Golden Pocket (0.618 @ $38.95), 📍 PINNED between walls ($39-$39.5)
+  ⬜ DIS: 28/100 🟢 - 📐 At Golden Pocket (0.618 @ $107.55), At put wall support ($107)
+  ⬜ SMCI: 23/100 📍 - At upper Bollinger Band, 🚀 BREAKOUT above call wall ($27.5) +17.9%
+
+[Tiers] HIGH_CONVICTION: 0 | TRADEABLE: 0 | WATCH: 12 | FILTERED: 5
+[WATCH LIST]
+  👀 GOOGL: 71/100 
+  👀 QCOM: 62/100 (dormant wall)
+  👀 ORCL: 55/100 
+  👀 IREN: 51/100 (waiting for level)
+  👀 GOOG: 51/100 (dormant wall)
+
+[Alerts] No high-conviction opportunities (0 tradeable, 12 on watch)
+[SignalDB] Inserted 17 bloodhound results for scan 350
+[Bloodhound] Wrote 17 results to database (scan_id: 350)
+
+[Bloodhound] Scan complete (80s). [BACKOFF ACTIVE: batch 5, delay 300ms] Next scan in 5 minutes.
+[Signal Logger] Price cache built with 17 symbols
+[Signal Logger] Updated prices for 5 signal(s), 1 option(s) (5 cached, 0 API)
+
+============================================================
+[2026-02-09T20:52:41.845Z] Running Bloodhound scan...
+============================================================
+[Backoff] 📊 Active (slow: 5, fast: 0)
+[Context] Could not fetch market context
+[Watchlist] Loaded 28 from database
+[Watchlist] Loaded 9 from JSON
+[Watchlist] Loaded 28 symbols: RGTI, MSTR, LBTYB, IREN, AMZN, GOOG, GOOGL, BNAI, QCOM, CMG, BSX, UBER, ORCL, PFE, SMCI, PYPL, DIS, HOOD, ELPW, MSFT, META, AAPL, AMD, IBIT, TSLA, NVDA, QQQ, SPY
+[Discovery] Sources: watchlist, market data, sector rotation
+[Discovery] Found 20 symbols to scan
+[Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+[Bias] Intraday: NEUTRAL | Swing: BULLISH
+[Top Discoveries]
+  1. SPY (score: 125, watchlist+market_data)
+  2. RGTI (score: 100, watchlist)
+  3. MSTR (score: 100, watchlist)
+  4. LBTYB (score: 100, watchlist)
+  5. IREN (score: 100, watchlist)
+  6. AMZN (score: 100, watchlist)
+  7. GOOG (score: 100, watchlist)
+  8. GOOGL (score: 100, watchlist)
+[Backoff] Batch 1 complete, waiting 300ms...
+[Backoff] 📊 Active (slow: 7, fast: 4)
+[Backoff] Batch 2 complete, waiting 300ms...
+[Backoff] ✅ RECOVERED - 10 fast responses, resuming parallel mode
+
+[VELOCITY ALERTS]
+  🚀 AMZN: +30 pts (65→95) 📍
+
+[History] Updating scanner history for 16 symbols...
+[History] Updated 16 symbols in database.
+
+[Results] Analyzed 16 symbols:
+  ✅ AMZN: 95/100 📍 - VELOCITY +30 pts, ⭐ PRIME SETUP: Wall + Extended RSI
+  ✅ GOOGL: 68/100 📍 - At lower Bollinger Band, 📐 At Golden Pocket (0.618 @ $322.71)
+  ✅ QCOM: 62/100 📍 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI oversold (20.2)
+  ✅ MSTR: 57/100 📍 - 📐 At Golden Pocket (0.618 @ $137.03), 🚀 BREAKOUT above call wall ($135) +2.4%
+  ✅ ORCL: 52/100 🟢 - RSI oversold (19.9), At lower Bollinger Band
+  ✅ HOOD: 52/100 🟢 - RSI oversold (23.4), 🚀 BREAKOUT above call wall ($84) +3.2%
+  ✅ IREN: 48/100 🟢 - At lower Bollinger Band, 📐 At Golden Pocket (0.618 @ $46.86)
+  ✅ GOOG: 43/100 🟢 - At lower Bollinger Band, 📐 At Golden Pocket (0.618 @ $323.43)
+  ✅ CMG: 43/100 🟢 - 📐 At Golden Pocket (0.618 @ $38.95), At call wall resistance ($39.5)
+  ✅ PFE: 39/100 🔴 - At upper Bollinger Band, At call wall resistance ($27)
+  ✅ BSX: 38/100 🔴 - At lower Bollinger Band, 💥 BREAKDOWN below put wall ($75) -1.0%
+  ✅ UBER: 38/100 🔴 - RSI oversold (23.7), At lower Bollinger Band
+  ⬜ PYPL: 33/100 🔴 - RSI oversold (12.0), 💥 BREAKDOWN below put wall ($42) -2.1%
+  ⬜ RGTI: 28/100 🟢 - RSI oversold (28.1), 🎯 0.618 Fib ($19) = Put Wall ($17.5)
+  ⬜ SMCI: 13/100 ⚪ - At upper Bollinger Band, 🎯 0.5 Fib ($31) = Put Wall ($33)
+  ⬜ DIS: 13/100 🔴 - 📐 At Golden Pocket (0.618 @ $107.55), 💥 BREAKDOWN below put wall ($114) -6.7%
+
+[Tiers] HIGH_CONVICTION: 0 | TRADEABLE: 0 | WATCH: 10 | FILTERED: 6
+[WATCH LIST]
+  👀 GOOGL: 68/100 
+  👀 QCOM: 62/100 (dormant wall)
+  👀 ORCL: 52/100 
+  👀 IREN: 48/100 (waiting for level)
+  👀 GOOG: 43/100 (dormant wall)
+
+[Alerts] No high-conviction opportunities (0 tradeable, 10 on watch)
+[SignalDB] Inserted 16 bloodhound results for scan 351
+[Bloodhound] Wrote 16 results to database (scan_id: 351)
+
+[Bloodhound] Scan complete (75s). Next scan in 5 minutes.
+[Signal Logger] Price cache built with 16 symbols
+[Signal Logger] Updated prices for 5 signal(s), 1 option(s) (5 cached, 0 API)
+============================================================
+       BLOODHOUND SCANNER
+       Autonomous Opportunity Detection
+============================================================
+Intel API: http://192.168.10.60:3000
+Options API: http://192.168.10.60:8000
+Min Confluence Score: 35/100 (data-driven)
+Scan Interval: 300s
+============================================================
+
+============================================================
+[2026-02-09T20:56:44.765Z] Running Bloodhound scan...
+============================================================
+[Control] HTTP control server on http://0.0.0.0:8081 (accessible from network)
+         GET  /status  - Check scanner status
+         POST /pause   - Pause scanner
+         POST /resume  - Resume scanner
+[Context] VIX: 17.33 (normal) | SPY: neutral
+[Watchlist] Loaded 28 from database
+[Watchlist] Loaded 9 from JSON
+[Watchlist] Loaded 28 symbols: RGTI, MSTR, LBTYB, IREN, AMZN, GOOG, GOOGL, BNAI, QCOM, CMG, BSX, UBER, ORCL, PFE, SMCI, PYPL, DIS, HOOD, ELPW, MSFT, META, AAPL, AMD, IBIT, TSLA, NVDA, QQQ, SPY
+[Discovery] Sources: watchlist, market data, sector rotation
+[Discovery] Found 20 symbols to scan
+[Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+[Bias] Intraday: NEUTRAL | Swing: BULLISH
+[Top Discoveries]
+  1. SPY (score: 125, watchlist+market_data)
+  2. RGTI (score: 100, watchlist)
+  3. MSTR (score: 100, watchlist)
+  4. LBTYB (score: 100, watchlist)
+  5. IREN (score: 100, watchlist)
+  6. AMZN (score: 100, watchlist)
+  7. GOOG (score: 100, watchlist)
+  8. GOOGL (score: 100, watchlist)
+
+[VELOCITY ALERTS]
+  🚀 AMZN: +22 pts (65→87) 📍
+
+[History] Updating scanner history for 17 symbols...
+[History] Updated 17 symbols in database.
+
+[Results] Analyzed 17 symbols:
+  ✅ AMZN: 87/100 📍 - VELOCITY +22 pts, ⭐ PRIME SETUP: Wall + Extended RSI
+  ✅ GOOGL: 68/100 📍 - At lower Bollinger Band, 📐 At Golden Pocket (0.618 @ $322.71)
+  ✅ RGTI: 63/100 🟢 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI oversold (28.1)
+  ✅ QCOM: 62/100 📍 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI oversold (20.2)
+  ✅ MSTR: 60/100 📍 - 📐 At Golden Pocket (0.618 @ $137.03), 🚀 BREAKOUT above call wall ($135) +2.5%
+  ✅ ORCL: 55/100 🟢 - RSI oversold (19.9), At lower Bollinger Band
+  ✅ HOOD: 55/100 🟢 - RSI oversold (23.4), 🚀 BREAKOUT above call wall ($84) +2.8%
+  ✅ GOOG: 46/100 🟢 - At lower Bollinger Band, 📐 At Golden Pocket (0.618 @ $323.43)
+  ✅ CMG: 46/100 🟢 - 📐 At Golden Pocket (0.618 @ $38.95), At call wall resistance ($39.5)
+  ✅ SPY: 43/100 📍 - 📐 At Golden Pocket (0.618 @ $684.21), 📐 Golden Pocket + SMA 20 confluence
+  ✅ IREN: 43/100 🟢 - At lower Bollinger Band, Elevated volume (1.5x avg)
+  ✅ BSX: 38/100 🔴 - At lower Bollinger Band, 💥 BREAKDOWN below put wall ($82) -10.4%
+  ✅ UBER: 38/100 🔴 - RSI oversold (23.7), At lower Bollinger Band
+  ⬜ PFE: 34/100 🔴 - At upper Bollinger Band, At call wall resistance ($27)
+  ⬜ PYPL: 33/100 🔴 - RSI oversold (12.0), 💥 BREAKDOWN below put wall ($42) -2.0%
+  ⬜ DIS: 25/100 📍 - 📐 At Golden Pocket (0.618 @ $107.55), 📍 PINNED between walls ($107-$108)
+  ⬜ SMCI: 13/100 ⚪ - At upper Bollinger Band, 🎯 0.5 Fib ($31) = Put Wall ($33)
+
+[Tiers] HIGH_CONVICTION: 0 | TRADEABLE: 0 | WATCH: 12 | FILTERED: 5
+[WATCH LIST]
+  👀 AMZN: 87/100 (dormant wall)
+  👀 GOOGL: 68/100 
+  👀 RGTI: 63/100 (dormant wall)
+  👀 QCOM: 62/100 (dormant wall)
+  👀 ORCL: 55/100 
+
+[Alerts] No high-conviction opportunities (0 tradeable, 12 on watch)
+[SignalDB] Inserted 17 bloodhound results for scan 352
+[Bloodhound] Wrote 17 results to database (scan_id: 352)
+
+[Bloodhound] Scan complete (50s). Next scan in 5 minutes.
+[Signal Logger] Price cache built with 17 symbols
+[Signal Logger] Updated prices for 5 signal(s), 1 option(s) (5 cached, 0 API)
+
+Bloodhound running. Press Ctrl+C to stop.
+Commands: node bloodhound-scanner.js [pause|resume|status]
+
+[2026-02-09T21:02:35.133Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Tomorrow 9:30 AM ET (6:30 AM PST)
+
+[2026-02-09T21:07:35.133Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Tomorrow 9:30 AM ET (6:30 AM PST)
