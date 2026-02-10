@@ -1,9 +1,8 @@
 <!--
-WINGMAN MARKET SCANNER
-======================
-Real-time market structure display pulling from both data backends.
-- Port 3000: Market Intelligence (VIX, ETF data)
-- Port 8000: Options Analytics (GEX, gamma walls, levels)
+WINGMAN MARKET DASHBOARD
+========================
+Real-time market internals, structure, and gamma positioning.
+Sources: /api/scan/summary, /api/internals/latest, /api/internals/history
 
 Auto-refreshes every 30 seconds.
 -->
@@ -12,7 +11,8 @@ Auto-refreshes every 30 seconds.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wingman Market Scanner</title>
+    <title>Wingman Market Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -59,6 +59,7 @@ Auto-refreshes every 30 seconds.
 
         .status-dot.error { background: #ff6b6b; box-shadow: 0 0 8px rgba(255, 107, 107, 0.4); }
         .status-dot.warning { background: #ffc107; box-shadow: 0 0 8px rgba(255, 193, 7, 0.4); }
+        .status-dot.stale { background: #4b5563; box-shadow: none; animation: none; }
 
         @keyframes pulse {
             0%, 100% { opacity: 1; }
@@ -84,7 +85,7 @@ Auto-refreshes every 30 seconds.
             color: #0a0e1a;
         }
 
-        /* Grid layout */
+        /* Grid layouts */
         .main-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -138,6 +139,108 @@ Auto-refreshes every 30 seconds.
         .vix-info h2 { font-size: 20px; margin-bottom: 4px; }
         .vix-info .subtitle { color: #8b92a8; font-size: 12px; }
         .vix-value { font-size: 32px; font-weight: 700; }
+
+        /* Pinned Alert */
+        .pinned-alert {
+            background: linear-gradient(135deg, #2a2030 0%, #151821 100%);
+            border: 1px solid #9b59b6;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .pinned-icon { font-size: 32px; }
+        .pinned-text h3 { color: #9b59b6; margin-bottom: 4px; }
+        .pinned-text p { font-size: 12px; color: #c5c9d4; }
+
+        /* Context Cards */
+        .context-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .context-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .context-card {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .context-label { font-size: 10px; color: #8b92a8; text-transform: uppercase; margin-bottom: 6px; }
+        .context-value { font-size: 18px; font-weight: 700; color: #e5e7eb; }
+        .context-sub { font-size: 11px; color: #8b92a8; margin-top: 4px; }
+
+        /* Internals Gauges */
+        .gauges-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .gauges-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .gauge-card {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .gauge-label {
+            font-size: 10px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+        }
+
+        .gauge-value {
+            font-size: 36px;
+            font-weight: 700;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            margin-bottom: 4px;
+        }
+
+        .gauge-value.bullish { color: #00d4aa; }
+        .gauge-value.bearish { color: #ff6b6b; }
+        .gauge-value.neutral { color: #8b92a8; }
+        .gauge-value.extreme-bull { color: #00ff88; text-shadow: 0 0 8px rgba(0, 255, 136, 0.3); }
+        .gauge-value.extreme-bear { color: #ff4444; text-shadow: 0 0 8px rgba(255, 68, 68, 0.3); }
+        .gauge-value.stale { color: #4b5563; }
+
+        .gauge-range {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 6px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+
+        .gauge-interpretation {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .gauge-interpretation.bullish { color: #00d4aa; }
+        .gauge-interpretation.bearish { color: #ff6b6b; }
+        .gauge-interpretation.neutral { color: #8b92a8; }
+        .gauge-interpretation.extreme-bull { color: #00ff88; }
+        .gauge-interpretation.extreme-bear { color: #ff4444; }
 
         /* Symbol Cards */
         .symbol-header {
@@ -231,158 +334,40 @@ Auto-refreshes every 30 seconds.
             background: #ffc107;
         }
 
-        /* Alerts Section */
-        .alerts-list {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .alert-item {
-            padding: 12px;
-            margin-bottom: 8px;
-            border-radius: 6px;
-            border-left: 3px solid;
-        }
-
-        .alert-item.high {
-            background: rgba(255, 107, 107, 0.1);
-            border-color: #ff6b6b;
-        }
-
-        .alert-item.medium {
-            background: rgba(255, 193, 7, 0.1);
-            border-color: #ffc107;
-        }
-
-        .alert-item.info {
-            background: rgba(0, 212, 170, 0.1);
-            border-color: #00d4aa;
-        }
-
-        .alert-time { font-size: 10px; color: #8b92a8; margin-bottom: 4px; }
-        .alert-message { font-size: 12px; color: #e5e7eb; }
-
-        /* Context Cards */
-        .context-grid {
+        /* Charts Grid */
+        .charts-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
             margin-bottom: 20px;
         }
 
-        @media (max-width: 900px) {
-            .context-grid { grid-template-columns: repeat(2, 1fr); }
+        @media (max-width: 1200px) {
+            .charts-grid { grid-template-columns: 1fr; }
         }
 
-        .context-card {
+        .chart-card {
             background: #151821;
             border: 1px solid #2a3641;
-            border-radius: 8px;
-            padding: 14px;
-            text-align: center;
-        }
-
-        .context-label { font-size: 10px; color: #8b92a8; text-transform: uppercase; margin-bottom: 6px; }
-        .context-value { font-size: 18px; font-weight: 700; color: #e5e7eb; }
-        .context-sub { font-size: 11px; color: #8b92a8; margin-top: 4px; }
-
-        /* Pinned Alert */
-        .pinned-alert {
-            background: linear-gradient(135deg, #2a2030 0%, #151821 100%);
-            border: 1px solid #9b59b6;
             border-radius: 10px;
             padding: 16px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
         }
 
-        .pinned-icon { font-size: 32px; }
-        .pinned-text h3 { color: #9b59b6; margin-bottom: 4px; }
-        .pinned-text p { font-size: 12px; color: #c5c9d4; }
+        .chart-card h3 {
+            color: #8b92a8;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 12px;
+        }
 
-        /* Error state */
-        .error-card {
-            background: rgba(255, 107, 107, 0.1);
-            border: 1px solid #ff6b6b;
-            color: #ff8888;
-            text-align: center;
-            padding: 20px;
+        .chart-container {
+            position: relative;
+            height: 200px;
         }
 
         .loading { color: #8b92a8; text-align: center; padding: 40px; }
-
-        
-
-        /* VIX Reference Guide */
-        .vix-guide {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .vix-level {
-            padding: 10px 12px;
-            border-radius: 6px;
-            border-left: 3px solid;
-        }
-
-        .vix-level.complacent {
-            background: rgba(255, 152, 0, 0.1);
-            border-color: #ff9800;
-        }
-
-        .vix-level.normal {
-            background: rgba(58, 139, 186, 0.1);
-            border-color: #3a8bba;
-        }
-
-        .vix-level.elevated {
-            background: rgba(255, 193, 7, 0.1);
-            border-color: #ffc107;
-        }
-
-        .vix-level.fear {
-            background: rgba(0, 212, 170, 0.1);
-            border-color: #00d4aa;
-        }
-
-        .vix-level.capitulation {
-            background: rgba(0, 230, 118, 0.15);
-            border-color: #00e676;
-        }
-
-        .vix-level-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 4px;
-        }
-
-        .vix-level-range {
-            font-size: 14px;
-            font-weight: 600;
-            color: #e5e7eb;
-        }
-
-        .vix-level-name {
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .vix-level.complacent .vix-level-name { color: #ff9800; }
-        .vix-level.normal .vix-level-name { color: #3a8bba; }
-        .vix-level.elevated .vix-level-name { color: #ffc107; }
-        .vix-level.fear .vix-level-name { color: #00d4aa; }
-        .vix-level.capitulation .vix-level-name { color: #00e676; }
-
-        .vix-level-advice {
-            font-size: 12px;
-            color: #c5c9d4;
-        }
+        .no-data { color: #4b5563; text-align: center; padding: 40px; font-size: 13px; }
     </style>
     <link rel="stylesheet" href="css/nav.css">
 </head>
@@ -390,7 +375,7 @@ Auto-refreshes every 30 seconds.
     <div class="container">
         <div class="header">
             <div class="header-left">
-                <h1>MARKET SCANNER</h1>
+                <h1>MARKET DASHBOARD</h1>
             </div>
             <div class="header-center">
                 <nav class="nav-links">
@@ -459,7 +444,35 @@ Auto-refreshes every 30 seconds.
             </div>
         </div>
 
-        <!-- Main Grid: SPY & QQQ -->
+        <!-- Internals Gauges -->
+        <div class="gauges-grid" id="gauges-grid">
+            <div class="gauge-card">
+                <div class="gauge-label">NYSE TICK</div>
+                <div class="gauge-value stale" id="g-tick">—</div>
+                <div class="gauge-range" id="g-tick-range">H: — L: —</div>
+                <div class="gauge-interpretation neutral" id="g-tick-interp">Waiting...</div>
+            </div>
+            <div class="gauge-card">
+                <div class="gauge-label">Advancing Issues</div>
+                <div class="gauge-value stale" id="g-advn">—</div>
+                <div class="gauge-range" id="g-advn-range">&nbsp;</div>
+                <div class="gauge-interpretation neutral" id="g-advn-interp">Waiting...</div>
+            </div>
+            <div class="gauge-card">
+                <div class="gauge-label">TRIN (Arms Index)</div>
+                <div class="gauge-value stale" id="g-trin">—</div>
+                <div class="gauge-range" id="g-trin-range">&nbsp;</div>
+                <div class="gauge-interpretation neutral" id="g-trin-interp">Waiting...</div>
+            </div>
+            <div class="gauge-card">
+                <div class="gauge-label">Volume Ratio (U:D)</div>
+                <div class="gauge-value stale" id="g-vol">—</div>
+                <div class="gauge-range" id="g-vol-range">&nbsp;</div>
+                <div class="gauge-interpretation neutral" id="g-vol-interp">Waiting...</div>
+            </div>
+        </div>
+
+        <!-- SPY & QQQ Gamma Cards -->
         <div class="main-grid">
             <!-- SPY Card -->
             <div class="card" id="spy-card">
@@ -522,62 +535,245 @@ Auto-refreshes every 30 seconds.
             </div>
         </div>
 
-        <!-- Alerts Section -->
-        <div class="main-grid">
-            <!-- Recent Alerts -->
-            <div class="card">
-                <h3>Recent Alerts</h3>
-                <div class="alerts-list" id="alerts-list">
-                    <div class="loading">Loading alerts...</div>
+        <!-- Intraday Charts -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>NYSE TICK — Intraday</h3>
+                <div class="chart-container">
+                    <canvas id="chart-tick"></canvas>
                 </div>
             </div>
-
-            <!-- VIX Reference Guide -->
-            <div class="card">
-                <h3>VIX Reference Guide</h3>
-                <div class="vix-guide">
-                    <div class="vix-level complacent">
-                        <div class="vix-level-header">
-                            <span class="vix-level-range">&lt; 12</span>
-                            <span class="vix-level-name">COMPLACENT</span>
-                        </div>
-                        <div class="vix-level-advice">⚠️ Spike probable - tighten trailing stops</div>
-                    </div>
-                    <div class="vix-level normal">
-                        <div class="vix-level-header">
-                            <span class="vix-level-range">12 - 20</span>
-                            <span class="vix-level-name">NORMAL</span>
-                        </div>
-                        <div class="vix-level-advice">⚪ Standard conditions</div>
-                    </div>
-                    <div class="vix-level elevated">
-                        <div class="vix-level-header">
-                            <span class="vix-level-range">20 - 30</span>
-                            <span class="vix-level-name">ELEVATED</span>
-                        </div>
-                        <div class="vix-level-advice">👀 Watch for setups forming</div>
-                    </div>
-                    <div class="vix-level fear">
-                        <div class="vix-level-header">
-                            <span class="vix-level-range">30 - 40</span>
-                            <span class="vix-level-name">FEAR</span>
-                        </div>
-                        <div class="vix-level-advice">🟢 Quality entries emerging</div>
-                    </div>
-                    <div class="vix-level capitulation">
-                        <div class="vix-level-header">
-                            <span class="vix-level-range">&gt; 40</span>
-                            <span class="vix-level-name">CAPITULATION</span>
-                        </div>
-                        <div class="vix-level-advice">🟢 Scale in - historically near bottoms</div>
-                    </div>
+            <div class="chart-card">
+                <h3>TRIN (Arms Index) — Intraday</h3>
+                <div class="chart-container">
+                    <canvas id="chart-trin"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>Volume Ratio (Up:Down) — Intraday</h3>
+                <div class="chart-container">
+                    <canvas id="chart-vol"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>VIX — Intraday</h3>
+                <div class="chart-container">
+                    <canvas id="chart-vix"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Data is loaded from SQLite via /api/scan/summary
+        // ============================================
+        // CHART INSTANCES
+        // ============================================
+
+        const chartDefaults = {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#1a1f2e',
+                    titleColor: '#e5e7eb',
+                    bodyColor: '#e5e7eb',
+                    borderColor: '#2a3641',
+                    borderWidth: 1
+                }
+            },
+            scales: {
+                x: {
+                    type: 'category',
+                    ticks: { color: '#6b7280', font: { size: 10 }, maxTicksLimit: 8 },
+                    grid: { color: '#1a1f2e' }
+                },
+                y: {
+                    ticks: { color: '#6b7280', font: { size: 10 } },
+                    grid: { color: '#1a1f2e' }
+                }
+            }
+        };
+
+        let tickChart, trinChart, volChart, vixChart;
+
+        function initCharts() {
+            // TICK chart with threshold lines
+            tickChart = new Chart(document.getElementById('chart-tick'), {
+                type: 'line',
+                data: { labels: [], datasets: [{ data: [], borderColor: '#00d4aa', borderWidth: 1.5, pointRadius: 0, fill: false, tension: 0.2 }] },
+                options: {
+                    ...chartDefaults,
+                    plugins: {
+                        ...chartDefaults.plugins,
+                        legend: { display: false }
+                    }
+                },
+                plugins: [{
+                    id: 'tickThresholds',
+                    afterDraw(chart) {
+                        const { ctx } = chart;
+                        const yScale = chart.scales.y;
+                        const xArea = chart.chartArea;
+                        if (!xArea) return;
+
+                        const lines = [
+                            { val: 800, color: 'rgba(0, 255, 136, 0.3)', dash: [4, 4] },
+                            { val: 400, color: 'rgba(0, 212, 170, 0.2)', dash: [2, 4] },
+                            { val: 0, color: 'rgba(139, 146, 168, 0.3)', dash: [2, 2] },
+                            { val: -400, color: 'rgba(255, 107, 107, 0.2)', dash: [2, 4] },
+                            { val: -800, color: 'rgba(255, 68, 68, 0.3)', dash: [4, 4] }
+                        ];
+
+                        for (const line of lines) {
+                            const y = yScale.getPixelForValue(line.val);
+                            if (y < xArea.top || y > xArea.bottom) continue;
+                            ctx.save();
+                            ctx.beginPath();
+                            ctx.setLineDash(line.dash);
+                            ctx.strokeStyle = line.color;
+                            ctx.lineWidth = 1;
+                            ctx.moveTo(xArea.left, y);
+                            ctx.lineTo(xArea.right, y);
+                            ctx.stroke();
+                            ctx.restore();
+                        }
+                    }
+                }]
+            });
+
+            // TRIN chart with threshold lines
+            trinChart = new Chart(document.getElementById('chart-trin'), {
+                type: 'line',
+                data: { labels: [], datasets: [{ data: [], borderColor: '#ffc107', borderWidth: 1.5, pointRadius: 0, fill: false, tension: 0.2 }] },
+                options: {
+                    ...chartDefaults,
+                    plugins: {
+                        ...chartDefaults.plugins,
+                        legend: { display: false }
+                    }
+                },
+                plugins: [{
+                    id: 'trinThresholds',
+                    afterDraw(chart) {
+                        const { ctx } = chart;
+                        const yScale = chart.scales.y;
+                        const xArea = chart.chartArea;
+                        if (!xArea) return;
+
+                        const lines = [
+                            { val: 2.0, color: 'rgba(255, 68, 68, 0.3)', dash: [4, 4] },
+                            { val: 1.2, color: 'rgba(255, 107, 107, 0.2)', dash: [2, 4] },
+                            { val: 1.0, color: 'rgba(139, 146, 168, 0.3)', dash: [2, 2] },
+                            { val: 0.8, color: 'rgba(0, 212, 170, 0.2)', dash: [2, 4] }
+                        ];
+
+                        for (const line of lines) {
+                            const y = yScale.getPixelForValue(line.val);
+                            if (y < xArea.top || y > xArea.bottom) continue;
+                            ctx.save();
+                            ctx.beginPath();
+                            ctx.setLineDash(line.dash);
+                            ctx.strokeStyle = line.color;
+                            ctx.lineWidth = 1;
+                            ctx.moveTo(xArea.left, y);
+                            ctx.lineTo(xArea.right, y);
+                            ctx.stroke();
+                            ctx.restore();
+                        }
+                    }
+                }]
+            });
+
+            // Vol Ratio chart
+            volChart = new Chart(document.getElementById('chart-vol'), {
+                type: 'line',
+                data: { labels: [], datasets: [{ data: [], borderColor: '#3a8bba', borderWidth: 1.5, pointRadius: 0, fill: false, tension: 0.2 }] },
+                options: {
+                    ...chartDefaults,
+                    plugins: {
+                        ...chartDefaults.plugins,
+                        legend: { display: false }
+                    }
+                },
+                plugins: [{
+                    id: 'volThresholds',
+                    afterDraw(chart) {
+                        const { ctx } = chart;
+                        const yScale = chart.scales.y;
+                        const xArea = chart.chartArea;
+                        if (!xArea) return;
+
+                        const lines = [
+                            { val: 3.0, color: 'rgba(0, 255, 136, 0.3)', dash: [4, 4] },
+                            { val: 2.0, color: 'rgba(0, 212, 170, 0.2)', dash: [2, 4] },
+                            { val: 1.0, color: 'rgba(139, 146, 168, 0.3)', dash: [2, 2] }
+                        ];
+
+                        for (const line of lines) {
+                            const y = yScale.getPixelForValue(line.val);
+                            if (y < xArea.top || y > xArea.bottom) continue;
+                            ctx.save();
+                            ctx.beginPath();
+                            ctx.setLineDash(line.dash);
+                            ctx.strokeStyle = line.color;
+                            ctx.lineWidth = 1;
+                            ctx.moveTo(xArea.left, y);
+                            ctx.lineTo(xArea.right, y);
+                            ctx.stroke();
+                            ctx.restore();
+                        }
+                    }
+                }]
+            });
+
+            // VIX chart
+            vixChart = new Chart(document.getElementById('chart-vix'), {
+                type: 'line',
+                data: { labels: [], datasets: [{ data: [], borderColor: '#ff6b6b', borderWidth: 1.5, pointRadius: 0, fill: false, tension: 0.2 }] },
+                options: {
+                    ...chartDefaults,
+                    plugins: {
+                        ...chartDefaults.plugins,
+                        legend: { display: false }
+                    }
+                },
+                plugins: [{
+                    id: 'vixThresholds',
+                    afterDraw(chart) {
+                        const { ctx } = chart;
+                        const yScale = chart.scales.y;
+                        const xArea = chart.chartArea;
+                        if (!xArea) return;
+
+                        const lines = [
+                            { val: 30, color: 'rgba(255, 68, 68, 0.3)', dash: [4, 4] },
+                            { val: 20, color: 'rgba(255, 193, 7, 0.3)', dash: [2, 4] },
+                            { val: 12, color: 'rgba(0, 212, 170, 0.2)', dash: [2, 4] }
+                        ];
+
+                        for (const line of lines) {
+                            const y = yScale.getPixelForValue(line.val);
+                            if (y < xArea.top || y > xArea.bottom) continue;
+                            ctx.save();
+                            ctx.beginPath();
+                            ctx.setLineDash(line.dash);
+                            ctx.strokeStyle = line.color;
+                            ctx.lineWidth = 1;
+                            ctx.moveTo(xArea.left, y);
+                            ctx.lineTo(xArea.right, y);
+                            ctx.stroke();
+                            ctx.restore();
+                        }
+                    }
+                }]
+            });
+        }
+
+        // ============================================
+        // DATA LOADING
+        // ============================================
 
         async function fetchJson(url) {
             try {
@@ -594,47 +790,56 @@ Auto-refreshes every 30 seconds.
             document.getElementById('status-dot').className = 'status-dot warning';
 
             try {
-                // Load from database via API (replaces scanner.json)
-                const [scannerData, alerts] = await Promise.all([
+                const [scannerData, internalsLatest, internalsHistory] = await Promise.all([
                     fetchJson('/api/scan/summary'),
-                    fetchJson('/api/alerts').then(d => d.alerts || []).catch(() => [])
+                    fetchJson('/api/internals/latest'),
+                    fetchJson('/api/internals/history?hours=7')
                 ]);
 
-                if (!scannerData) {
+                if (!scannerData && !internalsLatest) {
                     document.getElementById('status-dot').className = 'status-dot error';
-                    console.error('No scanner data - is the monitor running?');
                     return;
                 }
 
-                // Update timestamp from scanner data
-                const dataTime = new Date(scannerData.timestamp);
-                document.getElementById('last-update').textContent = dataTime.toLocaleTimeString();
-                document.getElementById('status-dot').className = 'status-dot';
-
-                // Update VIX
-                if (scannerData.vix) {
-                    updateVixBanner(scannerData.vix.price, scannerData.vix.regime);
+                // Update timestamp
+                const ts = internalsLatest?.timestamp || scannerData?.timestamp;
+                if (ts) {
+                    document.getElementById('last-update').textContent = new Date(ts).toLocaleTimeString();
                 }
 
-                // Update SPY
-                if (scannerData.spy) {
-                    updateSymbolCard('spy', scannerData.spy.price, scannerData.spy.change_pct, scannerData.spy.levels);
+                // Check staleness of internals (>10 min)
+                const internalsAge = internalsLatest?.timestamp
+                    ? (Date.now() - new Date(internalsLatest.timestamp).getTime()) / 60000
+                    : Infinity;
+                const internalsStale = internalsAge > 10;
+
+                document.getElementById('status-dot').className = internalsStale ? 'status-dot stale' : 'status-dot';
+
+                // Scanner data (VIX, context, SPY/QQQ)
+                if (scannerData) {
+                    if (scannerData.vix) {
+                        updateVixBanner(scannerData.vix.price, scannerData.vix.regime);
+                    }
+                    if (scannerData.spy) {
+                        updateSymbolCard('spy', scannerData.spy.price, scannerData.spy.change_pct, scannerData.spy.levels);
+                    }
+                    if (scannerData.qqq) {
+                        updateSymbolCard('qqq', scannerData.qqq.price, scannerData.qqq.change_pct, scannerData.qqq.levels);
+                    }
+                    updateContextCards(scannerData.market_context, scannerData.spy);
+                    if (scannerData.spy?.levels) {
+                        checkPinnedCondition(scannerData.spy);
+                    }
                 }
 
-                // Update QQQ
-                if (scannerData.qqq) {
-                    updateSymbolCard('qqq', scannerData.qqq.price, scannerData.qqq.change_pct, scannerData.qqq.levels);
+                // Internals gauges
+                if (internalsLatest && internalsLatest.timestamp) {
+                    updateGauges(internalsLatest, internalsStale);
                 }
 
-                // Update context cards
-                updateContextCards(scannerData.market_context, scannerData.spy);
-
-                // Update alerts
-                updateAlerts(alerts || []);
-
-                // Check for pinned condition
-                if (scannerData.spy?.levels) {
-                    checkPinnedCondition(scannerData.spy);
+                // Intraday charts
+                if (internalsHistory && internalsHistory.length > 0) {
+                    updateCharts(internalsHistory);
                 }
 
             } catch (e) {
@@ -642,6 +847,10 @@ Auto-refreshes every 30 seconds.
                 document.getElementById('status-dot').className = 'status-dot error';
             }
         }
+
+        // ============================================
+        // VIX BANNER
+        // ============================================
 
         function updateVixBanner(vix, regime) {
             const banner = document.getElementById('vix-banner');
@@ -675,16 +884,43 @@ Auto-refreshes every 30 seconds.
             adviceEl.textContent = advice;
         }
 
+        // ============================================
+        // CONTEXT CARDS
+        // ============================================
+
+        function updateContextCards(context, spyData) {
+            const gammaRegime = spyData?.context?.gamma_regime || context?.gamma_regime || 'unknown';
+            document.getElementById('gamma-regime').textContent = gammaRegime.toUpperCase().replace('_', ' ');
+            const isBullish = gammaRegime.toLowerCase().includes('bullish');
+            const isBearish = gammaRegime.toLowerCase().includes('bearish');
+            document.getElementById('gamma-sub').textContent = isBullish ? 'Dealers support dips' : isBearish ? 'Dealers sell rallies' : 'Expect volatility';
+
+            const bias = context?.bias || 'neutral';
+            document.getElementById('market-bias').textContent = bias.toUpperCase();
+            const swingBias = context?.swing_bias || '--';
+            document.getElementById('bias-sub').textContent = swingBias !== '--' ? `Swing: ${swingBias}` : '--';
+
+            const ivRank = spyData?.context?.iv_rank || context?.iv_rank || 0;
+            document.getElementById('iv-rank').textContent = `${ivRank}%`;
+
+            const em = spyData?.levels?.expected_move;
+            if (em) {
+                document.getElementById('expected-move').textContent = `$${em.value?.toFixed(2) || '--'}`;
+                document.getElementById('em-range').textContent = `$${em.lower?.toFixed(0)} - $${em.upper?.toFixed(0)}`;
+            }
+        }
+
+        // ============================================
+        // SYMBOL CARDS (SPY / QQQ)
+        // ============================================
+
         function updateSymbolCard(symbol, price, changePct, levels) {
-            // Price
             document.getElementById(`${symbol}-price`).textContent = `$${price.toFixed(2)}`;
 
-            // Change
             const changeEl = document.getElementById(`${symbol}-change`);
             changeEl.textContent = `${changePct >= 0 ? '+' : ''}${changePct.toFixed(2)}%`;
             changeEl.className = `symbol-change ${changePct >= 0 ? 'positive' : 'negative'}`;
 
-            // Levels
             const levelsData = levels || {};
             const tbody = document.getElementById(`${symbol}-levels`);
 
@@ -723,59 +959,6 @@ Auto-refreshes every 30 seconds.
             document.getElementById(`${symbol}-flip-marker`).style.left = `${Math.max(0, Math.min(100, flipPos))}%`;
         }
 
-        function updateContextCards(context, spyData) {
-            // Gamma regime
-            const gammaRegime = spyData?.context?.gamma_regime || context?.gamma_regime || 'unknown';
-            document.getElementById('gamma-regime').textContent = gammaRegime.toUpperCase().replace('_', ' ');
-            // Set subtitle based on regime type
-            const isBullish = gammaRegime.toLowerCase().includes('bullish');
-            const isBearish = gammaRegime.toLowerCase().includes('bearish');
-            document.getElementById('gamma-sub').textContent = isBullish ? 'Dealers support dips' : isBearish ? 'Dealers sell rallies' : 'Expect volatility';
-
-            // Market bias
-            const bias = context?.bias || 'neutral';
-            document.getElementById('market-bias').textContent = bias.toUpperCase();
-            const swingBias = context?.swing_bias || '--';
-            document.getElementById('bias-sub').textContent = swingBias !== '--' ? `Swing: ${swingBias}` : '--';
-
-            // IV Rank
-            const ivRank = spyData?.context?.iv_rank || context?.iv_rank || 0;
-            document.getElementById('iv-rank').textContent = `${ivRank}%`;
-
-            // Expected move
-            const em = spyData?.levels?.expected_move;
-            if (em) {
-                document.getElementById('expected-move').textContent = `$${em.value?.toFixed(2) || '--'}`;
-                document.getElementById('em-range').textContent = `$${em.lower?.toFixed(0)} - $${em.upper?.toFixed(0)}`;
-            }
-        }
-
-        function updateAlerts(alerts) {
-            const container = document.getElementById('alerts-list');
-
-            if (!alerts || alerts.length === 0) {
-                container.innerHTML = '<div class="loading">No recent alerts</div>';
-                return;
-            }
-
-            // Show last 10 alerts, newest first
-            const recentAlerts = alerts.slice(-10).reverse();
-
-            container.innerHTML = recentAlerts.map(alert => {
-                const time = new Date(alert.timestamp).toLocaleTimeString();
-                const priority = alert.priority?.toLowerCase() || 'info';
-                // Strip HTML tags for display
-                const message = (alert.message || '').replace(/<[^>]*>/g, '').substring(0, 100);
-
-                return `
-                    <div class="alert-item ${priority}">
-                        <div class="alert-time">${time}</div>
-                        <div class="alert-message">${message}</div>
-                    </div>
-                `;
-            }).join('');
-        }
-
         function checkPinnedCondition(spyData) {
             const levels = spyData.levels || {};
             const price = spyData.price || 0;
@@ -799,86 +982,130 @@ Auto-refreshes every 30 seconds.
             }
         }
 
-        // Initial load
-        loadAllData();
+        // ============================================
+        // INTERNALS GAUGES
+        // ============================================
 
-        // Auto-refresh every 30 seconds
+        function classify(type, val) {
+            if (val == null) return { cls: 'stale', text: 'No Data' };
+
+            if (type === 'tick') {
+                if (val > 800) return { cls: 'extreme-bull', text: 'Extreme Buying' };
+                if (val > 400) return { cls: 'bullish', text: 'Strong Buying' };
+                if (val < -800) return { cls: 'extreme-bear', text: 'Extreme Selling' };
+                if (val < -400) return { cls: 'bearish', text: 'Strong Selling' };
+                return { cls: 'neutral', text: 'Normal' };
+            }
+            if (type === 'advn') {
+                if (val > 2000) return { cls: 'extreme-bull', text: 'Strong Breadth' };
+                if (val > 1500) return { cls: 'bullish', text: 'Broad Advance' };
+                if (val < 800) return { cls: 'bearish', text: 'Narrow Market' };
+                return { cls: 'neutral', text: 'Normal Breadth' };
+            }
+            if (type === 'trin') {
+                if (val > 2.0) return { cls: 'extreme-bear', text: 'Extreme Selling' };
+                if (val > 1.2) return { cls: 'bearish', text: 'Bearish' };
+                if (val < 0.8) return { cls: 'bullish', text: 'Bullish' };
+                return { cls: 'neutral', text: 'Neutral' };
+            }
+            if (type === 'vol') {
+                if (val > 3) return { cls: 'extreme-bull', text: 'Strong Buy Dom.' };
+                if (val > 2) return { cls: 'bullish', text: 'Moderate Buying' };
+                if (val < 1) return { cls: 'bearish', text: 'Sellers Control' };
+                return { cls: 'neutral', text: 'Slight Edge' };
+            }
+            return { cls: 'neutral', text: '' };
+        }
+
+        function fmt(val, dec = 0) {
+            if (val == null) return '—';
+            return Number(val).toLocaleString(undefined, { minimumFractionDigits: dec, maximumFractionDigits: dec });
+        }
+
+        function updateGauges(d, stale) {
+            // TICK
+            const tickInfo = classify('tick', d.tick);
+            const tickEl = document.getElementById('g-tick');
+            tickEl.textContent = d.tick != null ? (d.tick > 0 ? '+' : '') + fmt(d.tick) : '—';
+            tickEl.className = 'gauge-value ' + (stale ? 'stale' : tickInfo.cls);
+            document.getElementById('g-tick-range').textContent = d.tick_high != null ? `H: ${fmt(d.tick_high)}  L: ${fmt(d.tick_low)}` : '';
+            const tickInterp = document.getElementById('g-tick-interp');
+            tickInterp.textContent = stale ? 'Stale Data' : tickInfo.text;
+            tickInterp.className = 'gauge-interpretation ' + (stale ? 'neutral' : tickInfo.cls);
+
+            // ADVN
+            const advnInfo = classify('advn', d.advn);
+            const advnEl = document.getElementById('g-advn');
+            advnEl.textContent = fmt(d.advn);
+            advnEl.className = 'gauge-value ' + (stale ? 'stale' : advnInfo.cls);
+            const advnInterp = document.getElementById('g-advn-interp');
+            advnInterp.textContent = stale ? 'Stale Data' : advnInfo.text;
+            advnInterp.className = 'gauge-interpretation ' + (stale ? 'neutral' : advnInfo.cls);
+
+            // TRIN
+            const trinInfo = classify('trin', d.trin);
+            const trinEl = document.getElementById('g-trin');
+            trinEl.textContent = d.trin != null ? d.trin.toFixed(2) : '—';
+            trinEl.className = 'gauge-value ' + (stale ? 'stale' : trinInfo.cls);
+            const trinInterp = document.getElementById('g-trin-interp');
+            trinInterp.textContent = stale ? 'Stale Data' : trinInfo.text;
+            trinInterp.className = 'gauge-interpretation ' + (stale ? 'neutral' : trinInfo.cls);
+
+            // VOL RATIO
+            const volInfo = classify('vol', d.vol_ratio);
+            const volEl = document.getElementById('g-vol');
+            volEl.textContent = d.vol_ratio != null ? d.vol_ratio.toFixed(1) + ':1' : '—';
+            volEl.className = 'gauge-value ' + (stale ? 'stale' : volInfo.cls);
+            document.getElementById('g-vol-range').textContent = d.uvol != null ? `Up: ${(d.uvol / 1e6).toFixed(0)}M  Dn: ${(d.dvol / 1e6).toFixed(0)}M` : '';
+            const volInterp = document.getElementById('g-vol-interp');
+            volInterp.textContent = stale ? 'Stale Data' : volInfo.text;
+            volInterp.className = 'gauge-interpretation ' + (stale ? 'neutral' : volInfo.cls);
+        }
+
+        // ============================================
+        // INTRADAY CHARTS
+        // ============================================
+
+        function formatTime(ts) {
+            const d = new Date(ts);
+            return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function updateCharts(history) {
+            const labels = history.map(h => formatTime(h.timestamp));
+            const tickData = history.map(h => h.tick);
+            const trinData = history.map(h => h.trin);
+            const volData = history.map(h => h.vol_ratio);
+            const vixData = history.map(h => h.vix);
+
+            // TICK
+            tickChart.data.labels = labels;
+            tickChart.data.datasets[0].data = tickData;
+            tickChart.update();
+
+            // TRIN
+            trinChart.data.labels = labels;
+            trinChart.data.datasets[0].data = trinData;
+            trinChart.update();
+
+            // Vol Ratio
+            volChart.data.labels = labels;
+            volChart.data.datasets[0].data = volData;
+            volChart.update();
+
+            // VIX
+            vixChart.data.labels = labels;
+            vixChart.data.datasets[0].data = vixData;
+            vixChart.update();
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
+
+        initCharts();
+        loadAllData();
         setInterval(loadAllData, 30000);
     </script>
-
-    <!-- Documentation Section -->
-    <div class="container" style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #2a3641;">
-        <div style="background: #151821; border: 1px solid #2a3641; border-radius: 10px; overflow: hidden;">
-            <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #1a1f2e; border-bottom: 1px solid #2a3641; cursor: pointer;" onclick="document.getElementById('market-docs').classList.toggle('collapsed')">
-                <span style="font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #8b92a8;">📖 HOW THE MARKET DASHBOARD WORKS</span>
-                <span style="background: #2a3641; padding: 4px 10px; border-radius: 12px; font-size: 12px;">Reference</span>
-            </div>
-            <div id="market-docs" style="padding: 20px; font-size: 13px; line-height: 1.8; color: #b8bfcc;">
-
-                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">WHAT THIS DASHBOARD SHOWS</h3>
-                <p style="margin-bottom: 16px;">The Market Dashboard shows <strong>real-time market context</strong> from the Bloodhound scanner. It displays VIX regime, gamma regime, market bias, and recent high-conviction alerts. This is the legacy dashboard - for most purposes, use the <strong>Zone Scanner</strong> instead.</p>
-
-                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">DATA SOURCE</h3>
-                <p style="margin-bottom: 8px;"><strong>Source:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">SQLite via /api/scan/summary</code></p>
-                <p style="margin-bottom: 8px;"><strong>Scanner:</strong> <code style="background: #1a1f2e; padding: 2px 6px; border-radius: 4px;">monitor/bloodhound-scanner.js</code></p>
-                <p style="margin-bottom: 16px;"><strong>Update Frequency:</strong> Every 2 minutes (from Bloodhound)</p>
-
-                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">VIX REGIME (Entry-Focused Framework)</h3>
-                <p style="margin-bottom: 8px;">This system uses an <strong>entry-focused</strong> VIX framework. High VIX = opportunity, not danger.</p>
-                <table style="width: 100%; margin-bottom: 16px; font-size: 12px;">
-                    <tr style="border-bottom: 1px solid #2a3641;">
-                        <td style="padding: 8px;"><strong>< 12</strong></td>
-                        <td style="padding: 8px;"><span style="color: #8b92a8;">COMPLACENT</span> - Spike probable, tighten trailing stops</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #2a3641;">
-                        <td style="padding: 8px;"><strong>12-20</strong></td>
-                        <td style="padding: 8px;"><span style="color: #00d4aa;">NORMAL</span> - Standard conditions</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #2a3641;">
-                        <td style="padding: 8px;"><strong>20-30</strong></td>
-                        <td style="padding: 8px;"><span style="color: #f59e0b;">ELEVATED</span> - Watch for setups forming</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #2a3641;">
-                        <td style="padding: 8px;"><strong>30-40</strong></td>
-                        <td style="padding: 8px;"><span style="color: #00d4aa;">FEAR</span> - Quality entries emerging</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px;"><strong>> 40</strong></td>
-                        <td style="padding: 8px;"><span style="color: #00d4aa;">CAPITULATION</span> - Scale in, historically near bottoms</td>
-                    </tr>
-                </table>
-
-                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">GAMMA REGIME</h3>
-                <table style="width: 100%; margin-bottom: 16px; font-size: 12px;">
-                    <tr style="border-bottom: 1px solid #2a3641;">
-                        <td style="padding: 8px;"><strong>BULLISH_SUPPORT</strong></td>
-                        <td style="padding: 8px;">SPY at/near put wall - dealers buying dips, expect support</td>
-                    </tr>
-                    <tr style="border-bottom: 1px solid #2a3641;">
-                        <td style="padding: 8px;"><strong>BEARISH_RESISTANCE</strong></td>
-                        <td style="padding: 8px;">SPY at/near call wall - dealers selling rallies, expect resistance</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 8px;"><strong>NEUTRAL</strong></td>
-                        <td style="padding: 8px;">SPY mid-range - no strong gamma effect</td>
-                    </tr>
-                </table>
-
-                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">SPY WALL POSITIONS</h3>
-                <p style="margin-bottom: 16px;">The dashboard shows where SPY price sits relative to gamma walls:</p>
-                <ul style="margin-left: 20px; margin-bottom: 16px;">
-                    <li><strong>Call Wall:</strong> Strike with highest call gamma - acts as resistance</li>
-                    <li><strong>Put Wall:</strong> Strike with highest put gamma - acts as support</li>
-                    <li><strong>Max Pain:</strong> Strike where most options expire worthless - price tends to gravitate here</li>
-                </ul>
-
-                <h3 style="color: #00d4aa; margin-bottom: 12px; font-size: 14px;">PINNED ALERT</h3>
-                <p style="margin-bottom: 16px;">When SPY is trapped between call and put walls with a small spread (<0.3%), expect range-bound movement. Good for selling premium, bad for directional plays.</p>
-
-                <h3 style="color: #8b92a8; margin-bottom: 12px; font-size: 14px;">RECOMMENDED DASHBOARD</h3>
-                <p style="margin-bottom: 8px;">For most use cases, the <strong>Zone Scanner</strong> provides a better view with ticker cards, scores, and filtering. This Market dashboard is the legacy view showing raw market context data.</p>
-            </div>
-        </div>
-    </div>
 </body>
 </html>

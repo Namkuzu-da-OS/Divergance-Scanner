@@ -119,6 +119,49 @@
             margin-top: 4px;
         }
 
+        /* Market Internals Bar */
+        .internals-bar {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 10px 16px;
+        }
+
+        .internals-item {
+            text-align: center;
+        }
+
+        .internals-label {
+            font-size: 9px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+        }
+
+        .internals-value {
+            font-size: 18px;
+            font-weight: 700;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+
+        .internals-value.bullish { color: #00d4aa; }
+        .internals-value.bearish { color: #ff6b6b; }
+        .internals-value.neutral { color: #8b92a8; }
+        .internals-value.extreme-bull { color: #00ff88; text-shadow: 0 0 6px rgba(0, 255, 136, 0.3); }
+        .internals-value.extreme-bear { color: #ff4444; text-shadow: 0 0 6px rgba(255, 68, 68, 0.3); }
+        .internals-value.stale { color: #4b5563; }
+
+        .internals-sub {
+            font-size: 9px;
+            color: #6b7280;
+            margin-top: 1px;
+        }
+
         /* Zone Filters */
         .filter-bar {
             display: flex;
@@ -1005,6 +1048,35 @@
             </div>
         </div>
 
+        <!-- Market Internals Bar -->
+        <div class="internals-bar" id="internals-bar">
+            <div class="internals-item">
+                <div class="internals-label">TICK</div>
+                <div class="internals-value stale" id="int-tick">—</div>
+                <div class="internals-sub" id="int-tick-range"></div>
+            </div>
+            <div class="internals-item">
+                <div class="internals-label">ADVN</div>
+                <div class="internals-value stale" id="int-advn">—</div>
+                <div class="internals-sub" id="int-advn-sub"></div>
+            </div>
+            <div class="internals-item">
+                <div class="internals-label">TRIN</div>
+                <div class="internals-value stale" id="int-trin">—</div>
+                <div class="internals-sub" id="int-trin-sub"></div>
+            </div>
+            <div class="internals-item">
+                <div class="internals-label">VIX</div>
+                <div class="internals-value stale" id="int-vix">—</div>
+                <div class="internals-sub" id="int-vix-sub"></div>
+            </div>
+            <div class="internals-item">
+                <div class="internals-label">VOL RATIO</div>
+                <div class="internals-value stale" id="int-vol">—</div>
+                <div class="internals-sub" id="int-vol-sub"></div>
+            </div>
+        </div>
+
         <!-- Zone Filters -->
         <div class="filter-bar">
             <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">All</button>
@@ -1807,15 +1879,129 @@
             }
         }
 
+        // ============================================
+        // MARKET INTERNALS BAR
+        // ============================================
+
+        function classifyTick(val) {
+            if (val == null) return 'stale';
+            if (val > 800) return 'extreme-bull';
+            if (val > 400) return 'bullish';
+            if (val < -800) return 'extreme-bear';
+            if (val < -400) return 'bearish';
+            return 'neutral';
+        }
+
+        function classifyTrin(val) {
+            if (val == null) return 'stale';
+            if (val > 2.0) return 'extreme-bear';
+            if (val > 1.2) return 'bearish';
+            if (val < 0.8) return 'bullish';
+            return 'neutral';
+        }
+
+        function classifyVix(val) {
+            if (val == null) return 'stale';
+            if (val > 30) return 'extreme-bear';
+            if (val > 20) return 'bearish';
+            if (val < 12) return 'bullish';
+            return 'neutral';
+        }
+
+        function classifyVolRatio(val) {
+            if (val == null) return 'stale';
+            if (val > 3) return 'extreme-bull';
+            if (val > 2) return 'bullish';
+            if (val < 1) return 'bearish';
+            return 'neutral';
+        }
+
+        function classifyAdvn(val) {
+            if (val == null) return 'stale';
+            if (val > 2000) return 'extreme-bull';
+            if (val > 1500) return 'bullish';
+            if (val < 800) return 'bearish';
+            return 'neutral';
+        }
+
+        function fmt(val, decimals = 0) {
+            if (val == null) return '—';
+            return Number(val).toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+        }
+
+        async function loadInternals() {
+            try {
+                const resp = await fetch('/api/internals/latest');
+                if (!resp.ok) return;
+                const d = await resp.json();
+                if (!d || !d.timestamp) return;
+
+                // Check staleness (>10 min old)
+                const age = (Date.now() - new Date(d.timestamp).getTime()) / 60000;
+                const stale = age > 10;
+
+                // TICK
+                const tickEl = document.getElementById('int-tick');
+                const tickVal = d.tick;
+                tickEl.textContent = tickVal != null ? (tickVal > 0 ? '+' : '') + fmt(tickVal) : '—';
+                tickEl.className = 'internals-value ' + (stale ? 'stale' : classifyTick(tickVal));
+                const tickRange = document.getElementById('int-tick-range');
+                if (d.tick_high != null && d.tick_low != null) {
+                    tickRange.textContent = `H: ${fmt(d.tick_high)} L: ${fmt(d.tick_low)}`;
+                }
+
+                // ADVN
+                const advnEl = document.getElementById('int-advn');
+                const advnVal = d.advn;
+                advnEl.textContent = fmt(advnVal);
+                advnEl.className = 'internals-value ' + (stale ? 'stale' : classifyAdvn(advnVal));
+
+                // TRIN
+                const trinEl = document.getElementById('int-trin');
+                const trinVal = d.trin;
+                trinEl.textContent = trinVal != null ? trinVal.toFixed(2) : '—';
+                trinEl.className = 'internals-value ' + (stale ? 'stale' : classifyTrin(trinVal));
+                const trinSub = document.getElementById('int-trin-sub');
+                if (trinVal != null) {
+                    trinSub.textContent = trinVal < 0.8 ? 'Bullish' : trinVal > 2.0 ? 'Extreme Sell' : trinVal > 1.2 ? 'Bearish' : 'Neutral';
+                }
+
+                // VIX
+                const vixEl = document.getElementById('int-vix');
+                const vixVal = d.vix;
+                vixEl.textContent = vixVal != null ? vixVal.toFixed(2) : '—';
+                vixEl.className = 'internals-value ' + (stale ? 'stale' : classifyVix(vixVal));
+                const vixSub = document.getElementById('int-vix-sub');
+                if (d.vix_change != null) {
+                    const sign = d.vix_change >= 0 ? '+' : '';
+                    vixSub.textContent = `${sign}${d.vix_change.toFixed(2)} (${sign}${(d.vix_change_pct || 0).toFixed(1)}%)`;
+                }
+
+                // VOL RATIO
+                const volEl = document.getElementById('int-vol');
+                const volVal = d.vol_ratio;
+                volEl.textContent = volVal != null ? volVal.toFixed(1) + ':1' : '—';
+                volEl.className = 'internals-value ' + (stale ? 'stale' : classifyVolRatio(volVal));
+                const volSub = document.getElementById('int-vol-sub');
+                if (d.uvol != null && d.dvol != null) {
+                    volSub.textContent = `U: ${(d.uvol / 1e6).toFixed(0)}M  D: ${(d.dvol / 1e6).toFixed(0)}M`;
+                }
+            } catch (e) {
+                // Silently ignore — bar stays with last known values
+            }
+        }
+
         // Initial load - always show Bloodhound controls
         document.getElementById('scanner-control').style.display = 'flex';
         document.getElementById('watchlist-panel').style.display = 'block';
         loadData();
+        loadInternals();
         checkScannerStatus();
         loadWatchlist();
 
         // Auto-refresh data every 30 seconds
         setInterval(loadData, 30000);
+        setInterval(loadInternals, 30000);
 
         // Update scanner status every 5 seconds
         setInterval(checkScannerStatus, 5000);

@@ -216,6 +216,7 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 | 8082 | Earnings | `monitor/earnings-scanner.js` | Earnings scanner control API |
 | 8083 | Opportunity | `monitor/opportunity-scanner.js` | Opportunity scanner control API |
 | 8084 | Pre-Market | `monitor/premarket-scanner.js` | Pre-market scanner control API |
+| 8085 | Internals | `monitor/market-internals.js` | Market internals scanner control API |
 
 **Dashboard URLs:**
 - Morning Briefing: `http://localhost:8080/morning.html` (default page)
@@ -227,7 +228,7 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 - Strategies: `http://localhost:8080/strategies.html`
 - Dashboard: `http://localhost:8080/dashboard.html`
 - Options Lab: `http://localhost:8080/options-lab.html`
-- Scanner (legacy): `http://localhost:8080/scanner.html`
+- Market Dashboard: `http://localhost:8080/scanner.html`
 
 ### Web Server API Endpoints (Port 8080)
 
@@ -238,6 +239,13 @@ All served by `monitor/web-server.js`. These are the internal dashboard APIs.
 |--------|----------|---------|
 | GET | `/api/scan/latest` | Full Bloodhound scan data (all tickers with details) |
 | GET | `/api/scan/summary` | Summary format (counts, market context, top setups) |
+
+**Market Internals**
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| GET | `/api/internals/latest` | Latest market internals snapshot (TICK, TRIN, VIX, etc.) |
+| GET | `/api/internals/history?hours=6` | Intraday internals history for charts |
+| GET | `/api/internals/today` | All internals readings for today |
 
 **Signals & Alerts**
 | Method | Endpoint | Purpose |
@@ -737,6 +745,48 @@ Edit `monitor/premarket-scanner.js` CONFIG for:
 - `PREMARKET_START_HOUR` - Start hour ET (default: 6)
 - `PREMARKET_END_HOUR` - End hour ET (default: 9)
 - `PREMARKET_END_MINUTE` - End minute ET (default: 30)
+
+---
+
+## Market Internals Scanner
+
+**Collects real-time market internals data (TICK, TRIN, breadth, volume, VIX, indices) independently of Claude sessions.** Runs during RTH (9:30 AM - 4:00 PM ET), stores historically in SQLite.
+
+### What It Tracks
+
+| Symbol | Data | Field |
+|--------|------|-------|
+| $TICK | NYSE net upticks | tick, tick_high, tick_low |
+| $TRIN | Arms Index | trin |
+| $ADVN | Advancing issues | advn |
+| $UVOL / $DVOL | Up/Down volume | uvol, dvol, vol_ratio |
+| $VIX | Fear gauge (full OHLC) | vix, vix_open, vix_high, vix_low, vix_change, vix_change_pct |
+| $SPX | S&P 500 | spx, spx_change, spx_change_pct, spx_high, spx_low |
+| $COMPX | Nasdaq Composite | compx, compx_change, compx_change_pct |
+| $DJI | Dow Jones | dji, dji_change, dji_change_pct |
+
+### Control API (Port 8085)
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/status` | GET | Scanner status, RTH window, symbols |
+| `/pause` | POST | Pause scanner |
+| `/resume` | POST | Resume scanner |
+| `/scan` | POST | Trigger immediate scan |
+| `/latest` | GET | Latest snapshot from memory |
+
+### Dashboard Integration
+
+- **Zone Scanner:** Compact internals bar between summary grid and filter bar (TICK, ADVN, TRIN, VIX, VOL ratio)
+- **Market Dashboard (scanner.html):** Full internals gauges + intraday Chart.js charts with threshold lines
+- **`/pulse` command:** Uses `/api/internals/latest` as primary data source
+
+### Configuration
+
+- Scan interval: 5 minutes (during RTH only)
+- RTH window: 9:30 AM - 4:00 PM ET
+- API rate limiting: 50ms delay between calls
+- Data storage: `market_internals` table in `data/wingman.db`
 
 ---
 

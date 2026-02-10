@@ -8,47 +8,38 @@ Launch ONE subagent to pull all data in parallel and return a compact summary:
 Task tool with subagent_type=Explore:
 "Pull all of the following data and return a compact, pre-interpreted summary. Make ALL API calls, do not skip any.
 
-**1. Market Internals (batch these):**
-- http://192.168.10.60:8000/api/quotes/$VIX
-- http://192.168.10.60:8000/api/quotes/$TICK
-- http://192.168.10.60:8000/api/quotes/$ADD
-- http://192.168.10.60:8000/api/quotes/$TRIN
-- http://192.168.10.60:8000/api/quotes/$UVOL
-- http://192.168.10.60:8000/api/quotes/$DVOL
+**1. Market Internals (from internals scanner):**
+- http://localhost:8080/api/internals/latest
 
-**2. Index Prices:**
-- http://192.168.10.60:8000/api/quotes/$SPX
-- http://192.168.10.60:8000/api/quotes/$COMPX
-- http://192.168.10.60:8000/api/quotes/$DJI
-
-**3. SPY + QQQ Technicals:**
+**2. SPY + QQQ Technicals:**
 - http://192.168.10.60:8000/api/technicals/SPY
 - http://192.168.10.60:8000/api/technicals/QQQ
 
-**4. SPY + QQQ Gamma Levels:**
+**3. SPY + QQQ Gamma Levels:**
 - http://192.168.10.60:8000/api/levels/SPY
 - http://192.168.10.60:8000/api/levels/QQQ
 
-**5. Market Context:**
+**4. Market Context:**
 - http://192.168.10.60:8000/api/market/context
 
-**6. Recent Alerts:**
+**5. Recent Alerts:**
 - http://localhost:8080/api/alerts?days=1&limit=5
 
 Return the data in this EXACT format:
 
 ---
 MARKET INTERNALS:
-- VIX: [lastPrice] ([netChange] / [netPercentChange]%) | Open: [open] High: [high] Low: [low]
-- TICK: [lastPrice]
-- ADD: [lastPrice]
-- TRIN: [lastPrice]
-- Up Volume: [UVOL lastPrice] | Down Volume: [DVOL lastPrice] | Ratio: [UVOL/DVOL calculated]
+- VIX: [vix] (change: [vix_change] / [vix_change_pct]%) | Open: [vix_open] High: [vix_high] Low: [vix_low]
+- TICK: [tick] (High: [tick_high] Low: [tick_low])
+- TRIN: [trin]
+- ADVN: [advn]
+- Up Volume: [uvol] | Down Volume: [dvol] | Ratio: [vol_ratio]:1
+- Internals Timestamp: [timestamp]
 
 INDICES:
-- SPX: [lastPrice] ([netChange] / [netPercentChange]%) | High: [high] Low: [low]
-- COMPX: [lastPrice] ([netChange] / [netPercentChange]%)
-- DJI: [lastPrice] ([netChange] / [netPercentChange]%)
+- SPX: [spx] (change: [spx_change] / [spx_change_pct]%) | High: [spx_high] Low: [spx_low]
+- COMPX: [compx] (change: [compx_change] / [compx_change_pct]%)
+- DJI: [dji] (change: [dji_change] / [dji_change_pct]%)
 
 SPY:
 - Price: [last] | Change: [netChange] ([pct]%)
@@ -77,7 +68,17 @@ RECENT ALERTS (last 24h):
 [List any alerts, or 'None' if empty]
 ---
 
-Be precise with numbers. Do not round excessively. Include ALL fields listed above."
+Be precise with numbers. Do not round excessively. Include ALL fields listed above.
+If /api/internals/latest returns empty or has no timestamp, note that the internals scanner may not be running and fall back to individual quote calls:
+- http://192.168.10.60:8000/api/quotes/$VIX
+- http://192.168.10.60:8000/api/quotes/$TICK
+- http://192.168.10.60:8000/api/quotes/$TRIN
+- http://192.168.10.60:8000/api/quotes/$UVOL
+- http://192.168.10.60:8000/api/quotes/$DVOL
+- http://192.168.10.60:8000/api/quotes/$SPX
+- http://192.168.10.60:8000/api/quotes/$COMPX
+- http://192.168.10.60:8000/api/quotes/$DJI
+"
 ```
 
 ## INTERPRETATION (Done by Wingman in Main Context)
@@ -90,8 +91,8 @@ After receiving the subagent data, present the Market Pulse using this framework
 |-----------|-------|------|
 | $VIX | [value] | [interpret] |
 | $TICK | [value] | [interpret] |
-| $ADD | [value] | [interpret] |
 | $TRIN | [value] | [interpret] |
+| ADVN | [value] | [interpret] |
 | Vol Ratio | [UVOL:DVOL] | [interpret] |
 
 **Interpretation Guide (use these thresholds):**
@@ -102,13 +103,6 @@ $TICK:
 - -400 to +400: Normal / choppy
 - -400 to -800: Strong selling pressure
 - < -800: Extreme selling (potential capitulation bounce)
-
-$ADD:
-- > +2000: Very strong breadth (exhaustion watch)
-- +1000 to +2000: Healthy broad advance
-- -1000 to +1000: Mixed / rotational
-- -1000 to -2000: Broad selling
-- < -2000: Capitulation territory (VIX Fear strategy trigger zone)
 
 $TRIN:
 - < 0.80: Bullish (advancing stocks getting more than their share of volume)

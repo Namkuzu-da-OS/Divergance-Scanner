@@ -359,6 +359,25 @@ function initSchema() {
         CREATE INDEX IF NOT EXISTS idx_positions_symbol ON positions(symbol);
     `);
 
+    // Market internals table (TICK, TRIN, breadth, volume, VIX, indices)
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS market_internals (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT NOT NULL,
+            date TEXT NOT NULL,
+            tick REAL, tick_high REAL, tick_low REAL,
+            trin REAL, advn REAL,
+            uvol REAL, dvol REAL, vol_ratio REAL,
+            vix REAL, vix_open REAL, vix_high REAL, vix_low REAL, vix_change REAL, vix_change_pct REAL,
+            spx REAL, spx_change REAL, spx_change_pct REAL, spx_high REAL, spx_low REAL,
+            compx REAL, compx_change REAL, compx_change_pct REAL,
+            dji REAL, dji_change REAL, dji_change_pct REAL
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_market_internals_timestamp ON market_internals(timestamp);
+        CREATE INDEX IF NOT EXISTS idx_market_internals_date ON market_internals(date);
+    `);
+
     // Migration: Add EOD columns to existing premarket_movers table
     migratePremarketMovers();
 
@@ -2978,6 +2997,76 @@ function closePosition(id, exitData) {
     return { id, symbol: position.symbol, pnl };
 }
 
+// ============================================
+// MARKET INTERNALS FUNCTIONS
+// ============================================
+
+/**
+ * Store a market internals snapshot
+ */
+function insertMarketInternals(data) {
+    const stmt = getDb().prepare(`
+        INSERT INTO market_internals (
+            timestamp, date,
+            tick, tick_high, tick_low,
+            trin, advn,
+            uvol, dvol, vol_ratio,
+            vix, vix_open, vix_high, vix_low, vix_change, vix_change_pct,
+            spx, spx_change, spx_change_pct, spx_high, spx_low,
+            compx, compx_change, compx_change_pct,
+            dji, dji_change, dji_change_pct
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    const result = stmt.run(
+        data.timestamp || new Date().toISOString(),
+        data.date || new Date().toISOString().substring(0, 10),
+        data.tick ?? null, data.tick_high ?? null, data.tick_low ?? null,
+        data.trin ?? null, data.advn ?? null,
+        data.uvol ?? null, data.dvol ?? null, data.vol_ratio ?? null,
+        data.vix ?? null, data.vix_open ?? null, data.vix_high ?? null, data.vix_low ?? null, data.vix_change ?? null, data.vix_change_pct ?? null,
+        data.spx ?? null, data.spx_change ?? null, data.spx_change_pct ?? null, data.spx_high ?? null, data.spx_low ?? null,
+        data.compx ?? null, data.compx_change ?? null, data.compx_change_pct ?? null,
+        data.dji ?? null, data.dji_change ?? null, data.dji_change_pct ?? null
+    );
+
+    return result.lastInsertRowid;
+}
+
+/**
+ * Get the most recent internals snapshot
+ */
+function getLatestInternals() {
+    return getDb().prepare(`
+        SELECT * FROM market_internals
+        ORDER BY id DESC LIMIT 1
+    `).get() || null;
+}
+
+/**
+ * Get internals history for the last N hours (oldest first, for charts)
+ */
+function getInternalsHistory(hours = 6) {
+    const cutoff = new Date(Date.now() - hours * 60 * 60 * 1000).toISOString();
+    return getDb().prepare(`
+        SELECT * FROM market_internals
+        WHERE timestamp >= ?
+        ORDER BY timestamp ASC
+    `).all(cutoff);
+}
+
+/**
+ * Get all internals readings for today (by date string)
+ */
+function getInternalsToday() {
+    const today = new Date().toISOString().substring(0, 10);
+    return getDb().prepare(`
+        SELECT * FROM market_internals
+        WHERE date = ?
+        ORDER BY timestamp ASC
+    `).all(today);
+}
+
 module.exports = {
     getDb,
     insertSignal,
@@ -3059,5 +3148,10 @@ module.exports = {
     // Positions functions (replaces positions.json)
     getOpenPositions,
     addPosition,
-    closePosition
+    closePosition,
+    // Market internals functions
+    insertMarketInternals,
+    getLatestInternals,
+    getInternalsHistory,
+    getInternalsToday
 };

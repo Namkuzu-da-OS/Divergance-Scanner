@@ -382,6 +382,53 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // API: Get latest market internals snapshot
+    if (req.method === 'GET' && urlPath === '/api/internals/latest') {
+        try {
+            const signalDb = require('./signal-db');
+            const data = signalDb.getLatestInternals();
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(data || {}));
+        } catch (e) {
+            console.error('[Web Server] Error loading internals/latest:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
+    // API: Get market internals history for charts
+    if (req.method === 'GET' && urlPath === '/api/internals/history') {
+        try {
+            const signalDb = require('./signal-db');
+            const url = new URL(req.url, `http://${req.headers.host}`);
+            const hours = parseInt(url.searchParams.get('hours') || '6');
+            const data = signalDb.getInternalsHistory(hours);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(data));
+        } catch (e) {
+            console.error('[Web Server] Error loading internals/history:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
+    // API: Get all market internals readings for today
+    if (req.method === 'GET' && urlPath === '/api/internals/today') {
+        try {
+            const signalDb = require('./signal-db');
+            const data = signalDb.getInternalsToday();
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(data));
+        } catch (e) {
+            console.error('[Web Server] Error loading internals/today:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
     // Helper: derive VIX regime from raw value
     function deriveVixRegime(vix) {
         if (!vix) return 'unknown';

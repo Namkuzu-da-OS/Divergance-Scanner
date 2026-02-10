@@ -63,6 +63,15 @@ module.exports = {
       autorestart: true,
       max_restarts: 5,
       restart_delay: 10000
+    },
+    {
+      name: 'internals',
+      script: 'monitor/market-internals.js',
+      cwd: __dirname,
+      watch: false,
+      autorestart: true,
+      max_restarts: 10,
+      restart_delay: 5000
     }
   ]
 };
