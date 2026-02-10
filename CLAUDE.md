@@ -479,11 +479,16 @@ The tradeable decision uses wall proximity, confluence score, and zone:
 3. **EXTENDED_LOW reversals** - Below put wall with oversold RSI = WATCH tier
 4. **Mid-range/Pinned** - Good scores (35+) in these zones get WATCH, not FILTERED
 
-**Trend Alignment:**
-- BUY action + bullish/neutral trend = aligned
-- BUY action + bearish trend = counter-trend → WATCH tier
-- SELL action + bearish/neutral trend = aligned
-- SELL action + bullish trend = counter-trend → WATCH tier
+**Alert Warnings (Annotations, Not Downgrades):**
+
+Alerts are never suppressed based on trend alignment or wall activity. Instead, `getAlertTier()` returns `{ tier, warnings }` — the tier is always preserved from zone classification, and warnings are added as informational annotations to Telegram messages.
+
+| Warning | Condition | Example |
+|---------|-----------|---------|
+| Counter-trend | Setup direction doesn't match swing bias | `Note: ⚠️ Counter-trend (swing: BULLISH)` |
+| Dormant wall | Wall has low option activity | `Note: ⚠️ Dormant wall` |
+
+Counter-trend signals actually outperform aligned signals (55.6% vs 34.9% win rate per signal validation data), so suppressing them would remove the best signals. The trader sees the warning and decides.
 
 ### Output (Database + API)
 
@@ -766,16 +771,18 @@ Edit `monitor/premarket-scanner.js` CONFIG for:
 
 ### What It Tracks
 
-| Symbol | Data | Field |
-|--------|------|-------|
+| Symbol | Data | Fields |
+|--------|------|--------|
 | $TICK | NYSE net upticks | tick, tick_high, tick_low |
 | $TRIN | Arms Index | trin |
-| $ADVN | Advancing issues | advn |
-| $UVOL / $DVOL | Up/Down volume | uvol, dvol, vol_ratio |
+| $ADVN / $DECN | Advancing / Declining issues | advn, decn, ad_spread (computed: ADVN - DECN) |
+| $UVOL / $DVOL | Up/Down volume | uvol, dvol, vol_ratio (computed: UVOL / DVOL) |
 | $VIX | Fear gauge (full OHLC) | vix, vix_open, vix_high, vix_low, vix_change, vix_change_pct |
 | $SPX | S&P 500 | spx, spx_change, spx_change_pct, spx_high, spx_low |
 | $COMPX | Nasdaq Composite | compx, compx_change, compx_change_pct |
 | $DJI | Dow Jones | dji, dji_change, dji_change_pct |
+
+**Schwab symbol note:** Declining issues = `$DECN` (NOT `$DECL`). The composite/derived symbols ($ADD, $VOLD, $PCSP, $SPXA200R) are thinkorswim-only and not available through the REST API.
 
 ### Control API (Port 8085)
 
@@ -789,15 +796,25 @@ Edit `monitor/premarket-scanner.js` CONFIG for:
 
 ### Dashboard Integration
 
-- **Zone Scanner:** Compact internals bar between summary grid and filter bar (TICK, ADVN, TRIN, VIX, VOL ratio)
+- **Zone Scanner:** Compact internals bar between summary grid and filter bar (TICK, A/D spread, TRIN, VIX, VOL ratio)
 - **Market Dashboard (scanner.html):** Full internals gauges + intraday Chart.js charts with threshold lines
 - **`/pulse` command:** Uses `/api/internals/latest` as primary data source
 
+### Dashboard Thresholds
+
+| Metric | Bullish | Neutral | Bearish | Extreme |
+|--------|---------|---------|---------|---------|
+| TICK | > +400 | -400 to +400 | < -400 | ±800 |
+| A/D Spread | > +400 | -400 to +400 | < -400 | ±1000 |
+| TRIN | < 0.8 | 0.8 - 1.2 | > 1.2 | > 2.0 |
+| Vol Ratio | > 2:1 | 1:1 - 2:1 | < 1:1 | > 3:1 |
+| VIX | < 12 | 12 - 20 | 20 - 30 | > 30 |
+
 ### Configuration
 
-- Scan interval: 5 minutes (during RTH only)
+- Scan interval: 2 minutes (during RTH only)
 - RTH window: 9:30 AM - 4:00 PM ET
-- API rate limiting: 50ms delay between calls
+- API rate limiting: 50ms delay between sequential calls
 - Data storage: `market_internals` table in `data/wingman.db`
 
 ---
