@@ -561,6 +561,12 @@ Auto-refreshes every 30 seconds.
                     <canvas id="chart-vix"></canvas>
                 </div>
             </div>
+            <div class="chart-card">
+                <h3>A/D Spread — Intraday</h3>
+                <div class="chart-container">
+                    <canvas id="chart-ad"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -596,7 +602,7 @@ Auto-refreshes every 30 seconds.
             }
         };
 
-        let tickChart, trinChart, volChart, vixChart;
+        let tickChart, trinChart, volChart, vixChart, adChart;
 
         function initCharts() {
             // TICK chart with threshold lines
@@ -751,6 +757,50 @@ Auto-refreshes every 30 seconds.
                             { val: 30, color: 'rgba(255, 68, 68, 0.3)', dash: [4, 4] },
                             { val: 20, color: 'rgba(255, 193, 7, 0.3)', dash: [2, 4] },
                             { val: 12, color: 'rgba(0, 212, 170, 0.2)', dash: [2, 4] }
+                        ];
+
+                        for (const line of lines) {
+                            const y = yScale.getPixelForValue(line.val);
+                            if (y < xArea.top || y > xArea.bottom) continue;
+                            ctx.save();
+                            ctx.beginPath();
+                            ctx.setLineDash(line.dash);
+                            ctx.strokeStyle = line.color;
+                            ctx.lineWidth = 1;
+                            ctx.moveTo(xArea.left, y);
+                            ctx.lineTo(xArea.right, y);
+                            ctx.stroke();
+                            ctx.restore();
+                        }
+                    }
+                }]
+            });
+
+            // A/D Spread chart with threshold lines
+            adChart = new Chart(document.getElementById('chart-ad'), {
+                type: 'line',
+                data: { labels: [], datasets: [{ data: [], borderColor: '#e040fb', borderWidth: 1.5, pointRadius: 0, fill: false, tension: 0.2 }] },
+                options: {
+                    ...chartDefaults,
+                    plugins: {
+                        ...chartDefaults.plugins,
+                        legend: { display: false }
+                    }
+                },
+                plugins: [{
+                    id: 'adThresholds',
+                    afterDraw(chart) {
+                        const { ctx } = chart;
+                        const yScale = chart.scales.y;
+                        const xArea = chart.chartArea;
+                        if (!xArea) return;
+
+                        const lines = [
+                            { val: 1000, color: 'rgba(0, 255, 136, 0.3)', dash: [4, 4] },
+                            { val: 400, color: 'rgba(0, 212, 170, 0.2)', dash: [2, 4] },
+                            { val: 0, color: 'rgba(139, 146, 168, 0.3)', dash: [2, 2] },
+                            { val: -400, color: 'rgba(255, 107, 107, 0.2)', dash: [2, 4] },
+                            { val: -1000, color: 'rgba(255, 68, 68, 0.3)', dash: [4, 4] }
                         ];
 
                         for (const line of lines) {
@@ -1096,6 +1146,7 @@ Auto-refreshes every 30 seconds.
             const trinData = history.map(h => h.trin);
             const volData = history.map(h => h.vol_ratio);
             const vixData = history.map(h => h.vix);
+            const adData = history.map(h => h.ad_spread);
 
             // TICK
             tickChart.data.labels = labels;
@@ -1116,6 +1167,11 @@ Auto-refreshes every 30 seconds.
             vixChart.data.labels = labels;
             vixChart.data.datasets[0].data = vixData;
             vixChart.update();
+
+            // A/D Spread
+            adChart.data.labels = labels;
+            adChart.data.datasets[0].data = adData;
+            adChart.update();
         }
 
         // ============================================
