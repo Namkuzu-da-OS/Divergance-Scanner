@@ -859,20 +859,24 @@ async function runScan() {
 
     log(`[DB] Saved scan #${scanId} with ${movers.length} movers`);
 
-    // Auto-add HIGH_CONVICTION gaps to persistent watchlist
+    // Auto-add HIGH_CONVICTION gaps to watchlist (2-day window)
+    // If symbol already exists, timer resets (repeat gaps deserve more attention)
+    // Manual entries are protected by addToWatchlist() — never overwritten
     for (const mover of highConviction) {
-        if (!signalDb.isInWatchlist(mover.symbol)) {
-            const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(); // Expires in 7 days
-            signalDb.addToWatchlist(mover.symbol, {
-                notes: `Premarket gap ${mover.gap_pct > 0 ? '+' : ''}${mover.gap_pct.toFixed(1)}% - ${new Date().toISOString().split('T')[0]}`,
-                source: 'premarket_gap',
-                addedBy: 'premarket-scanner',
-                gapPct: mover.gap_pct,
-                scoreAtAdd: mover.score,
-                tierAtAdd: mover.tier,
-                expiresAt: expiresAt
-            });
+        const expiresAt = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(); // Expires in 2 days
+        const result = signalDb.addToWatchlist(mover.symbol, {
+            notes: `Premarket gap ${mover.gap_pct > 0 ? '+' : ''}${mover.gap_pct.toFixed(1)}% - ${new Date().toISOString().split('T')[0]}`,
+            source: 'premarket_gap',
+            addedBy: 'premarket-scanner',
+            gapPct: mover.gap_pct,
+            scoreAtAdd: mover.score,
+            tierAtAdd: mover.tier,
+            expiresAt: expiresAt
+        });
+        if (result.action === 'added') {
             log(`[Watchlist] Auto-added ${mover.symbol} (${mover.gap_pct.toFixed(1)}% gap, score: ${mover.score})`);
+        } else if (result.action === 'updated') {
+            log(`[Watchlist] Reset timer for ${mover.symbol} (repeat gap ${mover.gap_pct.toFixed(1)}%, new expiry: 2 days)`);
         }
 
         // Send Telegram alert with historical fill rate

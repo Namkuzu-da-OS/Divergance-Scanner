@@ -891,6 +891,23 @@
             gap: 6px;
         }
 
+        .watchlist-chip.manual {
+            background: #0d2a1f;
+            border-color: #00d4aa;
+            color: #00d4aa;
+            font-weight: 600;
+        }
+
+        .watchlist-chip.dynamic {
+            opacity: 0.75;
+        }
+
+        .watchlist-chip .source-tag {
+            font-size: 9px;
+            color: #6b7280;
+            text-transform: uppercase;
+        }
+
         .watchlist-chip .remove-btn {
             color: #ff6b6b;
             cursor: pointer;
@@ -1730,14 +1747,21 @@
                 container.innerHTML = '<span style="color: #6b7280">No symbols in watchlist</span>';
                 return;
             }
-            container.innerHTML = symbols
+            // Sort: manual first, then dynamic
+            const sorted = symbols
                 .filter(s => s.enabled)
-                .map(s => `
-                    <div class="watchlist-chip">
-                        <span>${s.symbol}</span>
-                        <span class="remove-btn" onclick="removeFromWatchlist('${s.symbol}')">&times;</span>
-                    </div>
-                `).join('');
+                .sort((a, b) => {
+                    if (a.source === 'manual' && b.source !== 'manual') return -1;
+                    if (a.source !== 'manual' && b.source === 'manual') return 1;
+                    return 0;
+                });
+            container.innerHTML = sorted.map(s => {
+                const isManual = s.source === 'manual';
+                const chipClass = isManual ? 'watchlist-chip manual' : 'watchlist-chip dynamic';
+                const removeBtn = isManual ? '' : `<span class="remove-btn" onclick="removeFromWatchlist('${s.symbol}')">&times;</span>`;
+                const sourceTag = isManual ? '' : `<span class="source-tag">${s.source.replace('_', ' ')}</span>`;
+                return `<div class="${chipClass}"><span>${s.symbol}</span>${sourceTag}${removeBtn}</div>`;
+            }).join('');
         }
 
         async function addToWatchlist() {
