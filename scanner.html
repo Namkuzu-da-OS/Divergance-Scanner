@@ -366,6 +366,60 @@ Auto-refreshes every 30 seconds.
             height: 200px;
         }
 
+        /* Info Tooltips */
+        .info-tip {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #2a3641;
+            color: #8b92a8;
+            font-size: 9px;
+            font-weight: 600;
+            cursor: help;
+            margin-left: 6px;
+            vertical-align: middle;
+            flex-shrink: 0;
+        }
+        .info-tip:hover { background: #3a4651; color: #c0c6d4; }
+        .info-tip .tip-text {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 240px;
+            background: #1e2233;
+            color: #c0c6d4;
+            border: 1px solid #3a4651;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 1.5;
+            letter-spacing: 0;
+            text-transform: none;
+            text-align: left;
+            z-index: 100;
+            transition: opacity 0.15s;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+            pointer-events: none;
+        }
+        .info-tip .tip-text::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #3a4651;
+        }
+        .info-tip:hover .tip-text { visibility: visible; opacity: 1; }
+
         .loading { color: #8b92a8; text-align: center; padding: 40px; }
         .no-data { color: #4b5563; text-align: center; padding: 40px; font-size: 13px; }
     </style>
@@ -447,25 +501,25 @@ Auto-refreshes every 30 seconds.
         <!-- Internals Gauges -->
         <div class="gauges-grid" id="gauges-grid">
             <div class="gauge-card">
-                <div class="gauge-label">NYSE TICK</div>
+                <div class="gauge-label">NYSE TICK <span class="info-tip">?<span class="tip-text">Net upticking vs downticking stocks on NYSE, sampled every 6 seconds. <b>Above +400:</b> Strong buying pressure. <b>Below -400:</b> Strong selling. <b>Extremes (±800):</b> Often mark short-term reversals. Watch for sustained readings, not single spikes.</span></span></div>
                 <div class="gauge-value stale" id="g-tick">—</div>
                 <div class="gauge-range" id="g-tick-range">H: — L: —</div>
                 <div class="gauge-interpretation neutral" id="g-tick-interp">Waiting...</div>
             </div>
             <div class="gauge-card">
-                <div class="gauge-label">A/D Spread</div>
+                <div class="gauge-label">A/D Spread <span class="info-tip">?<span class="tip-text">Advancing issues minus declining issues on NYSE (ADVN - DECN). Measures market breadth. <b>Above +400:</b> Broad buying across stocks. <b>Below -400:</b> Wide selling. <b>Near zero:</b> Balanced/mixed. A rising market on narrow breadth (low A/D) is a warning sign.</span></span></div>
                 <div class="gauge-value stale" id="g-ad">—</div>
                 <div class="gauge-range" id="g-ad-range">&nbsp;</div>
                 <div class="gauge-interpretation neutral" id="g-ad-interp">Waiting...</div>
             </div>
             <div class="gauge-card">
-                <div class="gauge-label">TRIN (Arms Index)</div>
+                <div class="gauge-label">TRIN (Arms Index) <span class="info-tip">?<span class="tip-text">Ratio of advancing/declining issues to advancing/declining volume. Measures whether volume is flowing into rising or falling stocks. <b>Below 0.8:</b> Bullish — money flowing to winners. <b>Above 1.2:</b> Bearish — selling volume dominates. <b>Above 2.0:</b> Extreme selling, often marks capitulation. TRIN is inverted — low = bullish.</span></span></div>
                 <div class="gauge-value stale" id="g-trin">—</div>
                 <div class="gauge-range" id="g-trin-range">&nbsp;</div>
                 <div class="gauge-interpretation neutral" id="g-trin-interp">Waiting...</div>
             </div>
             <div class="gauge-card">
-                <div class="gauge-label">Volume Ratio (U:D)</div>
+                <div class="gauge-label">Volume Ratio (U:D) <span class="info-tip">?<span class="tip-text">Up volume divided by down volume on NYSE ($UVOL / $DVOL). Shows where the real money is going. <b>Above 2:1:</b> Buyers in control. <b>Below 1:1:</b> Sellers dominating. <b>Above 3:1:</b> Extremely one-sided, often near short-term exhaustion. More reliable than TICK for confirming trend strength.</span></span></div>
                 <div class="gauge-value stale" id="g-vol">—</div>
                 <div class="gauge-range" id="g-vol-range">&nbsp;</div>
                 <div class="gauge-interpretation neutral" id="g-vol-interp">Waiting...</div>
@@ -538,31 +592,31 @@ Auto-refreshes every 30 seconds.
         <!-- Intraday Charts -->
         <div class="charts-grid">
             <div class="chart-card">
-                <h3>NYSE TICK — Intraday</h3>
+                <h3>NYSE TICK — Intraday <span class="info-tip">?<span class="tip-text">Dashed lines show key levels. <b>±400:</b> Moderate buying/selling. <b>±800:</b> Extreme — often marks intraday turning points. Look for TICK holding above zero in uptrends, below zero in downtrends.</span></span></h3>
                 <div class="chart-container">
                     <canvas id="chart-tick"></canvas>
                 </div>
             </div>
             <div class="chart-card">
-                <h3>TRIN (Arms Index) — Intraday</h3>
+                <h3>TRIN — Intraday <span class="info-tip">?<span class="tip-text">Remember: TRIN is inverted. <b>Falling TRIN = bullish</b> (money flowing into advancing stocks). <b>Rising TRIN = bearish.</b> Spikes above 2.0 often mark selloff exhaustion. Dashed lines at 0.8, 1.0, 1.2, and 2.0.</span></span></h3>
                 <div class="chart-container">
                     <canvas id="chart-trin"></canvas>
                 </div>
             </div>
             <div class="chart-card">
-                <h3>Volume Ratio (Up:Down) — Intraday</h3>
+                <h3>Volume Ratio — Intraday <span class="info-tip">?<span class="tip-text">Up volume / Down volume throughout the day. <b>Above 2:1:</b> Strong buying conviction. <b>Below 1:1:</b> Sellers winning. The trend of this ratio matters more than a single reading — watch for it expanding or contracting.</span></span></h3>
                 <div class="chart-container">
                     <canvas id="chart-vol"></canvas>
                 </div>
             </div>
             <div class="chart-card">
-                <h3>VIX — Intraday</h3>
+                <h3>VIX — Intraday <span class="info-tip">?<span class="tip-text">CBOE Volatility Index — the "fear gauge." <b>Below 12:</b> Complacent, spike risk. <b>12-20:</b> Normal. <b>20-30:</b> Elevated, watch for setups. <b>Above 30:</b> Fear — historically great for entries. VIX rising with market falling = increasing fear.</span></span></h3>
                 <div class="chart-container">
                     <canvas id="chart-vix"></canvas>
                 </div>
             </div>
             <div class="chart-card">
-                <h3>A/D Spread — Intraday</h3>
+                <h3>A/D Spread — Intraday <span class="info-tip">?<span class="tip-text">Advancing minus declining issues over time. <b>Expanding positive:</b> Rally has broad participation. <b>Narrowing:</b> Rally losing steam, fewer stocks joining. <b>Divergence:</b> If SPX rises but A/D falls, the advance is fragile. Dashed lines at ±400 and ±1000.</span></span></h3>
                 <div class="chart-container">
                     <canvas id="chart-ad"></canvas>
                 </div>
