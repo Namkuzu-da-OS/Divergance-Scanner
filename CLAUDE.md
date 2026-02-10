@@ -229,6 +229,59 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 - Options Lab: `http://localhost:8080/options-lab.html`
 - Scanner (legacy): `http://localhost:8080/scanner.html`
 
+### Web Server API Endpoints (Port 8080)
+
+All served by `monitor/web-server.js`. These are the internal dashboard APIs.
+
+**Scanner Data**
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| GET | `/api/scan/latest` | Full Bloodhound scan data (all tickers with details) |
+| GET | `/api/scan/summary` | Summary format (counts, market context, top setups) |
+
+**Signals & Alerts**
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| GET | `/api/signals` | All signals with checkpoint data |
+| GET | `/api/signals/stats` | Aggregated stats by tier, VIX, direction |
+| GET | `/api/signals/options?days=30` | Option signal tracking stats |
+| GET | `/api/alerts?days=7&limit=50&type=X` | Alert history from DB |
+
+**Pre-Market & Gaps**
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| GET | `/api/premarket` | Latest premarket scan data |
+| GET | `/api/premarket/today` | Today's premarket stats and top gappers |
+| GET | `/api/gaps/analytics?days=30` | Fill rates by tier, size, catalyst, direction |
+| GET | `/api/gaps/ticker/:symbol` | Ticker-specific gap history |
+| GET | `/api/gaps/repeat-offenders` | Frequent gappers with fill rates |
+| GET | `/api/gaps/today-with-history` | Today's gaps enriched with historical context |
+| GET | `/api/gaps/session?date=YYYY-MM-DD` | Gap session watchlist for a specific date |
+| GET | `/api/gaps/sessions?limit=30` | Available session dates for lookback |
+
+**Opportunities**
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| GET | `/api/opportunities/latest` | Latest opportunity scanner results |
+
+**Morning Briefing**
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| GET | `/api/morning-briefing` | Aggregated data: market context, premarket, setups, opportunities |
+
+**Positions & Paper Trading**
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| GET | `/api/positions` | Open positions from SQLite |
+| POST | `/api/positions` | Add a position |
+| PATCH | `/api/positions/close` | Close a position |
+| POST | `/api/save-paper-trades` | Save paper trade data to JSON |
+
+**Proxy**
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| GET | `/proxy/analytics/*` | Forwards to Options API (e.g., `/proxy/analytics/api/options/SPY`) |
+
 ---
 
 ## File Structure
