@@ -12,23 +12,11 @@ Also fetch open positions from the API:
 
 Note: CLAUDE.md is already in system context. Do not read it again.
 
-## STEP 2: Scanner Data + Sector Rotation via Subagents (MANDATORY)
+## STEP 2: Market Context + Sector Rotation + Scanner via Subagents (MANDATORY)
 
-Launch BOTH subagents in parallel (same message, two Task tool calls):
+Launch ALL subagents in parallel (same message, multiple Task tool calls). Data gathering is parallel for speed — the top-down analysis happens in Step 4.
 
-**Subagent A - Scanner Data:**
-```
-Task tool with subagent_type=Explore:
-"Fetch http://localhost:8080/api/scan/latest and return a compact summary:
-1. Scan timestamp
-2. Total ticker count
-3. Market context: VIX, regime, SPY price/trend
-4. ALL symbols with score, direction, zone, tier, action - in a table sorted by score descending
-5. Count of tradeable setups (tier = HIGH_CONVICTION or TRADEABLE)
-Be complete. Miss no tickers."
-```
-
-**Subagent B - Sector Rotation & Movers:**
+**Subagent A - Sector Rotation & Movers:**
 ```
 Task tool with subagent_type=Explore:
 "Fetch technicals for all 11 SPDR sector ETFs plus key thematic ETFs.
@@ -50,6 +38,18 @@ Return:
 Be complete and compact."
 ```
 
+**Subagent B - Scanner Data:**
+```
+Task tool with subagent_type=Explore:
+"Fetch http://localhost:8080/api/scan/latest and return a compact summary:
+1. Scan timestamp
+2. Total ticker count
+3. Market context: VIX, regime, SPY price/trend
+4. ALL symbols with score, direction, zone, tier, action - in a table sorted by score descending
+5. Count of tradeable setups (tier = HIGH_CONVICTION or TRADEABLE)
+Be complete. Miss no tickers."
+```
+
 ## STEP 3: API Connectivity Check
 
 Ping both servers:
@@ -62,10 +62,10 @@ Bloodhound is the autonomous opportunity detection system running via PM2. It:
 - Discovers symbols from 3 sources (watchlist, market data, sector rotation)
 - Maps crypto/indices to ETFs (BTC→IBIT, ETH→ETHA, SPX→SPY)
 - Scores confluence (0-100) and classifies into tiers:
-  - **HIGH_CONVICTION**: Prime setup (AT_WALL + EXTENDED_RSI) + score ≥40, or score ≥50 at wall → Telegram alert + signal logged
-  - **TRADEABLE**: Score ≥35 at wall + action → Signal logged
-  - **WATCH**: Score ≥20 near wall, or EXTENDED_LOW + oversold RSI → Alert only
-  - **FILTERED**: Everything else → No action
+  - **HIGH_CONVICTION**: Prime setup (AT_WALL + EXTENDED_RSI) + score >=40, or score >=50 at wall -> Telegram alert + signal logged
+  - **TRADEABLE**: Score >=35 at wall + action -> Signal logged
+  - **WATCH**: Score >=20 near wall, or EXTENDED_LOW + oversold RSI -> Alert only
+  - **FILTERED**: Everything else -> No action
 - Control API at http://localhost:8081 (pause/resume/scan/watchlist)
 - Zone Scanner at http://localhost:8080
 - Analytics Dashboard at http://localhost:8080/analytics.html
@@ -74,7 +74,7 @@ Bloodhound is the autonomous opportunity detection system running via PM2. It:
 - HIGH_CONVICTION signals logged to SQLite with multi-checkpoint validation
 - Tracks entry context (VIX regime, SPY trend, score, zone)
 - Checkpoints at 4h, 24h, 7d intervals
-- Auto-closes at ±2% or 72h timeout
+- Auto-closes at +/-2% or 72h timeout
 - Analytics dashboard shows tier comparison, market condition analysis
 
 Scanner data is loaded via subagent in Step 2. For subsequent scanner checks during the session, always use the subagent pattern.
@@ -96,17 +96,53 @@ You have access to two data servers at 192.168.10.60:
 
 ---
 
-## STEP 4: Report Status
+## STEP 4: Report Status (TOP-DOWN ANALYSIS)
 
-After completing Steps 1-3, confirm you are Wingman and provide:
-- Current market regime (from MARKET_INTEL.md)
-- Open positions summary (from /api/positions)
-- Daily risk status
-- Scanner summary (from Subagent A)
-- Sector rotation summary (from Subagent B): leading/lagging sectors, overbought/oversold, rotation theme, top movers
-- Market Intel highlights (from MARKET_INTEL.md): active swing watchlist status, any setups that triggered overnight, previous session context, today's focus items
-- API connectivity status
-- Ready statement
+**This is the core analytical framework. Always present in this order: Market -> Sectors -> Opportunities.**
+
+After completing Steps 1-3, confirm you are Wingman and present the analysis in strict top-down order:
+
+### Layer 1: THE MARKET (The Tide)
+*"Is the tide coming in or going out?"*
+
+- **VIX regime** — complacent/normal/elevated/fear/capitulation + direction (rising/falling/stable)
+- **SPY** — price, trend, gamma positioning (pinned? at wall? mid-range?)
+- **Market verdict** — One sentence: Should we be trading today? Aggressive, standard, or defensive?
+- **Macro calendar** — Any events today? (FOMC, CPI, NFP, earnings of major names). Flag S-6 rule if applicable.
+- **Risk budget** — Based on regime: standard ($200), reduced ($100), or emergency ($50)
+
+### Layer 2: SECTOR ROTATION (Where Money is Flowing)
+*"Which sectors have wind at their back?"*
+
+- **Rotation theme** — One sentence summary (e.g., "Cyclicals leading, tech lagging — classic mid-cycle rotation")
+- **Sector table** — All 11 SPDR sectors + thematic ETFs, sorted by RSI. Flag overbought (>70) and oversold (<30).
+- **Leading sectors** — Top 3 by RSI/momentum. These are WHERE we want to find longs.
+- **Lagging sectors** — Bottom 3. Avoid longs here unless individual confluence is overwhelming.
+- **Sector changes** — What shifted since last session? Any new breakouts or breakdowns?
+- **Top movers** — SPX winners and losers driving the rotation.
+
+### Layer 3: OPPORTUNITIES (Individual Names Through the Sector Lens)
+*"What are the best expressions of the trade?"*
+
+Present scanner setups **overlaid against sector context**. For each tradeable setup:
+
+**WITH Rotation (sector aligned):**
+| Symbol | Score | Zone | Action | Sector | Sector RSI | Alignment |
+Standard conviction. These are the primary opportunities.
+
+**AGAINST Rotation (sector headwind):**
+| Symbol | Score | Zone | Action | Sector | Sector RSI | Alignment |
+Needs extra confluence to justify. Flag the headwind explicitly. Smaller size.
+
+Then:
+- **Open positions** — Any immediate action needed?
+- **Watchlist cross-check** — Did any MARKET_INTEL.md entries trigger or expire?
+- **New developments** — Names that emerged or fell off since last session.
+
+### Layer 4: SESSION PLAN
+- **Priority actions** — Ranked list of what to do first (pull levels, size a trade, monitor earnings, etc.)
+- **What we're NOT doing** — Explicitly state what we're avoiding and why (chasing overbought sectors, fighting trend, etc.)
+- **API connectivity** — Confirm all systems online.
 
 **IMPORTANT: After reporting status, compare fresh scanner/sector data against MARKET_INTEL.md.**
 - Did any watchlist entries trigger their entry zones?
