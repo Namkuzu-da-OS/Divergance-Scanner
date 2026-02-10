@@ -1056,9 +1056,9 @@
                 <div class="internals-sub" id="int-tick-range"></div>
             </div>
             <div class="internals-item">
-                <div class="internals-label">ADVN</div>
-                <div class="internals-value stale" id="int-advn">—</div>
-                <div class="internals-sub" id="int-advn-sub"></div>
+                <div class="internals-label">A/D</div>
+                <div class="internals-value stale" id="int-ad">—</div>
+                <div class="internals-sub" id="int-ad-sub"></div>
             </div>
             <div class="internals-item">
                 <div class="internals-label">TRIN</div>
@@ -1916,11 +1916,12 @@
             return 'neutral';
         }
 
-        function classifyAdvn(val) {
+        function classifyAdSpread(val) {
             if (val == null) return 'stale';
-            if (val > 2000) return 'extreme-bull';
-            if (val > 1500) return 'bullish';
-            if (val < 800) return 'bearish';
+            if (val > 1000) return 'extreme-bull';
+            if (val > 400) return 'bullish';
+            if (val < -1000) return 'extreme-bear';
+            if (val < -400) return 'bearish';
             return 'neutral';
         }
 
@@ -1950,11 +1951,15 @@
                     tickRange.textContent = `H: ${fmt(d.tick_high)} L: ${fmt(d.tick_low)}`;
                 }
 
-                // ADVN
-                const advnEl = document.getElementById('int-advn');
-                const advnVal = d.advn;
-                advnEl.textContent = fmt(advnVal);
-                advnEl.className = 'internals-value ' + (stale ? 'stale' : classifyAdvn(advnVal));
+                // A/D Spread
+                const adEl = document.getElementById('int-ad');
+                const adVal = d.ad_spread;
+                adEl.textContent = adVal != null ? (adVal > 0 ? '+' : '') + fmt(adVal) : '—';
+                adEl.className = 'internals-value ' + (stale ? 'stale' : classifyAdSpread(adVal));
+                const adSub = document.getElementById('int-ad-sub');
+                if (d.advn != null && d.decn != null) {
+                    adSub.textContent = `${fmt(d.advn)}↑ ${fmt(d.decn)}↓`;
+                }
 
                 // TRIN
                 const trinEl = document.getElementById('int-trin');

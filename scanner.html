@@ -453,10 +453,10 @@ Auto-refreshes every 30 seconds.
                 <div class="gauge-interpretation neutral" id="g-tick-interp">Waiting...</div>
             </div>
             <div class="gauge-card">
-                <div class="gauge-label">Advancing Issues</div>
-                <div class="gauge-value stale" id="g-advn">—</div>
-                <div class="gauge-range" id="g-advn-range">&nbsp;</div>
-                <div class="gauge-interpretation neutral" id="g-advn-interp">Waiting...</div>
+                <div class="gauge-label">A/D Spread</div>
+                <div class="gauge-value stale" id="g-ad">—</div>
+                <div class="gauge-range" id="g-ad-range">&nbsp;</div>
+                <div class="gauge-interpretation neutral" id="g-ad-interp">Waiting...</div>
             </div>
             <div class="gauge-card">
                 <div class="gauge-label">TRIN (Arms Index)</div>
@@ -1013,11 +1013,12 @@ Auto-refreshes every 30 seconds.
                 if (val < -400) return { cls: 'bearish', text: 'Strong Selling' };
                 return { cls: 'neutral', text: 'Normal' };
             }
-            if (type === 'advn') {
-                if (val > 2000) return { cls: 'extreme-bull', text: 'Strong Breadth' };
-                if (val > 1500) return { cls: 'bullish', text: 'Broad Advance' };
-                if (val < 800) return { cls: 'bearish', text: 'Narrow Market' };
-                return { cls: 'neutral', text: 'Normal Breadth' };
+            if (type === 'ad') {
+                if (val > 1000) return { cls: 'extreme-bull', text: 'Strong Breadth' };
+                if (val > 400) return { cls: 'bullish', text: 'Broad Advance' };
+                if (val < -1000) return { cls: 'extreme-bear', text: 'Strong Decline' };
+                if (val < -400) return { cls: 'bearish', text: 'Weak Breadth' };
+                return { cls: 'neutral', text: 'Balanced' };
             }
             if (type === 'trin') {
                 if (val > 2.0) return { cls: 'extreme-bear', text: 'Extreme Selling' };
@@ -1050,14 +1051,15 @@ Auto-refreshes every 30 seconds.
             tickInterp.textContent = stale ? 'Stale Data' : tickInfo.text;
             tickInterp.className = 'gauge-interpretation ' + (stale ? 'neutral' : tickInfo.cls);
 
-            // ADVN
-            const advnInfo = classify('advn', d.advn);
-            const advnEl = document.getElementById('g-advn');
-            advnEl.textContent = fmt(d.advn);
-            advnEl.className = 'gauge-value ' + (stale ? 'stale' : advnInfo.cls);
-            const advnInterp = document.getElementById('g-advn-interp');
-            advnInterp.textContent = stale ? 'Stale Data' : advnInfo.text;
-            advnInterp.className = 'gauge-interpretation ' + (stale ? 'neutral' : advnInfo.cls);
+            // A/D Spread
+            const adInfo = classify('ad', d.ad_spread);
+            const adEl = document.getElementById('g-ad');
+            adEl.textContent = d.ad_spread != null ? (d.ad_spread > 0 ? '+' : '') + fmt(d.ad_spread) : '—';
+            adEl.className = 'gauge-value ' + (stale ? 'stale' : adInfo.cls);
+            document.getElementById('g-ad-range').textContent = d.advn != null && d.decn != null ? `${fmt(d.advn)}↑  ${fmt(d.decn)}↓` : '';
+            const adInterp = document.getElementById('g-ad-interp');
+            adInterp.textContent = stale ? 'Stale Data' : adInfo.text;
+            adInterp.className = 'gauge-interpretation ' + (stale ? 'neutral' : adInfo.cls);
 
             // TRIN
             const trinInfo = classify('trin', d.trin);

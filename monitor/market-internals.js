@@ -30,7 +30,7 @@ const CONFIG = {
 };
 
 // Symbols to fetch
-const SYMBOLS = ['$TICK', '$TRIN', '$ADVN', '$UVOL', '$DVOL', '$VIX', '$SPX', '$COMPX', '$DJI'];
+const SYMBOLS = ['$TICK', '$TRIN', '$ADVN', '$DECN', '$UVOL', '$DVOL', '$VIX', '$SPX', '$COMPX', '$DJI'];
 
 // Scanner state
 let isRunning = false;
@@ -169,6 +169,10 @@ async function runScan() {
     const dvol = get('$DVOL', 'lastPrice');
     const volRatio = (uvol && dvol && dvol > 0) ? Math.round((uvol / dvol) * 100) / 100 : null;
 
+    const advn = get('$ADVN', 'lastPrice');
+    const decn = get('$DECN', 'lastPrice');
+    const adSpread = (advn != null && decn != null) ? Math.round(advn - decn) : null;
+
     const snapshot = {
         timestamp: new Date().toISOString(),
         date: getETDateString(),
@@ -176,7 +180,9 @@ async function runScan() {
         tick_high: get('$TICK', 'highPrice'),
         tick_low: get('$TICK', 'lowPrice'),
         trin: get('$TRIN', 'lastPrice'),
-        advn: get('$ADVN', 'lastPrice'),
+        advn: advn,
+        decn: decn,
+        ad_spread: adSpread,
         uvol: uvol,
         dvol: dvol,
         vol_ratio: volRatio,
@@ -209,6 +215,7 @@ async function runScan() {
         const parts = [];
         if (snapshot.tick != null) parts.push(`TICK:${snapshot.tick}`);
         if (snapshot.trin != null) parts.push(`TRIN:${snapshot.trin}`);
+        if (adSpread != null) parts.push(`A/D:${adSpread > 0 ? '+' : ''}${adSpread}`);
         if (snapshot.vix != null) parts.push(`VIX:${snapshot.vix}`);
         if (volRatio != null) parts.push(`Vol:${volRatio}:1`);
         if (snapshot.spx != null) parts.push(`SPX:${snapshot.spx}`);

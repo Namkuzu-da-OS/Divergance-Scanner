@@ -366,7 +366,7 @@ function initSchema() {
             timestamp TEXT NOT NULL,
             date TEXT NOT NULL,
             tick REAL, tick_high REAL, tick_low REAL,
-            trin REAL, advn REAL,
+            trin REAL, advn REAL, decn REAL, ad_spread REAL,
             uvol REAL, dvol REAL, vol_ratio REAL,
             vix REAL, vix_open REAL, vix_high REAL, vix_low REAL, vix_change REAL, vix_change_pct REAL,
             spx REAL, spx_change REAL, spx_change_pct REAL, spx_high REAL, spx_low REAL,
@@ -377,6 +377,9 @@ function initSchema() {
         CREATE INDEX IF NOT EXISTS idx_market_internals_timestamp ON market_internals(timestamp);
         CREATE INDEX IF NOT EXISTS idx_market_internals_date ON market_internals(date);
     `);
+
+    // Migration: Add decn and ad_spread columns to existing market_internals table
+    migrateMarketInternals();
 
     // Migration: Add EOD columns to existing premarket_movers table
     migratePremarketMovers();
@@ -460,6 +463,22 @@ function migrateAlerts() {
 /**
  * Add EOD tracking columns to existing premarket_movers table
  */
+function migrateMarketInternals() {
+    const columns = [
+        { name: 'decn', type: 'REAL' },
+        { name: 'ad_spread', type: 'REAL' }
+    ];
+
+    for (const col of columns) {
+        try {
+            db.exec(`ALTER TABLE market_internals ADD COLUMN ${col.name} ${col.type}`);
+            console.log(`[SignalDB] Added column ${col.name} to market_internals`);
+        } catch (e) {
+            // Column already exists, ignore
+        }
+    }
+}
+
 function migratePremarketMovers() {
     const columns = [
         { name: 'eod_close', type: 'REAL' },
@@ -3009,20 +3028,20 @@ function insertMarketInternals(data) {
         INSERT INTO market_internals (
             timestamp, date,
             tick, tick_high, tick_low,
-            trin, advn,
+            trin, advn, decn, ad_spread,
             uvol, dvol, vol_ratio,
             vix, vix_open, vix_high, vix_low, vix_change, vix_change_pct,
             spx, spx_change, spx_change_pct, spx_high, spx_low,
             compx, compx_change, compx_change_pct,
             dji, dji_change, dji_change_pct
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const result = stmt.run(
         data.timestamp || new Date().toISOString(),
         data.date || new Date().toISOString().substring(0, 10),
         data.tick ?? null, data.tick_high ?? null, data.tick_low ?? null,
-        data.trin ?? null, data.advn ?? null,
+        data.trin ?? null, data.advn ?? null, data.decn ?? null, data.ad_spread ?? null,
         data.uvol ?? null, data.dvol ?? null, data.vol_ratio ?? null,
         data.vix ?? null, data.vix_open ?? null, data.vix_high ?? null, data.vix_low ?? null, data.vix_change ?? null, data.vix_change_pct ?? null,
         data.spx ?? null, data.spx_change ?? null, data.spx_change_pct ?? null, data.spx_high ?? null, data.spx_low ?? null,
