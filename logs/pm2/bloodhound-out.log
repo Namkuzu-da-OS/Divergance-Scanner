@@ -7496,3 +7496,136 @@ Commands: node bloodhound-scanner.js [pause|resume|status]
 ============================================================
 [2026-02-10T20:59:49.246Z] Running Bloodhound scan...
 ============================================================
+[Backoff] 📊 Active (slow: 4, fast: 0)
+[Context] VIX: 17.81 (normal) | SPY: neutral
+[Signal Logger] Validating 1 signal(s) for 4h checkpoint...
+[SignalDB] Recorded 4h checkpoint for META_1770742741996: WRONG (-0.01%)
+[Signal Logger] 4h | META_1770742741996: ❌ -0.01%
+[Watchlist] DB: 9 static, 19 dynamic
+[Discovery] 9 reserved + 22 dynamic = 31 total
+[Discovery] Found 31 symbols to scan
+[Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+[Bias] Intraday: NEUTRAL | Swing: BULLISH
+[Top Discoveries]
+  1. MSFT (score: 100, watchlist)
+  2. META (score: 100, watchlist)
+  3. AAPL (score: 100, watchlist)
+  4. AMD (score: 100, watchlist)
+  5. IBIT (score: 100, watchlist)
+  6. TSLA (score: 100, watchlist)
+  7. NVDA (score: 100, watchlist)
+  8. QQQ (score: 100, watchlist)
+[Backoff] 📊 Active (slow: 7, fast: 0)
+[Backoff] 📊 Active (slow: 7, fast: 4)
+[Backoff] 📊 Active (slow: 7, fast: 9)
+[Backoff] ✅ RECOVERED - 10 fast responses, resuming parallel mode
+
+[VELOCITY ALERTS]
+  🚀 KO: +62 pts (0→62) 📍
+  🚀 FISV: +18 pts (0→18) 🟢
+  🚀 DDOG: +47 pts (0→47) 📍
+
+[History] Updating scanner history for 29 symbols...
+[History] Updated 29 symbols in database.
+
+[Results] Analyzed 29 symbols:
+  ✅ XLE: 75/100 🔴 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI overbought (82.5)
+  ✅ AAPL: 72/100 📍 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI overbought (83.7)
+  ✅ AMZN: 63/100 🟢 - At lower Bollinger Band, At put wall support ($205)
+  ✅ KO: 62/100 📍 - VELOCITY +62 pts, ⭐ PRIME SETUP: Wall + Extended RSI
+  ✅ QCOM: 60/100 🟢 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI oversold (27.3)
+  ✅ RGTI: 55/100 🟢 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI oversold (28.9)
+  ✅ ORCL: 55/100 🟢 - At put wall support ($160), Confluence zone (2 levels)
+  ✅ META: 50/100 🟢 - 📐 At 50% Fib ($672.00), At put wall support ($670)
+  ✅ SPY: 48/100 📍 - 📐 At Golden Pocket (0.618 @ $684.21), 📐 Golden Pocket + SMA 20 confluence
+  ✅ DDOG: 47/100 📍 - VELOCITY +47 pts, 📍 PINNED between walls ($130-$130)
+  ✅ EEM: 45/100 🟢 - At VWAP ($60.48), 🎯 1.272 Fib ($62) = Call Wall ($62)
+  ✅ QQQ: 43/100 📍 - 📐 At Golden Pocket (0.618 @ $610.74), 📐 Golden Pocket + SMA 20 confluence
+  ✅ UBER: 43/100 🔴 - RSI oversold (24.0), At lower Bollinger Band
+  ✅ PFE: 42/100 📍 - At upper Bollinger Band, 🚀 BREAKOUT above call wall ($27) +2.2%
+  ✅ BSX: 41/100 🔴 - RSI oversold (21.3), At lower Bollinger Band
+  ✅ PYPL: 38/100 🔴 - RSI oversold (16.1), At lower Bollinger Band
+  ✅ MSFT: 35/100 📍 - 📍 PINNED between walls ($410-$415), Confluence zone (3 levels)
+  ⬜ GOOG: 34/100 🔴 - 📐 At Golden Pocket (0.618 @ $323.43), 📐 Golden Pocket + SMA 50 confluence
+  ⬜ IBIT: 33/100 🟢 - RSI oversold (25.1), 🔥 Unusual PUT $20 OTM (hedge, 11.1x, $1.4M)
+  ⬜ CMG: 33/100 🔴 - 📐 At Golden Pocket (0.618 @ $38.95), 💥 BREAKDOWN below put wall ($39) -1.5%
+  ⬜ NVDA: 32/100 🔴 - 💥 BREAKDOWN below put wall ($190) -0.7%, Below gamma flip ($188.86)
+  ⬜ GOOGL: 28/100 🔴 - 📐 At Golden Pocket (0.618 @ $322.71), 📐 Golden Pocket + SMA 50 confluence
+  ⬜ TSLA: 20/100 ⚪ - Confluence zone (2 levels), 🔥 Unusual PUT $422.5 OTM (hedge, 73.7x, $12.3M)
+  ⬜ FISV: 18/100 🟢 - VELOCITY +18 pts, 📐 At Golden Pocket (0.618 @ $62.27)
+  ⬜ SMCI: 18/100 🟢 - At put wall support ($33), 🎯 0.5 Fib ($31) = Put Wall ($33)
+  ⬜ MSTR: 15/100 ⚪ - 🔥 Unusual PUT $110 OTM (hedge, 10.2x, $0.6M), $27M net bearish premium
+  ⬜ AMD: 13/100 🟢 - 🔥 Unusual CALL $235 02/13 (7.0x, $0.5M), ⚠️ Against SPY neutral
+  ⬜ MARA: 13/100 ⚪ - 🎯 0.618 Fib ($9) = Put Wall ($7), 🔥 Unusual PUT $6 OTM (hedge, 7.2x, $1.4M)
+  ⬜ IREN: 10/100 🔴 - 🔥 Unusual PUT $43.5 ITM (bearish, 10.3x, $0.6M), ⚠️ Against SPY neutral
+
+[Tiers] HIGH_CONVICTION: 1 | TRADEABLE: 0 | WATCH: 15 | FILTERED: 13
+[HIGH CONVICTION]
+  🔥 ORCL: 55/100 🟢 [Dormant wall]
+[WATCH LIST]
+  👀 XLE: 75/100 
+  👀 AAPL: 72/100 
+  👀 KO: 62/100 
+  👀 SPY: 48/100 (score 48)
+  👀 DDOG: 47/100 (score 47)
+
+[Alerts] Sending 1 HIGH CONVICTION alert(s)...
+[Telegram] Sent alert
+[SignalDB] Inserted 29 bloodhound results for scan 427
+[Bloodhound] Wrote 29 results to database (scan_id: 427)
+
+[Bloodhound] Scan complete (167s). Next scan in 5 minutes.
+[Signal Logger] Price cache built with 29 symbols
+[Signal Logger] Updated prices for 9 signal(s), 3 option(s) (9 cached, 0 API)
+
+[2026-02-10T21:04:49.247Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Tomorrow 9:30 AM ET (6:30 AM PST)
+
+[2026-02-10T21:09:49.247Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Tomorrow 9:30 AM ET (6:30 AM PST)
+
+[2026-02-10T21:14:49.248Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Tomorrow 9:30 AM ET (6:30 AM PST)
+
+[2026-02-10T21:19:49.249Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Tomorrow 9:30 AM ET (6:30 AM PST)
+
+[2026-02-10T21:24:49.249Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Tomorrow 9:30 AM ET (6:30 AM PST)
+
+[2026-02-10T21:29:49.248Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Tomorrow 9:30 AM ET (6:30 AM PST)
+
+[2026-02-10T21:34:49.249Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Tomorrow 9:30 AM ET (6:30 AM PST)
+
+[2026-02-10T21:39:49.249Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Tomorrow 9:30 AM ET (6:30 AM PST)
+
+[2026-02-10T21:44:49.248Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Tomorrow 9:30 AM ET (6:30 AM PST)
+
+[2026-02-10T21:49:49.249Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Tomorrow 9:30 AM ET (6:30 AM PST)
+
+[2026-02-10T21:54:49.249Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Tomorrow 9:30 AM ET (6:30 AM PST)
+============================================================
+       BLOODHOUND SCANNER
+       Autonomous Opportunity Detection
+============================================================
+Intel API: http://192.168.10.60:3000
+Options API: http://192.168.10.60:8000
+Min Confluence Score: 35/100 (data-driven)
+Scan Interval: 300s
+============================================================
+
+[2026-02-10T21:59:17.294Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Tomorrow 9:30 AM ET (6:30 AM PST)
+[Control] HTTP control server on http://0.0.0.0:8081 (accessible from network)
+         GET  /status  - Check scanner status
+         POST /pause   - Pause scanner
+         POST /resume  - Resume scanner
+
+Bloodhound running. Press Ctrl+C to stop.
+Commands: node bloodhound-scanner.js [pause|resume|status]

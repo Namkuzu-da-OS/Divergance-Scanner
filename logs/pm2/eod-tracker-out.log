@@ -405,3 +405,47 @@ Commands:
   Manual run: node eod-gap-tracker.js --now
   PM2 logs:   pm2 logs eod-tracker
 
+[16:15:00 ET] [EOD Tracker] Scheduled run triggered
+
+============================================================
+   EOD GAP TRACKER - SCHEDULED RUN
+============================================================
+Time: 2026-02-10T21:15:00.068Z
+Options API: http://192.168.10.60:8000
+============================================================
+
+[16:15:00 ET] [EOD Tracker] Starting EOD gap tracking...
+[16:15:28 ET] [EOD Tracker] Found 12 gaps to process
+[16:15:31 ET] [EOD Tracker]   BNAI: NOT FILLED | SCRATCH | EOD: +0.3%
+[16:15:32 ET] [EOD Tracker]   DDOG: NOT FILLED | LOSS | EOD: -13.6%
+[16:15:33 ET] [EOD Tracker]   FISV: FILLED | LOSS | EOD: +6.9%
+[16:15:34 ET] [EOD Tracker]   HAS: NOT FILLED | LOSS | EOD: -1.6%
+[16:15:38 ET] [EOD Tracker]   IBIT: NOT FILLED | LOSS | EOD: +2.1%
+[16:15:41 ET] [EOD Tracker]   IREN: NOT FILLED | LOSS | EOD: +2.0%
+[16:15:43 ET] [EOD Tracker]   KO: FILLED | LOSS | EOD: +4.7%
+[16:15:44 ET] [EOD Tracker]   LBTYB: NOT FILLED | LOSS | EOD: +11.7%
+[16:15:48 ET] [EOD Tracker]   MSTR: NOT FILLED | LOSS | EOD: +3.8%
+[16:15:51 ET] [EOD Tracker]   MU: NOT FILLED | LOSS | EOD: +1.5%
+[16:15:54 ET] [EOD Tracker]   ORCL: NOT FILLED | LOSS | EOD: -1.6%
+[16:15:58 ET] [EOD Tracker]   PLTR: NOT FILLED | LOSS | EOD: -1.3%
+[16:15:58 ET] [EOD Tracker] Updating stats for 12 tickers...
+[16:15:58 ET] [EOD Tracker] Done. Processed 12 gaps, updated 12
+
+==================================================
+TODAY'S GAP SUMMARY
+==================================================
+
+Total Gaps: 12
+Filled: 2 (16.7%)
+
+By Tier:
+  HIGH_CONVICTION: 2/6 filled (33.3%)
+  WATCH: 0/1 filled (0%)
+  TRADEABLE: 0/5 filled (0%)
+
+By Direction:
+  Gap Down: 2/8 filled (25%)
+  Gap Up: 0/4 filled (0%)
+==================================================
+
+[16:15:59 ET] [EOD Tracker] Telegram summary sent
