@@ -1822,7 +1822,8 @@ function getGapsNeedingEOD() {
 function getGapFillRates(options = {}) {
     const { days = null } = options; // null = all time
 
-    const dateFilter = days ? `AND date(ps.timestamp) > date('now', '-${days} days')` : '';
+    const dateFilter = days ? `AND date(ps.timestamp) > date('now', '-' || ? || ' days')` : '';
+    const dateParams = days ? [days] : [];
 
     // Overall fill rate
     const overall = getDb().prepare(`
@@ -1834,7 +1835,7 @@ function getGapFillRates(options = {}) {
         JOIN premarket_scans ps ON pm.scan_id = ps.id
         WHERE pm.eod_close IS NOT NULL
         ${dateFilter}
-    `).get();
+    `).get(...dateParams);
 
     // By tier
     const byTier = getDb().prepare(`
@@ -1849,7 +1850,7 @@ function getGapFillRates(options = {}) {
         ${dateFilter}
         GROUP BY pm.tier
         ORDER BY fill_rate DESC
-    `).all();
+    `).all(...dateParams);
 
     // By gap size bucket
     const bySize = getDb().prepare(`
@@ -1869,7 +1870,7 @@ function getGapFillRates(options = {}) {
         ${dateFilter}
         GROUP BY size_bucket
         ORDER BY fill_rate DESC
-    `).all();
+    `).all(...dateParams);
 
     // By catalyst
     const byCatalyst = getDb().prepare(`
@@ -1883,7 +1884,7 @@ function getGapFillRates(options = {}) {
         WHERE pm.eod_close IS NOT NULL
         ${dateFilter}
         GROUP BY has_catalyst
-    `).all();
+    `).all(...dateParams);
 
     // By direction
     const byDirection = getDb().prepare(`
@@ -1897,7 +1898,7 @@ function getGapFillRates(options = {}) {
         WHERE pm.eod_close IS NOT NULL
         ${dateFilter}
         GROUP BY direction
-    `).all();
+    `).all(...dateParams);
 
     return {
         days: days || 'all_time',
@@ -1917,7 +1918,8 @@ function getTickerGapHistory(symbol, options = {}) {
     const { days = null, limit = 20 } = options;
     symbol = symbol.toUpperCase();
 
-    const dateFilter = days ? `AND date(ps.timestamp) > date('now', '-${days} days')` : '';
+    const dateFilter = days ? `AND date(ps.timestamp) > date('now', '-' || ? || ' days')` : '';
+    const dateParams = days ? [days] : [];
 
     // Get recent gaps for this ticker - one per day with peak values
     const gaps = getDb().prepare(`
@@ -1937,9 +1939,11 @@ function getTickerGapHistory(symbol, options = {}) {
         GROUP BY date(ps.timestamp)
         ORDER BY gap_date DESC
         LIMIT ?
-    `).all(symbol, limit);
+    `).all(symbol, ...dateParams, limit);
 
     // Get aggregate stats - counting DISTINCT DAYS
+    // Each subquery and main WHERE uses (symbol, [days]) params
+    const pair = [symbol, ...dateParams];
     const stats = getDb().prepare(`
         SELECT
             COUNT(DISTINCT date(ps.timestamp)) as total_gaps,
@@ -1967,7 +1971,7 @@ function getTickerGapHistory(symbol, options = {}) {
         JOIN premarket_scans ps ON pm.scan_id = ps.id
         WHERE pm.symbol = ?
         ${dateFilter}
-    `).get(symbol, symbol, symbol, symbol, symbol, symbol, symbol);
+    `).get(...pair, ...pair, ...pair, ...pair, ...pair, ...pair, ...pair);
 
     // Calculate rates
     const fillRate = stats.tracked_count > 0

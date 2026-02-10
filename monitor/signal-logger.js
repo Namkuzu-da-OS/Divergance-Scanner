@@ -10,8 +10,9 @@
 const axios = require('axios');
 const signalDb = require('./signal-db');
 
+const appConfig = require('./config-loader');
 const CONFIG = {
-  OPTIONS_API: 'http://192.168.10.60:8000',
+  OPTIONS_API: appConfig.apis.options,
   WIN_THRESHOLD_PCT: 0.5  // 0.5% move in predicted direction = correct
 };
 

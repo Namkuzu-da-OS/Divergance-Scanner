@@ -13,15 +13,15 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 const signalDb = require('./signal-db');
-const telegramConfig = require('./config.json').telegram;
+const appConfig = require('./config-loader');
 
 // ============================================
 // CONFIGURATION
 // ============================================
 
 const CONFIG = {
-    INTEL_API: 'http://192.168.10.60:3000',
-    OPTIONS_API: 'http://192.168.10.60:8000',
+    INTEL_API: appConfig.apis.intel,
+    OPTIONS_API: appConfig.apis.options,
     CONTROL_PORT: 8084,
     SCAN_INTERVAL_MS: 5 * 60 * 1000,  // 5 minutes
     PREMARKET_START_HOUR: 6,          // 6 AM ET
@@ -212,18 +212,18 @@ const alertedToday = new Set();
  * Send message to Telegram
  */
 async function sendTelegram(message) {
-    if (!telegramConfig?.botToken || !telegramConfig?.chatId) {
+    if (!appConfig.telegram?.botToken || !appConfig.telegram?.chatId) {
         log('Telegram not configured, skipping alert');
         return false;
     }
 
     try {
-        const url = `https://api.telegram.org/bot${telegramConfig.botToken}/sendMessage`;
+        const url = `https://api.telegram.org/bot${appConfig.telegram.botToken}/sendMessage`;
         const response = await fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                chat_id: telegramConfig.chatId,
+                chat_id: appConfig.telegram.chatId,
                 text: message,
                 parse_mode: 'HTML'
             })

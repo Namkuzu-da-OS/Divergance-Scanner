@@ -15,11 +15,11 @@
 
 const cron = require('node-cron');
 const signalDb = require('./signal-db');
-const config = require('./config.json');
+const config = require('./config-loader');
 
-const OPTIONS_API = config.apis?.options || 'http://192.168.10.60:8000';
-const TELEGRAM_BOT_TOKEN = config.telegram?.botToken;
-const TELEGRAM_CHAT_ID = config.telegram?.chatId;
+const OPTIONS_API = config.apis.options;
+const TELEGRAM_BOT_TOKEN = config.telegram.botToken;
+const TELEGRAM_CHAT_ID = config.telegram.chatId;
 
 // ============================================
 // LOGGING

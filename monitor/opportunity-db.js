@@ -224,29 +224,29 @@ function saveScanResults(results, marketContext) {
 function getRecentScans(days = 7) {
     return getDb().prepare(`
         SELECT * FROM scans
-        WHERE timestamp > datetime('now', '-${days} days')
+        WHERE timestamp > datetime('now', '-' || ? || ' days')
         ORDER BY timestamp DESC
-    `).all();
+    `).all(days);
 }
 
 function getTierStats(days = 7) {
     return getDb().prepare(`
         SELECT tier, COUNT(*) as count
         FROM opportunities
-        WHERE timestamp > datetime('now', '-${days} days')
+        WHERE timestamp > datetime('now', '-' || ? || ' days')
         GROUP BY tier
-    `).all();
+    `).all(days);
 }
 
 function getTopSymbols(days = 7, limit = 10) {
     return getDb().prepare(`
         SELECT symbol, COUNT(*) as appearances, AVG(opportunity_score) as avg_score
         FROM opportunities
-        WHERE timestamp > datetime('now', '-${days} days')
+        WHERE timestamp > datetime('now', '-' || ? || ' days')
         GROUP BY symbol
         ORDER BY appearances DESC
-        LIMIT ${limit}
-    `).all();
+        LIMIT ?
+    `).all(days, limit);
 }
 
 /**

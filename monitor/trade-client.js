@@ -27,7 +27,8 @@
 const https = require('https');
 const http = require('http');
 
-const API_BASE = process.env.INTEL_API || 'http://192.168.10.60:3000';
+const config = require('./config-loader');
+const API_BASE = config.apis.intel;
 
 // Helper to make HTTP requests
 function request(method, path, body = null) {

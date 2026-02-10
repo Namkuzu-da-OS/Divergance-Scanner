@@ -14,12 +14,12 @@ const fs = require('fs');
 const path = require('path');
 
 // Config
-const config = require('./config.json');
+const config = require('./config-loader');
 const DATA_DIR = path.join(__dirname, '..', 'data');
 const OUTPUT_FILE = path.join(DATA_DIR, 'earnings-calendar.json');
 const signalDb = require('./signal-db');
 
-const OPTIONS_API = config.apis.options || 'http://192.168.10.60:8000';
+const OPTIONS_API = config.apis.options;
 
 // Major stocks to always check (beyond watchlist)
 const MAJOR_STOCKS = [

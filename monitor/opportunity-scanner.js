@@ -16,13 +16,7 @@ const https = require('https');
 const opportunityDb = require('./opportunity-db');
 
 // Load config
-let CONFIG;
-try {
-    CONFIG = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8'));
-} catch (e) {
-    console.error('[Opportunity] Failed to load config.json:', e.message);
-    process.exit(1);
-}
+const CONFIG = require('./config-loader');
 
 const APIS = {
     intel: CONFIG.apis.intel,

@@ -7,6 +7,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const signalLogger = require('./signal-logger');
+const config = require('./config-loader');
 
 const PORT = 8080;
 const ROOT = path.join(__dirname, '..');
@@ -765,13 +766,14 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    // Proxy: Forward requests to Options Analytics API (192.168.10.60:8000)
-    // Usage: /proxy/analytics/api/options/AAPL → http://192.168.10.60:8000/api/options/AAPL
+    // Proxy: Forward requests to Options Analytics API
+    // Usage: /proxy/analytics/api/options/AAPL → OPTIONS_API/api/options/AAPL
     if (urlPath.startsWith('/proxy/analytics/') || urlPath === '/proxy/analytics') {
         const targetPath = req.url.replace(/^\/proxy\/analytics/, '') || '/';
+        const optionsUrl = new URL(config.apis.options);
         const proxyReq = http.request({
-            hostname: '192.168.10.60',
-            port: 8000,
+            hostname: optionsUrl.hostname,
+            port: parseInt(optionsUrl.port) || 8000,
             path: targetPath,
             method: req.method,
             headers: {

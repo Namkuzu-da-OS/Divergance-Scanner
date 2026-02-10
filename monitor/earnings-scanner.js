@@ -22,23 +22,17 @@ const path = require('path');
 const signalDb = require('./signal-db');
 
 // Load config
-let CONFIG;
-try {
-    CONFIG = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8'));
-} catch (e) {
-    console.error('[EarningsScanner] Failed to load config.json:', e.message);
-    process.exit(1);
-}
+const CONFIG = require('./config-loader');
 
 // API endpoints
 const APIS = {
-    intel: CONFIG.apis.intel || 'http://192.168.10.60:3000',
-    options: CONFIG.apis.options || 'http://192.168.10.60:8000'
+    intel: CONFIG.apis.intel,
+    options: CONFIG.apis.options
 };
 
 // Earnings-specific Telegram config (separate bot)
 // If not configured, fall back to main bot
-const TELEGRAM = CONFIG.earnings_telegram || CONFIG.telegram;
+const TELEGRAM = CONFIG.earnings_telegram?.botToken ? CONFIG.earnings_telegram : CONFIG.telegram;
 
 // Data files
 const DATA_DIR = path.join(__dirname, '..', 'data');

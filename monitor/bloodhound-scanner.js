@@ -20,13 +20,7 @@ const signalLogger = require('./signal-logger');
 const signalDb = require('./signal-db');
 
 // Load config
-let CONFIG;
-try {
-    CONFIG = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8'));
-} catch (e) {
-    console.error('[Bloodhound] Failed to load config.json:', e.message);
-    process.exit(1);
-}
+const CONFIG = require('./config-loader');
 
 const APIS = {
     intel: CONFIG.apis.intel,
