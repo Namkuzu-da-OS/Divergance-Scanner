@@ -120,26 +120,14 @@ Auto-refreshes every 30 seconds.
             border-bottom: 1px solid #2a3641;
         }
 
-        /* Top Banner Row */
-        .banner-row {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-
-        @media (max-width: 900px) {
-            .banner-row { flex-direction: column; }
-        }
-
         /* VIX Regime Banner */
         .vix-banner {
             padding: 12px 16px;
             border-radius: 8px;
+            margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex: 1;
-            min-width: 0;
         }
 
         .vix-banner.low { background: linear-gradient(135deg, #0d3320 0%, #151821 100%); border: 1px solid #00d4aa; }
@@ -152,22 +140,29 @@ Auto-refreshes every 30 seconds.
         .vix-info .subtitle { color: #8b92a8; font-size: 11px; }
         .vix-value { font-size: 26px; font-weight: 700; }
 
-        /* Pinned Alert */
-        .pinned-alert {
-            background: linear-gradient(135deg, #2a2030 0%, #151821 100%);
-            border: 1px solid #9b59b6;
-            border-radius: 8px;
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-            min-width: 0;
+        /* Pinned Card State */
+        .card.pinned {
+            border-color: #9b59b6;
+            box-shadow: 0 0 12px rgba(155, 89, 182, 0.2);
         }
 
-        .pinned-icon { font-size: 24px; }
-        .pinned-text h3 { color: #9b59b6; margin-bottom: 2px; font-size: 13px; }
-        .pinned-text p { font-size: 11px; color: #c5c9d4; }
+        .pinned-badge {
+            display: none;
+            align-items: center;
+            gap: 4px;
+            background: rgba(155, 89, 182, 0.15);
+            border: 1px solid rgba(155, 89, 182, 0.4);
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #9b59b6;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 10px;
+        }
+
+        .card.pinned .pinned-badge { display: inline-flex; }
 
         /* Context Cards */
         .context-grid {
@@ -469,22 +464,13 @@ Auto-refreshes every 30 seconds.
             </div>
         </div>
 
-        <!-- VIX Banner + Pinned Alert (side by side) -->
-        <div class="banner-row">
-            <div class="vix-banner low" id="vix-banner">
-                <div class="vix-info">
-                    <h2 id="vix-regime">VIX REGIME: LOW</h2>
-                    <div class="subtitle" id="vix-advice">Standard sizing OK</div>
-                </div>
-                <div class="vix-value" id="vix-value">--</div>
+        <!-- VIX Banner -->
+        <div class="vix-banner low" id="vix-banner">
+            <div class="vix-info">
+                <h2 id="vix-regime">VIX REGIME: LOW</h2>
+                <div class="subtitle" id="vix-advice">Standard sizing OK</div>
             </div>
-            <div class="pinned-alert" id="pinned-alert" style="display: none;">
-                <div class="pinned-icon">📍</div>
-                <div class="pinned-text">
-                    <h3>SPY PINNED BETWEEN WALLS</h3>
-                    <p id="pinned-details">Call Wall: $-- | Put Wall: $-- | Spread: $--</p>
-                </div>
-            </div>
+            <div class="vix-value" id="vix-value">--</div>
         </div>
 
         <!-- Context Cards -->
@@ -544,7 +530,7 @@ Auto-refreshes every 30 seconds.
             <!-- SPY Card -->
             <div class="card" id="spy-card">
                 <div class="symbol-header">
-                    <span class="symbol-name">SPY</span>
+                    <span class="symbol-name">SPY<span class="pinned-badge">📍 Pinned</span></span>
                     <div>
                         <span class="symbol-price" id="spy-price">$--</span>
                         <span class="symbol-change" id="spy-change">--</span>
@@ -574,7 +560,7 @@ Auto-refreshes every 30 seconds.
             <!-- QQQ Card -->
             <div class="card" id="qqq-card">
                 <div class="symbol-header">
-                    <span class="symbol-name">QQQ</span>
+                    <span class="symbol-name">QQQ<span class="pinned-badge">📍 Pinned</span></span>
                     <div>
                         <span class="symbol-price" id="qqq-price">$--</span>
                         <span class="symbol-change" id="qqq-change">--</span>
@@ -949,9 +935,6 @@ Auto-refreshes every 30 seconds.
                         updateSymbolCard('qqq', scannerData.qqq.price, scannerData.qqq.change_pct, scannerData.qqq.levels);
                     }
                     updateContextCards(scannerData.market_context, scannerData.spy);
-                    if (scannerData.spy?.levels) {
-                        checkPinnedCondition(scannerData.spy);
-                    }
                 }
 
                 // Internals gauges
@@ -1091,28 +1074,14 @@ Auto-refreshes every 30 seconds.
 
             document.getElementById(`${symbol}-price-marker`).style.left = `${Math.max(0, Math.min(100, pricePos))}%`;
             document.getElementById(`${symbol}-flip-marker`).style.left = `${Math.max(0, Math.min(100, flipPos))}%`;
-        }
 
-        function checkPinnedCondition(spyData) {
-            const levels = spyData.levels || {};
-            const price = spyData.price || 0;
-            const callWall = levels.call_wall?.price;
-            const putWall = levels.put_wall?.price;
-
-            if (!callWall || !putWall || !price) {
-                document.getElementById('pinned-alert').style.display = 'none';
-                return;
-            }
-
-            const spread = callWall - putWall;
-            const spreadPct = (spread / price) * 100;
-
-            if (spreadPct < 0.3) {
-                document.getElementById('pinned-alert').style.display = 'flex';
-                document.getElementById('pinned-details').textContent =
-                    `Call Wall: $${callWall.toFixed(2)} | Put Wall: $${putWall.toFixed(2)} | Spread: $${spread.toFixed(2)} (${spreadPct.toFixed(2)}%)`;
+            // Pinned detection — tight spread between call and put walls
+            const card = document.getElementById(`${symbol}-card`);
+            const spreadPct = (range / price) * 100;
+            if (levelsData.call_wall?.price && levelsData.put_wall?.price && spreadPct < 1.5) {
+                card.classList.add('pinned');
             } else {
-                document.getElementById('pinned-alert').style.display = 'none';
+                card.classList.remove('pinned');
             }
         }
 
