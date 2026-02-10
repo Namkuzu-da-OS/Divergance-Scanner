@@ -1574,43 +1574,27 @@ function isTimeframeAligned(analysis, ctx) {
 }
 
 /**
- * Classify analysis into HIGH_CONVICTION, TRADEABLE, WATCH, or FILTERED tier
- * Uses the analysis.tier from zone classification, with additional alert-level checks
- * HIGH_CONVICTION: Score ≥70 + at wall + TF aligned + wall not dormant
- * TRADEABLE: Score ≥60 + at wall + trend aligned
- * WATCH: Near wall or counter-trend or high score waiting for level
+ * Determine alert tier and collect warning annotations.
+ * Preserves the tier earned during zone classification — never downgrades.
+ * Returns { tier: string, warnings: string[] }
  */
 function getAlertTier(analysis, ctx) {
-    // Start with the tier calculated during zone classification
     let tier = analysis.tier || 'FILTERED';
+    if (tier === 'FILTERED') return { tier: 'FILTERED', warnings: [] };
 
-    // If already FILTERED, stay filtered
-    if (tier === 'FILTERED') {
-        return 'FILTERED';
+    // Collect warnings (informational only — tier is never downgraded)
+    const warnings = [];
+
+    if (!isTimeframeAligned(analysis, ctx)) {
+        const swingDir = (ctx?.swingBias || 'UNKNOWN').toUpperCase();
+        warnings.push(`Counter-trend (swing: ${swingDir})`);
     }
 
-    // Additional checks for alert eligibility
-    const tfAligned = isTimeframeAligned(analysis, ctx);
-    const wallOk = !analysis.atWall || analysis.wallActivity !== 'DORMANT';
-
-    // Downgrade HIGH_CONVICTION if TF misaligned or dormant wall
-    if (tier === 'HIGH_CONVICTION') {
-        if (!tfAligned || !wallOk) {
-            return 'WATCH';  // Downgrade to WATCH
-        }
-        return 'HIGH_CONVICTION';
+    if (analysis.atWall && analysis.wallActivity === 'DORMANT') {
+        warnings.push('Dormant wall');
     }
 
-    // TRADEABLE stays as is (alerts but lower priority)
-    if (tier === 'TRADEABLE') {
-        if (!tfAligned || !wallOk) {
-            return 'WATCH';  // Downgrade to WATCH
-        }
-        return 'TRADEABLE';
-    }
-
-    // WATCH stays as WATCH
-    return tier;
+    return { tier, warnings };
 }
 
 function formatAlert(analysis) {
@@ -1642,6 +1626,13 @@ function formatAlert(analysis) {
     msg += `\n<b>Context:</b>\n`;
     msg += `• SPY: ${analysis.context.spyTrend || 'unknown'}\n`;
     msg += `• VIX: ${analysis.context.vix || '?'} (${analysis.context.vixRegime || '?'})\n`;
+
+    if (analysis.alertWarnings && analysis.alertWarnings.length > 0) {
+        msg += `\n<b>Note:</b>\n`;
+        analysis.alertWarnings.forEach(w => {
+            msg += `• ⚠️ ${escapeHtml(w)}\n`;
+        });
+    }
 
     msg += `\n<i>Review chart before trading</i>`;
 
@@ -2117,11 +2108,15 @@ async function runScan() {
     // WATCH: Near wall or counter-trend or high score waiting for level → Dashboard only
     // FILTERED: Doesn't meet criteria → No output
 
-    const tieredAnalyses = analyses.map(a => ({
-        ...a,
-        tier: getAlertTier(a, marketContext),
-        history_status: computeHistoryStatus(a.symbol)
-    }));
+    const tieredAnalyses = analyses.map(a => {
+        const { tier, warnings } = getAlertTier(a, marketContext);
+        return {
+            ...a,
+            tier,
+            alertWarnings: warnings,
+            history_status: computeHistoryStatus(a.symbol)
+        };
+    });
 
     const highConviction = tieredAnalyses.filter(a =>
         a.tier === 'HIGH_CONVICTION' && shouldAlert(a)
@@ -2138,7 +2133,8 @@ async function runScan() {
             const dir = a.direction === 'bullish' ? '🟢' :
                         a.direction === 'bearish' ? '🔴' :
                         a.direction === 'pinned' ? '📍' : '⚪';
-            console.log(`  🔥 ${a.symbol}: ${a.totalScore}/100 ${dir}`);
+            const warn = a.alertWarnings.length > 0 ? ` [${a.alertWarnings.join(', ')}]` : '';
+            console.log(`  🔥 ${a.symbol}: ${a.totalScore}/100 ${dir}${warn}`);
         });
     }
 
@@ -2147,7 +2143,8 @@ async function runScan() {
         tradeable.forEach(a => {
             const dir = a.direction === 'bullish' ? '🟢' :
                         a.direction === 'bearish' ? '🔴' : '⚪';
-            console.log(`  ✅ ${a.symbol}: ${a.totalScore}/100 ${dir} (${a.action})`);
+            const warn = a.alertWarnings.length > 0 ? ` [${a.alertWarnings.join(', ')}]` : '';
+            console.log(`  ✅ ${a.symbol}: ${a.totalScore}/100 ${dir} (${a.action})${warn}`);
         });
     }
 
@@ -2156,8 +2153,6 @@ async function runScan() {
         watchList.slice(0, 5).forEach(a => {
             const reason = a.action === 'WATCH_REVERSAL' ? '(reversal watch)' :
                            a.action === 'WATCH_LEVEL' ? '(waiting for level)' :
-                           !isTimeframeAligned(a, marketContext) ? '(TF misaligned)' :
-                           a.wallActivity === 'DORMANT' ? '(dormant wall)' :
                            a.totalScore < SETTINGS.TIER_HIGH_CONVICTION ? `(score ${a.totalScore})` : '';
             console.log(`  👀 ${a.symbol}: ${a.totalScore}/100 ${reason}`);
         });
