@@ -205,6 +205,18 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 └─────────────────┘
 ```
 
+### API Pacing (CRITICAL - DO NOT USE Promise.all)
+
+All scanners share the Options API at `192.168.10.60:8000`. To prevent overload:
+- **Sequential API calls only** — never `Promise.all` for multiple endpoints per symbol
+- **100ms delay** between API calls within a symbol
+- **200ms delay** between symbols in the scan loop
+- **15s timeout** for Options API requests
+- **All scanners log scan duration** — check `pm2 logs <name>` for timing
+
+Violating this causes request timeouts, null data in Market Internals charts, and slow
+responses across all consumers. See `memory/api-pacing.md` for full reference.
+
 ### Port Map (HARDCODED - DO NOT CHANGE)
 
 | Port | Service | File | Purpose |
