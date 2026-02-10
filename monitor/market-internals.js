@@ -143,6 +143,7 @@ async function runScan() {
         return;
     }
 
+    const scanStart = Date.now();
     log(`--- Scan #${scanCount + 1} starting (${getETTimeString()}) ---`);
 
     const quotes = {};
@@ -212,7 +213,8 @@ async function runScan() {
         if (volRatio != null) parts.push(`Vol:${volRatio}:1`);
         if (snapshot.spx != null) parts.push(`SPX:${snapshot.spx}`);
 
-        log(`Stored snapshot #${id}: ${parts.join(' | ')}`);
+        const scanElapsed = ((Date.now() - scanStart) / 1000).toFixed(1);
+        log(`Stored snapshot #${id} (${scanElapsed}s): ${parts.join(' | ')}`);
     } catch (e) {
         logError(`Failed to store snapshot: ${e.message}`);
     }

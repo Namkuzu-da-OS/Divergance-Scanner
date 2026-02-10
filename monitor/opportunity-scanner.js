@@ -311,7 +311,7 @@ function clearDailyTracking() {
 // HTTP HELPERS
 // ============================================
 
-function httpGet(url, timeoutMs = 10000) {
+function httpGet(url, timeoutMs = 15000) {
     return new Promise((resolve, reject) => {
         const startTime = Date.now();
         const protocol = url.startsWith('https') ? https : http;
@@ -579,13 +579,18 @@ function classifyTier(score) {
 // ============================================
 
 async function analyzeSymbol(symbol) {
-    const [analysis, technicals, quote, iv, earnings] = await Promise.all([
-        fetchOptionsAnalysis(symbol),
-        fetchTechnicals(symbol),
-        fetchQuote(symbol),
-        fetchIV(symbol),
-        fetchEarnings(symbol)
-    ]);
+    const delay = () => new Promise(r => setTimeout(r, 100));
+
+    // Sequential calls to avoid overwhelming the Options API
+    const analysis = await fetchOptionsAnalysis(symbol);
+    await delay();
+    const technicals = await fetchTechnicals(symbol);
+    await delay();
+    const quote = await fetchQuote(symbol);
+    await delay();
+    const iv = await fetchIV(symbol);
+    await delay();
+    const earnings = await fetchEarnings(symbol);
 
     // Score unusual options (primary)
     const unusualResult = scoreUnusualOptions(analysis);
@@ -711,6 +716,7 @@ async function runScan() {
         return;
     }
 
+    const scanStart = Date.now();
     console.log(`\n[Opportunity] ===== SCAN #${++scanCount} =====`);
     console.log(`[Opportunity] Time: ${new Date().toISOString()}`);
 
@@ -726,8 +732,11 @@ async function runScan() {
     console.log(`[Opportunity] VIX: ${marketContext.vix} (${marketContext.vixRegime}) | SPY: ${marketContext.spyPrice} (${marketContext.spyTrend})`);
 
     // DYNAMIC SYMBOL DISCOVERY
+    const discoveryStart = Date.now();
     const discoveredSymbols = await discoverSymbols();
-    console.log(`[Opportunity] Analyzing ${discoveredSymbols.length} dynamically discovered symbols...`);
+    const discoveryElapsed = ((Date.now() - discoveryStart) / 1000).toFixed(1);
+    console.log(`[Opportunity] Discovery: ${discoveredSymbols.length} symbols in ${discoveryElapsed}s`);
+    console.log(`[Opportunity] Analyzing ${discoveredSymbols.length} symbols (sequential, ~${Math.round(discoveredSymbols.length * 2.2)}s est)...`);
 
     const results = [];
 
@@ -746,8 +755,8 @@ async function runScan() {
             console.error(`[Opportunity] Error analyzing ${symbol}:`, e.message);
         }
 
-        // Small delay to avoid API overload
-        await new Promise(r => setTimeout(r, 100));
+        // Delay between symbols to avoid API overload
+        await new Promise(r => setTimeout(r, 200));
     }
 
     // Sort by score
@@ -824,7 +833,8 @@ async function runScan() {
     }
     console.log(`[Opportunity] Alerts sent: ${alertsSent} (${alertedToday.size} unique today)`);
 
-    console.log(`[Opportunity] Scan complete. Next scan at ${nextScanTime.toISOString()}`);
+    const scanElapsed = Math.round((Date.now() - scanStart) / 1000);
+    console.log(`[Opportunity] Scan complete in ${scanElapsed}s. Next scan at ${nextScanTime.toISOString()}`);
 }
 
 // ============================================
