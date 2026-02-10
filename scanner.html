@@ -120,14 +120,26 @@ Auto-refreshes every 30 seconds.
             border-bottom: 1px solid #2a3641;
         }
 
+        /* Top Banner Row */
+        .banner-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 900px) {
+            .banner-row { flex-direction: column; }
+        }
+
         /* VIX Regime Banner */
         .vix-banner {
-            padding: 16px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            padding: 12px 16px;
+            border-radius: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex: 1;
+            min-width: 0;
         }
 
         .vix-banner.low { background: linear-gradient(135deg, #0d3320 0%, #151821 100%); border: 1px solid #00d4aa; }
@@ -136,25 +148,26 @@ Auto-refreshes every 30 seconds.
         .vix-banner.high { background: linear-gradient(135deg, #3a2020 0%, #151821 100%); border: 1px solid #ff6b6b; }
         .vix-banner.extreme { background: linear-gradient(135deg, #4a1515 0%, #151821 100%); border: 1px solid #ff4444; }
 
-        .vix-info h2 { font-size: 20px; margin-bottom: 4px; }
-        .vix-info .subtitle { color: #8b92a8; font-size: 12px; }
-        .vix-value { font-size: 32px; font-weight: 700; }
+        .vix-info h2 { font-size: 16px; margin-bottom: 2px; }
+        .vix-info .subtitle { color: #8b92a8; font-size: 11px; }
+        .vix-value { font-size: 26px; font-weight: 700; }
 
         /* Pinned Alert */
         .pinned-alert {
             background: linear-gradient(135deg, #2a2030 0%, #151821 100%);
             border: 1px solid #9b59b6;
-            border-radius: 10px;
-            padding: 16px;
-            margin-bottom: 20px;
+            border-radius: 8px;
+            padding: 12px 16px;
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 12px;
+            flex: 1;
+            min-width: 0;
         }
 
-        .pinned-icon { font-size: 32px; }
-        .pinned-text h3 { color: #9b59b6; margin-bottom: 4px; }
-        .pinned-text p { font-size: 12px; color: #c5c9d4; }
+        .pinned-icon { font-size: 24px; }
+        .pinned-text h3 { color: #9b59b6; margin-bottom: 2px; font-size: 13px; }
+        .pinned-text p { font-size: 11px; color: #c5c9d4; }
 
         /* Context Cards */
         .context-grid {
@@ -456,21 +469,21 @@ Auto-refreshes every 30 seconds.
             </div>
         </div>
 
-        <!-- VIX Banner -->
-        <div class="vix-banner low" id="vix-banner">
-            <div class="vix-info">
-                <h2 id="vix-regime">VIX REGIME: LOW</h2>
-                <div class="subtitle" id="vix-advice">Standard sizing OK</div>
+        <!-- VIX Banner + Pinned Alert (side by side) -->
+        <div class="banner-row">
+            <div class="vix-banner low" id="vix-banner">
+                <div class="vix-info">
+                    <h2 id="vix-regime">VIX REGIME: LOW</h2>
+                    <div class="subtitle" id="vix-advice">Standard sizing OK</div>
+                </div>
+                <div class="vix-value" id="vix-value">--</div>
             </div>
-            <div class="vix-value" id="vix-value">--</div>
-        </div>
-
-        <!-- Pinned Alert (shown when SPY pinned between walls) -->
-        <div class="pinned-alert" id="pinned-alert" style="display: none;">
-            <div class="pinned-icon">📍</div>
-            <div class="pinned-text">
-                <h3>SPY PINNED BETWEEN WALLS</h3>
-                <p id="pinned-details">Call Wall: $-- | Put Wall: $-- | Spread: $--</p>
+            <div class="pinned-alert" id="pinned-alert" style="display: none;">
+                <div class="pinned-icon">📍</div>
+                <div class="pinned-text">
+                    <h3>SPY PINNED BETWEEN WALLS</h3>
+                    <p id="pinned-details">Call Wall: $-- | Put Wall: $-- | Spread: $--</p>
+                </div>
             </div>
         </div>
 
