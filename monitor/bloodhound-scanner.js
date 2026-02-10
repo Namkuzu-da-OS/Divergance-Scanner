@@ -2034,10 +2034,9 @@ async function runScan() {
     for (let i = 0; i < symbols.length; i++) {
         const symbolData = symbols[i];
 
-        // Add delay between batches when backoff is active
-        if (backoffState.active && i > 0 && i % backoffState.batchSize === 0) {
-            console.log(`[Backoff] Batch ${Math.floor(i / backoffState.batchSize)} complete, waiting ${backoffState.batchDelayMs}ms...`);
-            await sleep(backoffState.batchDelayMs);
+        // Pace requests: small delay between every symbol to avoid overwhelming the API
+        if (i > 0) {
+            await sleep(200);
         }
 
         let analysis = await analyzeSymbol(symbolData.symbol, symbolData);
