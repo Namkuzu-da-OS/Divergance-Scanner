@@ -543,6 +543,8 @@ async function fetchJSON(url, timeout = 10000, trackBackoff = false) {
         clearTimeout(timeoutId);
         const responseTime = Date.now() - startTime;
 
+        console.error(`[API] Failed: ${url} — ${e.message} (${responseTime}ms)`);
+
         // Timeout/error counts as slow response
         if (trackBackoff || url.includes('/api/levels/')) {
             updateBackoffState(responseTime + 5000, url); // Treat errors as 5s+ response
@@ -851,8 +853,8 @@ async function getMarketContext() {
         riskAppetite: context.risk_appetite,
         regime: context.regime,
         positionSizeModifier: context.position_size_modifier,
-        spyLevels: spyLevels?.levels || null,
-        qqqLevels: qqqLevels?.levels || null,
+        spyLevels: spyLevels?.levels ? { ...spyLevels.levels, underlying_price: spyLevels.underlying_price } : null,
+        qqqLevels: qqqLevels?.levels ? { ...qqqLevels.levels, underlying_price: qqqLevels.underlying_price } : null,
         // Multi-timeframe bias from AI outlook
         intradayBias: outlook?.data?.intraday_bias || 'NEUTRAL',
         swingBias: outlook?.data?.swing_bias || 'NEUTRAL',
@@ -2038,7 +2040,15 @@ async function runScan() {
             await sleep(backoffState.batchDelayMs);
         }
 
-        const analysis = await analyzeSymbol(symbolData.symbol, symbolData);
+        let analysis = await analyzeSymbol(symbolData.symbol, symbolData);
+
+        // Retry once for static watchlist symbols that failed
+        if (!analysis && symbolData.sources?.includes('watchlist')) {
+            console.warn(`[Bloodhound] ${symbolData.symbol} failed (watchlist), retrying in 2s...`);
+            await sleep(2000);
+            analysis = await analyzeSymbol(symbolData.symbol, symbolData);
+        }
+
         if (analysis) {
             // Track signal history and calculate velocity
             const { prevScore, velocity } = updateSignalHistory(
@@ -2064,6 +2074,8 @@ async function runScan() {
             }
 
             analyses.push(analysis);
+        } else {
+            console.warn(`[Bloodhound] DROPPED: ${symbolData.symbol} — API returned no data`);
         }
     }
 
@@ -2305,7 +2317,7 @@ async function runScan() {
             riskAppetite: marketContext?.riskAppetite || 'unknown',
             regime: marketContext?.regime || 'unknown',
             positionSizeModifier: marketContext?.positionSizeModifier || 1,
-            spyLevels: marketContext?.spyLevels || {},
+            spyLevels: { ...(marketContext?.spyLevels || {}), gammaRegime: marketContext?.gammaRegime, ivRank: marketContext?.ivRank },
             qqqLevels: marketContext?.qqqLevels || {},
             scanCount: analyses.length,
             tradeableCount: tradeableResults.length,

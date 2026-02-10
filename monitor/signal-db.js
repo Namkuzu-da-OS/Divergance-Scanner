@@ -2689,7 +2689,7 @@ function getBloodhoundScanSummary() {
             }
         },
         qqq: {
-            price: qqqResult?.price || 0,
+            price: qqqResult?.price || qqqLevels?.underlying_price || 0,
             change_pct: 0,
             levels: qqqLevels,
             context: {}
