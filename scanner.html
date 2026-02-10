@@ -816,9 +816,14 @@ Auto-refreshes every 30 seconds.
                 document.getElementById('status-dot').className = internalsStale ? 'status-dot stale' : 'status-dot';
 
                 // Scanner data (VIX, context, SPY/QQQ)
+                // Prefer live internals VIX when scanner data is stale/zero
                 if (scannerData) {
-                    if (scannerData.vix) {
-                        updateVixBanner(scannerData.vix.price, scannerData.vix.regime);
+                    const vixPrice = (scannerData.vix?.price > 0) ? scannerData.vix.price : (internalsLatest?.vix || 0);
+                    const vixRegime = (scannerData.vix?.regime && scannerData.vix.regime !== 'unknown')
+                        ? scannerData.vix.regime
+                        : deriveRegime(vixPrice);
+                    if (vixPrice > 0) {
+                        updateVixBanner(vixPrice, vixRegime);
                     }
                     if (scannerData.spy) {
                         updateSymbolCard('spy', scannerData.spy.price, scannerData.spy.change_pct, scannerData.spy.levels);
@@ -852,6 +857,15 @@ Auto-refreshes every 30 seconds.
         // VIX BANNER
         // ============================================
 
+        function deriveRegime(vix) {
+            if (!vix || vix <= 0) return 'unknown';
+            if (vix > 40) return 'extreme';
+            if (vix > 30) return 'high';
+            if (vix > 20) return 'elevated';
+            if (vix > 12) return 'normal';
+            return 'low';
+        }
+
         function updateVixBanner(vix, regime) {
             const banner = document.getElementById('vix-banner');
             const regimeEl = document.getElementById('vix-regime');
@@ -875,9 +889,12 @@ Auto-refreshes every 30 seconds.
             } else if (regime === 'high') {
                 advice = 'Reduce size 50%, expect large moves';
                 banner.className = 'vix-banner high';
-            } else {
+            } else if (regime === 'extreme') {
                 advice = 'DANGER - Consider sitting out';
                 banner.className = 'vix-banner extreme';
+            } else {
+                advice = 'Waiting for data...';
+                banner.className = 'vix-banner normal';
             }
 
             regimeEl.textContent = `VIX REGIME: ${regimeUpper}`;
