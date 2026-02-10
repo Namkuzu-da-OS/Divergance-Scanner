@@ -813,14 +813,17 @@ async function discoverSymbols() {
 // ============================================
 
 async function getMarketContext() {
-    // Fetch all context data in parallel
-    const [context, spyLevels, qqqLevels, outlook, spyIv] = await Promise.all([
-        fetchJSON(`${APIS.options}/api/market/context`),
-        fetchJSON(`${APIS.options}/api/levels/SPY`),
-        fetchJSON(`${APIS.options}/api/levels/QQQ`),
-        fetchJSON(`${APIS.intel}/api/market/outlook`),  // Multi-timeframe bias
-        fetchJSON(`${APIS.options}/api/options/SPY/iv`)  // IV rank
-    ]);
+    // Sequential API calls to avoid overwhelming the Options API
+    const sleep100 = () => new Promise(r => setTimeout(r, 100));
+    const context = await fetchJSON(`${APIS.options}/api/market/context`, 15000);
+    await sleep100();
+    const spyLevels = await fetchJSON(`${APIS.options}/api/levels/SPY`, 15000);
+    await sleep100();
+    const qqqLevels = await fetchJSON(`${APIS.options}/api/levels/QQQ`, 15000);
+    await sleep100();
+    const outlook = await fetchJSON(`${APIS.intel}/api/market/outlook`);  // Multi-timeframe bias
+    await sleep100();
+    const spyIv = await fetchJSON(`${APIS.options}/api/options/SPY/iv`, 15000);  // IV rank
 
     if (!context) return null;
 
@@ -870,15 +873,16 @@ async function getMarketContext() {
 // ============================================
 
 async function analyzeSymbol(symbol, discoveryData) {
-    const [levels, technicals, optionsAnalysis] = await Promise.all([
-        fetchJSON(`${APIS.options}/api/levels/${symbol}`),
-        fetchJSON(`${APIS.options}/api/technicals/${symbol}`),
-        fetchJSON(`${APIS.options}/api/options/${symbol}/analysis`)
-    ]);
+    // Sequential API calls to avoid overwhelming the Options API
+    const levels = await fetchJSON(`${APIS.options}/api/levels/${symbol}`, 15000);
+    if (!levels) return null; // Can't analyze without levels
 
-    if (!levels || !technicals) {
-        return null; // Can't analyze without core data
-    }
+    await new Promise(r => setTimeout(r, 100));
+    const technicals = await fetchJSON(`${APIS.options}/api/technicals/${symbol}`, 15000);
+    if (!technicals) return null; // Can't analyze without technicals
+
+    await new Promise(r => setTimeout(r, 100));
+    const optionsAnalysis = await fetchJSON(`${APIS.options}/api/options/${symbol}/analysis`, 15000);
 
     const price = levels.underlying_price || technicals.current;
     if (!price) return null;
