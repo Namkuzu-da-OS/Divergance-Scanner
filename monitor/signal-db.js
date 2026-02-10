@@ -2710,6 +2710,11 @@ function getBloodhoundScanSummary() {
     const spyLevels = JSON.parse(scan.spy_levels_json || '{}');
     const qqqLevels = JSON.parse(scan.qqq_levels_json || '{}');
 
+    // Pull change_pct from market internals ($SPX → SPY, $COMPX → QQQ)
+    const internals = getLatestInternals();
+    const spyChangePct = internals?.spx_change_pct ?? 0;
+    const qqqChangePct = internals?.compx_change_pct ?? 0;
+
     return {
         timestamp: scan.timestamp,
         vix: {
@@ -2718,7 +2723,7 @@ function getBloodhoundScanSummary() {
         },
         spy: {
             price: scan.spy_price || 0,
-            change_pct: 0,
+            change_pct: Math.round(spyChangePct * 100) / 100,
             levels: spyLevels,
             context: {
                 regime: scan.regime,
@@ -2728,7 +2733,7 @@ function getBloodhoundScanSummary() {
         },
         qqq: {
             price: qqqResult?.price || qqqLevels?.underlying_price || 0,
-            change_pct: 0,
+            change_pct: Math.round(qqqChangePct * 100) / 100,
             levels: qqqLevels,
             context: {}
         },
