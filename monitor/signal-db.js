@@ -392,6 +392,9 @@ function initSchema() {
 
     // Migration: Add option signal tracking columns
     migrateOptionTracking();
+
+    // Migration: Add internals snapshot columns to signals table
+    migrateSignalInternals();
 }
 
 /**
@@ -571,6 +574,28 @@ function migrateOptionTracking() {
 }
 
 /**
+ * Add market internals snapshot columns to signals table
+ * Captures TICK/TRIN/A/D/Vol Ratio at signal entry for backtesting
+ */
+function migrateSignalInternals() {
+    const columns = [
+        { name: 'tick_at_entry', type: 'REAL' },
+        { name: 'trin_at_entry', type: 'REAL' },
+        { name: 'ad_spread_at_entry', type: 'REAL' },
+        { name: 'vol_ratio_at_entry', type: 'REAL' }
+    ];
+
+    for (const col of columns) {
+        try {
+            db.exec(`ALTER TABLE signals ADD COLUMN ${col.name} ${col.type}`);
+            console.log(`[SignalDB] Added column ${col.name} to signals`);
+        } catch (e) {
+            // Column already exists, ignore
+        }
+    }
+}
+
+/**
  * Validate checkpoint type to prevent SQL injection
  */
 function validateCheckpointType(checkpointType) {
@@ -595,9 +620,11 @@ function insertSignal(signalData) {
             option_dte, option_premium_entry, option_delta_entry, option_iv_entry,
             option_vol_oi, option_premium_flow,
             option_premium_peak, option_premium_peak_time,
+            tick_at_entry, trin_at_entry, ad_spread_at_entry, vol_ratio_at_entry,
             status
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-                  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active')
+                  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                  ?, ?, ?, ?, 'active')
     `);
 
     try {
@@ -638,7 +665,11 @@ function insertSignal(signalData) {
             signalData.option_vol_oi || null,
             signalData.option_premium_flow || null,
             premEntry,                        // peak starts at entry premium
-            premEntry ? signalData.timestamp : null  // peak time starts at entry
+            premEntry ? signalData.timestamp : null,  // peak time starts at entry
+            signalData.tick_at_entry ?? null,
+            signalData.trin_at_entry ?? null,
+            signalData.ad_spread_at_entry ?? null,
+            signalData.vol_ratio_at_entry ?? null
         );
         const optInfo = signalData.option_contract ? ` | Option: ${signalData.option_contract}` : '';
         console.log(`[SignalDB] Inserted signal ${signalData.id} @ $${signalData.entry_price}${optInfo}`);
@@ -2707,8 +2738,33 @@ function getBloodhoundScanSummary() {
         WHERE scan_id = ? AND symbol = 'QQQ'
     `).get(scan.id);
 
-    const spyLevels = JSON.parse(scan.spy_levels_json || '{}');
-    const qqqLevels = JSON.parse(scan.qqq_levels_json || '{}');
+    let spyLevels = JSON.parse(scan.spy_levels_json || '{}');
+    let qqqLevels = JSON.parse(scan.qqq_levels_json || '{}');
+
+    // If SPY/QQQ levels are incomplete (API timeout during scan), fall back to previous scan
+    if (!spyLevels.call_wall || !spyLevels.put_wall) {
+        const prevScan = getDb().prepare(`
+            SELECT spy_levels_json FROM bloodhound_scans
+            WHERE id < ? AND spy_levels_json LIKE '%call_wall%'
+            ORDER BY id DESC LIMIT 1
+        `).get(scan.id);
+        if (prevScan) {
+            const prevLevels = JSON.parse(prevScan.spy_levels_json);
+            // Preserve gammaRegime/ivRank from current scan, backfill wall data
+            spyLevels = { ...prevLevels, gammaRegime: spyLevels.gammaRegime || prevLevels.gammaRegime, ivRank: spyLevels.ivRank || prevLevels.ivRank };
+        }
+    }
+    if (!qqqLevels.call_wall || !qqqLevels.put_wall) {
+        const prevScan = getDb().prepare(`
+            SELECT qqq_levels_json FROM bloodhound_scans
+            WHERE id < ? AND qqq_levels_json LIKE '%call_wall%'
+            ORDER BY id DESC LIMIT 1
+        `).get(scan.id);
+        if (prevScan) {
+            const prevLevels = JSON.parse(prevScan.qqq_levels_json);
+            qqqLevels = { ...prevLevels, ...qqqLevels };
+        }
+    }
 
     // Pull change_pct from market internals ($SPX → SPY, $COMPX → QQQ)
     const internals = getLatestInternals();

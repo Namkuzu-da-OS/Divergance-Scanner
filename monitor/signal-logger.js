@@ -80,6 +80,9 @@ async function logSignal(alertData) {
     }
   }
 
+  // Capture market internals snapshot at entry time
+  const internals = signalDb.getLatestInternals();
+
   const success = signalDb.insertSignal({
     id,
     timestamp,
@@ -99,6 +102,11 @@ async function logSignal(alertData) {
     signal_type: alertData.signal_type,
     history_status: alertData.history_status,
     consecutive_days: alertData.consecutive_days,
+    // Market internals at entry
+    tick_at_entry: internals?.tick ?? null,
+    trin_at_entry: internals?.trin ?? null,
+    ad_spread_at_entry: internals?.ad_spread ?? null,
+    vol_ratio_at_entry: internals?.vol_ratio ?? null,
     // Option tracking fields
     option_contract: alertData.option_contract || null,
     option_type: alertData.option_type || null,

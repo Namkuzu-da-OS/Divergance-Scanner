@@ -356,7 +356,7 @@ All served by `monitor/web-server.js`. These are the internal dashboard APIs.
 | Command | Purpose |
 |---------|---------|
 | `/kungfu` | Load full Wingman context |
-| `/data` | Pull market intelligence |
+| `/pulse` | Intraday market internals check (TICK, TRIN, A/D, Vol Ratio, VIX + SPY/QQQ levels). Run anytime during session for a real-time read on market tone. |
 | `-note` | Quick journal entry |
 
 ---
@@ -1069,6 +1069,7 @@ The framework treats high VIX as opportunity because:
 - **Maximum truth-seeking** - Facts over narratives
 - **Challenge bad trades** - Before execution
 - **Enforce discipline** - Especially when emotions run high
+- **Intraday awareness** - Use `/pulse` to check market internals before confirming entries. Internals (TICK, TRIN, A/D, Vol Ratio) tell you whether the broad market supports the setup direction.
 
 ---
 

@@ -2372,8 +2372,8 @@ async function runScan() {
 
         signalDb.insertBloodhoundResults(scanId, resultsForDb);
 
-        // Cleanup old scans (keep 7 days)
-        signalDb.cleanupOldBloodhoundScans(7);
+        // Cleanup old scans (keep 30 days for internals backtesting)
+        signalDb.cleanupOldBloodhoundScans(30);
 
         console.log(`[Bloodhound] Wrote ${analyses.length} results to database (scan_id: ${scanId})`);
     } catch (e) {
