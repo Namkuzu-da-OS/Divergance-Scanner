@@ -479,3 +479,50 @@ Commands:
   Manual run: node eod-gap-tracker.js --now
   PM2 logs:   pm2 logs eod-tracker
 
+[16:15:00 ET] [EOD Tracker] Scheduled run triggered
+
+============================================================
+   EOD GAP TRACKER - SCHEDULED RUN
+============================================================
+Time: 2026-02-11T21:15:00.041Z
+Options API: http://192.168.10.60:8000
+============================================================
+
+[16:15:00 ET] [EOD Tracker] Starting EOD gap tracking...
+[16:15:07 ET] [EOD Tracker] Found 15 gaps to process
+[16:15:10 ET] [EOD Tracker]   BNAI: NOT FILLED | LOSS | EOD: +1.2%
+[16:15:11 ET] [EOD Tracker]   COIN: NOT FILLED | LOSS | EOD: +2.5%
+[16:15:13 ET] [EOD Tracker]   HOOD: NOT FILLED | LOSS | EOD: +2.7%
+[16:15:14 ET] [EOD Tracker]   IBIT: FILLED | LOSS | EOD: +3.9%
+[16:15:16 ET] [EOD Tracker]   INTC: NOT FILLED | LOSS | EOD: -2.1%
+[16:15:18 ET] [EOD Tracker]   IREN: NOT FILLED | LOSS | EOD: -2.4%
+[16:15:19 ET] [EOD Tracker]   KHC: FILLED | LOSS | EOD: +8.3%
+[16:15:20 ET] [EOD Tracker]   LBTYB: NOT FILLED | LOSS | EOD: +3.0%
+[16:15:20 ET] [EOD Tracker]   MAT: NOT FILLED | WIN | EOD: -1.4%
+[16:15:22 ET] [EOD Tracker]   MRNA: NOT FILLED | LOSS | EOD: +2.0%
+[16:15:24 ET] [EOD Tracker]   MSTR: FILLED | LOSS | EOD: +3.9%
+[16:15:25 ET] [EOD Tracker]   MU: FILLED | LOSS | EOD: -6.7%
+[16:15:27 ET] [EOD Tracker]   NVDA: NOT FILLED | LOSS | EOD: -2.0%
+[16:15:28 ET] [EOD Tracker]   ORCL: FILLED | LOSS | EOD: -2.5%
+[16:15:30 ET] [EOD Tracker]   SNDK: FILLED | LOSS | EOD: -7.3%
+[16:15:30 ET] [EOD Tracker] Updating stats for 15 tickers...
+[16:15:30 ET] [EOD Tracker] Done. Processed 15 gaps, updated 15
+
+==================================================
+TODAY'S GAP SUMMARY
+==================================================
+
+Total Gaps: 15
+Filled: 6 (40%)
+
+By Tier:
+  HIGH_CONVICTION: 3/5 filled (60%)
+  WATCH: 2/6 filled (33.3%)
+  TRADEABLE: 1/4 filled (25%)
+
+By Direction:
+  Gap Down: 3/9 filled (33.3%)
+  Gap Up: 3/6 filled (50%)
+==================================================
+
+[Telegram] Sent alert
