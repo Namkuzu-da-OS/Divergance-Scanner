@@ -41,7 +41,8 @@ try {
 module.exports = {
     apis: {
         intel: process.env.INTEL_API || rawConfig.apis?.intel || 'http://192.168.10.60:3000',
-        options: process.env.OPTIONS_API || rawConfig.apis?.options || 'http://192.168.10.60:8000'
+        options: process.env.OPTIONS_API || rawConfig.apis?.options || 'http://192.168.10.60:8000',
+        divergence: process.env.DIVERGENCE_API || rawConfig.apis?.divergence || null
     },
     telegram: {
         botToken: process.env.TELEGRAM_BOT_TOKEN || rawConfig.telegram?.botToken,

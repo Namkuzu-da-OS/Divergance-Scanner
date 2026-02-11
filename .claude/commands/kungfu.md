@@ -6,11 +6,17 @@ Read these files in a single parallel batch:
 - docs/RULES.md - Trading rules you enforce
 - docs/STRATEGIES.md - Valid strategies
 - data/MARKET_INTEL.md - Living market intelligence report (regime, sector rotation, swing watchlist, session recaps, next-day focus)
+- data/SESSION_STATE.md - Intra-session checkpoint (may not exist — that's fine, skip if missing)
 
 Also fetch open positions from the API:
 - `curl http://localhost:8080/api/positions` - Open positions (check for immediate action needed)
 
 Note: CLAUDE.md is already in system context. Do not read it again.
+
+### SESSION_STATE.md Handling
+- **If file exists AND date matches today:** Present "Resuming from checkpoint at [time]" before Step 4 analysis. Use checkpoint data to skip redundant conclusions — don't re-derive what's already been decided. Focus fresh analysis on what may have CHANGED since the checkpoint.
+- **If file exists but date is stale (not today):** Ignore it. Proceed with normal load. MARKET_INTEL.md has the EOD state.
+- **If file does not exist:** Normal load. No checkpoint to restore.
 
 ## STEP 2: Market Context + Sector Rotation + Scanner via Subagents (MANDATORY)
 
@@ -44,10 +50,30 @@ Task tool with subagent_type=Explore:
 "Fetch http://localhost:8080/api/scan/latest and return a compact summary:
 1. Scan timestamp
 2. Total ticker count
-3. Market context: VIX, regime, SPY price/trend
-4. ALL symbols with score, direction, zone, tier, action - in a table sorted by score descending
+3. Market context: VIX, regime, SPY price/trend, rotation regime (if present)
+4. ALL symbols with score, direction, zone, tier, action, sector RS (if present) - in a table sorted by score descending
 5. Count of tradeable setups (tier = HIGH_CONVICTION or TRADEABLE)
 Be complete. Miss no tickers."
+```
+
+**Subagent C - Divergence Scanner (Rotation & Relative Strength):**
+```
+Task tool with subagent_type=Explore:
+"Fetch all 3 endpoints from the divergence scanner and return a compact summary:
+
+1. http://localhost:8080/api/rotation/rankings — RS rankings
+2. http://localhost:8080/api/rotation/divergences — Active divergences
+3. http://localhost:8080/api/rotation/regime — Rotation regime
+
+Return:
+1. ROTATION REGIME: Phase (early/mid/late/recession), confidence, leading sectors, lagging sectors
+2. RS RANKINGS TABLE (all assets, sorted by RS score descending):
+   | Rank | Symbol | RS Score | Performance | Trend | SMA Status |
+3. ACTIVE DIVERGENCES: List any sector pairs showing divergence
+4. One-sentence summary: 'Rotation favors [X], avoid [Y]'
+
+If any endpoint returns an error (502/timeout), note it and return whatever data is available.
+Be complete and compact."
 ```
 
 ## STEP 3: API Connectivity Check
@@ -114,10 +140,13 @@ After completing Steps 1-3, confirm you are Wingman and present the analysis in 
 ### Layer 2: SECTOR ROTATION (Where Money is Flowing)
 *"Which sectors have wind at their back?"*
 
+- **Rotation regime** — Cycle phase from divergence scanner (early/mid/late/recession) + confidence level
 - **Rotation theme** — One sentence summary (e.g., "Cyclicals leading, tech lagging — classic mid-cycle rotation")
+- **RS rankings** — Top 5 and bottom 5 by relative strength score (from divergence scanner)
 - **Sector table** — All 11 SPDR sectors + thematic ETFs, sorted by RSI. Flag overbought (>70) and oversold (<30).
-- **Leading sectors** — Top 3 by RSI/momentum. These are WHERE we want to find longs.
+- **Leading sectors** — Top 3 by RS + RSI/momentum. These are WHERE we want to find longs.
 - **Lagging sectors** — Bottom 3. Avoid longs here unless individual confluence is overwhelming.
+- **Active divergences** — Any sector pairs diverging (from divergence scanner)
 - **Sector changes** — What shifted since last session? Any new breakouts or breakdowns?
 - **Top movers** — SPX winners and losers driving the rotation.
 

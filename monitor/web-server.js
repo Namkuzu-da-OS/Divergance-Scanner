@@ -449,6 +449,57 @@ const server = http.createServer((req, res) => {
         return totalMin >= 360 && totalMin < 570; // 6:00 AM - 9:30 AM ET
     }
 
+    // Helper: proxy request to Divergence Scanner API
+    function proxyToDivergence(targetPath, proxyReq, proxyRes) {
+        const divergenceUrl = config.apis.divergence;
+        if (!divergenceUrl) {
+            proxyRes.writeHead(503, { 'Content-Type': 'application/json' });
+            proxyRes.end(JSON.stringify({ error: 'Divergence scanner not configured' }));
+            return;
+        }
+
+        const parsed = new URL(divergenceUrl);
+        const upstreamReq = http.request({
+            hostname: parsed.hostname,
+            port: parseInt(parsed.port) || 80,
+            path: targetPath,
+            method: proxyReq.method,
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': proxyReq.headers['content-type'] || 'application/json'
+            },
+            timeout: 15000
+        }, (upstreamRes) => {
+            const headers = {
+                ...upstreamRes.headers,
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type',
+                'Cache-Control': 'no-cache'
+            };
+            proxyRes.writeHead(upstreamRes.statusCode, headers);
+            upstreamRes.pipe(proxyRes);
+        });
+
+        upstreamReq.on('error', (err) => {
+            if (!proxyRes.headersSent) {
+                console.error('[Web Server] Proxy error (divergence):', err.message);
+                proxyRes.writeHead(502, { 'Content-Type': 'application/json' });
+                proxyRes.end(JSON.stringify({ error: 'Divergence scanner unavailable: ' + err.message }));
+            }
+        });
+
+        upstreamReq.on('timeout', () => {
+            upstreamReq.destroy();
+            if (!proxyRes.headersSent) {
+                proxyRes.writeHead(504, { 'Content-Type': 'application/json' });
+                proxyRes.end(JSON.stringify({ error: 'Divergence scanner timeout' }));
+            }
+        });
+
+        upstreamReq.end();
+    }
+
     // API: Get latest opportunity scan (replaces opportunities.json)
     if (req.method === 'GET' && urlPath === '/api/opportunities/latest') {
         try {
@@ -810,6 +861,32 @@ const server = http.createServer((req, res) => {
                 res.end(JSON.stringify({ error: e.message }));
             }
         });
+        return;
+    }
+
+    // API: Rotation rankings (convenience proxy to divergence scanner)
+    if (req.method === 'GET' && urlPath === '/api/rotation/rankings') {
+        proxyToDivergence('/api/relative-strength/rankings', req, res);
+        return;
+    }
+
+    // API: Rotation divergences (convenience proxy to divergence scanner)
+    if (req.method === 'GET' && urlPath === '/api/rotation/divergences') {
+        proxyToDivergence('/api/divergence/scan', req, res);
+        return;
+    }
+
+    // API: Rotation regime (convenience proxy to divergence scanner)
+    if (req.method === 'GET' && urlPath === '/api/rotation/regime') {
+        proxyToDivergence('/api/rotation/regime', req, res);
+        return;
+    }
+
+    // Proxy: Forward requests to Divergence Scanner API
+    // Usage: /proxy/divergence/api/relative-strength/rankings → DIVERGENCE_API/api/relative-strength/rankings
+    if (urlPath.startsWith('/proxy/divergence/') || urlPath === '/proxy/divergence') {
+        const targetPath = req.url.replace(/^\/proxy\/divergence/, '') || '/';
+        proxyToDivergence(targetPath, req, res);
         return;
     }
 

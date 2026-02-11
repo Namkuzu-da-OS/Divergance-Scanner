@@ -141,6 +141,50 @@ const NON_TRADEABLE = new Set([
     'USD', 'EUR', 'GBP', 'JPY', 'CNY',  // Currencies
 ]);
 
+// Map individual stocks to their sector ETF for RS scoring
+const SECTOR_MAP = {
+    // Technology (XLK)
+    AAPL: 'XLK', MSFT: 'XLK', NVDA: 'XLK', AMD: 'XLK', QCOM: 'XLK',
+    AVGO: 'XLK', CRM: 'XLK', ADBE: 'XLK', INTC: 'XLK', TXN: 'XLK',
+    MU: 'XLK', AMAT: 'XLK', LRCX: 'XLK', KLAC: 'XLK', MRVL: 'XLK',
+    NOW: 'XLK', PANW: 'XLK', SNPS: 'XLK', CDNS: 'XLK', FTNT: 'XLK',
+    // Consumer Discretionary (XLY)
+    AMZN: 'XLY', TSLA: 'XLY', HD: 'XLY', MCD: 'XLY', NKE: 'XLY',
+    LOW: 'XLY', SBUX: 'XLY', TJX: 'XLY', CMG: 'XLY', ORLY: 'XLY',
+    BKNG: 'XLY', ABNB: 'XLY', ROST: 'XLY', DHI: 'XLY', LEN: 'XLY',
+    // Communications (XLC)
+    META: 'XLC', GOOGL: 'XLC', GOOG: 'XLC', NFLX: 'XLC', DIS: 'XLC',
+    CMCSA: 'XLC', VZ: 'XLC', T: 'XLC', TMUS: 'XLC', EA: 'XLC',
+    TTWO: 'XLC', DDOG: 'XLC', SNAP: 'XLC', PINS: 'XLC',
+    // Financials (XLF)
+    JPM: 'XLF', BAC: 'XLF', WFC: 'XLF', GS: 'XLF', MS: 'XLF',
+    C: 'XLF', AXP: 'XLF', BLK: 'XLF', SCHW: 'XLF', COF: 'XLF',
+    PYPL: 'XLF', V: 'XLF', MA: 'XLF', FISV: 'XLF', SQ: 'XLF',
+    // Healthcare (XLV)
+    UNH: 'XLV', JNJ: 'XLV', LLY: 'XLV', PFE: 'XLV', ABBV: 'XLV',
+    MRK: 'XLV', TMO: 'XLV', ABT: 'XLV', DHR: 'XLV', BSX: 'XLV',
+    ISRG: 'XLV', AMGN: 'XLV', GILD: 'XLV', VRTX: 'XLV', REGN: 'XLV',
+    // Energy (XLE)
+    XOM: 'XLE', CVX: 'XLE', COP: 'XLE', SLB: 'XLE', EOG: 'XLE',
+    MPC: 'XLE', OXY: 'XLE', PSX: 'XLE', VLO: 'XLE', PXD: 'XLE',
+    // Industrials (XLI)
+    CAT: 'XLI', DE: 'XLI', UNP: 'XLI', HON: 'XLI', RTX: 'XLI',
+    BA: 'XLI', LMT: 'XLI', GE: 'XLI', MMM: 'XLI', UBER: 'XLI',
+    FDX: 'XLI', UPS: 'XLI', WM: 'XLI',
+    // Consumer Staples (XLP)
+    PG: 'XLP', KO: 'XLP', PEP: 'XLP', COST: 'XLP', WMT: 'XLP',
+    PM: 'XLP', MO: 'XLP', CL: 'XLP', KHC: 'XLP', MDLZ: 'XLP',
+    // Utilities (XLU)
+    NEE: 'XLU', SO: 'XLU', DUK: 'XLU', AEP: 'XLU', D: 'XLU',
+    // Real Estate (XLRE)
+    AMT: 'XLRE', PLD: 'XLRE', CCI: 'XLRE', EQIX: 'XLRE', SPG: 'XLRE',
+    // Materials (XLB)
+    LIN: 'XLB', APD: 'XLB', SHW: 'XLB', FCX: 'XLB', NEM: 'XLB',
+    // Crypto-related (use IBIT as sector proxy)
+    IBIT: 'IBIT', MSTR: 'IBIT', MARA: 'IBIT', IREN: 'IBIT', COIN: 'IBIT',
+    RIOT: 'IBIT', ETHA: 'IBIT',
+};
+
 // Translate symbol to tradeable equivalent
 function mapSymbol(ticker) {
     if (SYMBOL_MAP[ticker]) {
@@ -343,6 +387,7 @@ function checkFibWallConfluence(fibLevels, callWall, putWall, threshold = 1.0) {
 // State
 const alertCooldowns = new Map();
 let marketContext = null;
+let rsContext = null;  // Relative strength data from divergence scanner
 
 // ============================================
 // MARKET HOURS DETECTION
@@ -869,6 +914,85 @@ async function getMarketContext() {
 }
 
 // ============================================
+// RELATIVE STRENGTH (DIVERGENCE SCANNER)
+// ============================================
+
+/**
+ * Fetch relative strength rankings and rotation regime from divergence scanner.
+ * Returns null on failure (graceful degradation).
+ */
+async function fetchRelativeStrength() {
+    const divergenceApi = CONFIG.apis.divergence;
+    if (!divergenceApi) {
+        return null;
+    }
+
+    try {
+        const [rankings, regime] = await Promise.all([
+            fetchJSON(`${divergenceApi}/api/relative-strength/rankings`, 10000),
+            fetchJSON(`${divergenceApi}/api/rotation/regime`, 10000)
+        ]);
+
+        if (!rankings) {
+            console.log('[RS] Divergence scanner unavailable — skipping RS scoring');
+            return null;
+        }
+
+        // Build a percentile lookup from rankings
+        const assets = rankings.rankings || rankings.assets || rankings;
+        if (!Array.isArray(assets) || assets.length === 0) {
+            console.log('[RS] No ranking data received');
+            return null;
+        }
+
+        const total = assets.length;
+        const percentileMap = {};
+        for (const asset of assets) {
+            const symbol = asset.symbol || asset.ticker;
+            if (symbol) {
+                // Use API-provided percentile if available, otherwise compute from rank
+                percentileMap[symbol] = asset.rs_percentile != null
+                    ? asset.rs_percentile
+                    : ((total - (asset.rs_rank || 0)) / total) * 100;
+            }
+        }
+
+        console.log(`[RS] Loaded ${total} asset rankings from divergence scanner`);
+
+        return {
+            percentileMap,
+            regime: regime || null,
+            assetCount: total
+        };
+    } catch (e) {
+        console.warn(`[RS] Error fetching divergence data: ${e.message}`);
+        return null;
+    }
+}
+
+/**
+ * Get RS percentile for a symbol by looking up its sector ETF in the rankings.
+ * Returns { percentile, sectorEtf } or null if no mapping/data.
+ */
+function getSymbolRsPercentile(symbol, rsData) {
+    if (!rsData || !rsData.percentileMap) return null;
+
+    // Direct match first (for ETFs like XLK, XLE, IBIT, etc.)
+    if (rsData.percentileMap[symbol] != null) {
+        return { percentile: rsData.percentileMap[symbol], sectorEtf: symbol };
+    }
+
+    // Look up sector ETF via SECTOR_MAP
+    const sectorEtf = SECTOR_MAP[symbol];
+    if (!sectorEtf) return null;
+
+    const percentile = rsData.percentileMap[sectorEtf];
+    if (percentile == null) return null;
+
+    return { percentile, sectorEtf };
+}
+
+// ============================================
 // SYMBOL ANALYSIS
 // ============================================
 
@@ -1345,11 +1469,33 @@ async function analyzeSymbol(symbol, discoveryData) {
         }
     }
 
+    // --- STANDARD FACTOR: Sector Relative Strength (±8 pts) ---
+    let symbolRsData = null;
+    if (rsContext) {
+        symbolRsData = getSymbolRsPercentile(symbol, rsContext);
+        if (symbolRsData) {
+            const pct = symbolRsData.percentile;
+            if (pct >= 75) {
+                scores.standard += 8;
+                signals.push(`Strong sector RS (${symbolRsData.sectorEtf} top quartile)`);
+            } else if (pct >= 50) {
+                scores.standard += 4;
+                signals.push(`Above-avg sector RS (${symbolRsData.sectorEtf})`);
+            } else if (pct >= 25) {
+                scores.standard -= 3;
+                signals.push(`Weak sector RS (${symbolRsData.sectorEtf})`);
+            } else {
+                scores.standard -= 5;
+                signals.push(`⚠️ Sector headwind (${symbolRsData.sectorEtf} bottom quartile)`);
+            }
+        }
+    }
+
     // ============================================
     // FINAL SCORE (0-100 scale, data-driven)
     // Base: AT_WALL + EXTENDED_RSI + combo (0-50)
     // HighEdge: Volume + VIX (0-35)
-    // Standard: BB, trend, flow, confluence (0-25)
+    // Standard: BB, trend, flow, confluence (0-25+RS)
     // ============================================
 
     const totalScore = Math.max(0, Math.min(100,
@@ -1533,7 +1679,9 @@ async function analyzeSymbol(symbol, discoveryData) {
         wallActivity: wallActivity?.status || null,
         wallVolOiRatio: wallActivity?.volOiRatio || null,
         // Top unusual option contract (for option signal tracking)
-        unusualOption
+        unusualOption,
+        // Sector relative strength
+        sectorRs: symbolRsData
     };
 }
 
@@ -1996,6 +2144,18 @@ async function runScan() {
         console.error('[Signal Validation] Error:', e.message);
     });
 
+    // 1.6. Fetch relative strength data from divergence scanner
+    rsContext = await fetchRelativeStrength();
+    if (rsContext) {
+        const regime = rsContext.regime;
+        if (regime) {
+            const phase = regime.phase || regime.cycle_phase || 'unknown';
+            console.log(`[RS] Rotation regime: ${phase} | ${rsContext.assetCount} assets ranked`);
+        } else {
+            console.log(`[RS] Rankings loaded (${rsContext.assetCount} assets), no regime data`);
+        }
+    }
+
     // 2. Discover symbols from all sources
     const symbols = await discoverSymbols();
     const discoveryContext = symbols._context || {};
@@ -2236,7 +2396,8 @@ async function runScan() {
             bias: marketContext?.intradayBias || 'NEUTRAL',
             swing_bias: marketContext?.swingBias || 'NEUTRAL',
             gamma_regime: marketContext?.gammaRegime || 'unknown',
-            iv_rank: marketContext?.ivRank || 0
+            iv_rank: marketContext?.ivRank || 0,
+            rotation_regime: rsContext?.regime || null
         },
         // Bloodhound-specific data
         discovery: {
@@ -2315,7 +2476,7 @@ async function runScan() {
             riskAppetite: marketContext?.riskAppetite || 'unknown',
             regime: marketContext?.regime || 'unknown',
             positionSizeModifier: marketContext?.positionSizeModifier || 1,
-            spyLevels: { ...(marketContext?.spyLevels || {}), gammaRegime: marketContext?.gammaRegime, ivRank: marketContext?.ivRank },
+            spyLevels: { ...(marketContext?.spyLevels || {}), gammaRegime: marketContext?.gammaRegime, ivRank: marketContext?.ivRank, rotationRegime: rsContext?.regime || null },
             qqqLevels: marketContext?.qqqLevels || {},
             scanCount: analyses.length,
             tradeableCount: tradeableResults.length,
@@ -2367,7 +2528,9 @@ async function runScan() {
                 isWatchlist: symbols.find(s => s.symbol === a.symbol)?.sources?.includes('watchlist') || false,
                 tier: a.tier
             },
-            history_status: computeHistoryStatus(a.symbol)
+            history_status: computeHistoryStatus(a.symbol),
+            sectorRsPercentile: a.sectorRs?.percentile ?? null,
+            sectorEtf: a.sectorRs?.sectorEtf ?? null
         }));
 
         signalDb.insertBloodhoundResults(scanId, resultsForDb);

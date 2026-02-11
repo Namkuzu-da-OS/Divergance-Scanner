@@ -14,7 +14,10 @@ Trading assistance system for stocks/crypto/options. Tracks trades, manages risk
 
 **Live Data:**
 - [data/MARKET_INTEL.md](../data/MARKET_INTEL.md) - Living market intelligence (regime, watchlist, session state)
+- [data/SESSION_STATE.md](../data/SESSION_STATE.md) - Intra-session checkpoint (written by `/checkpoint`, read by `/kungfu`)
 - `/api/positions` - Open positions (SQLite-backed, via web server on port 8080)
+- `/api/rotation/rankings` - RS rankings from divergence scanner (proxied via port 8080)
+- `/api/rotation/regime` - Rotation regime phase from divergence scanner
 - [data/account_summary.json](../data/account_summary.json) - Account metrics
 - [data/trades_journal.json](../data/trades_journal.json) - Trade history
 - [data/daily_log.md](../data/daily_log.md) - Today's journal

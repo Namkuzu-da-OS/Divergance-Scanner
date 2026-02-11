@@ -203,6 +203,15 @@ Per [JetBrains research](https://blog.jetbrains.com/research/2025/12/efficient-c
 │  SQLite DB      │────► Scanner Dashboard (via /api/scan/*)
 │  (bloodhound_*) │
 └─────────────────┘
+         │
+         ▼
+┌──────────────────────────────────────┐
+│  Divergence Scanner (32212)          │
+│  192.168.10.61                       │
+│  - RS rankings, rotation regime      │
+│  - Sector divergence detection       │
+│  - Feeds into Bloodhound scoring     │
+└──────────────────────────────────────┘
 ```
 
 ### API Pacing (CRITICAL - DO NOT USE Promise.all)
@@ -229,6 +238,7 @@ responses across all consumers. See `memory/api-pacing.md` for full reference.
 | 8083 | Opportunity | `monitor/opportunity-scanner.js` | Opportunity scanner control API |
 | 8084 | Pre-Market | `monitor/premarket-scanner.js` | Pre-market scanner control API |
 | 8085 | Internals | `monitor/market-internals.js` | Market internals scanner control API |
+| 32212 | Divergence Scanner | External (192.168.10.61) | RS rankings, divergences, rotation regime |
 
 **Dashboard URLs:**
 - Morning Briefing: `http://localhost:8080/morning.html` (default page)
@@ -258,6 +268,14 @@ All served by `monitor/web-server.js`. These are the internal dashboard APIs.
 | GET | `/api/internals/latest` | Latest market internals snapshot (TICK, TRIN, VIX, etc.) |
 | GET | `/api/internals/history?hours=6` | Intraday internals history for charts |
 | GET | `/api/internals/today` | All internals readings for today |
+
+**Rotation & Relative Strength (Divergence Scanner Proxy)**
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| GET | `/api/rotation/rankings` | RS rankings for all tracked assets |
+| GET | `/api/rotation/divergences` | Active divergences between sector pairs |
+| GET | `/api/rotation/regime` | Cycle phase (early/mid/late/recession) with leading/lagging sectors |
+| GET | `/proxy/divergence/*` | Generic proxy to divergence scanner at 192.168.10.61:32212 |
 
 **Signals & Alerts**
 | Method | Endpoint | Purpose |
@@ -315,6 +333,7 @@ All served by `monitor/web-server.js`. These are the internal dashboard APIs.
 | `data/trades_journal.json` | Trade history | Trade closes |
 | `data/account_summary.json` | P&L metrics | EOD |
 | `data/MARKET_INTEL.md` | **Living market intelligence** - Regime, sector rotation, swing watchlist, session recaps, next-day focus | Each session |
+| `data/SESSION_STATE.md` | **Intra-session checkpoint** - Market snapshot, watchlist status, conclusions, action queue. Written by `/checkpoint`, read by `/kungfu` on reload. Today-only (stale dates ignored). | On `/checkpoint` |
 | `data/daily_log.md` | Today's journal | Throughout day |
 
 **Deprecated files (archived in data/archive/):**
@@ -357,6 +376,7 @@ All served by `monitor/web-server.js`. These are the internal dashboard APIs.
 |---------|---------|
 | `/kungfu` | Load full Wingman context |
 | `/pulse` | Intraday market internals check (TICK, TRIN, A/D, Vol Ratio, VIX + SPY/QQQ levels). Run anytime during session for a real-time read on market tone. |
+| `/checkpoint` | Save intra-session state to `data/SESSION_STATE.md`. Captures market snapshot, watchlist conclusions, action queue. Auto-restored by `/kungfu` if from today. |
 | `-note` | Quick journal entry |
 
 ---
@@ -451,6 +471,14 @@ Non-tradeable symbols are mapped to liquid ETF equivalents:
 ### Confluence Scoring (0-100)
 
 Each symbol is scored across multiple factors (base, high-edge, standard). Score is clamped to 0-100.
+
+**Standard factors include Sector RS** (from divergence scanner):
+| Sector RS Percentile | Score Impact | Signal |
+|----------------------|-------------|--------|
+| Top quartile (>=75th) | +8 pts | "Strong sector RS ([sector] top quartile)" |
+| Above median (50-74th) | +4 pts | "Above-avg sector RS ([sector])" |
+| Below median (25-49th) | -3 pts | "Weak sector RS ([sector])" |
+| Bottom quartile (<25th) | -5 pts | "Sector headwind ([sector] bottom quartile)" |
 
 **Alert threshold: 35/100** (configurable via `minConfluenceScore` in SETTINGS)
 
@@ -1140,6 +1168,17 @@ The framework treats high VIX as opportunity because:
 | `GET /api/calendar/{symbol}` | Earnings date, days to earnings |
 | `GET /api/calendar/{symbol}/check?dte=30` | Check if trade spans earnings |
 
+### Divergence Scanner (Port 32212 — 192.168.10.61)
+
+**Relative Strength & Rotation**
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /api/relative-strength/rankings` | 28 assets ranked by RS score with performance, trend, SMA status |
+| `GET /api/divergence/scan` | Active divergences between sector pairs |
+| `GET /api/rotation/regime` | Cycle phase (early/mid/late/recession) with leading/lagging sectors |
+
+**Integration:** Bloodhound fetches RS rankings at scan start. Stocks in strong sectors get +4 to +8 score points; stocks in weak sectors get -3 to -5 points. Rotation regime is included in `/api/scan/latest` market context. Proxied via web server at `/api/rotation/*` and `/proxy/divergence/*`.
+
 ### Market Intelligence Server (Port 3000)
 
 **Market Data**
@@ -1190,7 +1229,13 @@ When analyzing ANY symbol:
    curl http://192.168.10.60:8000/api/market/context
    → VIX regime, position size modifier
 
-5. ONLY THEN: Web search for news/catalysts if needed
+5. SECTOR WIND (via divergence scanner)
+   curl http://localhost:8080/api/rotation/regime
+   → Rotation phase, leading/lagging sectors
+   curl http://localhost:8080/api/rotation/rankings
+   → Relative strength percentile for the symbol's sector
+
+6. ONLY THEN: Web search for news/catalysts if needed
 ```
 
 ---

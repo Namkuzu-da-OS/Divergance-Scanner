@@ -25,6 +25,10 @@ Task tool with subagent_type=Explore:
 **5. Recent Alerts:**
 - http://localhost:8080/api/alerts?days=1&limit=5
 
+**6. Rotation Regime:**
+- http://localhost:8080/api/rotation/regime
+(If this returns a 502 or timeout, just note 'Divergence scanner unavailable' and skip this section)
+
 Return the data in this EXACT format:
 
 ---
@@ -66,6 +70,12 @@ MARKET CONTEXT:
 
 RECENT ALERTS (last 24h):
 [List any alerts, or 'None' if empty]
+
+ROTATION REGIME:
+- Phase: [phase] (confidence: [confidence])
+- Leading: [leading sectors]
+- Lagging: [lagging sectors]
+(Or 'Divergence scanner unavailable' if endpoint failed)
 ---
 
 Be precise with numbers. Do not round excessively. Include ALL fields listed above.
@@ -132,6 +142,7 @@ One concise paragraph combining all signals into a directional read:
 - What are internals saying? (breadth + volume + tick)
 - What is gamma saying? (pinned, breakout, breakdown)
 - What is VIX saying? (fear level + direction)
+- **Rotation regime:** [phase] — favor [leading], avoid [lagging] (if available)
 - **Net read:** Bullish / Bearish / Neutral / Choppy
 - **Trading implication:** Be aggressive / standard / defensive / sit on hands
 

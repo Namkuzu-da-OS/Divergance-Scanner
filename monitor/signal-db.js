@@ -395,6 +395,9 @@ function initSchema() {
 
     // Migration: Add internals snapshot columns to signals table
     migrateSignalInternals();
+
+    // Migration: Add sector RS columns to bloodhound_results table
+    migrateBloodhoundRS();
 }
 
 /**
@@ -589,6 +592,26 @@ function migrateSignalInternals() {
         try {
             db.exec(`ALTER TABLE signals ADD COLUMN ${col.name} ${col.type}`);
             console.log(`[SignalDB] Added column ${col.name} to signals`);
+        } catch (e) {
+            // Column already exists, ignore
+        }
+    }
+}
+
+/**
+ * Add sector RS columns to bloodhound_results table
+ * For divergence scanner integration (relative strength scoring)
+ */
+function migrateBloodhoundRS() {
+    const columns = [
+        { name: 'sector_rs_percentile', type: 'REAL' },
+        { name: 'sector_etf', type: 'TEXT' }
+    ];
+
+    for (const col of columns) {
+        try {
+            db.exec(`ALTER TABLE bloodhound_results ADD COLUMN ${col.name} ${col.type}`);
+            console.log(`[SignalDB] Added column ${col.name} to bloodhound_results`);
         } catch (e) {
             // Column already exists, ignore
         }
@@ -2568,8 +2591,9 @@ function insertBloodhoundResults(scanId, results) {
             rsi, trend, momentum_5d, momentum_20d, bb_position, volume_signal,
             fibonacci_json, score, direction, tier, signals_json,
             is_watchlist, sources_json,
-            history_label, consecutive_days, history_trend, reasoning_json
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            history_label, consecutive_days, history_trend, reasoning_json,
+            sector_rs_percentile, sector_etf
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const insertMany = getDb().transaction((items) => {
@@ -2605,7 +2629,9 @@ function insertBloodhoundResults(scanId, results) {
                 r.history_status?.label,
                 r.history_status?.consecutive_days,
                 r.history_status?.trend,
-                JSON.stringify(r.reasoning || [])
+                JSON.stringify(r.reasoning || []),
+                r.sectorRsPercentile ?? null,
+                r.sectorEtf ?? null
             );
         }
     });
@@ -2654,7 +2680,8 @@ function getLatestBloodhoundScan() {
             regime: scan.regime,
             positionSizeModifier: scan.position_size_modifier,
             spyLevels: JSON.parse(scan.spy_levels_json || '{}'),
-            qqqLevels: JSON.parse(scan.qqq_levels_json || '{}')
+            qqqLevels: JSON.parse(scan.qqq_levels_json || '{}'),
+            rotationRegime: JSON.parse(scan.spy_levels_json || '{}').rotationRegime || null
         },
         scanCount: scan.scan_count,
         tradeableCount: scan.tradeable_count,
@@ -2699,6 +2726,10 @@ function getLatestBloodhoundScan() {
                 label: r.history_label,
                 consecutive_days: r.consecutive_days,
                 trend: r.history_trend
+            } : null,
+            sectorRs: r.sector_rs_percentile != null ? {
+                percentile: r.sector_rs_percentile,
+                sectorEtf: r.sector_etf
             } : null
         }))
     };
