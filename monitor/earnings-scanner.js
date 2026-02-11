@@ -20,6 +20,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const signalDb = require('./signal-db');
+const { sendTelegram: sendTelegramBase, escapeHtml } = require('./telegram');
 
 // Load config
 const CONFIG = require('./config-loader');
@@ -33,6 +34,11 @@ const APIS = {
 // Earnings-specific Telegram config (separate bot)
 // If not configured, fall back to main bot
 const TELEGRAM = CONFIG.earnings_telegram?.botToken ? CONFIG.earnings_telegram : CONFIG.telegram;
+
+// Wrap shared sendTelegram to pass earnings-specific bot config
+async function sendTelegram(message) {
+    return sendTelegramBase(message, { botToken: TELEGRAM.botToken, chatId: TELEGRAM.chatId });
+}
 
 // Data files
 const DATA_DIR = path.join(__dirname, '..', 'data');
@@ -112,51 +118,7 @@ async function fetchJSON(url, timeout = 15000) {
     }
 }
 
-/**
- * Escape HTML for Telegram
- */
-function escapeHtml(text) {
-    if (!text) return '';
-    return String(text)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-}
-
-/**
- * Send Telegram message
- */
-async function sendTelegram(message) {
-    if (!TELEGRAM?.botToken || !TELEGRAM?.chatId) {
-        console.log('[Telegram] Not configured, skipping alert');
-        return false;
-    }
-
-    const url = `https://api.telegram.org/bot${TELEGRAM.botToken}/sendMessage`;
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: TELEGRAM.chatId,
-                text: message,
-                parse_mode: 'HTML',
-                disable_web_page_preview: true
-            })
-        });
-        const result = await response.json();
-        if (result.ok) {
-            console.log(`[Telegram] Alert sent`);
-            return true;
-        } else {
-            console.error(`[Telegram] Failed:`, result.description);
-            return false;
-        }
-    } catch (e) {
-        console.error(`[Telegram] Error:`, e.message);
-        return false;
-    }
-}
+// escapeHtml and sendTelegram imported from ./telegram.js (wrapped with earnings config above)
 
 /**
  * Check if market is open (extended hours for earnings)
@@ -508,6 +470,27 @@ async function runScan() {
             if (sent) {
                 alertCooldowns.set(alert.symbol, Date.now());
             }
+        }
+
+        // Auto-add PREM signals to Bloodhound watchlist
+        const premSignals = results.filter(r => r.tier === 'HIGH_CONVICTION' || r.tier === 'TRADEABLE');
+        let watchlistAdds = 0;
+        for (const result of premSignals) {
+            try {
+                signalDb.addToWatchlist(result.symbol, {
+                    source: 'earnings',
+                    notes: `Earnings PREM: ${result.earningsDate || 'upcoming'} - score ${result.score}`,
+                    scoreAtAdd: result.score,
+                    tierAtAdd: result.tier,
+                    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+                });
+                watchlistAdds++;
+            } catch (e) {
+                console.error(`[Earnings] Failed to add ${result.symbol} to watchlist:`, e.message);
+            }
+        }
+        if (watchlistAdds > 0) {
+            console.log(`[Earnings] Added ${watchlistAdds} PREM symbols to Bloodhound watchlist`);
         }
 
         // Summary

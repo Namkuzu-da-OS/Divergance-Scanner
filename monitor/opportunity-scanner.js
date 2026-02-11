@@ -12,8 +12,8 @@
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
-const https = require('https');
 const opportunityDb = require('./opportunity-db');
+const { sendTelegram } = require('./telegram');
 
 // Load config
 const CONFIG = require('./config-loader');
@@ -833,6 +833,26 @@ async function runScan() {
     }
     console.log(`[Opportunity] Alerts sent: ${alertsSent} (${alertedToday.size} unique today)`);
 
+    // Auto-add HIGH_CONVICTION opportunities to Bloodhound watchlist
+    let watchlistAdds = 0;
+    for (const opp of highConviction) {
+        try {
+            const topStrike = opp.unusual?.topStrikes?.[0];
+            const ratioStr = topStrike?.volOiRatio?.toFixed(1) || '?';
+            signalDb.addToWatchlist(opp.symbol, {
+                source: 'opportunity',
+                notes: `Unusual options: vol/OI ${ratioStr}x - ${new Date().toISOString().split('T')[0]}`,
+                expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
+            });
+            watchlistAdds++;
+        } catch (e) {
+            console.error(`[Opportunity] Failed to add ${opp.symbol} to watchlist:`, e.message);
+        }
+    }
+    if (watchlistAdds > 0) {
+        console.log(`[Opportunity] Added ${watchlistAdds} symbols to Bloodhound watchlist`);
+    }
+
     const scanElapsed = Math.round((Date.now() - scanStart) / 1000);
     console.log(`[Opportunity] Scan complete in ${scanElapsed}s. Next scan at ${nextScanTime.toISOString()}`);
 }
@@ -847,12 +867,6 @@ async function sendTelegramAlert(opportunity, marketContext, persistence = null,
     const lastAlert = alertCooldowns.get(cooldownKey);
     if (lastAlert && Date.now() - lastAlert < SETTINGS.alertCooldownMs) {
         console.log(`[Opportunity] Skipping alert for ${opportunity.symbol} (cooldown)`);
-        return;
-    }
-
-    const { botToken, chatId } = CONFIG.telegram;
-    if (!botToken || !chatId || botToken.includes('YOUR_')) {
-        console.log('[Opportunity] Telegram not configured, skipping alert');
         return;
     }
 
@@ -912,35 +926,12 @@ ${signalsList.map(s => `• ${s}`).join('\n')}
 📊 Context: SPY ${marketContext.spyTrend} | VIX ${marketContext.vix} (${marketContext.vixRegime})
 `.trim();
 
-    try {
-        const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
-        const body = JSON.stringify({
-            chat_id: chatId,
-            text: message,
-            parse_mode: 'HTML'
-        });
-
-        await new Promise((resolve, reject) => {
-            const req = https.request(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Content-Length': Buffer.byteLength(body)
-                }
-            }, (res) => {
-                let data = '';
-                res.on('data', chunk => data += chunk);
-                res.on('end', () => resolve(data));
-            });
-            req.on('error', reject);
-            req.write(body);
-            req.end();
-        });
-
+    const result = await sendTelegram(message, { disablePreview: false });
+    if (result.ok) {
         alertCooldowns.set(cooldownKey, Date.now());
         console.log(`[Opportunity] Sent Telegram alert for ${opportunity.symbol}`);
-    } catch (e) {
-        console.error(`[Opportunity] Failed to send Telegram alert:`, e.message);
+    } else {
+        console.error(`[Opportunity] Failed to send Telegram alert:`, result.error);
     }
 }
 

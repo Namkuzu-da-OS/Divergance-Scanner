@@ -14,6 +14,7 @@ const path = require('path');
 const axios = require('axios');
 const signalDb = require('./signal-db');
 const appConfig = require('./config-loader');
+const { sendTelegram } = require('./telegram');
 
 // ============================================
 // CONFIGURATION
@@ -208,39 +209,7 @@ function getSessionWatchlistArray() {
 // Track which symbols we've alerted today to avoid spam
 const alertedToday = new Set();
 
-/**
- * Send message to Telegram
- */
-async function sendTelegram(message) {
-    if (!appConfig.telegram?.botToken || !appConfig.telegram?.chatId) {
-        log('Telegram not configured, skipping alert');
-        return false;
-    }
-
-    try {
-        const url = `https://api.telegram.org/bot${appConfig.telegram.botToken}/sendMessage`;
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: appConfig.telegram.chatId,
-                text: message,
-                parse_mode: 'HTML'
-            })
-        });
-
-        if (!response.ok) {
-            const error = await response.text();
-            log(`Telegram error: ${error}`);
-            return false;
-        }
-
-        return true;
-    } catch (e) {
-        log(`Telegram failed: ${e.message}`);
-        return false;
-    }
-}
+// sendTelegram imported from ./telegram.js
 
 /**
  * Send alert for HIGH_CONVICTION gap with historical fill rate

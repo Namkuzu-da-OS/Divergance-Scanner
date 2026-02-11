@@ -16,10 +16,9 @@
 const cron = require('node-cron');
 const signalDb = require('./signal-db');
 const config = require('./config-loader');
+const { sendTelegram } = require('./telegram');
 
 const OPTIONS_API = config.apis.options;
-const TELEGRAM_BOT_TOKEN = config.telegram.botToken;
-const TELEGRAM_CHAT_ID = config.telegram.chatId;
 
 // ============================================
 // LOGGING
@@ -36,44 +35,7 @@ function log(msg) {
     console.log(`[${timestamp} ET] [EOD Tracker] ${msg}`);
 }
 
-// ============================================
-// TELEGRAM
-// ============================================
-
-/**
- * Send message to Telegram
- */
-async function sendTelegram(message) {
-    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
-        log('Telegram not configured, skipping alert');
-        return false;
-    }
-
-    try {
-        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: TELEGRAM_CHAT_ID,
-                text: message,
-                parse_mode: 'HTML'
-            })
-        });
-
-        if (!response.ok) {
-            const error = await response.text();
-            log(`Telegram error: ${error}`);
-            return false;
-        }
-
-        log('Telegram summary sent');
-        return true;
-    } catch (e) {
-        log(`Telegram failed: ${e.message}`);
-        return false;
-    }
-}
+// sendTelegram imported from ./telegram.js
 
 /**
  * Format and send EOD summary to Telegram

@@ -18,6 +18,7 @@ const http = require('http');
 // Signal validation system
 const signalLogger = require('./signal-logger');
 const signalDb = require('./signal-db');
+const { sendTelegram, escapeHtml } = require('./telegram');
 
 // Load config
 const CONFIG = require('./config-loader');
@@ -385,9 +386,16 @@ function checkFibWallConfluence(fibLevels, callWall, putWall, threshold = 1.0) {
 }
 
 // State
-const alertCooldowns = new Map();
+const setupTracker = new Map(); // symbol → { zone, direction, score, firstSeen, lastAlerted, alertCount }
+const DEDUP = {
+    sameSetupCooldownMs: 4 * 60 * 60 * 1000,  // 4 hours for same setup
+    scoreJumpThreshold: 15,                      // Re-alert if score jumps 15+ pts
+    maxAlertsPerSetup: 2,                        // Max 2 alerts per day for same setup
+    setupExpiryMs: 24 * 60 * 60 * 1000,         // Clear tracker after 24h
+};
 let marketContext = null;
 let rsContext = null;  // Relative strength data from divergence scanner
+let latestInternals = null;  // Market internals snapshot for scoring
 
 // ============================================
 // MARKET HOURS DETECTION
@@ -599,37 +607,7 @@ async function fetchJSON(url, timeout = 10000, trackBackoff = false) {
     }
 }
 
-function escapeHtml(text) {
-    if (!text) return '';
-    return String(text)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-}
-
-async function sendTelegram(message) {
-    const url = `https://api.telegram.org/bot${CONFIG.telegram.botToken}/sendMessage`;
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: CONFIG.telegram.chatId,
-                text: message,
-                parse_mode: 'HTML',
-                disable_web_page_preview: true
-            })
-        });
-        const result = await response.json();
-        if (result.ok) {
-            console.log(`[Telegram] Sent alert`);
-        } else {
-            console.error(`[Telegram] Failed:`, result.description);
-        }
-    } catch (e) {
-        console.error(`[Telegram] Error:`, e.message);
-    }
-}
+// escapeHtml and sendTelegram imported from ./telegram.js
 
 // ============================================
 // WALL ACTIVITY CLASSIFICATION
@@ -1086,9 +1064,12 @@ async function analyzeSymbol(symbol, discoveryData) {
     const price = levels.underlying_price || technicals.current;
     if (!price) return null;
 
+    // Compute history status early — needed for scoring and tier gates
+    const historyStatus = computeHistoryStatus(symbol);
+
     // ============================================
     // DATA-DRIVEN CONFLUENCE SCORING (0-100)
-    // Based on backtest of 179 signals:
+    // Based on backtest of 201 signals:
     // - AT_WALL + EXTENDED_RSI = 89.5% win rate
     // - ELEVATED_VOLUME = 76.9% win rate
     // - VIX_ELEVATED = 66.7% win rate
@@ -1566,11 +1547,53 @@ async function analyzeSymbol(symbol, discoveryData) {
         }
     }
 
+    // --- HISTORY STATUS SCORING (data-driven: STREAK 73.7% win, NEW 66.7%) ---
+    if (historyStatus?.label === 'STREAK') {
+        scores.standard += 5;
+        signals.push(`📈 Streak (${historyStatus.consecutive_days} consecutive days)`);
+    } else if (historyStatus?.label === 'NEW') {
+        scores.standard += 3;
+        signals.push(`🆕 New discovery`);
+    }
+
+    // --- MARKET INTERNALS CONFIRMATION (±5 pts) ---
+    if (latestInternals && direction !== 'neutral' && direction !== 'pinned') {
+        const tick = latestInternals.tick;
+        const adSpread = latestInternals.ad_spread;
+        const volRatio = latestInternals.vol_ratio;
+
+        let bullishCount = 0;
+        let bearishCount = 0;
+
+        if (tick > 400) bullishCount++;
+        else if (tick < -400) bearishCount++;
+
+        if (adSpread > 400) bullishCount++;
+        else if (adSpread < -400) bearishCount++;
+
+        if (volRatio > 1.5) bullishCount++;
+        else if (volRatio < 0.67) bearishCount++;
+
+        if (direction === 'bullish' && bullishCount >= 2) {
+            scores.standard += 5;
+            signals.push(`Internals confirm bullish (${bullishCount}/3)`);
+        } else if (direction === 'bearish' && bearishCount >= 2) {
+            scores.standard += 5;
+            signals.push(`Internals confirm bearish (${bearishCount}/3)`);
+        } else if (direction === 'bullish' && bearishCount >= 2) {
+            scores.standard -= 3;
+            signals.push(`⚠️ Internals oppose bullish (${bearishCount}/3 bearish)`);
+        } else if (direction === 'bearish' && bullishCount >= 2) {
+            scores.standard -= 3;
+            signals.push(`⚠️ Internals oppose bearish (${bullishCount}/3 bullish)`);
+        }
+    }
+
     // ============================================
     // FINAL SCORE (0-100 scale, data-driven)
     // Base: AT_WALL + EXTENDED_RSI + combo (0-50)
     // HighEdge: Volume + VIX (0-35)
-    // Standard: BB, trend, flow, confluence (0-25+RS)
+    // Standard: BB, trend, flow, confluence, RS, history (0-30)
     // ============================================
 
     const totalScore = Math.max(0, Math.min(100,
@@ -1625,12 +1648,12 @@ async function analyzeSymbol(symbol, discoveryData) {
 
     // ============================================
     // DATA-DRIVEN TIER ASSIGNMENT
-    // Based on 179 signal backtest:
+    // Based on 201 signal backtest:
     // - PRIME SETUP (AT_WALL + EXTENDED_RSI) = 89.5% win rate
-    // - Score 50+ with prime setup = HIGH_CONVICTION
-    // - Score 50+ without prime = TRADEABLE
-    // - Score 35-49 = WATCH
-    // - Score <35 = FILTERED
+    // - STREAK signals: 73.7% win rate (+5 pts)
+    // - NEW signals: 66.7% win rate (+3 pts)
+    // - RETURNED signals: 11.1% win rate (capped at WATCH)
+    // - Pinned direction: 0% win rate (capped at WATCH)
     // ============================================
 
     // Exclude historically bad zones from tradeable tiers
@@ -1671,6 +1694,26 @@ async function analyzeSymbol(symbol, discoveryData) {
     else if (zone === 'PINNED' && totalScore >= SETTINGS.TIER_TRADEABLE) {
         tier = 'WATCH';
         action = 'WATCH_BREAKOUT';
+    }
+
+    // ============================================
+    // DATA-DRIVEN TIER CAPS
+    // Based on 201 validated signals:
+    // - RETURNED: 11.1% win rate → cap at WATCH
+    // - Pinned direction: 0% win rate → cap at WATCH
+    // ============================================
+    if (historyStatus?.label === 'RETURNED' && (tier === 'HIGH_CONVICTION' || tier === 'TRADEABLE')) {
+        tier = 'WATCH';
+        tradeable = false;
+    }
+    if (direction === 'pinned' && (tier === 'HIGH_CONVICTION' || tier === 'TRADEABLE')) {
+        tier = 'WATCH';
+        tradeable = false;
+    }
+    // Bearish/neutral: 0% win rate across 11 signals in backtest
+    if ((direction === 'bearish' || direction === 'neutral') && (tier === 'HIGH_CONVICTION' || tier === 'TRADEABLE')) {
+        tier = 'WATCH';
+        tradeable = false;
     }
 
     // Calculate distances for output
@@ -1756,7 +1799,9 @@ async function analyzeSymbol(symbol, discoveryData) {
         // Top unusual option contract (for option signal tracking)
         unusualOption,
         // Sector relative strength
-        sectorRs: symbolRsData
+        sectorRs: symbolRsData,
+        // History status (pre-computed for tier caps and display)
+        history_status: historyStatus
     };
 }
 
@@ -1768,9 +1813,26 @@ function shouldAlert(analysis) {
     if (!analysis) return false;
     if (analysis.totalScore < SETTINGS.minConfluenceScore) return false;
 
-    // Check cooldown
-    const lastAlert = alertCooldowns.get(analysis.symbol);
-    if (lastAlert && Date.now() - lastAlert < SETTINGS.alertCooldownMs) {
+    const existing = setupTracker.get(analysis.symbol);
+    if (!existing) return true; // New symbol, always alert
+
+    // Setup changed (zone or direction shifted) = genuinely new signal
+    if (existing.zone !== analysis.zone || existing.direction !== analysis.direction) {
+        return true;
+    }
+
+    // Score jumped significantly (new confluence factor appeared)
+    if (analysis.totalScore - existing.score >= DEDUP.scoreJumpThreshold) {
+        return true;
+    }
+
+    // Same setup — enforce extended cooldown
+    if (Date.now() - existing.lastAlerted < DEDUP.sameSetupCooldownMs) {
+        return false;
+    }
+
+    // Same setup but 4h passed — allow re-alert up to max per day
+    if (existing.alertCount >= DEDUP.maxAlertsPerSetup) {
         return false;
     }
 
@@ -1797,15 +1859,15 @@ function isTimeframeAligned(analysis, ctx) {
 }
 
 /**
- * Determine alert tier and collect warning annotations.
- * Preserves the tier earned during zone classification — never downgrades.
+ * Collect warning annotations for alerts.
+ * Tier caps (RETURNED, pinned) are applied in analyzeSymbol() before this runs.
+ * This function adds informational warnings for display in Telegram/dashboard.
  * Returns { tier: string, warnings: string[] }
  */
 function getAlertTier(analysis, ctx) {
     let tier = analysis.tier || 'FILTERED';
     if (tier === 'FILTERED') return { tier: 'FILTERED', warnings: [] };
 
-    // Collect warnings (informational only — tier is never downgraded)
     const warnings = [];
 
     if (!isTimeframeAligned(analysis, ctx)) {
@@ -1815,6 +1877,20 @@ function getAlertTier(analysis, ctx) {
 
     if (analysis.atWall && analysis.wallActivity === 'DORMANT') {
         warnings.push('Dormant wall');
+    }
+
+    // Data-driven warnings (tier already capped in analyzeSymbol)
+    if (analysis.history_status?.label === 'RETURNED') {
+        warnings.push('Returned setup (11% win rate)');
+    }
+    if (analysis.direction === 'pinned') {
+        warnings.push('Pinned direction (0% win rate)');
+    }
+    if (analysis.direction === 'bearish') {
+        warnings.push('Bearish direction (0% historical win rate)');
+    }
+    if (analysis.direction === 'neutral') {
+        warnings.push('Neutral direction (0% historical win rate)');
     }
 
     return { tier, warnings };
@@ -2009,8 +2085,8 @@ function startControlServer() {
 
         // POST /clear-cooldowns - Clear all alert cooldowns
         if (req.method === 'POST' && url === '/clear-cooldowns') {
-            const count = alertCooldowns.size;
-            alertCooldowns.clear();
+            const count = setupTracker.size;
+            setupTracker.clear();
             console.log(`[Control] Cleared ${count} alert cooldowns`);
             res.writeHead(200);
             res.end(JSON.stringify({ success: true, cleared: count }));
@@ -2219,7 +2295,13 @@ async function runScan() {
         console.error('[Signal Validation] Error:', e.message);
     });
 
-    // 1.6. Fetch relative strength data from divergence scanner
+    // 1.6. Fetch market internals snapshot for scoring
+    latestInternals = signalDb.getLatestInternals();
+    if (latestInternals) {
+        console.log(`[Internals] TICK: ${latestInternals.tick}, A/D: ${latestInternals.ad_spread}, Vol Ratio: ${latestInternals.vol_ratio?.toFixed(2)}`);
+    }
+
+    // 1.7. Fetch relative strength data from divergence scanner
     rsContext = await fetchRelativeStrength();
     if (rsContext) {
         const regime = rsContext.regime;
@@ -2349,7 +2431,7 @@ async function runScan() {
             ...a,
             tier,
             alertWarnings: warnings,
-            history_status: computeHistoryStatus(a.symbol)
+            history_status: a.history_status  // Pre-computed in analyzeSymbol()
         };
     });
 
@@ -2399,7 +2481,17 @@ async function runScan() {
         for (const analysis of highConviction) {
             const message = formatAlert(analysis);
             await sendTelegram(message);
-            alertCooldowns.set(analysis.symbol, Date.now());
+
+            // Track setup fingerprint for deduplication
+            const existing = setupTracker.get(analysis.symbol);
+            setupTracker.set(analysis.symbol, {
+                zone: analysis.zone,
+                direction: analysis.direction,
+                score: analysis.totalScore,
+                firstSeen: existing?.firstSeen || Date.now(),
+                lastAlerted: Date.now(),
+                alertCount: (existing?.alertCount || 0) + 1
+            });
 
             // Log signal for validation tracking
             const logData = {
@@ -2603,7 +2695,7 @@ async function runScan() {
                 isWatchlist: symbols.find(s => s.symbol === a.symbol)?.sources?.includes('watchlist') || false,
                 tier: a.tier
             },
-            history_status: computeHistoryStatus(a.symbol),
+            history_status: a.history_status,  // Pre-computed in analyzeSymbol()
             sectorRsPercentile: a.sectorRs?.percentile ?? null,
             sectorEtf: a.sectorRs?.sectorEtf ?? null
         }));
@@ -2624,6 +2716,13 @@ async function runScan() {
     scannerState.lastScanDuration = Math.round((Date.now() - scanStartTime) / 1000);
     scannerState.scanCount++;
     scannerState.nextScanAt = new Date(Date.now() + SETTINGS.scanIntervalMs).toISOString();
+
+    // Clean stale setup tracker entries (24h expiry)
+    for (const [sym, data] of setupTracker.entries()) {
+        if (Date.now() - data.firstSeen > DEDUP.setupExpiryMs) {
+            setupTracker.delete(sym);
+        }
+    }
 
     const backoffStatus = backoffState.active ? ` [BACKOFF ACTIVE: batch ${backoffState.batchSize}, delay ${backoffState.batchDelayMs}ms]` : '';
     console.log(`\n[Bloodhound] Scan complete (${scannerState.lastScanDuration}s).${backoffStatus} Next scan in ${SETTINGS.scanIntervalMs / 60000} minutes.`);
