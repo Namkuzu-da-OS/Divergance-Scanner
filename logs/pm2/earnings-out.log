@@ -3771,3 +3771,65 @@ SCAN RESULTS:
 
 [Done] Scan complete (20s). Next in 30 min.
 ============================================================
+
+============================================================
+[2026-02-11T20:23:40.402Z] EARNINGS SCAN
+============================================================
+[Scan] Found 1 PREM candidates (5-10 days out)
+  Analyzing WMT...
+[SignalDB] Inserted earnings scan: 1 results, scanId=92
+[Scan] Saved 1 earnings results to DB (scanId=92)
+
+----------------------------------------
+SCAN RESULTS:
+  Total analyzed: 1
+  HIGH_CONVICTION: 0
+  TRADEABLE: 0
+  Alerts sent: 0
+
+[Done] Scan complete (15s). Next in 30 min.
+============================================================
+============================================================
+       EARNINGS SEASON SCANNER
+       Strategy: PREM (Pre-Earnings Momentum)
+============================================================
+Options API: http://192.168.10.60:8000
+Intel API: http://192.168.10.60:3000
+Telegram: Configured
+Scan Interval: 30 minutes
+PREM Window: 5-10 days
+============================================================
+
+Running initial scan...
+
+
+============================================================
+[2026-02-11T20:35:59.722Z] EARNINGS SCAN
+============================================================
+[Scan] Found 1 PREM candidates (5-10 days out)
+  Analyzing WMT...
+[Control] Listening on http://0.0.0.0:8082 (accessible from network)
+
+  Endpoints:
+    GET  /status            - System status
+    GET  /results           - Latest scan results
+    GET  /calendar          - Earnings calendar
+    POST /pause             - Pause scanner
+    POST /resume            - Resume scanner
+    POST /scan              - Trigger immediate scan
+    POST /refresh-calendar  - Refresh earnings calendar
+    POST /test-alert        - Send test Telegram alert
+[SignalDB] Inserted earnings scan: 1 results, scanId=93
+[Scan] Saved 1 earnings results to DB (scanId=93)
+
+----------------------------------------
+SCAN RESULTS:
+  Total analyzed: 1
+  HIGH_CONVICTION: 0
+  TRADEABLE: 0
+  Alerts sent: 0
+
+[Done] Scan complete (14s). Next in 30 min.
+============================================================
+
+Earnings Scanner running. Press Ctrl+C to stop.
