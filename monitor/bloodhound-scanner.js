@@ -918,56 +918,131 @@ async function getMarketContext() {
 // ============================================
 
 /**
- * Fetch relative strength rankings and rotation regime from divergence scanner.
- * Returns null on failure (graceful degradation).
+ * Fetch relative strength rankings and rotation regime.
+ * Reads directly from the divergence scanner's SQLite DB (instant) for rankings,
+ * falls back to API if DB is unavailable. Regime comes from API (lightweight call).
  */
 async function fetchRelativeStrength() {
-    const divergenceApi = CONFIG.apis.divergence;
-    if (!divergenceApi) {
-        return null;
-    }
-
     try {
-        const [rankings, regime] = await Promise.all([
-            fetchJSON(`${divergenceApi}/api/relative-strength/rankings`, 10000),
-            fetchJSON(`${divergenceApi}/api/rotation/regime`, 10000)
-        ]);
+        // Try direct DB read first (instant, no network latency)
+        const rsFromDb = readRsFromDatabase();
 
-        if (!rankings) {
-            console.log('[RS] Divergence scanner unavailable — skipping RS scoring');
-            return null;
-        }
-
-        // Build a percentile lookup from rankings
-        const assets = rankings.rankings || rankings.assets || rankings;
-        if (!Array.isArray(assets) || assets.length === 0) {
-            console.log('[RS] No ranking data received');
-            return null;
-        }
-
-        const total = assets.length;
-        const percentileMap = {};
-        for (const asset of assets) {
-            const symbol = asset.symbol || asset.ticker;
-            if (symbol) {
-                // Use API-provided percentile if available, otherwise compute from rank
-                percentileMap[symbol] = asset.rs_percentile != null
-                    ? asset.rs_percentile
-                    : ((total - (asset.rs_rank || 0)) / total) * 100;
+        if (rsFromDb) {
+            // Regime is not in the DB — fetch from API (small/fast response)
+            const divergenceApi = CONFIG.apis.divergence;
+            let regime = null;
+            if (divergenceApi) {
+                regime = await fetchJSON(`${divergenceApi}/api/rotation/regime`, 5000);
             }
+            rsFromDb.regime = regime || null;
+            return rsFromDb;
         }
 
-        console.log(`[RS] Loaded ${total} asset rankings from divergence scanner`);
-
-        return {
-            percentileMap,
-            regime: regime || null,
-            assetCount: total
-        };
+        // Fallback: fetch both from API
+        return await fetchRsFromApi();
     } catch (e) {
         console.warn(`[RS] Error fetching divergence data: ${e.message}`);
         return null;
     }
+}
+
+/**
+ * Read RS rankings directly from the divergence scanner's SQLite database.
+ * Returns null if DB doesn't exist or has no data.
+ */
+function readRsFromDatabase() {
+    const DB_PATH = path.join(__dirname, '..', '..', 'divergence-scanner', 'data', 'divergence_scanner.db');
+
+    try {
+        if (!fs.existsSync(DB_PATH)) return null;
+
+        const Database = require('better-sqlite3');
+        const rsDb = Database(DB_PATH, { readonly: true, fileMustExist: true });
+
+        // Get the latest complete snapshot batch (all symbols within same second)
+        const latestBatch = rsDb.prepare(`
+            SELECT SUBSTR(snapshot_at, 1, 19) as batch
+            FROM rs_snapshots
+            GROUP BY batch
+            HAVING COUNT(*) >= 10
+            ORDER BY batch DESC
+            LIMIT 1
+        `).get();
+
+        if (!latestBatch) {
+            rsDb.close();
+            return null;
+        }
+
+        const rows = rsDb.prepare(`
+            SELECT symbol, rs_score, rs_rank, performance_1d, performance_5d,
+                   performance_20d, performance_60d, snapshot_at
+            FROM rs_snapshots
+            WHERE SUBSTR(snapshot_at, 1, 19) = ?
+            ORDER BY rs_rank
+        `).all(latestBatch.batch);
+
+        rsDb.close();
+
+        if (rows.length === 0) return null;
+
+        // Build percentile map from rank
+        const total = rows.length;
+        const percentileMap = {};
+        for (const row of rows) {
+            percentileMap[row.symbol] = ((total - row.rs_rank + 1) / total) * 100;
+        }
+
+        const snapshotAge = Math.round((Date.now() - new Date(rows[0].snapshot_at).getTime()) / 60000);
+        console.log(`[RS] Read ${total} rankings from DB (snapshot ${snapshotAge}m ago)`);
+
+        return {
+            percentileMap,
+            regime: null, // filled in by caller
+            assetCount: total
+        };
+    } catch (e) {
+        console.warn(`[RS] DB read failed: ${e.message} — falling back to API`);
+        return null;
+    }
+}
+
+/**
+ * Fallback: fetch RS data from the divergence scanner API.
+ */
+async function fetchRsFromApi() {
+    const divergenceApi = CONFIG.apis.divergence;
+    if (!divergenceApi) return null;
+
+    const [rankings, regime] = await Promise.all([
+        fetchJSON(`${divergenceApi}/api/relative-strength/rankings`, 15000),
+        fetchJSON(`${divergenceApi}/api/rotation/regime`, 5000)
+    ]);
+
+    if (!rankings) {
+        console.log('[RS] Divergence scanner unavailable — skipping RS scoring');
+        return null;
+    }
+
+    const assets = rankings.rankings || rankings.assets || rankings;
+    if (!Array.isArray(assets) || assets.length === 0) {
+        console.log('[RS] No ranking data received');
+        return null;
+    }
+
+    const total = assets.length;
+    const percentileMap = {};
+    for (const asset of assets) {
+        const symbol = asset.symbol || asset.ticker;
+        if (symbol) {
+            percentileMap[symbol] = asset.rs_percentile != null
+                ? asset.rs_percentile
+                : ((total - (asset.rs_rank || 0)) / total) * 100;
+        }
+    }
+
+    console.log(`[RS] Loaded ${total} asset rankings from API`);
+    return { percentileMap, regime: regime || null, assetCount: total };
 }
 
 /**
