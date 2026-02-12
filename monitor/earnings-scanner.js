@@ -358,6 +358,48 @@ async function calculatePremScore(symbol, earningsData) {
 }
 
 // =============================================================================
+// CALENDAR AUTO-REFRESH
+// =============================================================================
+
+/**
+ * Check if calendar needs refresh (once per day, or if missing)
+ * Returns true if refresh was performed
+ */
+async function refreshCalendarIfNeeded() {
+    try {
+        // No calendar file at all — must refresh
+        if (!fs.existsSync(CALENDAR_FILE)) {
+            console.log('[Calendar] No calendar file found. Auto-refreshing...');
+            const { main: refreshCalendar } = require('./earnings-calendar-scraper');
+            await refreshCalendar();
+            return true;
+        }
+
+        // Check last_updated timestamp
+        const data = JSON.parse(fs.readFileSync(CALENDAR_FILE, 'utf8'));
+        const lastUpdated = new Date(data.last_updated);
+        const now = new Date();
+
+        // Refresh if calendar is from a different calendar day (ET timezone)
+        const etOptions = { timeZone: 'America/New_York' };
+        const lastDay = lastUpdated.toLocaleDateString('en-US', etOptions);
+        const today = now.toLocaleDateString('en-US', etOptions);
+
+        if (lastDay !== today) {
+            console.log(`[Calendar] Stale (last updated: ${lastDay}). Auto-refreshing...`);
+            const { main: refreshCalendar } = require('./earnings-calendar-scraper');
+            await refreshCalendar();
+            return true;
+        }
+
+        return false;
+    } catch (e) {
+        console.error('[Calendar] Auto-refresh check failed:', e.message);
+        return false;
+    }
+}
+
+// =============================================================================
 // MAIN SCAN LOGIC
 // =============================================================================
 
@@ -387,10 +429,13 @@ async function runScan() {
     console.log('='.repeat(60));
 
     try {
+        // Auto-refresh calendar if stale or missing (once per day)
+        await refreshCalendarIfNeeded();
+
         // Load calendar
         const calendar = loadCalendar();
         if (!calendar) {
-            console.log('[Scan] No calendar data. Run: node earnings-calendar-scraper.js');
+            console.log('[Scan] No calendar data even after refresh attempt. Skipping scan.');
             return;
         }
 
@@ -750,14 +795,10 @@ async function main() {
     // Start HTTP control server
     startControlServer();
 
-    // Check for calendar data
-    if (!fs.existsSync(CALENDAR_FILE)) {
-        console.log('\n⚠️  No earnings calendar found!');
-        console.log('   Run: node earnings-calendar-scraper.js');
-        console.log('   Or POST to /refresh-calendar\n');
-    }
+    // Calendar auto-refreshes at the start of each scan if stale/missing.
+    // No manual intervention needed.
 
-    // Initial scan
+    // Initial scan (will auto-refresh calendar if needed)
     console.log('\nRunning initial scan...\n');
     await runScan();
 
