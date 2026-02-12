@@ -1,0 +1,2150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Journal</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #0a0e1a;
+            color: #e5e7eb;
+            padding: 16px;
+            line-height: 1.5;
+        }
+        .container { max-width: 1600px; margin: 0 auto; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #2a3641;
+            padding-bottom: 16px;
+        }
+        .header h1 { font-size: 24px; font-weight: 600; color: #00d4aa; }
+        .header-subtitle { color: #8b92a8; margin-top: 4px; font-size: 12px; }
+
+        .btn {
+            padding: 8px 14px;
+            background: transparent;
+            border: 1px solid #00d4aa;
+            color: #00d4aa;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s;
+            margin-left: 8px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover { background: #00d4aa; color: #0a0e1a; }
+
+        /* Summary Cards */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 16px;
+        }
+        .card-title {
+            font-size: 11px;
+            color: #8b92a8;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .card-value { font-size: 32px; font-weight: 700; }
+        .card-subtitle { font-size: 12px; color: #64748b; margin-top: 4px; }
+        .positive { color: #00d4aa; }
+        .negative { color: #ff6b6b; }
+        .neutral { color: #8b92a8; }
+        .warning { color: #fbbf24; }
+
+        /* Filter Bar */
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filter-group {
+            display: flex;
+            gap: 4px;
+        }
+        .filter-btn {
+            padding: 6px 12px;
+            background: #151821;
+            border: 1px solid #2a3641;
+            color: #8b92a8;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover { border-color: #00d4aa; color: #e5e7eb; }
+        .filter-btn.active { background: rgba(0, 212, 170, 0.15); border-color: #00d4aa; color: #00d4aa; }
+        .filter-label {
+            font-size: 10px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            align-self: center;
+            margin-right: 4px;
+        }
+        .search-input {
+            padding: 6px 12px;
+            background: #151821;
+            border: 1px solid #2a3641;
+            color: #e5e7eb;
+            border-radius: 4px;
+            font-size: 12px;
+            width: 120px;
+            outline: none;
+        }
+        .search-input:focus { border-color: #00d4aa; }
+        .search-input::placeholder { color: #64748b; }
+
+        /* Analysis Cards Grid */
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(460px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .analysis-card {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 10px;
+            padding: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .analysis-card:hover { border-color: #00d4aa; transform: translateY(-1px); }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 14px;
+        }
+        .card-header-left { display: flex; align-items: center; gap: 12px; }
+        .ticker-badge {
+            font-size: 18px;
+            font-weight: 700;
+            color: #e5e7eb;
+        }
+        .score-badge {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: rgba(139, 146, 168, 0.2);
+            color: #8b92a8;
+        }
+        .score-high { background: rgba(0, 212, 170, 0.2); color: #00d4aa; }
+        .score-mid { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+        .score-low { background: rgba(255, 107, 107, 0.2); color: #ff6b6b; }
+
+        .verdict-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .verdict-buy { background: rgba(0, 212, 170, 0.2); color: #00d4aa; }
+        .verdict-wait { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+        .verdict-pass { background: rgba(255, 107, 107, 0.2); color: #ff6b6b; }
+
+        .card-date { font-size: 11px; color: #64748b; }
+
+        /* Tug of War Bar */
+        .tug-bar-container { margin-bottom: 12px; }
+        .tug-bar-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: #64748b;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .tug-bar {
+            height: 8px;
+            border-radius: 4px;
+            display: flex;
+            overflow: hidden;
+            background: #2a3641;
+        }
+        .tug-bull { background: #00d4aa; border-radius: 4px 0 0 4px; transition: width 0.3s; }
+        .tug-bear { background: #ff6b6b; border-radius: 0 4px 4px 0; transition: width 0.3s; }
+
+        /* Card Details */
+        .card-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .detail-chip {
+            font-size: 11px;
+            color: #8b92a8;
+            padding: 3px 8px;
+            background: #0f1428;
+            border-radius: 4px;
+        }
+        .detail-chip .label { color: #64748b; }
+
+        /* Levels Bar */
+        .levels-bar {
+            position: relative;
+            height: 24px;
+            background: #0f1428;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        .level-marker {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 2px;
+            z-index: 2;
+        }
+        .level-marker.put-wall { background: #ff6b6b; }
+        .level-marker.call-wall { background: #00d4aa; }
+        .level-marker.price { background: #e5e7eb; width: 3px; }
+        .level-marker.max-pain { background: #fbbf24; }
+        .level-label {
+            position: absolute;
+            top: 5px;
+            font-size: 9px;
+            font-weight: 600;
+            white-space: nowrap;
+            z-index: 3;
+        }
+
+        /* Outcome Badge */
+        .outcome-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #2a3641;
+        }
+        .outcome-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .outcome-win { background: rgba(0, 212, 170, 0.2); color: #00d4aa; }
+        .outcome-loss { background: rgba(255, 107, 107, 0.2); color: #ff6b6b; }
+        .outcome-scratch { background: rgba(139, 146, 168, 0.2); color: #8b92a8; }
+        .outcome-pending { background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px dashed #fbbf24; }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: 40px 20px;
+        }
+        .modal-overlay.active { display: flex; justify-content: center; }
+        .modal {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 12px;
+            padding: 28px;
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            align-self: flex-start;
+        }
+        .modal-close {
+            float: right;
+            background: none;
+            border: none;
+            color: #8b92a8;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px 8px;
+            line-height: 1;
+        }
+        .modal-close:hover { color: #e5e7eb; }
+        .modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .modal-subtitle { font-size: 13px; color: #8b92a8; margin-bottom: 20px; }
+
+        .modal-section {
+            margin-bottom: 24px;
+        }
+        .modal-section-title {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #2a3641;
+        }
+
+        .factors-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .factor-col-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .factor-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #1a2332;
+        }
+        .factor-name { font-size: 13px; color: #e5e7eb; }
+        .factor-detail { font-size: 11px; color: #8b92a8; margin-top: 2px; }
+        .factor-weight {
+            font-size: 12px;
+            font-weight: 700;
+            min-width: 30px;
+            text-align: right;
+        }
+        .factor-bar {
+            height: 4px;
+            border-radius: 2px;
+            margin-top: 4px;
+        }
+
+        .modal-context-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+        }
+        .context-item {
+            background: #0f1428;
+            border-radius: 6px;
+            padding: 12px;
+        }
+        .context-label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .context-value { font-size: 16px; font-weight: 600; margin-top: 4px; }
+
+        .verdict-box {
+            background: #0f1428;
+            border-radius: 8px;
+            padding: 16px;
+        }
+        .verdict-text { font-size: 14px; line-height: 1.7; color: #b8bfcc; }
+
+        .chart-container {
+            position: relative;
+            height: 180px;
+            margin-bottom: 12px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #8b92a8;
+        }
+        .empty-state-icon { font-size: 48px; margin-bottom: 12px; }
+        .empty-state-title { font-size: 18px; font-weight: 600; color: #e5e7eb; margin-bottom: 8px; }
+        .empty-state-text { font-size: 13px; max-width: 500px; margin: 0 auto; line-height: 1.6; }
+
+        .loading { text-align: center; padding: 30px; font-size: 13px; color: #8b92a8; }
+        .last-updated { font-size: 11px; color: #8b92a8; margin-left: 12px; }
+
+        @media (max-width: 1100px) {
+            .analysis-grid { grid-template-columns: 1fr; }
+            .factors-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .filter-bar { flex-direction: column; align-items: stretch; }
+            .modal { padding: 16px; }
+        }
+
+        /* Tab Navigation */
+        .tab-bar {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #2a3641;
+        }
+        .tab-btn {
+            padding: 10px 24px;
+            background: transparent;
+            border: none;
+            color: #8b92a8;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            margin-bottom: -1px;
+        }
+        .tab-btn:hover { color: #e5e7eb; }
+        .tab-btn.active { color: #00d4aa; border-bottom-color: #00d4aa; }
+
+        /* System Report */
+        .sr-section { margin-bottom: 28px; }
+        .sr-section-title { font-size: 14px; font-weight: 600; color: #e5e7eb; margin-bottom: 4px; }
+        .sr-section-subtitle { font-size: 11px; color: #64748b; margin-bottom: 16px; }
+        .sr-chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .sr-chart-card {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 16px;
+        }
+        .sr-chart-card-title {
+            font-size: 12px;
+            color: #8b92a8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        .sr-chart-wrap { position: relative; height: 200px; }
+        .sr-stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .sr-insight-card {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-bottom: 10px;
+        }
+        .sr-insight-label {
+            font-size: 10px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+        .sr-insight-text { font-size: 13px; color: #e5e7eb; line-height: 1.5; }
+        .sr-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .sr-table th {
+            text-align: left;
+            padding: 8px 10px;
+            color: #64748b;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #2a3641;
+        }
+        .sr-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #1a2332;
+            color: #e5e7eb;
+        }
+        @media (max-width: 1100px) {
+            .sr-chart-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ===== Insights Tab ===== */
+        .insight-hero { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 32px; }
+        .hero-stat { text-align: center; padding: 28px 16px; background: #151821; border: 1px solid #2a3641; border-radius: 12px; }
+        .hero-number { font-size: 44px; font-weight: 800; color: #00d4aa; line-height: 1; }
+        .hero-label { font-size: 11px; color: #8b92a8; text-transform: uppercase; letter-spacing: 1px; margin-top: 8px; }
+        .insight-intro { font-size: 14px; color: #b8bfcc; line-height: 1.7; max-width: 800px; margin: 0 auto 40px; text-align: center; }
+        .insight-section { margin-bottom: 48px; }
+        .section-heading { font-size: 20px; font-weight: 700; color: #e5e7eb; margin-bottom: 8px; }
+        .section-desc { font-size: 13px; color: #8b92a8; margin-bottom: 24px; max-width: 700px; }
+
+        /* Flow Diagram */
+        .flow-diagram { display: flex; flex-direction: column; align-items: center; max-width: 680px; margin: 0 auto; }
+        .flow-stage { width: 100%; background: #151821; border: 1px solid #2a3641; border-radius: 10px; padding: 20px 24px; }
+        .flow-stage-label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px; }
+        .flow-stage-title { font-size: 16px; font-weight: 700; color: #e5e7eb; margin-bottom: 6px; }
+        .flow-stage-desc { font-size: 12px; color: #8b92a8; margin-bottom: 16px; }
+        .flow-sources { display: flex; flex-wrap: wrap; gap: 8px; }
+        .flow-source {
+            flex: 1; min-width: 100px; background: #0f1428; border-radius: 6px;
+            padding: 10px; font-size: 12px; font-weight: 600; color: #e5e7eb; text-align: center;
+        }
+        .flow-source span { display: block; font-size: 10px; color: #64748b; font-weight: 400; margin-top: 3px; }
+        .flow-arrow-down { width: 2px; height: 28px; background: linear-gradient(to bottom, #2a3641, #00d4aa); position: relative; }
+        .flow-arrow-down::after { content: '\25BC'; position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%); color: #00d4aa; font-size: 10px; }
+        .flow-factors { display: flex; flex-direction: column; gap: 6px; }
+        .factor-row { display: flex; align-items: center; gap: 10px; }
+        .factor-row .f-name { font-size: 12px; color: #b8bfcc; min-width: 180px; }
+        .factor-row .f-track { flex: 1; height: 8px; background: #0f1428; border-radius: 4px; overflow: hidden; }
+        .factor-row .f-bar { height: 100%; border-radius: 4px; }
+        .factor-row .f-pts { font-size: 11px; font-weight: 700; min-width: 50px; text-align: right; }
+        .flow-tiers { display: flex; gap: 8px; flex-wrap: wrap; }
+        .flow-tier { padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .flow-tier.high { background: rgba(0,212,170,0.15); color: #00d4aa; border: 1px solid rgba(0,212,170,0.3); }
+        .flow-tier.trade { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+        .flow-tier.watch { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+        .flow-tier.filt { background: rgba(139,146,168,0.1); color: #64748b; border: 1px solid rgba(139,146,168,0.2); }
+        .flow-result {
+            background: #151821; border: 1px solid #00d4aa; border-radius: 10px;
+            padding: 14px 24px; font-size: 14px; font-weight: 600; color: #00d4aa; text-align: center;
+        }
+        .flow-result.db-only {
+            border-color: #3b82f6; color: #60a5fa;
+        }
+        .flow-category { margin-bottom: 14px; }
+        .flow-category-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #1a2332;
+        }
+        .flow-category-name { font-size: 13px; font-weight: 700; color: #e5e7eb; }
+        .flow-category-range { font-size: 11px; color: #64748b; }
+        .flow-combo-badge {
+            display: inline-block; margin-top: 8px; padding: 6px 12px;
+            background: rgba(0,212,170,0.1); border: 1px dashed rgba(0,212,170,0.4);
+            border-radius: 6px; font-size: 11px; color: #00d4aa; line-height: 1.4;
+        }
+        .flow-zone-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; margin-bottom: 14px; }
+        .flow-zone-box {
+            background: #0f1428; border-radius: 6px; padding: 10px; text-align: center;
+        }
+        .flow-zone-name { font-size: 12px; font-weight: 700; color: #e5e7eb; margin-bottom: 3px; }
+        .flow-zone-desc { font-size: 10px; color: #64748b; }
+        .flow-tier-detail { font-size: 11px; color: #8b92a8; margin-top: 4px; }
+        .flow-output-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .flow-dedup {
+            margin-top: 12px; padding: 12px 16px; background: #0f1428;
+            border-radius: 6px; font-size: 11px; color: #8b92a8; line-height: 1.6;
+        }
+        .flow-dedup-title { font-size: 11px; font-weight: 600; color: #e5e7eb; margin-bottom: 4px; }
+        .flow-standard-list {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px;
+            font-size: 11px; color: #8b92a8; margin-top: 6px;
+        }
+        .flow-standard-item { display: flex; justify-content: space-between; }
+        .flow-standard-item .pts { color: #00d4aa; font-weight: 600; }
+
+        /* Comparison Bars */
+        .compare-group { margin-bottom: 20px; }
+        .compare-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+        .compare-label { font-size: 12px; color: #b8bfcc; min-width: 110px; text-align: right; }
+        .compare-track { flex: 1; height: 26px; background: #0f1428; border-radius: 6px; overflow: hidden; }
+        .compare-fill { height: 100%; border-radius: 6px; transition: width 1s ease-out; min-width: 2px; }
+        .compare-fill.green { background: linear-gradient(90deg, rgba(0,212,170,0.3), rgba(0,212,170,0.7)); }
+        .compare-fill.red { background: linear-gradient(90deg, rgba(255,107,107,0.3), rgba(255,107,107,0.7)); }
+        .compare-fill.yellow { background: linear-gradient(90deg, rgba(251,191,36,0.3), rgba(251,191,36,0.7)); }
+        .compare-fill.blue { background: linear-gradient(90deg, rgba(59,130,246,0.3), rgba(59,130,246,0.7)); }
+        .compare-pct { font-size: 13px; font-weight: 700; color: #e5e7eb; min-width: 50px; text-align: right; }
+        .compare-n { font-size: 10px; color: #64748b; min-width: 45px; }
+
+        /* Finding Cards */
+        .finding { background: #151821; border: 1px solid #2a3641; border-radius: 10px; padding: 24px; margin-bottom: 20px; }
+        .finding.good { border-left: 4px solid #00d4aa; }
+        .finding.bad { border-left: 4px solid #ff6b6b; }
+        .finding.caution { border-left: 4px solid #fbbf24; }
+        .finding-title { font-size: 16px; font-weight: 700; color: #e5e7eb; margin-bottom: 10px; }
+        .finding-narrative { font-size: 13px; color: #b8bfcc; line-height: 1.7; margin-bottom: 16px; }
+        .finding-takeaway { font-size: 12px; color: #00d4aa; background: rgba(0,212,170,0.08); border-radius: 6px; padding: 10px 14px; line-height: 1.5; }
+        .finding-takeaway.warn { color: #fbbf24; background: rgba(251,191,36,0.08); }
+        .finding-takeaway.danger { color: #ff6b6b; background: rgba(255,107,107,0.08); }
+
+        /* Disconnect Diagram */
+        .disconnect { display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; margin: 16px 0; }
+        .disconnect-box { background: #0f1428; border-radius: 8px; padding: 16px; text-align: center; }
+        .disconnect-box .d-label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .disconnect-box .d-value { font-size: 28px; font-weight: 800; line-height: 1; }
+        .disconnect-box .d-sub { font-size: 11px; color: #8b92a8; margin-top: 4px; }
+        .disconnect-vs { font-size: 14px; font-weight: 700; color: #64748b; }
+
+        /* Recommendation Cards */
+        .rec-card { background: #151821; border: 1px solid #2a3641; border-radius: 10px; padding: 20px 24px; margin-bottom: 12px; }
+        .rec-priority { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .rec-priority.high { color: #ff6b6b; }
+        .rec-priority.medium { color: #fbbf24; }
+        .rec-priority.low { color: #3b82f6; }
+        .rec-title { font-size: 15px; font-weight: 700; color: #e5e7eb; margin-bottom: 8px; }
+        .rec-body { font-size: 13px; color: #b8bfcc; line-height: 1.6; margin-bottom: 10px; }
+        .rec-impact { font-size: 11px; color: #8b92a8; padding: 8px 12px; background: #0f1428; border-radius: 6px; }
+
+        /* Scroll Reveal */
+        .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 768px) {
+            .insight-hero { grid-template-columns: 1fr; }
+            .flow-sources, .flow-tiers { flex-direction: column; }
+            .flow-standard-list { grid-template-columns: 1fr; }
+            .flow-output-grid { grid-template-columns: 1fr; }
+            .flow-zone-grid { grid-template-columns: 1fr 1fr; }
+            .compare-label { min-width: 80px; font-size: 11px; }
+            .disconnect { grid-template-columns: 1fr; }
+            .disconnect-vs { text-align: center; }
+            .factor-row .f-name { min-width: 140px; font-size: 11px; }
+        }
+    </style>
+    <link rel="stylesheet" href="css/nav.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <h1>RESEARCH</h1>
+                <p class="header-subtitle">Analysis journal with bull/bear breakdown, sector context, and outcome tracking</p>
+            </div>
+            <div class="header-center">
+                <nav class="nav-links">
+                    <a href="morning.html" class="nav-link">MORNING</a>
+                    <a href="zone-scanner.html" class="nav-link">ZONES</a>
+                    <a href="premarket.html" class="nav-link">GAPS</a>
+                    <a href="earnings-scanner.html" class="nav-link">EARNINGS</a>
+                    <a href="opportunity-scanner.html" class="nav-link">FLOW</a>
+                    <a href="scanner.html" class="nav-link">MARKET</a>
+                    <div class="nav-dropdown">
+                        <div class="nav-dropdown-toggle active">INSIGHTS</div>
+                        <div class="nav-dropdown-menu">
+                            <a href="analytics.html">Analytics</a>
+                            <a href="research.html" class="active">Research</a>
+                            <a href="strategies.html">Strategies</a>
+                            <a href="options-lab.html">Options Lab</a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            <div class="header-right">
+                <span class="last-updated" id="lastUpdated"></span>
+                <button class="btn" onclick="loadData()">REFRESH</button>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-bar">
+            <button class="tab-btn active" data-tab="journal" onclick="switchTab('journal')">Journal</button>
+            <button class="tab-btn" data-tab="system-report" onclick="switchTab('system-report')">System Report</button>
+            <button class="tab-btn" data-tab="insights" onclick="switchTab('insights')">Insights</button>
+        </div>
+
+        <!-- JOURNAL TAB -->
+        <div id="tabJournal">
+
+        <!-- Summary Cards -->
+        <div class="summary-cards">
+            <div class="card">
+                <div class="card-title">Total Analyses</div>
+                <div class="card-value" id="totalAnalyses">-</div>
+                <div class="card-subtitle"><span id="uniqueSymbols">-</span> unique symbols</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Thesis Accuracy</div>
+                <div class="card-value" id="thesisAccuracy">-%</div>
+                <div class="card-subtitle"><span id="thesisCount">-</span> evaluated</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Avg Return</div>
+                <div class="card-value" id="avgReturn">-%</div>
+                <div class="card-subtitle">on closed analyses</div>
+            </div>
+            <div class="card">
+                <div class="card-title">Pending Outcomes</div>
+                <div class="card-value warning" id="pendingCount">-</div>
+                <div class="card-subtitle">awaiting resolution</div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <input type="text" class="search-input" id="searchInput" placeholder="Ticker..." oninput="applyFilters()">
+
+            <span class="filter-label">Verdict</span>
+            <div class="filter-group" id="verdictFilter">
+                <button class="filter-btn active" data-value="ALL" onclick="setFilter(this, 'verdict')">All</button>
+                <button class="filter-btn" data-value="BUY" onclick="setFilter(this, 'verdict')">Buy</button>
+                <button class="filter-btn" data-value="WAIT" onclick="setFilter(this, 'verdict')">Wait</button>
+                <button class="filter-btn" data-value="PASS" onclick="setFilter(this, 'verdict')">Pass</button>
+            </div>
+
+            <span class="filter-label">Outcome</span>
+            <div class="filter-group" id="outcomeFilter">
+                <button class="filter-btn active" data-value="ALL" onclick="setFilter(this, 'outcome')">All</button>
+                <button class="filter-btn" data-value="WIN" onclick="setFilter(this, 'outcome')">Win</button>
+                <button class="filter-btn" data-value="LOSS" onclick="setFilter(this, 'outcome')">Loss</button>
+                <button class="filter-btn" data-value="PENDING" onclick="setFilter(this, 'outcome')">Pending</button>
+            </div>
+
+            <span class="filter-label">Direction</span>
+            <div class="filter-group" id="directionFilter">
+                <button class="filter-btn active" data-value="ALL" onclick="setFilter(this, 'direction')">All</button>
+                <button class="filter-btn" data-value="bullish" onclick="setFilter(this, 'direction')">Bull</button>
+                <button class="filter-btn" data-value="bearish" onclick="setFilter(this, 'direction')">Bear</button>
+            </div>
+        </div>
+
+        <!-- Analysis Cards -->
+        <div class="analysis-grid" id="analysisGrid">
+            <div class="loading">Loading analyses...</div>
+        </div>
+
+        </div><!-- /tabJournal -->
+
+        <!-- SYSTEM REPORT TAB -->
+        <div id="tabSystemReport" style="display:none">
+
+            <!-- Section A: Scoring Performance -->
+            <div class="sr-section">
+                <div class="sr-section-title">Scoring Performance</div>
+                <div class="sr-section-subtitle">Does higher confluence score produce better outcomes?</div>
+                <div class="sr-chart-card">
+                    <div class="sr-chart-wrap" style="height:260px;">
+                        <canvas id="chartScorePerf"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section B: Market Context Impact -->
+            <div class="sr-section">
+                <div class="sr-section-title">Market Context Impact</div>
+                <div class="sr-section-subtitle">How market conditions affect signal accuracy</div>
+                <div class="sr-chart-grid">
+                    <div class="sr-chart-card">
+                        <div class="sr-chart-card-title">Win Rate by VIX Regime</div>
+                        <div class="sr-chart-wrap"><canvas id="chartVixRegime"></canvas></div>
+                    </div>
+                    <div class="sr-chart-card">
+                        <div class="sr-chart-card-title">Win Rate by SPY Trend</div>
+                        <div class="sr-chart-wrap"><canvas id="chartSpyTrend"></canvas></div>
+                    </div>
+                    <div class="sr-chart-card">
+                        <div class="sr-chart-card-title">Win Rate by Checkpoint</div>
+                        <div class="sr-chart-wrap"><canvas id="chartCheckpoint"></canvas></div>
+                    </div>
+                    <div class="sr-chart-card">
+                        <div class="sr-chart-card-title">Win Rate by Signal Direction</div>
+                        <div class="sr-chart-wrap"><canvas id="chartDirection"></canvas></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section C: Zone Effectiveness -->
+            <div class="sr-section">
+                <div class="sr-section-title">Zone Effectiveness</div>
+                <div class="sr-section-subtitle">Which zones produce profitable signals?</div>
+                <div class="sr-chart-card">
+                    <div class="sr-chart-wrap" style="height:280px;">
+                        <canvas id="chartZones"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section D: Alert System Health -->
+            <div class="sr-section">
+                <div class="sr-section-title">Alert System Health</div>
+                <div class="sr-section-subtitle">Alert frequency and noise analysis (30 days)</div>
+                <div id="alertHealthContent"><div class="loading">Loading...</div></div>
+            </div>
+
+            <!-- Section E: Option Signal Performance -->
+            <div class="sr-section">
+                <div class="sr-section-title">Option Signal Performance</div>
+                <div class="sr-section-subtitle">Tracked option contracts from HIGH_CONVICTION alerts</div>
+                <div id="optionPerfContent"><div class="loading">Loading...</div></div>
+            </div>
+
+            <!-- Section F: Key Insights -->
+            <div class="sr-section">
+                <div class="sr-section-title">Key Insights</div>
+                <div class="sr-section-subtitle">Auto-generated analysis of scoring system performance</div>
+                <div id="insightsContent"><div class="loading">Loading...</div></div>
+            </div>
+
+        </div><!-- /tabSystemReport -->
+
+        <!-- INSIGHTS TAB -->
+        <div id="tabInsights" style="display:none">
+
+            <!-- Hero Stats -->
+            <div class="insight-hero" id="insightHero">
+                <div class="hero-stat"><div class="hero-number">--</div><div class="hero-label">Signals Tracked</div></div>
+                <div class="hero-stat"><div class="hero-number">--</div><div class="hero-label">Overall Win Rate</div></div>
+                <div class="hero-stat"><div class="hero-number">--</div><div class="hero-label">Best Condition</div></div>
+            </div>
+            <div class="insight-intro" id="insightIntro"></div>
+
+            <!-- How Your Alerts Are Built (flow diagram) -->
+            <div class="insight-section reveal">
+                <div class="section-heading">How Your Alerts Are Built</div>
+                <div class="section-desc">Every 5 minutes, Bloodhound runs this pipeline for up to 50 symbols. Each step narrows what reaches your phone.</div>
+                <div class="flow-diagram">
+
+                    <!-- STEP 1: Discovery + Data -->
+                    <div class="flow-stage" style="border-top: 3px solid #3b82f6;">
+                        <div class="flow-stage-label">Step 1</div>
+                        <div class="flow-stage-title">Discovery &amp; Data Collection</div>
+                        <div class="flow-stage-desc">
+                            First, pick <strong>which</strong> symbols to scan. 9 are permanent (SPY, QQQ, NVDA, TSLA, AMD, AAPL, META, MSFT, IBIT).
+                            The remaining ~41 slots go to the highest-priority discoveries: pre-market gappers, volume spikes, 52-week extremes, sector leaders/laggards.
+                            Then, for each symbol, pull data sequentially (100ms delays to avoid API overload):
+                        </div>
+                        <div class="flow-sources">
+                            <div class="flow-source">Technicals<span>RSI, MAs, trend, Bollinger, volume ratio</span></div>
+                            <div class="flow-source">Gamma Levels<span>Put/call walls, max pain, VWAP, gamma flip</span></div>
+                            <div class="flow-source">Options Analysis<span>Unusual activity, premium flow, vol/OI</span></div>
+                            <div class="flow-source">Market Context<span>VIX regime, SPY/QQQ levels, AI outlook</span></div>
+                            <div class="flow-source">Sector RS<span>28-asset relative strength from divergence scanner</span></div>
+                            <div class="flow-source">Internals<span>TICK, TRIN, A/D, vol ratio (separate process)</span></div>
+                        </div>
+                    </div>
+
+                    <div class="flow-arrow-down"></div>
+
+                    <!-- STEP 2: Scoring Engine -->
+                    <div class="flow-stage" style="border-top: 3px solid #00d4aa;">
+                        <div class="flow-stage-label">Step 2</div>
+                        <div class="flow-stage-title">Confluence Scoring Engine</div>
+                        <div class="flow-stage-desc">
+                            Three scoring categories add up independently, then get clamped to 0-100. This is where confluence lives &mdash;
+                            a high score means <strong>multiple unrelated data sources</strong> are pointing the same direction.
+                        </div>
+
+                        <!-- BASE -->
+                        <div class="flow-category">
+                            <div class="flow-category-header">
+                                <span class="flow-category-name" style="color:#00d4aa;">BASE FACTORS</span>
+                                <span class="flow-category-range">0-50 pts &mdash; the foundation</span>
+                            </div>
+                            <div class="flow-factors">
+                                <div class="factor-row"><span class="f-name">At put or call wall (within 1%)</span><div class="f-track"><div class="f-bar" style="width:75%;background:#00d4aa;"></div></div><span class="f-pts" style="color:#00d4aa;">+15</span></div>
+                                <div class="factor-row"><span class="f-name">RSI extreme (≤30 or ≥70)</span><div class="f-track"><div class="f-bar" style="width:75%;background:#00d4aa;"></div></div><span class="f-pts" style="color:#00d4aa;">+15</span></div>
+                                <div class="factor-row"><span class="f-name">Pinned between both walls</span><div class="f-track"><div class="f-bar" style="width:75%;background:#00d4aa;"></div></div><span class="f-pts" style="color:#00d4aa;">+15</span></div>
+                            </div>
+                            <div class="flow-combo-badge">
+                                <strong>Prime Setup Combo:</strong> Wall + RSI firing together = <strong>+20 bonus</strong> (89.5% historical win rate).
+                                This is the system's best signal &mdash; two independent confirmations at the same moment.
+                            </div>
+                        </div>
+
+                        <!-- HIGH-EDGE -->
+                        <div class="flow-category">
+                            <div class="flow-category-header">
+                                <span class="flow-category-name" style="color:#60a5fa;">HIGH-EDGE FACTORS</span>
+                                <span class="flow-category-range">0-35 pts &mdash; volume &amp; volatility</span>
+                            </div>
+                            <div class="flow-factors">
+                                <div class="factor-row"><span class="f-name">Volume spike (&ge;2x normal)</span><div class="f-track"><div class="f-bar" style="width:100%;background:#60a5fa;"></div></div><span class="f-pts" style="color:#60a5fa;">+20</span></div>
+                                <div class="factor-row"><span class="f-name">VIX fear (&ge;30)</span><div class="f-track"><div class="f-bar" style="width:75%;background:#60a5fa;"></div></div><span class="f-pts" style="color:#60a5fa;">+15</span></div>
+                                <div class="factor-row"><span class="f-name">Elevated volume (&ge;1.3x)</span><div class="f-track"><div class="f-bar" style="width:75%;background:#60a5fa;"></div></div><span class="f-pts" style="color:#60a5fa;">+15</span></div>
+                                <div class="factor-row"><span class="f-name">Unusual options (vol/OI &ge;5x)</span><div class="f-track"><div class="f-bar" style="width:50%;background:#60a5fa;"></div></div><span class="f-pts" style="color:#60a5fa;">+10</span></div>
+                                <div class="factor-row"><span class="f-name">VIX elevated (20-30)</span><div class="f-track"><div class="f-bar" style="width:50%;background:#60a5fa;"></div></div><span class="f-pts" style="color:#60a5fa;">+10</span></div>
+                            </div>
+                        </div>
+
+                        <!-- STANDARD -->
+                        <div class="flow-category">
+                            <div class="flow-category-header">
+                                <span class="flow-category-name" style="color:#fbbf24;">STANDARD FACTORS</span>
+                                <span class="flow-category-range">0-30 pts &mdash; confirming details</span>
+                            </div>
+                            <div class="flow-standard-list">
+                                <div class="flow-standard-item"><span>Breakout/breakdown</span><span class="pts">+8</span></div>
+                                <div class="flow-standard-item"><span>Sector RS (top quartile)</span><span class="pts">+8</span></div>
+                                <div class="flow-standard-item"><span>Bollinger Band extreme</span><span class="pts">+5</span></div>
+                                <div class="flow-standard-item"><span>At VWAP</span><span class="pts">+5</span></div>
+                                <div class="flow-standard-item"><span>Fibonacci level</span><span class="pts">+3 to +5</span></div>
+                                <div class="flow-standard-item"><span>Net premium &ge;$10M</span><span class="pts">+5</span></div>
+                                <div class="flow-standard-item"><span>Flow direction match</span><span class="pts">+5</span></div>
+                                <div class="flow-standard-item"><span>SPY trend alignment</span><span class="pts">+5</span></div>
+                                <div class="flow-standard-item"><span>Internals confirmation</span><span class="pts">+5 / -3</span></div>
+                                <div class="flow-standard-item"><span>Multi-TF alignment</span><span class="pts">+3 to +5</span></div>
+                                <div class="flow-standard-item"><span>History streak</span><span class="pts">+5</span></div>
+                                <div class="flow-standard-item"><span>Sector RS (bottom quartile)</span><span class="pts" style="color:#ff6b6b;">-5</span></div>
+                                <div class="flow-standard-item"><span>Dormant wall penalty</span><span class="pts" style="color:#ff6b6b;">-3</span></div>
+                                <div class="flow-standard-item"><span>Opposing internals</span><span class="pts" style="color:#ff6b6b;">-3</span></div>
+                            </div>
+                        </div>
+
+                        <div style="text-align:center;margin-top:12px;padding:10px;background:#0f1428;border-radius:6px;font-size:12px;color:#8b92a8;">
+                            Final Score = <span style="color:#00d4aa;">Base</span> + <span style="color:#60a5fa;">HighEdge</span> + <span style="color:#fbbf24;">Standard</span> &rarr; clamped to <strong style="color:#e5e7eb;">0-100</strong>
+                        </div>
+                    </div>
+
+                    <div class="flow-arrow-down"></div>
+
+                    <!-- STEP 3: Zone Classification -->
+                    <div class="flow-stage" style="border-top: 3px solid #a78bfa;">
+                        <div class="flow-stage-label">Step 3</div>
+                        <div class="flow-stage-title">Zone Classification</div>
+                        <div class="flow-stage-desc">
+                            Where is the price relative to the gamma walls? This determines the <strong>type</strong> of setup.
+                        </div>
+                        <div class="flow-zone-grid">
+                            <div class="flow-zone-box" style="border-left: 3px solid #00d4aa;">
+                                <div class="flow-zone-name" style="color:#00d4aa;">BUY ZONE</div>
+                                <div class="flow-zone-desc">At put wall support</div>
+                            </div>
+                            <div class="flow-zone-box" style="border-left: 3px solid #ff6b6b;">
+                                <div class="flow-zone-name" style="color:#ff6b6b;">SELL ZONE</div>
+                                <div class="flow-zone-desc">At call wall resistance</div>
+                            </div>
+                            <div class="flow-zone-box" style="border-left: 3px solid #a78bfa;">
+                                <div class="flow-zone-name" style="color:#a78bfa;">PINNED</div>
+                                <div class="flow-zone-desc">Trapped between both walls</div>
+                            </div>
+                            <div class="flow-zone-box" style="border-left: 3px solid #8b92a8;">
+                                <div class="flow-zone-name">MID RANGE</div>
+                                <div class="flow-zone-desc">No wall contact</div>
+                            </div>
+                            <div class="flow-zone-box" style="border-left: 3px solid #fbbf24;">
+                                <div class="flow-zone-name" style="color:#fbbf24;">EXTENDED</div>
+                                <div class="flow-zone-desc">Beyond the walls</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flow-arrow-down"></div>
+
+                    <!-- STEP 4: Tier Assignment -->
+                    <div class="flow-stage" style="border-top: 3px solid #fbbf24;">
+                        <div class="flow-stage-label">Step 4</div>
+                        <div class="flow-stage-title">Tier Assignment</div>
+                        <div class="flow-stage-desc">
+                            Score + zone + conditions determine the confidence tier. This is the final filter before alerting.
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:8px;">
+                            <div class="flow-tier high" style="display:block;width:100%;">
+                                <strong>HIGH_CONVICTION</strong>
+                                <div class="flow-tier-detail">Prime setup (wall+RSI) + score &ge;40 &mdash; OR &mdash; score &ge;50 at wall. Must have action (BUY/SELL).</div>
+                            </div>
+                            <div class="flow-tier trade" style="display:block;width:100%;">
+                                <strong>TRADEABLE</strong>
+                                <div class="flow-tier-detail">Score &ge;35 at wall + action. Good setup but not top tier.</div>
+                            </div>
+                            <div class="flow-tier watch" style="display:block;width:100%;">
+                                <strong>WATCH</strong>
+                                <div class="flow-tier-detail">Score &ge;20 near wall, or score &ge;35 in mid-range/pinned. Monitor only.</div>
+                            </div>
+                            <div class="flow-tier filt" style="display:block;width:100%;">
+                                <strong>FILTERED</strong>
+                                <div class="flow-tier-detail">Doesn't meet any criteria. Not shown.</div>
+                            </div>
+                        </div>
+                        <div class="flow-dedup">
+                            <div class="flow-dedup-title">Safety Caps (override tier down to WATCH):</div>
+                            Bearish direction (0% historical win rate) &bull; Neutral direction &bull; Pinned direction &bull; RETURNED setups (11% win rate)
+                        </div>
+                    </div>
+
+                    <div class="flow-arrow-down"></div>
+
+                    <!-- STEP 5: Alert Decision -->
+                    <div class="flow-stage" style="border-top: 3px solid #00d4aa;">
+                        <div class="flow-stage-label">Step 5</div>
+                        <div class="flow-stage-title">Alert Decision</div>
+                        <div class="flow-stage-desc">
+                            Only HIGH_CONVICTION signals reach your phone. Everything else stays in the database for the dashboard.
+                        </div>
+                        <div class="flow-output-grid">
+                            <div class="flow-result">HIGH_CONVICTION<br><span style="font-size:12px;font-weight:400;">Alert &rarr; Telegram &rarr; Phone</span></div>
+                            <div class="flow-result db-only">TRADEABLE + WATCH<br><span style="font-size:12px;font-weight:400;">Database &rarr; Dashboard only</span></div>
+                        </div>
+                        <div class="flow-dedup">
+                            <div class="flow-dedup-title">Deduplication (prevents alert spam):</div>
+                            Same setup cooldown: <strong>4 hours</strong> &bull;
+                            Score must jump <strong>+15 pts</strong> to re-alert &bull;
+                            Max <strong>2 alerts per symbol per day</strong> &bull;
+                            New zone or direction change = fresh alert
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Dynamic sections populated by JS -->
+            <div id="insightFindings"></div>
+            <div id="insightBlindSpots"></div>
+            <div id="insightRecs"></div>
+
+        </div><!-- /tabInsights -->
+
+    </div>
+
+    <!-- Modal Overlay -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal" id="modalContent" onclick="event.stopPropagation()">
+        </div>
+    </div>
+
+    <script>
+        let allAnalyses = [];
+        let currentFilters = { verdict: 'ALL', outcome: 'ALL', direction: 'ALL', search: '' };
+
+        async function loadData() {
+            try {
+                const response = await fetch('/api/analyses?_=' + Date.now());
+                if (!response.ok) throw new Error('Failed to load analyses');
+                const data = await response.json();
+
+                allAnalyses = data.analyses || [];
+                updateSummaryCards(data.stats);
+                applyFilters();
+
+                document.getElementById('lastUpdated').textContent =
+                    'Updated: ' + new Date().toLocaleTimeString();
+            } catch (e) {
+                console.error('Load failed:', e);
+                document.getElementById('analysisGrid').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">&#9888;</div>
+                        <div class="empty-state-title">Error Loading Data</div>
+                        <div class="empty-state-text">${e.message}</div>
+                    </div>`;
+            }
+        }
+
+        function updateSummaryCards(stats) {
+            if (!stats) return;
+            document.getElementById('totalAnalyses').textContent = stats.total || 0;
+            document.getElementById('uniqueSymbols').textContent = (stats.unique_symbols || 0) + ' unique symbols';
+            document.getElementById('pendingCount').textContent = stats.pending || 0;
+
+            const accEl = document.getElementById('thesisAccuracy');
+            if (stats.thesis_accuracy !== null) {
+                accEl.textContent = stats.thesis_accuracy + '%';
+                accEl.className = 'card-value ' + (parseFloat(stats.thesis_accuracy) >= 50 ? 'positive' : 'negative');
+            } else {
+                accEl.textContent = '--%';
+                accEl.className = 'card-value neutral';
+            }
+            document.getElementById('thesisCount').textContent = (stats.thesis_total || 0) + ' evaluated';
+
+            const avgEl = document.getElementById('avgReturn');
+            if (stats.avg_pct_change !== null && stats.avg_pct_change !== undefined) {
+                const val = stats.avg_pct_change.toFixed(1);
+                avgEl.textContent = (val > 0 ? '+' : '') + val + '%';
+                avgEl.className = 'card-value ' + (val >= 0 ? 'positive' : 'negative');
+            } else {
+                avgEl.textContent = '--%';
+                avgEl.className = 'card-value neutral';
+            }
+        }
+
+        function setFilter(btn, group) {
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentFilters[group] = btn.dataset.value;
+            applyFilters();
+        }
+
+        function applyFilters() {
+            currentFilters.search = document.getElementById('searchInput').value.toUpperCase().trim();
+
+            const filtered = allAnalyses.filter(a => {
+                if (currentFilters.search && !a.symbol.includes(currentFilters.search)) return false;
+                if (currentFilters.verdict !== 'ALL' && a.verdict !== currentFilters.verdict) return false;
+                if (currentFilters.direction !== 'ALL' && a.direction !== currentFilters.direction) return false;
+                if (currentFilters.outcome !== 'ALL') {
+                    if (currentFilters.outcome === 'PENDING') {
+                        if (a.outcome) return false;
+                    } else if (a.outcome !== currentFilters.outcome) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            renderCards(filtered);
+        }
+
+        function renderCards(analyses) {
+            const grid = document.getElementById('analysisGrid');
+
+            if (analyses.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="empty-state-icon">&#128218;</div>
+                        <div class="empty-state-title">${allAnalyses.length === 0 ? 'No Analyses Yet' : 'No Matching Analyses'}</div>
+                        <div class="empty-state-text">${allAnalyses.length === 0
+                            ? 'Analyses are created during Claude Code sessions when you do deep-dive ticker research. They will appear here automatically.'
+                            : 'Try adjusting your filters.'}</div>
+                    </div>`;
+                return;
+            }
+
+            grid.innerHTML = analyses.map(a => renderCard(a)).join('');
+        }
+
+        function renderCard(a) {
+            const bullWeight = (a.bull_factors || []).reduce((s, f) => s + (f.weight || 5), 0);
+            const bearWeight = (a.bear_factors || []).reduce((s, f) => s + (f.weight || 5), 0);
+            const totalWeight = bullWeight + bearWeight || 1;
+            const bullPct = Math.round((bullWeight / totalWeight) * 100);
+            const bearPct = 100 - bullPct;
+
+            const scoreClass = a.score >= 60 ? 'score-high' : a.score >= 35 ? 'score-mid' : 'score-low';
+            const verdictClass = a.verdict === 'BUY' ? 'verdict-buy' : a.verdict === 'WAIT' ? 'verdict-wait' : 'verdict-pass';
+            const dateStr = formatDate(a.analysis_date);
+
+            let outcomeHtml = '';
+            if (a.outcome) {
+                const ocClass = a.outcome === 'WIN' ? 'outcome-win' : a.outcome === 'LOSS' ? 'outcome-loss' : 'outcome-scratch';
+                const pctStr = a.outcome_pct_change !== null ? ` ${a.outcome_pct_change > 0 ? '+' : ''}${a.outcome_pct_change.toFixed(1)}%` : '';
+                outcomeHtml = `
+                    <div class="outcome-row">
+                        <span class="outcome-badge ${ocClass}">${a.outcome}${pctStr}</span>
+                        ${a.thesis_correct === 1 ? '<span style="color:#00d4aa;font-size:11px;">Thesis Correct</span>'
+                          : a.thesis_correct === 0 ? '<span style="color:#ff6b6b;font-size:11px;">Thesis Wrong</span>' : ''}
+                    </div>`;
+            } else {
+                outcomeHtml = `
+                    <div class="outcome-row">
+                        <span class="outcome-badge outcome-pending">Pending</span>
+                        <span style="color:#64748b;font-size:11px;">$${a.price_at_analysis ? a.price_at_analysis.toFixed(2) : '--'} at entry</span>
+                    </div>`;
+            }
+
+            const levelsHtml = renderLevelsBar(a);
+
+            return `
+                <div class="analysis-card" onclick="openModal(${a.id})">
+                    <div class="card-header">
+                        <div class="card-header-left">
+                            <span class="ticker-badge">${a.symbol}</span>
+                            <span class="score-badge ${scoreClass}">${a.score || '--'}/100</span>
+                            <span class="verdict-badge ${verdictClass}">${a.verdict}</span>
+                        </div>
+                        <span class="card-date">${dateStr}</span>
+                    </div>
+
+                    <div class="tug-bar-container">
+                        <div class="tug-bar-labels">
+                            <span>Bull (${bullPct}%)</span>
+                            <span>Bear (${bearPct}%)</span>
+                        </div>
+                        <div class="tug-bar">
+                            <div class="tug-bull" style="width:${bullPct}%"></div>
+                            <div class="tug-bear" style="width:${bearPct}%"></div>
+                        </div>
+                    </div>
+
+                    <div class="card-details">
+                        ${a.sector_etf ? `<span class="detail-chip"><span class="label">Sector:</span> ${a.sector_etf} ${a.sector_rs_percentile != null ? `(${Math.round(a.sector_rs_percentile)}th RS)` : ''}</span>` : ''}
+                        ${a.rotation_phase ? `<span class="detail-chip"><span class="label">Phase:</span> ${a.rotation_phase}</span>` : ''}
+                        ${a.vix ? `<span class="detail-chip"><span class="label">VIX:</span> ${a.vix.toFixed(1)} ${a.vix_regime || ''}</span>` : ''}
+                        ${a.direction ? `<span class="detail-chip">${a.direction === 'bullish' ? '&#9650;' : '&#9660;'} ${a.direction}</span>` : ''}
+                    </div>
+
+                    ${levelsHtml}
+                    ${outcomeHtml}
+                </div>`;
+        }
+
+        function renderLevelsBar(a) {
+            if (!a.put_wall && !a.call_wall) return '';
+            const prices = [a.put_wall, a.call_wall, a.price_at_analysis, a.max_pain, a.target_price, a.stop_price].filter(Boolean);
+            if (prices.length < 2) return '';
+            const min = Math.min(...prices) * 0.998;
+            const max = Math.max(...prices) * 1.002;
+            const range = max - min || 1;
+            const pct = (v) => ((v - min) / range * 100).toFixed(1);
+
+            let markers = '';
+            if (a.put_wall) markers += `<div class="level-marker put-wall" style="left:${pct(a.put_wall)}%"><span class="level-label" style="left:0;color:#ff6b6b;">PW $${a.put_wall}</span></div>`;
+            if (a.max_pain) markers += `<div class="level-marker max-pain" style="left:${pct(a.max_pain)}%"></div>`;
+            if (a.price_at_analysis) markers += `<div class="level-marker price" style="left:${pct(a.price_at_analysis)}%"><span class="level-label" style="left:4px;color:#e5e7eb;">$${a.price_at_analysis}</span></div>`;
+            if (a.call_wall) markers += `<div class="level-marker call-wall" style="left:${pct(a.call_wall)}%"><span class="level-label" style="right:0;color:#00d4aa;">CW $${a.call_wall}</span></div>`;
+
+            return `<div class="levels-bar">${markers}</div>`;
+        }
+
+        function formatDate(isoStr) {
+            if (!isoStr) return '';
+            const d = new Date(isoStr);
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        // ============================================================
+        // MODAL
+        // ============================================================
+
+        function openModal(id) {
+            const a = allAnalyses.find(x => x.id === id);
+            if (!a) return;
+
+            const modal = document.getElementById('modalContent');
+            const verdictClass = a.verdict === 'BUY' ? 'verdict-buy' : a.verdict === 'WAIT' ? 'verdict-wait' : 'verdict-pass';
+            const scoreClass = a.score >= 60 ? 'score-high' : a.score >= 35 ? 'score-mid' : 'score-low';
+
+            let outcomeSection = '';
+            if (a.outcome) {
+                const ocClass = a.outcome === 'WIN' ? 'positive' : a.outcome === 'LOSS' ? 'negative' : 'neutral';
+                outcomeSection = `
+                    <div class="modal-section">
+                        <div class="modal-section-title">Outcome</div>
+                        <div class="modal-context-grid">
+                            <div class="context-item">
+                                <div class="context-label">Result</div>
+                                <div class="context-value ${ocClass}">${a.outcome}</div>
+                            </div>
+                            ${a.outcome_pct_change !== null ? `<div class="context-item">
+                                <div class="context-label">Return</div>
+                                <div class="context-value ${a.outcome_pct_change >= 0 ? 'positive' : 'negative'}">${a.outcome_pct_change > 0 ? '+' : ''}${a.outcome_pct_change.toFixed(1)}%</div>
+                            </div>` : ''}
+                            ${a.outcome_price ? `<div class="context-item">
+                                <div class="context-label">Exit Price</div>
+                                <div class="context-value">$${a.outcome_price.toFixed(2)}</div>
+                            </div>` : ''}
+                            <div class="context-item">
+                                <div class="context-label">Thesis</div>
+                                <div class="context-value ${a.thesis_correct === 1 ? 'positive' : a.thesis_correct === 0 ? 'negative' : 'neutral'}">${a.thesis_correct === 1 ? 'Correct' : a.thesis_correct === 0 ? 'Wrong' : 'Not Evaluated'}</div>
+                            </div>
+                        </div>
+                        ${a.outcome_notes ? `<div style="margin-top:12px;padding:12px;background:#0f1428;border-radius:6px;font-size:13px;color:#b8bfcc;line-height:1.6;">${a.outcome_notes}</div>` : ''}
+                    </div>`;
+            }
+
+            modal.innerHTML = `
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+                <div class="modal-title">${a.symbol} <span class="score-badge ${scoreClass}" style="font-size:14px;">${a.score || '--'}/100</span> <span class="verdict-badge ${verdictClass}">${a.verdict}</span></div>
+                <div class="modal-subtitle">${formatDate(a.analysis_date)} | ${a.tier || 'N/A'} | ${a.direction || 'N/A'} | $${a.price_at_analysis ? a.price_at_analysis.toFixed(2) : '--'}</div>
+
+                <!-- Bull vs Bear Factors -->
+                <div class="modal-section">
+                    <div class="modal-section-title">Setup vs Conflict</div>
+                    <div class="factors-grid">
+                        <div>
+                            <div class="factor-col-title positive">Bull Case</div>
+                            ${(a.bull_factors || []).map(f => `
+                                <div class="factor-item">
+                                    <div>
+                                        <div class="factor-name">${f.factor}</div>
+                                        <div class="factor-detail">${f.detail || ''}</div>
+                                        <div class="factor-bar" style="width:${(f.weight || 5) * 10}%;background:#00d4aa;"></div>
+                                    </div>
+                                    <div class="factor-weight positive">${f.weight || 5}</div>
+                                </div>
+                            `).join('')}
+                            ${a.bull_summary ? `<div style="margin-top:10px;font-size:12px;color:#8b92a8;line-height:1.5;">${a.bull_summary}</div>` : ''}
+                        </div>
+                        <div>
+                            <div class="factor-col-title negative">Bear Case</div>
+                            ${(a.bear_factors || []).map(f => `
+                                <div class="factor-item">
+                                    <div>
+                                        <div class="factor-name">${f.factor}</div>
+                                        <div class="factor-detail">${f.detail || ''}</div>
+                                        <div class="factor-bar" style="width:${(f.weight || 5) * 10}%;background:#ff6b6b;"></div>
+                                    </div>
+                                    <div class="factor-weight negative">${f.weight || 5}</div>
+                                </div>
+                            `).join('')}
+                            ${a.bear_summary ? `<div style="margin-top:10px;font-size:12px;color:#8b92a8;line-height:1.5;">${a.bear_summary}</div>` : ''}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Score Gauge + Context -->
+                <div class="modal-section">
+                    <div class="modal-section-title">Market Context</div>
+                    <div class="modal-context-grid">
+                        ${a.sector_etf ? `<div class="context-item">
+                            <div class="context-label">Sector</div>
+                            <div class="context-value">${a.sector_etf}</div>
+                            <div style="font-size:11px;color:#64748b;margin-top:2px;">RSI ${a.sector_rsi ? a.sector_rsi.toFixed(0) : '--'} | RS ${a.sector_rs_percentile != null ? Math.round(a.sector_rs_percentile) + 'th' : '--'}</div>
+                        </div>` : ''}
+                        ${a.rotation_phase ? `<div class="context-item">
+                            <div class="context-label">Rotation Phase</div>
+                            <div class="context-value">${a.rotation_phase}</div>
+                        </div>` : ''}
+                        ${a.vix ? `<div class="context-item">
+                            <div class="context-label">VIX</div>
+                            <div class="context-value">${a.vix.toFixed(1)}</div>
+                            <div style="font-size:11px;color:#64748b;margin-top:2px;">${a.vix_regime || ''}</div>
+                        </div>` : ''}
+                        ${a.spy_price ? `<div class="context-item">
+                            <div class="context-label">SPY</div>
+                            <div class="context-value">$${a.spy_price.toFixed(2)}</div>
+                            <div style="font-size:11px;color:#64748b;margin-top:2px;">${a.spy_trend || ''}</div>
+                        </div>` : ''}
+                    </div>
+                </div>
+
+                <!-- Key Levels -->
+                <div class="modal-section">
+                    <div class="modal-section-title">Key Levels</div>
+                    <div class="modal-context-grid">
+                        ${a.put_wall ? `<div class="context-item"><div class="context-label">Put Wall</div><div class="context-value negative">$${a.put_wall}</div></div>` : ''}
+                        ${a.price_at_analysis ? `<div class="context-item"><div class="context-label">Entry Price</div><div class="context-value">$${a.price_at_analysis.toFixed(2)}</div></div>` : ''}
+                        ${a.call_wall ? `<div class="context-item"><div class="context-label">Call Wall</div><div class="context-value positive">$${a.call_wall}</div></div>` : ''}
+                        ${a.max_pain ? `<div class="context-item"><div class="context-label">Max Pain</div><div class="context-value warning">$${a.max_pain}</div></div>` : ''}
+                        ${a.target_price ? `<div class="context-item"><div class="context-label">Target</div><div class="context-value positive">$${a.target_price}</div></div>` : ''}
+                        ${a.stop_price ? `<div class="context-item"><div class="context-label">Stop</div><div class="context-value negative">$${a.stop_price}</div></div>` : ''}
+                    </div>
+                </div>
+
+                <!-- Verdict -->
+                <div class="modal-section">
+                    <div class="modal-section-title">Verdict</div>
+                    <div class="verdict-box">
+                        <div style="margin-bottom:8px;"><span class="verdict-badge ${verdictClass}" style="font-size:13px;">${a.verdict}</span></div>
+                        <div class="verdict-text">${a.verdict_reasoning || 'No reasoning recorded.'}</div>
+                    </div>
+                </div>
+
+                ${outcomeSection}
+
+                ${a.tags ? `<div style="margin-top:16px;"><span class="filter-label">Tags:</span> ${a.tags.split(',').map(t => `<span class="detail-chip" style="margin-left:4px;">${t.trim()}</span>`).join('')}</div>` : ''}
+            `;
+
+            document.getElementById('modalOverlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(event) {
+            if (event && event.target !== document.getElementById('modalOverlay')) return;
+            document.getElementById('modalOverlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // ============================================================
+        // TAB SWITCHING
+        // ============================================================
+
+        let srLoaded = false;
+        let insightsLoaded = false;
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.tab-btn[data-tab="${tab}"]`).classList.add('active');
+            document.getElementById('tabJournal').style.display = tab === 'journal' ? '' : 'none';
+            document.getElementById('tabSystemReport').style.display = tab === 'system-report' ? '' : 'none';
+            document.getElementById('tabInsights').style.display = tab === 'insights' ? '' : 'none';
+            if (tab === 'system-report' && !srLoaded) {
+                srLoaded = true;
+                loadSystemReport();
+            }
+            if (tab === 'insights' && !insightsLoaded) {
+                insightsLoaded = true;
+                loadInsights();
+            }
+        }
+
+        // ============================================================
+        // SYSTEM REPORT
+        // ============================================================
+
+        const srCharts = {};
+
+        async function loadSystemReport() {
+            try {
+                const [statsRes, signalsRes, optionsRes, alertsRes] = await Promise.all([
+                    fetch('/api/signals/stats'),
+                    fetch('/api/signals'),
+                    fetch('/api/signals/options?days=90'),
+                    fetch('/api/alerts?days=30&limit=200')
+                ]);
+                const stats = await statsRes.json();
+                const signalsData = await signalsRes.json();
+                const options = await optionsRes.json();
+                const alertsData = await alertsRes.json();
+
+                const signals = signalsData.signals || [];
+                const detailed = stats.detailed || {};
+                const alerts = alertsData.alerts || [];
+
+                renderScorePerformance(signals);
+                renderMarketContext(detailed, signals);
+                renderZoneEffectiveness(signals);
+                renderAlertHealth(alerts);
+                renderOptionPerformance(options);
+                renderInsights(stats, signals);
+            } catch (e) {
+                console.error('System report load failed:', e);
+            }
+        }
+
+        // -- Chart helpers --
+
+        function srBarChart(canvasId, labels, data, counts, color, horizontal) {
+            if (srCharts[canvasId]) srCharts[canvasId].destroy();
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            const bgColors = Array.isArray(color) ? color.map(c => c + '80') : data.map(() => (color || '#00d4aa') + '80');
+            const borderColors = Array.isArray(color) ? color : data.map(() => color || '#00d4aa');
+
+            srCharts[canvasId] = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [{
+                        data: data.map(Number),
+                        backgroundColor: bgColors,
+                        borderColor: borderColors,
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: horizontal ? 'y' : 'x',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (tip) => {
+                                    const val = horizontal ? tip.parsed.x : tip.parsed.y;
+                                    return `${val.toFixed(1)}% (n=${counts[tip.dataIndex]})`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: horizontal
+                            ? { beginAtZero: true, max: 100, grid: { color: '#1a2332' }, ticks: { color: '#8b92a8', font: { size: 11 }, callback: v => v + '%' } }
+                            : { grid: { display: false }, ticks: { color: '#8b92a8', font: { size: 11 } } },
+                        y: horizontal
+                            ? { grid: { display: false }, ticks: { color: '#8b92a8', font: { size: 11 } } }
+                            : { beginAtZero: true, max: 100, grid: { color: '#1a2332' }, ticks: { color: '#8b92a8', font: { size: 11 }, callback: v => v + '%' } }
+                    }
+                }
+            });
+        }
+
+        // -- Section A: Scoring Performance --
+
+        function renderScorePerformance(signals) {
+            const buckets = { '<40': {w:0,t:0}, '40-49': {w:0,t:0}, '50-59': {w:0,t:0}, '60-69': {w:0,t:0}, '70+': {w:0,t:0} };
+            signals.filter(s => s.validated).forEach(s => {
+                const sc = s.score || 0;
+                const key = sc >= 70 ? '70+' : sc >= 60 ? '60-69' : sc >= 50 ? '50-59' : sc >= 40 ? '40-49' : '<40';
+                buckets[key].t++;
+                if (s.correct) buckets[key].w++;
+            });
+
+            const labels = Object.keys(buckets);
+            const rates = labels.map(k => buckets[k].t > 0 ? (buckets[k].w / buckets[k].t * 100) : 0);
+            const counts = labels.map(k => buckets[k].t);
+            const colors = rates.map(r => r >= 55 ? '#00d4aa' : r >= 40 ? '#fbbf24' : '#ff6b6b');
+            srBarChart('chartScorePerf', labels, rates, counts, colors, false);
+        }
+
+        // -- Section B: Market Context Impact --
+
+        function renderMarketContext(detailed, signals) {
+            // VIX Regime
+            const vix = (detailed.byVixRegime || []).filter(r => r.vix_regime);
+            if (vix.length) {
+                const vLabels = vix.map(r => r.vix_regime.charAt(0).toUpperCase() + r.vix_regime.slice(1));
+                const vRates = vix.map(r => r.total > 0 ? (r.correct / r.total * 100) : 0);
+                const vCounts = vix.map(r => r.total);
+                srBarChart('chartVixRegime', vLabels, vRates, vCounts, null, true);
+            }
+
+            // SPY Trend (computed from raw signals)
+            const spyGroups = {};
+            signals.filter(s => s.validated && s.context && s.context.spy_trend).forEach(s => {
+                const t = s.context.spy_trend;
+                if (!spyGroups[t]) spyGroups[t] = { w: 0, t: 0 };
+                spyGroups[t].t++;
+                if (s.correct) spyGroups[t].w++;
+            });
+            const spySorted = Object.entries(spyGroups).sort((a, b) => b[1].t - a[1].t);
+            if (spySorted.length) {
+                const sLabels = spySorted.map(([k]) => k.charAt(0).toUpperCase() + k.slice(1));
+                const sRates = spySorted.map(([, v]) => v.t > 0 ? (v.w / v.t * 100) : 0);
+                const sCounts = spySorted.map(([, v]) => v.t);
+                const sColors = sRates.map(r => r >= 55 ? '#00d4aa' : r >= 25 ? '#fbbf24' : '#ff6b6b');
+                srBarChart('chartSpyTrend', sLabels, sRates, sCounts, sColors, true);
+            }
+
+            // Checkpoint
+            const cp = (detailed.byCheckpoint || []);
+            if (cp.length) {
+                const cLabels = cp.map(r => r.checkpoint_type);
+                const cRates = cp.map(r => r.total > 0 ? (r.correct / r.total * 100) : 0);
+                const cCounts = cp.map(r => r.total);
+                srBarChart('chartCheckpoint', cLabels, cRates, cCounts, null, true);
+            }
+
+            // Direction
+            const dir = (detailed.byDirection || []);
+            if (dir.length) {
+                const dLabels = dir.map(r => r.direction.charAt(0).toUpperCase() + r.direction.slice(1));
+                const dRates = dir.map(r => r.total > 0 ? (r.correct / r.total * 100) : 0);
+                const dCounts = dir.map(r => r.total);
+                const dColors = dLabels.map(l => l === 'Bullish' ? '#00d4aa' : l === 'Bearish' ? '#ff6b6b' : '#fbbf24');
+                srBarChart('chartDirection', dLabels, dRates, dCounts, dColors, true);
+            }
+        }
+
+        // -- Section C: Zone Effectiveness --
+
+        function renderZoneEffectiveness(signals) {
+            const zoneGroups = {};
+            signals.filter(s => s.validated && s.zone).forEach(s => {
+                if (!zoneGroups[s.zone]) zoneGroups[s.zone] = { w: 0, t: 0 };
+                zoneGroups[s.zone].t++;
+                if (s.correct) zoneGroups[s.zone].w++;
+            });
+
+            const sorted = Object.entries(zoneGroups).sort((a, b) => b[1].t - a[1].t);
+            const labels = sorted.map(([z]) => z.replace(/_/g, ' '));
+            const rates = sorted.map(([, v]) => v.t > 0 ? (v.w / v.t * 100) : 0);
+            const counts = sorted.map(([, v]) => v.t);
+            const colors = rates.map(r => r >= 55 ? '#00d4aa' : r >= 40 ? '#fbbf24' : '#ff6b6b');
+            srBarChart('chartZones', labels, rates, counts, colors, true);
+        }
+
+        // -- Section D: Alert System Health --
+
+        function renderAlertHealth(alerts) {
+            const container = document.getElementById('alertHealthContent');
+            const total = alerts.length;
+            const vixAlerts = alerts.filter(a => a.type === 'VIX_REGIME');
+
+            // Group by day
+            const byDay = {};
+            alerts.forEach(a => {
+                const day = a.timestamp.split('T')[0];
+                if (!byDay[day]) byDay[day] = [];
+                byDay[day].push(a);
+            });
+            const daysActive = Object.keys(byDay).length;
+            const avgPerDay = daysActive > 0 ? (total / daysActive).toFixed(1) : '0';
+
+            // VIX oscillation: days with 3+ regime flips
+            const vixByDay = {};
+            vixAlerts.forEach(a => {
+                const day = a.timestamp.split('T')[0];
+                vixByDay[day] = (vixByDay[day] || 0) + 1;
+            });
+            const noisyDays = Object.entries(vixByDay).filter(([, c]) => c >= 3);
+
+            let html = `
+                <div class="sr-stats-row">
+                    <div class="card">
+                        <div class="card-title">Total Alerts (30d)</div>
+                        <div class="card-value">${total}</div>
+                        <div class="card-subtitle">${avgPerDay} per day avg</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">VIX Regime Changes</div>
+                        <div class="card-value ${vixAlerts.length > 15 ? 'warning' : ''}">${vixAlerts.length}</div>
+                        <div class="card-subtitle">${noisyDays.length > 0 ? noisyDays.length + ' noisy day(s)' : 'Stable'}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Days with Alerts</div>
+                        <div class="card-value">${daysActive}</div>
+                        <div class="card-subtitle">of ~21 trading days</div>
+                    </div>
+                </div>`;
+
+            if (noisyDays.length > 0) {
+                html += `<div class="sr-insight-card" style="border-left: 3px solid #fbbf24;">
+                    <div class="sr-insight-label">VIX Threshold Oscillation Detected</div>
+                    <div class="sr-insight-text">
+                        ${noisyDays.map(([d, c]) => `<strong>${d}</strong>: ${c} regime flips`).join('<br>')}
+                        <br><span style="color:#fbbf24;margin-top:6px;display:inline-block;">VIX hovers near 20.0 threshold causing repeated alerts. Consider hysteresis band (trigger at 20.5, clear at 19.5).</span>
+                    </div>
+                </div>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // -- Section E: Option Signal Performance --
+
+        function renderOptionPerformance(data) {
+            const container = document.getElementById('optionPerfContent');
+            const o = data.overall || {};
+            const active = data.active || [];
+
+            let html = `
+                <div class="sr-stats-row">
+                    <div class="card">
+                        <div class="card-title">Options Tracked</div>
+                        <div class="card-value">${o.total || 0}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Wall Hit Rate</div>
+                        <div class="card-value ${o.wall_hits > 0 ? 'positive' : ''}">${o.total ? ((o.wall_hits / o.total) * 100).toFixed(0) : 0}%</div>
+                        <div class="card-subtitle">${o.wall_hits || 0} of ${o.total || 0}</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Avg Peak Gain</div>
+                        <div class="card-value ${(o.avg_peak_gain || 0) > 0 ? 'positive' : 'negative'}">${(o.avg_peak_gain || 0).toFixed(0)}%</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-title">Wins / Partial</div>
+                        <div class="card-value positive">${o.wins || 0} / ${o.partial_wins || 0}</div>
+                    </div>
+                </div>`;
+
+            if (active.length > 0) {
+                html += `<div class="sr-chart-card"><table class="sr-table">
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Contract</th>
+                        <th>Entry</th>
+                        <th>Peak</th>
+                        <th>Peak Gain</th>
+                        <th>DTE</th>
+                        <th>Score</th>
+                    </tr>
+                    ${active.map(a => {
+                        const gain = a.option_peak_gain_pct || 0;
+                        const cls = gain >= 50 ? 'positive' : gain >= 0 ? 'warning' : 'negative';
+                        return `<tr>
+                            <td style="font-weight:600;">${a.symbol}</td>
+                            <td style="font-size:11px;color:#8b92a8;">${a.option_contract || '--'}</td>
+                            <td>$${(a.option_premium_entry || 0).toFixed(2)}</td>
+                            <td>$${(a.option_premium_peak || 0).toFixed(2)}</td>
+                            <td class="${cls}">${gain.toFixed(1)}%</td>
+                            <td>${a.option_dte != null ? a.option_dte : '--'}</td>
+                            <td>${a.score || '--'}</td>
+                        </tr>`;
+                    }).join('')}
+                </table></div>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // -- Section F: Key Insights --
+
+        function renderInsights(stats, signals) {
+            const container = document.getElementById('insightsContent');
+            const d = stats.detailed || {};
+            const insights = [];
+
+            // VIX regime insight
+            const vixData = (d.byVixRegime || []).filter(r => r.vix_regime && r.total >= 5);
+            if (vixData.length >= 2) {
+                const withRates = vixData.map(r => ({ ...r, rate: r.correct / r.total * 100 }));
+                const best = withRates.reduce((a, b) => b.rate > a.rate ? b : a);
+                const worst = withRates.reduce((a, b) => b.rate < a.rate ? b : a);
+                if (best.vix_regime !== worst.vix_regime) {
+                    const diff = (best.rate - worst.rate).toFixed(1);
+                    insights.push({
+                        label: 'VIX Regime Impact',
+                        text: `VIX <strong>${best.vix_regime}</strong> produces ${best.rate.toFixed(1)}% win rate vs <strong>${worst.vix_regime}</strong> at ${worst.rate.toFixed(1)}% &mdash; ${diff}pp spread. Consider weighting score by VIX regime.`,
+                        color: '#00d4aa'
+                    });
+                }
+            }
+
+            // Zone insight
+            const zoneGroups = {};
+            signals.filter(s => s.validated && s.zone).forEach(s => {
+                if (!zoneGroups[s.zone]) zoneGroups[s.zone] = { w: 0, t: 0 };
+                zoneGroups[s.zone].t++;
+                if (s.correct) zoneGroups[s.zone].w++;
+            });
+            const zones = Object.entries(zoneGroups)
+                .filter(([, v]) => v.t >= 5)
+                .sort((a, b) => (b[1].w / b[1].t) - (a[1].w / a[1].t));
+            if (zones.length >= 2) {
+                const best = zones[0], worst = zones[zones.length - 1];
+                const bestRate = (best[1].w / best[1].t * 100).toFixed(1);
+                const worstRate = (worst[1].w / worst[1].t * 100).toFixed(1);
+                insights.push({
+                    label: 'Zone Effectiveness',
+                    text: `<strong>${best[0].replace(/_/g, ' ')}</strong> wins at ${bestRate}% (n=${best[1].t}) vs <strong>${worst[0].replace(/_/g, ' ')}</strong> at ${worstRate}% (n=${worst[1].t}). Zone classification significantly predicts outcomes.`,
+                    color: '#3b82f6'
+                });
+            }
+
+            // Checkpoint insight
+            const cp = (d.byCheckpoint || []).filter(r => r.total >= 10);
+            if (cp.length >= 2) {
+                const withRates = cp.map(r => ({ ...r, rate: r.correct / r.total * 100 }));
+                const best = withRates.reduce((a, b) => b.rate > a.rate ? b : a);
+                const worst = withRates.reduce((a, b) => b.rate < a.rate ? b : a);
+                insights.push({
+                    label: 'Checkpoint Timing',
+                    text: `<strong>${best.checkpoint_type}</strong> checkpoint accuracy is ${best.rate.toFixed(1)}% vs <strong>${worst.checkpoint_type}</strong> at ${worst.rate.toFixed(1)}%.${best.checkpoint_type === '24h' ? ' Signals need time to develop &mdash; 4h is often premature for swing setups.' : ''}`,
+                    color: '#a78bfa'
+                });
+            }
+
+            // SPY trend danger zones
+            const spyGroups = {};
+            signals.filter(s => s.validated && s.context && s.context.spy_trend).forEach(s => {
+                const t = s.context.spy_trend;
+                if (!spyGroups[t]) spyGroups[t] = { w: 0, t: 0 };
+                spyGroups[t].t++;
+                if (s.correct) spyGroups[t].w++;
+            });
+            const zeroWin = Object.entries(spyGroups).filter(([, v]) => v.w === 0 && v.t >= 3);
+            if (zeroWin.length > 0) {
+                insights.push({
+                    label: 'SPY Trend Warning',
+                    text: `${zeroWin.map(([t, v]) => `SPY <strong>${t}</strong> (n=${v.t})`).join(', ')}: <span style="color:#ff6b6b">0% win rate</span>. Signals during these SPY conditions have never worked. Consider auto-filtering or score penalty.`,
+                    color: '#ff6b6b'
+                });
+            }
+
+            // Sector RS structural note
+            insights.push({
+                label: 'Scoring Gap: Sector Weighting',
+                text: `Sector RS penalty is only -5 to +8 points on a 100-point scale. A stock can score 85 while its sector is in the bottom quartile. Consider scaling sector impact by RSI extremity or making it a gating factor for HIGH_CONVICTION tier.`,
+                color: '#fbbf24'
+            });
+
+            container.innerHTML = insights.length > 0
+                ? insights.map(i => `
+                    <div class="sr-insight-card" style="border-left: 3px solid ${i.color};">
+                        <div class="sr-insight-label">${i.label}</div>
+                        <div class="sr-insight-text">${i.text}</div>
+                    </div>`).join('')
+                : '<div class="loading">No insights available yet.</div>';
+        }
+
+        // ============================================================
+        // INSIGHTS TAB
+        // ============================================================
+
+        async function loadInsights() {
+            try {
+                const [statsRes, signalsRes, alertsRes] = await Promise.all([
+                    fetch('/api/signals/stats'),
+                    fetch('/api/signals'),
+                    fetch('/api/alerts?days=30&limit=200')
+                ]);
+                const stats = await statsRes.json();
+                const signalsData = await signalsRes.json();
+                const alertsData = await alertsRes.json();
+
+                const signals = signalsData.signals || [];
+                const alerts = alertsData.alerts || [];
+
+                renderInsightHero(stats, signals);
+                renderFindings(stats, signals);
+                renderBlindSpots(stats, signals, alerts);
+                renderRecommendations(stats, signals, alerts);
+
+                // Staggered reveal animation
+                setTimeout(() => {
+                    document.querySelectorAll('#tabInsights .reveal').forEach((el, i) => {
+                        setTimeout(() => el.classList.add('visible'), i * 120);
+                    });
+                }, 100);
+
+                // Animate comparison bars from 0 to target
+                setTimeout(() => {
+                    document.querySelectorAll('#tabInsights .compare-fill').forEach(el => {
+                        el.style.width = el.dataset.width + '%';
+                    });
+                }, 400);
+            } catch (e) {
+                console.error('Insights load failed:', e);
+            }
+        }
+
+        function cmpBar(label, pct, n, cls) {
+            return `<div class="compare-row">
+                <div class="compare-label">${label}</div>
+                <div class="compare-track"><div class="compare-fill ${cls}" data-width="${pct.toFixed(1)}" style="width:0"></div></div>
+                <div class="compare-pct">${pct.toFixed(1)}%</div>
+                <div class="compare-n">n=${n}</div>
+            </div>`;
+        }
+
+        function renderInsightHero(stats, signals) {
+            const validated = signals.filter(s => s.validated);
+            const winRate = validated.length > 0 ? (validated.filter(s => s.correct).length / validated.length * 100) : 0;
+
+            // Find best condition
+            const vix = (stats.detailed && stats.detailed.byVixRegime || []).filter(r => r.vix_regime && r.total >= 5);
+            let bestLabel = '--', bestRate = 0;
+            vix.forEach(r => {
+                const rate = r.correct / r.total * 100;
+                if (rate > bestRate) { bestRate = rate; bestLabel = 'VIX ' + r.vix_regime; }
+            });
+
+            document.getElementById('insightHero').innerHTML = `
+                <div class="hero-stat reveal">
+                    <div class="hero-number">${signals.length}</div>
+                    <div class="hero-label">Signals Tracked</div>
+                </div>
+                <div class="hero-stat reveal">
+                    <div class="hero-number">${winRate.toFixed(1)}%</div>
+                    <div class="hero-label">Overall Win Rate</div>
+                </div>
+                <div class="hero-stat reveal">
+                    <div class="hero-number" style="color:${bestRate >= 50 ? '#00d4aa' : '#fbbf24'}">${bestRate.toFixed(0)}%</div>
+                    <div class="hero-label">Best: ${bestLabel}</div>
+                </div>
+            `;
+
+            const oldest = signals.length > 0
+                ? new Date(signals[signals.length - 1].timestamp).toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
+                : 'unknown';
+            document.getElementById('insightIntro').innerHTML =
+                `Since ${oldest}, your system has tracked <strong>${signals.length}</strong> HIGH_CONVICTION signals and validated <strong>${validated.length}</strong> of them. ` +
+                `Here's what the data reveals about how the scoring engine actually performs &mdash; where it shines, where it misleads, and what can be improved.`;
+        }
+
+        function renderFindings(stats, signals) {
+            const d = stats.detailed || {};
+            let html = `<div class="insight-section">
+                <div class="section-heading reveal">Where the System Shines</div>
+                <div class="section-desc reveal">These are the conditions where your alerts are most accurate. When you see these factors, lean in.</div>`;
+
+            // --- VIX Edge ---
+            const vixData = (d.byVixRegime || []).filter(r => r.vix_regime && r.total >= 5);
+            if (vixData.length >= 2) {
+                const sorted = [...vixData].sort((a, b) => (b.correct / b.total) - (a.correct / a.total));
+                const best = sorted[0], worst = sorted[sorted.length - 1];
+                const bestRate = best.correct / best.total * 100;
+                const worstRate = worst.correct / worst.total * 100;
+                const diff = (bestRate - worstRate).toFixed(0);
+                const regimeRange = best.vix_regime === 'elevated' ? ' (20-30)' : best.vix_regime === 'fear' ? ' (30-40)' : '';
+
+                html += `<div class="finding good reveal">
+                    <div class="finding-title">The VIX Edge</div>
+                    <div class="finding-narrative">
+                        When VIX is <strong>${best.vix_regime}</strong>${regimeRange}, your alerts are <strong>${diff} percentage points more accurate</strong>
+                        than during ${worst.vix_regime} conditions. This makes sense &mdash; elevated VIX means the market is pricing in fear,
+                        which creates exactly the kind of mispriced setups that confluence scoring is designed to detect.
+                        The gamma walls become more meaningful because options activity is more decisive.
+                    </div>
+                    <div class="compare-group">
+                        ${sorted.map(r => {
+                            const rate = r.correct / r.total * 100;
+                            const cls = rate >= 55 ? 'green' : rate >= 40 ? 'yellow' : 'red';
+                            return cmpBar(r.vix_regime.charAt(0).toUpperCase() + r.vix_regime.slice(1), rate, r.total, cls);
+                        }).join('')}
+                    </div>
+                    <div class="finding-takeaway">Pay closest attention to alerts when VIX is elevated. During normal VIX, be more selective &mdash; the system catches roughly ${Math.round(worstRate)} in 100, not ${Math.round(bestRate)}.</div>
+                </div>`;
+            }
+
+            // --- Zone Sweet Spots ---
+            const zoneGroups = {};
+            signals.filter(s => s.validated && s.zone).forEach(s => {
+                if (!zoneGroups[s.zone]) zoneGroups[s.zone] = { w: 0, t: 0 };
+                zoneGroups[s.zone].t++;
+                if (s.correct) zoneGroups[s.zone].w++;
+            });
+            const zoneSorted = Object.entries(zoneGroups).filter(([, v]) => v.t >= 3).sort((a, b) => (b[1].w / b[1].t) - (a[1].w / a[1].t));
+            if (zoneSorted.length >= 2) {
+                const best = zoneSorted[0];
+                const bestRate = best[1].w / best[1].t * 100;
+                const bestName = best[0].replace(/_/g, ' ');
+                const zoneExplain = best[0] === 'PINNED'
+                    ? 'When a stock is trapped between its call wall and put wall, it tends to make a decisive move when it breaks free. The scoring engine catches these compressed setups well.'
+                    : best[0] === 'BUY_ZONE'
+                    ? 'Being at put wall support with a high confluence score means multiple factors are confirming the level. The system is best at finding dip entries near proven support.'
+                    : 'This zone consistently produces the most reliable signals in your data.';
+
+                html += `<div class="finding good reveal">
+                    <div class="finding-title">Zone Sweet Spots</div>
+                    <div class="finding-narrative">
+                        <strong>${bestName}</strong> alerts win at <strong>${bestRate.toFixed(1)}%</strong> &mdash; the highest of any zone classification.
+                        ${zoneExplain}
+                    </div>
+                    <div class="compare-group">
+                        ${zoneSorted.map(([zone, v]) => {
+                            const rate = v.w / v.t * 100;
+                            const cls = rate >= 55 ? 'green' : rate >= 40 ? 'yellow' : 'red';
+                            return cmpBar(zone.replace(/_/g, ' '), rate, v.t, cls);
+                        }).join('')}
+                    </div>
+                    <div class="finding-takeaway">Not all zones are equal. <strong>${bestName}</strong> setups deserve the most attention. Low-performing zones may need higher score thresholds to trigger alerts.</div>
+                </div>`;
+            }
+
+            // --- Timing / Checkpoints ---
+            const cp = (d.byCheckpoint || []).filter(r => r.total >= 10);
+            if (cp.length >= 2) {
+                const cpSorted = [...cp].sort((a, b) => (b.correct / b.total) - (a.correct / a.total));
+                const best = cpSorted[0], worst = cpSorted[cpSorted.length - 1];
+                const bestRate = best.correct / best.total * 100;
+                const worstRate = worst.correct / worst.total * 100;
+                const timingExplain = (best.checkpoint_type === '24h' || best.checkpoint_type === '7d')
+                    ? 'This tells you something important: these setups aren\'t quick scalps. They need overnight or multi-day development to play out. If you check a signal 4 hours later and it hasn\'t moved, that doesn\'t mean it failed &mdash; it hasn\'t had enough time.'
+                    : 'Earlier checkpoints are more predictive, suggesting these signals capture momentum rather than mean reversion.';
+
+                html += `<div class="finding good reveal">
+                    <div class="finding-title">Signals Need Time to Develop</div>
+                    <div class="finding-narrative">
+                        The <strong>${best.checkpoint_type}</strong> checkpoint shows <strong>${bestRate.toFixed(1)}%</strong> accuracy,
+                        compared to <strong>${worstRate.toFixed(1)}%</strong> at ${worst.checkpoint_type}.
+                        ${timingExplain}
+                    </div>
+                    <div class="compare-group">
+                        ${cpSorted.map(r => {
+                            const rate = r.correct / r.total * 100;
+                            const cls = rate >= 50 ? 'green' : rate >= 40 ? 'yellow' : 'red';
+                            return cmpBar(r.checkpoint_type, rate, r.total, cls);
+                        }).join('')}
+                    </div>
+                    <div class="finding-takeaway">Don't judge signals at 4 hours. Give them at least 24 hours. This is a swing-timing system, not a scalping tool.</div>
+                </div>`;
+            }
+
+            html += `</div>`;
+            document.getElementById('insightFindings').innerHTML = html;
+        }
+
+        function renderBlindSpots(stats, signals, alerts) {
+            const d = stats.detailed || {};
+            let html = `<div class="insight-section">
+                <div class="section-heading reveal">The Blind Spots</div>
+                <div class="section-desc reveal">These are the conditions where the scoring system misleads you. Understanding these gaps prevents false confidence.</div>`;
+
+            // --- SPY Trend ---
+            const spyGroups = {};
+            signals.filter(s => s.validated && s.context && s.context.spy_trend).forEach(s => {
+                const t = s.context.spy_trend;
+                if (!spyGroups[t]) spyGroups[t] = { w: 0, t: 0 };
+                spyGroups[t].t++;
+                if (s.correct) spyGroups[t].w++;
+            });
+            const spySorted = Object.entries(spyGroups).sort((a, b) => (b[1].w / b[1].t) - (a[1].w / a[1].t));
+            const zeroWin = Object.entries(spyGroups).filter(([, v]) => v.w === 0 && v.t >= 3);
+
+            if (spySorted.length >= 2) {
+                html += `<div class="finding bad reveal">
+                    <div class="finding-title">SPY Is the Gatekeeper</div>
+                    <div class="finding-narrative">
+                        ${zeroWin.length > 0
+                            ? `When SPY is <strong>${zeroWin.map(([t]) => t).join(' or ')}</strong>, signals have a <strong style="color:#ff6b6b;">0% win rate</strong> (${zeroWin.map(([t, v]) => t + ' n=' + v.t).join(', ')}). This is the system's biggest blind spot &mdash; it fires confident-looking alerts even when the broad market makes them almost certain to fail.`
+                            : 'SPY trend has a significant impact on signal accuracy.'}
+                        The scoring engine evaluates each stock individually, but the market tide lifts or sinks all boats.
+                        A stock at support with a score of 70 means nothing if SPY is selling off.
+                    </div>
+                    <div class="compare-group">
+                        ${spySorted.map(([trend, v]) => {
+                            const rate = v.w / v.t * 100;
+                            const cls = rate >= 55 ? 'green' : rate >= 25 ? 'yellow' : 'red';
+                            return cmpBar('SPY ' + trend, rate, v.t, cls);
+                        }).join('')}
+                    </div>
+                    <div class="finding-takeaway danger">This is the #1 issue. Consider filtering alerts entirely when SPY is bearish, or at minimum adding a heavy score penalty. Currently, SPY trend is just a warning annotation &mdash; not a gate.</div>
+                </div>`;
+            }
+
+            // --- Sector Disconnect ---
+            html += `<div class="finding bad reveal">
+                <div class="finding-title">The Sector Disconnect</div>
+                <div class="finding-narrative">
+                    A stock can score <strong>85 out of 100</strong> while its entire sector is in freefall. Here's why:
+                    sector relative strength only contributes <strong>+8 to -5 points</strong> on a 100-point scale. That's a rounding error.
+                </div>
+                <div class="disconnect">
+                    <div class="disconnect-box">
+                        <div class="d-label">Stock Signal</div>
+                        <div class="d-value" style="color:#00d4aa;">85</div>
+                        <div class="d-sub">Score says "strong buy"</div>
+                    </div>
+                    <div class="disconnect-vs">vs</div>
+                    <div class="disconnect-box">
+                        <div class="d-label">Sector Reality</div>
+                        <div class="d-value" style="color:#ff6b6b;">-5</div>
+                        <div class="d-sub">Bottom quartile penalty</div>
+                    </div>
+                </div>
+                <div class="finding-narrative">
+                    When a stock triggers a score of 85 while its sector ETF is in the bottom quartile, the system only penalizes 5 points.
+                    The final score still screams "high conviction." But a stock fighting against its entire sector has a much harder path to profit.
+                </div>
+                <div class="finding-takeaway danger">The sector penalty needs to scale with extremity. A sector at the 10th percentile should cost more than -5 points. Consider making sector health a tier gate &mdash; no HIGH_CONVICTION when the sector is in the bottom quartile.</div>
+            </div>`;
+
+            // --- VIX Alert Noise ---
+            const vixAlerts = alerts.filter(a => a.type === 'VIX_REGIME');
+            if (vixAlerts.length > 0) {
+                const vixByDay = {};
+                vixAlerts.forEach(a => {
+                    const day = a.timestamp.split('T')[0];
+                    vixByDay[day] = (vixByDay[day] || 0) + 1;
+                });
+                const noisyDays = Object.entries(vixByDay).filter(([, c]) => c >= 3);
+                const totalNoise = noisyDays.reduce((s, [, c]) => s + c, 0);
+
+                html += `<div class="finding caution reveal">
+                    <div class="finding-title">VIX Alert Noise</div>
+                    <div class="finding-narrative">
+                        In the last 30 days, the system sent <strong>${vixAlerts.length} VIX regime change alerts</strong>.
+                        ${noisyDays.length > 0
+                            ? `On <strong>${noisyDays.length} day(s)</strong>, VIX bounced back and forth across the 20.0 threshold, triggering <strong>${totalNoise} alerts</strong> that all said the same thing: VIX is hovering near 20. That's noise, not signal.`
+                            : 'Most were legitimate regime transitions.'}
+                    </div>
+                    ${noisyDays.length > 0 ? `
+                    <div style="background:#0f1428;border-radius:8px;padding:16px;margin:12px 0;font-size:12px;color:#8b92a8;">
+                        <div style="margin-bottom:8px;color:#e5e7eb;font-weight:600;">VIX oscillating around the 20.0 threshold:</div>
+                        <div style="font-family:monospace;">20.26 &rarr; <span style="color:#fbbf24;">elevated</span> &rarr; 19.95 &rarr; <span style="color:#8b92a8;">normal</span> &rarr; 20.10 &rarr; <span style="color:#fbbf24;">elevated</span> &rarr; 19.88 &rarr; <span style="color:#8b92a8;">normal</span></div>
+                        <div style="margin-top:6px;">Each arrow = an alert to your phone. Same information, four times.</div>
+                    </div>` : ''}
+                    <div class="finding-takeaway warn">Add hysteresis: trigger "elevated" at 20.5, clear back to "normal" at 19.5. This 1-point buffer eliminates the oscillation noise without missing real regime shifts.</div>
+                </div>`;
+            }
+
+            // --- Bearish Signal Weakness ---
+            const dir = (d.byDirection || []);
+            const bearish = dir.find(r => r.direction === 'bearish');
+            const bullish = dir.find(r => r.direction === 'bullish');
+            if (bearish && bullish && bearish.total >= 3) {
+                const bearRate = bearish.total > 0 ? (bearish.correct / bearish.total * 100) : 0;
+                const bullRate = bullish.total > 0 ? (bullish.correct / bullish.total * 100) : 0;
+
+                if (bearRate < 20) {
+                    html += `<div class="finding caution reveal">
+                        <div class="finding-title">Bearish Signals Underperform</div>
+                        <div class="finding-narrative">
+                            Bearish signals have a <strong>${bearRate.toFixed(1)}% win rate</strong> (n=${bearish.total}) compared to
+                            <strong>${bullRate.toFixed(1)}%</strong> for bullish (n=${bullish.total}).
+                            ${bearRate === 0 ? 'Not a single bearish signal has worked yet.' : 'The system\'s short-side detection is significantly weaker.'}
+                            This likely means the scoring factors &mdash; wall proximity, RSI reset, flow alignment &mdash; are calibrated
+                            for finding dip entries, not rally fades. Resistance and overbought conditions may need different factor weights.
+                        </div>
+                        <div class="compare-group">
+                            ${dir.map(r => {
+                                const rate = r.total > 0 ? (r.correct / r.total * 100) : 0;
+                                const cls = rate >= 55 ? 'green' : rate >= 25 ? 'yellow' : 'red';
+                                return cmpBar(r.direction.charAt(0).toUpperCase() + r.direction.slice(1), rate, r.total, cls);
+                            }).join('')}
+                        </div>
+                        <div class="finding-takeaway warn">The system may have a long bias. Consider requiring higher scores for bearish alerts, or different factor weights for short setups.</div>
+                    </div>`;
+                }
+            }
+
+            html += `</div>`;
+            document.getElementById('insightBlindSpots').innerHTML = html;
+        }
+
+        function renderRecommendations(stats, signals, alerts) {
+            const d = stats.detailed || {};
+            const recs = [];
+
+            // 1. SPY Gating
+            const spyGroups = {};
+            signals.filter(s => s.validated && s.context && s.context.spy_trend).forEach(s => {
+                const t = s.context.spy_trend;
+                if (!spyGroups[t]) spyGroups[t] = { w: 0, t: 0 };
+                spyGroups[t].t++;
+                if (s.correct) spyGroups[t].w++;
+            });
+            const badTrends = Object.entries(spyGroups).filter(([, v]) => v.w === 0 && v.t >= 3);
+            if (badTrends.length > 0) {
+                const falseAlerts = badTrends.reduce((s, [, v]) => s + v.t, 0);
+                const pct = (falseAlerts / signals.filter(s => s.validated).length * 100).toFixed(0);
+                recs.push({
+                    priority: 'high',
+                    title: 'Gate Alerts on SPY Trend',
+                    body: `Signals when SPY is ${badTrends.map(([t]) => t).join('/')} have a 0% win rate. Suppress alerts or add a -20 point score penalty when SPY isn't bullish. This is the single highest-impact change available.`,
+                    impact: `Would have prevented ${falseAlerts} false alerts (${pct}% of all validated signals)`
+                });
+            }
+
+            // 2. VIX Scoring Boost
+            const vix = (d.byVixRegime || []).filter(r => r.vix_regime && r.total >= 5);
+            const vixEl = vix.find(r => r.vix_regime === 'elevated');
+            const vixNorm = vix.find(r => r.vix_regime === 'normal');
+            if (vixEl && vixNorm) {
+                const elRate = vixEl.correct / vixEl.total * 100;
+                const normRate = vixNorm.correct / vixNorm.total * 100;
+                if (elRate > normRate + 10) {
+                    recs.push({
+                        priority: 'high',
+                        title: 'Weight Scoring by VIX Regime',
+                        body: `Elevated VIX signals win at ${elRate.toFixed(0)}% vs normal at ${normRate.toFixed(0)}% &mdash; a ${(elRate - normRate).toFixed(0)}pp advantage. Add a VIX multiplier: 1.2x for elevated, 0.8x for normal. This amplifies scores when they're most likely to work and dampens them when they aren't.`,
+                        impact: `Would better separate high-probability setups from noise during normal VIX`
+                    });
+                }
+            }
+
+            // 3. Sector RS Weight
+            recs.push({
+                priority: 'medium',
+                title: 'Increase Sector RS Weight',
+                body: `Current sector penalty is only -5 to +8 on a 100-point scale. A stock can score 85 while its sector collapses. Scale the penalty: bottom decile = -15, bottom quartile = -10, top quartile = +12. Make sector health a meaningful factor, not a footnote.`,
+                impact: `Would prevent high-score alerts in sectors with structural headwinds`
+            });
+
+            // 4. VIX Hysteresis
+            const vixAlerts = alerts.filter(a => a.type === 'VIX_REGIME');
+            const vixByDay = {};
+            vixAlerts.forEach(a => { const day = a.timestamp.split('T')[0]; vixByDay[day] = (vixByDay[day] || 0) + 1; });
+            const noisyCount = Object.values(vixByDay).filter(c => c >= 3).length;
+            if (noisyCount > 0) {
+                recs.push({
+                    priority: 'medium',
+                    title: 'Add VIX Alert Hysteresis',
+                    body: `VIX oscillates around 20.0 causing ${vixAlerts.length} alerts in 30 days with ${noisyCount} noisy day(s). Add a 0.5-point hysteresis band: trigger "elevated" at 20.5, clear at 19.5. Simple fix, eliminates the ping-pong.`,
+                    impact: `Would reduce VIX alerts by ~${Math.round(noisyCount * 2 / Math.max(vixAlerts.length, 1) * 100)}% without missing real regime shifts`
+                });
+            }
+
+            // 5. Checkpoint Emphasis
+            const cp = (d.byCheckpoint || []).filter(r => r.total >= 10);
+            const cp24 = cp.find(r => r.checkpoint_type === '24h');
+            const cp4 = cp.find(r => r.checkpoint_type === '4h');
+            if (cp24 && cp4) {
+                const r24 = cp24.correct / cp24.total * 100;
+                const r4 = cp4.correct / cp4.total * 100;
+                if (r24 > r4 + 5) {
+                    recs.push({
+                        priority: 'low',
+                        title: 'Emphasize 24h Evaluation Window',
+                        body: `24h accuracy (${r24.toFixed(0)}%) beats 4h (${r4.toFixed(0)}%) by ${(r24 - r4).toFixed(0)}pp. Consider changing the primary signal outcome metric from 4h to 24h. This aligns with the swing-trading timeframe these setups are designed for.`,
+                        impact: `Would better reflect actual signal value and reduce premature "loss" classifications`
+                    });
+                }
+            }
+
+            let html = `<div class="insight-section">
+                <div class="section-heading reveal">What Can Be Improved</div>
+                <div class="section-desc reveal">Priority-ordered changes to make the alert system more accurate, based on the patterns above.</div>`;
+
+            html += recs.map(r => `
+                <div class="rec-card reveal">
+                    <div class="rec-priority ${r.priority}">${r.priority === 'high' ? '\uD83D\uDD34' : r.priority === 'medium' ? '\uD83D\uDFE1' : '\uD83D\uDD35'} ${r.priority} priority</div>
+                    <div class="rec-title">${r.title}</div>
+                    <div class="rec-body">${r.body}</div>
+                    <div class="rec-impact">Expected impact: ${r.impact}</div>
+                </div>
+            `).join('');
+
+            html += `</div>`;
+            document.getElementById('insightRecs').innerHTML = html;
+        }
+
+        // Load on page init
+        loadData();
+    </script>
+</body>
+</html>

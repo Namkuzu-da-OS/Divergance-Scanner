@@ -250,6 +250,7 @@ responses across all consumers. See `memory/api-pacing.md` for full reference.
 - Strategies: `http://localhost:8080/strategies.html`
 - Dashboard: `http://localhost:8080/dashboard.html`
 - Options Lab: `http://localhost:8080/options-lab.html`
+- Research Journal: `http://localhost:8080/research.html`
 - Market Dashboard: `http://localhost:8080/scanner.html`
 
 ### Web Server API Endpoints (Port 8080)
@@ -284,6 +285,14 @@ All served by `monitor/web-server.js`. These are the internal dashboard APIs.
 | GET | `/api/signals/stats` | Aggregated stats by tier, VIX, direction |
 | GET | `/api/signals/options?days=30` | Option signal tracking stats |
 | GET | `/api/alerts?days=7&limit=50&type=X` | Alert history from DB |
+
+**Research Journal**
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| GET | `/api/analyses` | List analyses with filters (symbol, verdict, outcome, days, tag) |
+| GET | `/api/analyses/:id` | Get single analysis by ID |
+| POST | `/api/analyses` | Save a new analysis (from Claude Code sessions) |
+| PATCH | `/api/analyses/:id/outcome` | Update outcome for existing analysis |
 
 **Pre-Market & Gaps**
 | Method | Endpoint | Purpose |

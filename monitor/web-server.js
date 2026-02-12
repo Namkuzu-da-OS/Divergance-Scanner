@@ -939,6 +939,115 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // ============================================================
+    // ANALYSIS JOURNAL API
+    // ============================================================
+
+    // GET /api/analyses - List analyses with optional filters
+    if (req.method === 'GET' && urlPath === '/api/analyses') {
+        try {
+            const signalDb = require('./signal-db');
+            const url = new URL(req.url, `http://${req.headers.host}`);
+            const filters = {};
+            if (url.searchParams.get('symbol')) filters.symbol = url.searchParams.get('symbol');
+            if (url.searchParams.get('verdict')) filters.verdict = url.searchParams.get('verdict');
+            if (url.searchParams.get('outcome')) filters.outcome = url.searchParams.get('outcome');
+            if (url.searchParams.get('direction')) filters.direction = url.searchParams.get('direction');
+            if (url.searchParams.get('days')) filters.days = parseInt(url.searchParams.get('days'));
+            if (url.searchParams.get('tag')) filters.tag = url.searchParams.get('tag');
+            if (url.searchParams.has('has_outcome')) filters.has_outcome = url.searchParams.get('has_outcome') === 'true';
+            if (url.searchParams.get('limit')) filters.limit = parseInt(url.searchParams.get('limit'));
+
+            const analyses = signalDb.getAnalyses(filters);
+            const stats = signalDb.getAnalysisStats();
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ analyses, stats }));
+        } catch (e) {
+            console.error('[Web Server] Error loading analyses:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
+    // GET /api/analyses/:id - Get single analysis
+    if (req.method === 'GET' && urlPath.match(/^\/api\/analyses\/\d+$/)) {
+        try {
+            const signalDb = require('./signal-db');
+            const id = parseInt(urlPath.split('/').pop());
+            const analysis = signalDb.getAnalysisById(id);
+            if (!analysis) {
+                res.writeHead(404, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Analysis not found' }));
+                return;
+            }
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(analysis));
+        } catch (e) {
+            console.error('[Web Server] Error loading analysis:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
+    // POST /api/analyses - Create new analysis
+    if (req.method === 'POST' && urlPath === '/api/analyses') {
+        let body = '';
+        req.on('data', chunk => { body += chunk; });
+        req.on('end', () => {
+            try {
+                const data = JSON.parse(body);
+                if (!data.symbol || !data.verdict) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'symbol and verdict are required' }));
+                    return;
+                }
+                const signalDb = require('./signal-db');
+                const id = signalDb.insertAnalysis(data);
+                res.writeHead(201, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: true, id }));
+                console.log(`[Web Server] Saved analysis: ${data.symbol} - ${data.verdict}`);
+            } catch (e) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: e.message }));
+            }
+        });
+        return;
+    }
+
+    // PATCH /api/analyses/:id/outcome - Update outcome
+    if (req.method === 'PATCH' && urlPath.match(/^\/api\/analyses\/\d+\/outcome$/)) {
+        let body = '';
+        req.on('data', chunk => { body += chunk; });
+        req.on('end', () => {
+            try {
+                const id = parseInt(urlPath.split('/')[3]);
+                const data = JSON.parse(body);
+                if (!data.outcome) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'outcome is required' }));
+                    return;
+                }
+                const signalDb = require('./signal-db');
+                const result = signalDb.updateAnalysisOutcome(id, data);
+                if (!result) {
+                    res.writeHead(404, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'Analysis not found' }));
+                    return;
+                }
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ success: true, ...result }));
+                console.log(`[Web Server] Updated outcome for analysis #${id}`);
+            } catch (e) {
+                res.writeHead(500, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: e.message }));
+            }
+        });
+        return;
+    }
+
     let filePath = path.join(ROOT, urlPath === '/' ? 'morning.html' : urlPath);
 
     // Security: prevent directory traversal

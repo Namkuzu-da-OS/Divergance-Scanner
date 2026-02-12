@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Options Lab</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #0a0e1a;
+            color: #e5e7eb;
+            padding: 16px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+        .container { max-width: 1600px; margin: 0 auto; }
+
+        /* ---- Buttons ---- */
+        .btn {
+            padding: 8px 14px;
+            background: transparent;
+            border: 1px solid #00d4aa;
+            color: #00d4aa;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover { background: #00d4aa; color: #0a0e1a; }
+        .btn.active { background: #00d4aa; color: #0a0e1a; }
+        .btn-sm { padding: 5px 10px; font-size: 11px; }
+        .btn-sell { border-color: #ff6b6b; color: #ff6b6b; }
+        .btn-sell:hover, .btn-sell.active { background: #ff6b6b; color: #0a0e1a; }
+        .btn-warn { border-color: #ffc107; color: #ffc107; }
+        .btn-warn:hover, .btn-warn.active { background: #ffc107; color: #0a0e1a; }
+        .btn-neutral { border-color: #8b92a8; color: #8b92a8; }
+        .btn-neutral:hover { border-color: #e5e7eb; color: #e5e7eb; }
+
+        /* ---- Cards / Sections ---- */
+        .card {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 16px;
+        }
+        .section {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8b92a8;
+        }
+        .card-title {
+            font-size: 11px;
+            color: #8b92a8;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .card-value { font-size: 28px; font-weight: 700; }
+        .card-subtitle { font-size: 12px; color: #64748b; margin-top: 4px; }
+        .positive { color: #00d4aa; }
+        .negative { color: #ff6b6b; }
+        .neutral { color: #8b92a8; }
+
+        /* ---- Symbol Input Section ---- */
+        .symbol-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .symbol-input {
+            background: #0f1428;
+            border: 1px solid #2a3641;
+            color: #e5e7eb;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            width: 140px;
+            text-transform: uppercase;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .symbol-input:focus { border-color: #00d4aa; }
+        .symbol-input::placeholder { color: #4a5568; text-transform: none; font-weight: 400; }
+        .underlying-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 13px;
+        }
+        .underlying-price { font-size: 20px; font-weight: 700; color: #e5e7eb; }
+        .underlying-change { font-size: 13px; font-weight: 500; }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-green { background: rgba(0, 212, 170, 0.2); color: #00d4aa; }
+        .badge-red { background: rgba(255, 107, 107, 0.2); color: #ff6b6b; }
+        .badge-yellow { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
+        .badge-neutral { background: rgba(139, 146, 168, 0.2); color: #8b92a8; }
+
+        /* ---- Expiration + Presets ---- */
+        .builder-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .select-input {
+            background: #0f1428;
+            border: 1px solid #2a3641;
+            color: #e5e7eb;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            outline: none;
+            cursor: pointer;
+        }
+        .select-input:focus { border-color: #00d4aa; }
+        .preset-group {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        /* ---- Leg Table ---- */
+        .leg-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+        .leg-table thead th {
+            text-align: left;
+            padding: 8px 10px;
+            font-size: 10px;
+            color: #8b92a8;
+            border-bottom: 1px solid #2a3641;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .leg-table tbody td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #1a2332;
+            font-size: 13px;
+        }
+        .leg-table tbody tr { background: #0f1428; transition: background 0.2s; }
+        .leg-table tbody tr:hover { background: #1a2332; }
+        .leg-toggle {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid;
+            background: transparent;
+            transition: all 0.2s;
+            min-width: 44px;
+            text-align: center;
+        }
+        .leg-toggle.buy { border-color: #00d4aa; color: #00d4aa; }
+        .leg-toggle.sell { border-color: #ff6b6b; color: #ff6b6b; }
+        .leg-toggle.call { border-color: #3b82f6; color: #3b82f6; }
+        .leg-toggle.put { border-color: #f59e0b; color: #f59e0b; }
+        .leg-select {
+            background: #0a0e1a;
+            border: 1px solid #2a3641;
+            color: #e5e7eb;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            outline: none;
+            max-width: 100px;
+        }
+        .leg-qty {
+            background: #0a0e1a;
+            border: 1px solid #2a3641;
+            color: #e5e7eb;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            width: 50px;
+            text-align: center;
+            outline: none;
+        }
+        .remove-leg {
+            background: transparent;
+            border: none;
+            color: #ff6b6b;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .remove-leg:hover { background: rgba(255, 107, 107, 0.15); }
+
+        /* ---- Strategy Summary ---- */
+        .strategy-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #2a3641;
+        }
+        .summary-item { text-align: center; }
+        .summary-label { font-size: 10px; color: #8b92a8; text-transform: uppercase; letter-spacing: 0.5px; }
+        .summary-value { font-size: 18px; font-weight: 700; margin-top: 2px; }
+
+        /* ---- Chart Section ---- */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+
+        /* ---- Sliders ---- */
+        .sliders-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .slider-card {
+            background: #0f1428;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 14px;
+        }
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .slider-label span:first-child { font-size: 11px; color: #8b92a8; text-transform: uppercase; letter-spacing: 0.5px; }
+        .slider-value { font-size: 14px; font-weight: 600; color: #00d4aa; }
+        .slider-input {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: #2a3641;
+            outline: none;
+            cursor: pointer;
+        }
+        .slider-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #00d4aa;
+            cursor: pointer;
+            border: 2px solid #0a0e1a;
+        }
+        .slider-input::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #00d4aa;
+            cursor: pointer;
+            border: 2px solid #0a0e1a;
+        }
+        .slider-range { display: flex; justify-content: space-between; font-size: 10px; color: #4a5568; margin-top: 4px; }
+
+        /* ---- Greeks Dashboard ---- */
+        .greeks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+        .greek-card {
+            background: #0f1428;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+        .greek-label { font-size: 10px; color: #8b92a8; text-transform: uppercase; letter-spacing: 0.5px; }
+        .greek-value { font-size: 22px; font-weight: 700; margin-top: 4px; }
+        .greek-sub { font-size: 10px; color: #4a5568; margin-top: 2px; }
+
+        /* ---- Scenario Table ---- */
+        .scenario-table { width: 100%; border-collapse: collapse; }
+        .scenario-table thead th {
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 10px;
+            color: #8b92a8;
+            border-bottom: 1px solid #2a3641;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .scenario-table tbody td { padding: 10px 12px; border-bottom: 1px solid #1a2332; font-size: 13px; }
+        .scenario-table tbody tr { background: #0f1428; transition: background 0.2s; }
+        .scenario-table tbody tr:hover { background: #1a2332; }
+
+        /* ---- Loading / Status ---- */
+        .loading { text-align: center; padding: 40px; color: #8b92a8; }
+        .error-msg { color: #ff6b6b; font-size: 12px; margin-top: 4px; }
+        .status-msg { color: #8b92a8; font-size: 12px; }
+        .hidden { display: none; }
+
+        @media (max-width: 900px) {
+            .sliders-grid { grid-template-columns: 1fr; }
+            .greeks-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+    </style>
+    <link rel="stylesheet" href="css/nav.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header + Nav -->
+        <div class="header">
+            <div class="header-left">
+                <h1>OPTIONS LAB</h1>
+                <p class="header-subtitle">Strategy builder &bull; P&L visualization &bull; What-if scenarios</p>
+            </div>
+            <div class="header-center">
+                <nav class="nav-links">
+                    <a href="morning.html" class="nav-link">MORNING</a>
+                    <a href="zone-scanner.html" class="nav-link">ZONES</a>
+                    <a href="premarket.html" class="nav-link">GAPS</a>
+                    <a href="earnings-scanner.html" class="nav-link">EARNINGS</a>
+                    <a href="opportunity-scanner.html" class="nav-link">FLOW</a>
+                    <a href="scanner.html" class="nav-link">MARKET</a>
+                    <div class="nav-dropdown">
+                        <div class="nav-dropdown-toggle active">INSIGHTS</div>
+                        <div class="nav-dropdown-menu">
+                            <a href="analytics.html">Analytics</a>
+                            <a href="research.html">Research</a>
+                            <a href="strategies.html">Strategies</a>
+                            <a href="options-lab.html" class="active">Options Lab</a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            <div class="header-right">
+                <span id="statusMsg" class="status-msg"></span>
+            </div>
+        </div>
+
+        <!-- Symbol Input + Chain Loader -->
+        <div class="symbol-bar">
+            <input type="text" id="symbolInput" class="symbol-input" placeholder="Symbol..." maxlength="10"
+                   onkeydown="if(event.key==='Enter')loadChain()">
+            <button class="btn" onclick="loadChain()">LOAD CHAIN</button>
+            <div id="underlyingInfo" class="underlying-info hidden"></div>
+        </div>
+
+        <!-- Strategy Builder -->
+        <div id="builderSection" class="section hidden">
+            <div class="section-title">Strategy Builder</div>
+
+            <div class="builder-controls">
+                <label style="font-size:11px;color:#8b92a8;">EXPIRATION</label>
+                <select id="expirySelect" class="select-input" onchange="onExpiryChange()"></select>
+                <span id="dteLabel" class="badge badge-neutral" style="margin-left:-4px"></span>
+
+                <div style="border-left:1px solid #2a3641;height:24px;margin:0 8px"></div>
+                <label style="font-size:11px;color:#8b92a8;">PRESETS</label>
+                <div class="preset-group">
+                    <button class="btn btn-sm" onclick="applyPreset('longCall')">Long Call</button>
+                    <button class="btn btn-sm" onclick="applyPreset('longPut')">Long Put</button>
+                    <button class="btn btn-sm" onclick="applyPreset('bullCallSpread')">Bull Call Spread</button>
+                    <button class="btn btn-sm btn-sell" onclick="applyPreset('bearPutSpread')">Bear Put Spread</button>
+                    <button class="btn btn-sm btn-warn" onclick="applyPreset('straddle')">Straddle</button>
+                    <button class="btn btn-sm btn-neutral" onclick="applyPreset('ironCondor')">Iron Condor</button>
+                </div>
+            </div>
+
+            <!-- Leg Table -->
+            <table class="leg-table">
+                <thead>
+                    <tr>
+                        <th>Action</th>
+                        <th>Type</th>
+                        <th>Strike</th>
+                        <th>Qty</th>
+                        <th>Bid</th>
+                        <th>Ask</th>
+                        <th>Mark</th>
+                        <th>Delta</th>
+                        <th>IV</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="legTableBody"></tbody>
+            </table>
+            <button class="btn btn-sm" onclick="addLeg()">+ Add Leg</button>
+
+            <!-- Strategy Summary -->
+            <div class="strategy-summary" id="strategySummary">
+                <div class="summary-item">
+                    <div class="summary-label">Net Cost</div>
+                    <div class="summary-value" id="sumCost">--</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Max Profit</div>
+                    <div class="summary-value positive" id="sumMaxProfit">--</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Max Loss</div>
+                    <div class="summary-value negative" id="sumMaxLoss">--</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Breakeven</div>
+                    <div class="summary-value" id="sumBreakeven">--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- P&L Chart -->
+        <div id="chartSection" class="section hidden">
+            <div class="section-title">P&L Diagram</div>
+            <div class="chart-container">
+                <canvas id="pnlChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Sliders -->
+        <div id="sliderSection" class="section hidden">
+            <div class="section-title">What-If Scenarios</div>
+            <div class="sliders-grid">
+                <div class="slider-card">
+                    <div class="slider-label">
+                        <span>Underlying Price</span>
+                        <span class="slider-value" id="priceSliderVal">--</span>
+                    </div>
+                    <input type="range" id="priceSlider" class="slider-input" oninput="onSliderChange()">
+                    <div class="slider-range"><span id="priceMin"></span><span id="priceMax"></span></div>
+                </div>
+                <div class="slider-card">
+                    <div class="slider-label">
+                        <span>Days Held</span>
+                        <span class="slider-value" id="dteSliderVal">0</span>
+                    </div>
+                    <input type="range" id="dteSlider" class="slider-input" min="0" value="0" oninput="onSliderChange()">
+                    <div class="slider-range"><span>0</span><span id="dteMax"></span></div>
+                </div>
+                <div class="slider-card">
+                    <div class="slider-label">
+                        <span>IV Change</span>
+                        <span class="slider-value" id="ivSliderVal">0%</span>
+                    </div>
+                    <input type="range" id="ivSlider" class="slider-input" min="-30" max="30" value="0" step="1" oninput="onSliderChange()">
+                    <div class="slider-range"><span>-30%</span><span>+30%</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Greeks Dashboard -->
+        <div id="greeksSection" class="section hidden">
+            <div class="section-title">Greeks at Slider Position</div>
+            <div class="greeks-grid">
+                <div class="greek-card">
+                    <div class="greek-label">Delta</div>
+                    <div class="greek-value" id="grkDelta">--</div>
+                    <div class="greek-sub">directional exposure</div>
+                </div>
+                <div class="greek-card">
+                    <div class="greek-label">Gamma</div>
+                    <div class="greek-value" id="grkGamma">--</div>
+                    <div class="greek-sub">delta acceleration</div>
+                </div>
+                <div class="greek-card">
+                    <div class="greek-label">Theta</div>
+                    <div class="greek-value" id="grkTheta">--</div>
+                    <div class="greek-sub">daily time decay</div>
+                </div>
+                <div class="greek-card">
+                    <div class="greek-label">Vega</div>
+                    <div class="greek-value" id="grkVega">--</div>
+                    <div class="greek-sub">per 1% IV change</div>
+                </div>
+                <div class="greek-card">
+                    <div class="greek-label">Net P&L</div>
+                    <div class="greek-value" id="grkPnl">--</div>
+                    <div class="greek-sub">at slider position</div>
+                </div>
+                <div class="greek-card">
+                    <div class="greek-label">Return %</div>
+                    <div class="greek-value" id="grkReturn">--</div>
+                    <div class="greek-sub">on premium paid</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scenario Table -->
+        <div id="scenarioSection" class="section hidden">
+            <div class="section-title">Scenario Analysis</div>
+            <table class="scenario-table">
+                <thead>
+                    <tr>
+                        <th>Scenario</th>
+                        <th>Price</th>
+                        <th>When</th>
+                        <th>Option Value</th>
+                        <th>P&L</th>
+                        <th>Return %</th>
+                    </tr>
+                </thead>
+                <tbody id="scenarioBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+<script>
+// =========================================================================
+//  OPTIONS LAB - Strategy Builder & P&L Visualizer
+// =========================================================================
+
+const API_BASE = '/proxy/analytics';
+const RISK_FREE_RATE = 0.045; // ~4.5% fed funds rate
+
+// ---- State ----
+let chainData = null;       // Full API response
+let underlying = null;      // { last, bid, ask, ... }
+let callMap = {};           // callExpDateMap
+let putMap = {};            // putExpDateMap
+let expirations = [];       // sorted expiry keys
+let strikes = [];           // strikes for selected expiry
+let currentExpiry = null;   // selected expiry key
+let currentDTE = 0;         // days to expiration for selected expiry
+let legs = [];              // [{ action, type, strike, qty, bid, ask, mark, delta, gamma, theta, vega, iv }]
+let pnlChart = null;        // Chart.js instance
+let netPremium = 0;         // net premium paid (positive = debit, negative = credit)
+
+// =========================================================================
+//  BLACK-SCHOLES ENGINE
+// =========================================================================
+
+function normalCDF(x) {
+    const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741;
+    const a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+    const sign = x < 0 ? -1 : 1;
+    x = Math.abs(x) / Math.sqrt(2);
+    const t = 1.0 / (1.0 + p * x);
+    const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+    return 0.5 * (1.0 + sign * y);
+}
+
+function normalPDF(x) {
+    return Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
+}
+
+function bsCall(S, K, T, r, sigma) {
+    if (T <= 0.0001) {
+        const intrinsic = Math.max(0, S - K);
+        return {
+            price: intrinsic,
+            delta: S > K ? 1 : (S === K ? 0.5 : 0),
+            gamma: 0, theta: 0, vega: 0
+        };
+    }
+    const sqrtT = Math.sqrt(T);
+    const d1 = (Math.log(S / K) + (r + 0.5 * sigma * sigma) * T) / (sigma * sqrtT);
+    const d2 = d1 - sigma * sqrtT;
+    const nd1 = normalCDF(d1);
+    const nd2 = normalCDF(d2);
+    const pd1 = normalPDF(d1);
+
+    const price = S * nd1 - K * Math.exp(-r * T) * nd2;
+    const delta = nd1;
+    const gamma = pd1 / (S * sigma * sqrtT);
+    const theta = (-(S * pd1 * sigma) / (2 * sqrtT) - r * K * Math.exp(-r * T) * nd2) / 365;
+    const vega = S * pd1 * sqrtT / 100;
+
+    return { price, delta, gamma, theta, vega };
+}
+
+function bsPut(S, K, T, r, sigma) {
+    if (T <= 0.0001) {
+        const intrinsic = Math.max(0, K - S);
+        return {
+            price: intrinsic,
+            delta: S < K ? -1 : (S === K ? -0.5 : 0),
+            gamma: 0, theta: 0, vega: 0
+        };
+    }
+    const sqrtT = Math.sqrt(T);
+    const d1 = (Math.log(S / K) + (r + 0.5 * sigma * sigma) * T) / (sigma * sqrtT);
+    const d2 = d1 - sigma * sqrtT;
+    const nd1n = normalCDF(-d1);
+    const nd2n = normalCDF(-d2);
+    const pd1 = normalPDF(d1);
+
+    const price = K * Math.exp(-r * T) * nd2n - S * nd1n;
+    const delta = -nd1n;
+    const gamma = pd1 / (S * sigma * sqrtT);
+    const theta = (-(S * pd1 * sigma) / (2 * sqrtT) + r * K * Math.exp(-r * T) * nd2n) / 365;
+    const vega = S * pd1 * sqrtT / 100;
+
+    return { price, delta, gamma, theta, vega };
+}
+
+function bsPrice(S, K, T, r, sigma, type) {
+    return type === 'CALL' ? bsCall(S, K, T, r, sigma) : bsPut(S, K, T, r, sigma);
+}
+
+function impliedVol(S, K, T, r, marketPrice, type) {
+    let sigma = 0.5;
+    for (let i = 0; i < 100; i++) {
+        const bs = bsPrice(S, K, T, r, sigma, type);
+        const diff = bs.price - marketPrice;
+        if (Math.abs(diff) < 0.001) break;
+        const v = bs.vega * 100;
+        if (v < 0.001) break;
+        sigma -= diff / v;
+        if (sigma < 0.01) sigma = 0.01;
+        if (sigma > 5.0) sigma = 5.0;
+    }
+    return sigma;
+}
+
+// =========================================================================
+//  CHAIN LOADING
+// =========================================================================
+
+async function loadChain() {
+    const sym = document.getElementById('symbolInput').value.trim().toUpperCase();
+    if (!sym) return;
+    document.getElementById('symbolInput').value = sym;
+    setStatus('Loading chain for ' + sym + '...');
+
+    try {
+        const resp = await fetch(`${API_BASE}/api/options/${sym}?strike_count=30`);
+        if (!resp.ok) throw new Error(`API returned ${resp.status}`);
+        const data = await resp.json();
+
+        if (!data.chain) throw new Error('No chain data in response');
+        chainData = data;
+        underlying = data.chain.underlying || {};
+        callMap = data.chain.callExpDateMap || {};
+        putMap = data.chain.putExpDateMap || {};
+
+        // Parse expirations
+        expirations = Object.keys(callMap).sort();
+        if (expirations.length === 0) throw new Error('No expirations found');
+
+        // Show underlying info
+        showUnderlying(sym);
+
+        // Populate expiry dropdown
+        const sel = document.getElementById('expirySelect');
+        sel.innerHTML = '';
+        expirations.forEach(exp => {
+            const dateStr = exp.split(':')[0];
+            // Get DTE from first contract in this expiry
+            const strikesObj = callMap[exp];
+            const firstStrike = Object.keys(strikesObj)[0];
+            const dte = strikesObj[firstStrike][0].daysToExpiration;
+            const opt = document.createElement('option');
+            opt.value = exp;
+            opt.textContent = `${dateStr} (${dte}d)`;
+            sel.appendChild(opt);
+        });
+
+        // Select first expiry
+        onExpiryChange();
+
+        // Show sections
+        show('builderSection');
+        setStatus('Chain loaded: ' + expirations.length + ' expirations');
+    } catch (err) {
+        setStatus('Error: ' + err.message, true);
+    }
+}
+
+function showUnderlying(sym) {
+    const el = document.getElementById('underlyingInfo');
+    el.classList.remove('hidden');
+    const price = underlying.last || underlying.mark || 0;
+    const change = underlying.percentChange || 0;
+    const changeClass = change >= 0 ? 'positive' : 'negative';
+    const hi = underlying.fiftyTwoWeekHigh || 0;
+    const lo = underlying.fiftyTwoWeekLow || 0;
+    el.innerHTML = `
+        <span style="font-weight:600;color:#00d4aa;font-size:16px;">${sym}</span>
+        <span class="underlying-price">$${price.toFixed(2)}</span>
+        <span class="underlying-change ${changeClass}">${change >= 0 ? '+' : ''}${change.toFixed(2)}%</span>
+        <span class="badge badge-neutral">52w: $${lo.toFixed(2)} - $${hi.toFixed(2)}</span>
+    `;
+}
+
+function onExpiryChange() {
+    const sel = document.getElementById('expirySelect');
+    currentExpiry = sel.value;
+    if (!currentExpiry) return;
+
+    // Get strikes for this expiry
+    const callStrikes = callMap[currentExpiry] || {};
+    const putStrikes = putMap[currentExpiry] || {};
+    const allStrikes = new Set([...Object.keys(callStrikes), ...Object.keys(putStrikes)]);
+    strikes = Array.from(allStrikes).map(Number).sort((a, b) => a - b);
+
+    // Get DTE
+    const firstStrike = Object.keys(callStrikes)[0];
+    currentDTE = firstStrike ? callStrikes[firstStrike][0].daysToExpiration : 30;
+    document.getElementById('dteLabel').textContent = currentDTE + ' DTE';
+
+    // Update existing leg strike dropdowns
+    legs.forEach((leg, i) => {
+        updateStrikeDropdown(i);
+    });
+
+    // Recalculate if legs exist
+    if (legs.length > 0) recalcAll();
+}
+
+// =========================================================================
+//  STRATEGY BUILDER
+// =========================================================================
+
+function getATMStrike() {
+    const price = underlying.last || underlying.mark || 0;
+    let closest = strikes[0];
+    let minDist = Infinity;
+    strikes.forEach(s => {
+        const dist = Math.abs(s - price);
+        if (dist < minDist) { minDist = dist; closest = s; }
+    });
+    return closest;
+}
+
+function getStrikeOffset(base, offset) {
+    const idx = strikes.indexOf(base);
+    if (idx < 0) return base;
+    const newIdx = Math.max(0, Math.min(strikes.length - 1, idx + offset));
+    return strikes[newIdx];
+}
+
+function applyPreset(name) {
+    legs = [];
+    const atm = getATMStrike();
+
+    switch (name) {
+        case 'longCall':
+            legs.push(makeLeg('BUY', 'CALL', atm, 1));
+            break;
+        case 'longPut':
+            legs.push(makeLeg('BUY', 'PUT', atm, 1));
+            break;
+        case 'bullCallSpread':
+            legs.push(makeLeg('BUY', 'CALL', atm, 1));
+            legs.push(makeLeg('SELL', 'CALL', getStrikeOffset(atm, 3), 1));
+            break;
+        case 'bearPutSpread':
+            legs.push(makeLeg('BUY', 'PUT', atm, 1));
+            legs.push(makeLeg('SELL', 'PUT', getStrikeOffset(atm, -3), 1));
+            break;
+        case 'straddle':
+            legs.push(makeLeg('BUY', 'CALL', atm, 1));
+            legs.push(makeLeg('BUY', 'PUT', atm, 1));
+            break;
+        case 'ironCondor': {
+            const putSell = getStrikeOffset(atm, -3);
+            const putBuy = getStrikeOffset(atm, -6);
+            const callSell = getStrikeOffset(atm, 3);
+            const callBuy = getStrikeOffset(atm, 6);
+            legs.push(makeLeg('BUY', 'PUT', putBuy, 1));
+            legs.push(makeLeg('SELL', 'PUT', putSell, 1));
+            legs.push(makeLeg('SELL', 'CALL', callSell, 1));
+            legs.push(makeLeg('BUY', 'CALL', callBuy, 1));
+            break;
+        }
+    }
+
+    renderLegs();
+    recalcAll();
+}
+
+function makeLeg(action, type, strike, qty) {
+    const contract = getContract(type, strike);
+    return {
+        action, type, strike, qty,
+        bid: contract ? contract.bid : 0,
+        ask: contract ? contract.ask : 0,
+        mark: contract ? contract.mark : 0,
+        delta: contract ? contract.delta : 0,
+        gamma: contract ? contract.gamma : 0,
+        theta: contract ? contract.theta : 0,
+        vega: contract ? contract.vega : 0,
+        iv: contract ? ((contract.volatility || 30) / 100) : 0.3
+    };
+}
+
+function getContract(type, strike) {
+    const map = type === 'CALL' ? callMap : putMap;
+    const strikeKey = String(strike);
+    // Try exact match first, then closest key
+    if (map[currentExpiry]) {
+        if (map[currentExpiry][strikeKey]) return map[currentExpiry][strikeKey][0];
+        // Try with .0 suffix
+        if (map[currentExpiry][strikeKey + '.0']) return map[currentExpiry][strikeKey + '.0'][0];
+        // Find closest
+        const keys = Object.keys(map[currentExpiry]);
+        let closest = keys[0];
+        let minDist = Infinity;
+        keys.forEach(k => {
+            const dist = Math.abs(parseFloat(k) - strike);
+            if (dist < minDist) { minDist = dist; closest = k; }
+        });
+        if (minDist < 0.01) return map[currentExpiry][closest][0];
+    }
+    return null;
+}
+
+function addLeg() {
+    const atm = getATMStrike();
+    legs.push(makeLeg('BUY', 'CALL', atm, 1));
+    renderLegs();
+    recalcAll();
+}
+
+function removeLeg(idx) {
+    legs.splice(idx, 1);
+    renderLegs();
+    if (legs.length > 0) recalcAll();
+    else hideSections();
+}
+
+function hideSections() {
+    hide('chartSection'); hide('sliderSection'); hide('greeksSection'); hide('scenarioSection');
+    document.getElementById('sumCost').textContent = '--';
+    document.getElementById('sumMaxProfit').textContent = '--';
+    document.getElementById('sumMaxLoss').textContent = '--';
+    document.getElementById('sumBreakeven').textContent = '--';
+}
+
+function renderLegs() {
+    const tbody = document.getElementById('legTableBody');
+    tbody.innerHTML = '';
+
+    legs.forEach((leg, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><button class="leg-toggle ${leg.action === 'BUY' ? 'buy' : 'sell'}"
+                onclick="toggleAction(${i})">${leg.action}</button></td>
+            <td><button class="leg-toggle ${leg.type === 'CALL' ? 'call' : 'put'}"
+                onclick="toggleType(${i})">${leg.type}</button></td>
+            <td><select class="leg-select" id="strike-${i}" onchange="onStrikeChange(${i})"></select></td>
+            <td><input type="number" class="leg-qty" value="${leg.qty}" min="1" max="100"
+                onchange="onQtyChange(${i}, this.value)"></td>
+            <td style="color:#8b92a8">${leg.bid.toFixed(2)}</td>
+            <td style="color:#8b92a8">${leg.ask.toFixed(2)}</td>
+            <td style="font-weight:600">${leg.mark.toFixed(2)}</td>
+            <td style="color:${leg.delta >= 0 ? '#00d4aa' : '#ff6b6b'}">${leg.delta.toFixed(3)}</td>
+            <td style="color:#8b92a8">${(leg.iv * 100).toFixed(1)}%</td>
+            <td><button class="remove-leg" onclick="removeLeg(${i})">&#x2715;</button></td>
+        `;
+        tbody.appendChild(tr);
+        updateStrikeDropdown(i);
+    });
+}
+
+function updateStrikeDropdown(idx) {
+    const sel = document.getElementById(`strike-${idx}`);
+    if (!sel) return;
+    const currentStrike = legs[idx].strike;
+    sel.innerHTML = '';
+    strikes.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s.toFixed(1);
+        if (Math.abs(s - currentStrike) < 0.01) opt.selected = true;
+        sel.appendChild(opt);
+    });
+}
+
+function toggleAction(idx) {
+    legs[idx].action = legs[idx].action === 'BUY' ? 'SELL' : 'BUY';
+    renderLegs();
+    recalcAll();
+}
+
+function toggleType(idx) {
+    legs[idx].type = legs[idx].type === 'CALL' ? 'PUT' : 'CALL';
+    updateLegFromChain(idx);
+    renderLegs();
+    recalcAll();
+}
+
+function onStrikeChange(idx) {
+    const sel = document.getElementById(`strike-${idx}`);
+    legs[idx].strike = parseFloat(sel.value);
+    updateLegFromChain(idx);
+    renderLegs();
+    recalcAll();
+}
+
+function onQtyChange(idx, val) {
+    legs[idx].qty = Math.max(1, parseInt(val) || 1);
+    recalcAll();
+}
+
+function updateLegFromChain(idx) {
+    const leg = legs[idx];
+    const contract = getContract(leg.type, leg.strike);
+    if (contract) {
+        leg.bid = contract.bid || 0;
+        leg.ask = contract.ask || 0;
+        leg.mark = contract.mark || 0;
+        leg.delta = contract.delta || 0;
+        leg.gamma = contract.gamma || 0;
+        leg.theta = contract.theta || 0;
+        leg.vega = contract.vega || 0;
+        leg.iv = (contract.volatility || 30) / 100;
+    }
+}
+
+// =========================================================================
+//  CALCULATIONS
+// =========================================================================
+
+function calcNetPremium() {
+    let cost = 0;
+    legs.forEach(leg => {
+        const price = leg.mark;
+        if (leg.action === 'BUY') cost += price * leg.qty * 100;
+        else cost -= price * leg.qty * 100;
+    });
+    return cost; // positive = debit, negative = credit
+}
+
+function calcPnlAtPrice(S, daysHeld, ivChange) {
+    const T = Math.max(0, (currentDTE - daysHeld) / 365);
+    let totalValue = 0;
+
+    legs.forEach(leg => {
+        const adjIV = leg.iv * (1 + ivChange / 100);
+        let val;
+        if (T <= 0.0001) {
+            // At expiration - intrinsic only
+            if (leg.type === 'CALL') val = Math.max(0, S - leg.strike);
+            else val = Math.max(0, leg.strike - S);
+        } else {
+            const bs = bsPrice(S, leg.strike, T, RISK_FREE_RATE, adjIV, leg.type);
+            val = bs.price;
+        }
+        const sign = leg.action === 'BUY' ? 1 : -1;
+        totalValue += sign * val * leg.qty * 100;
+    });
+
+    return totalValue - netPremium;
+}
+
+function calcGreeksAtPrice(S, daysHeld, ivChange) {
+    const T = Math.max(0.0001, (currentDTE - daysHeld) / 365);
+    let netDelta = 0, netGamma = 0, netTheta = 0, netVega = 0;
+
+    legs.forEach(leg => {
+        const adjIV = leg.iv * (1 + ivChange / 100);
+        const bs = bsPrice(S, leg.strike, T, RISK_FREE_RATE, adjIV, leg.type);
+        const sign = leg.action === 'BUY' ? 1 : -1;
+        const mult = sign * leg.qty;
+        netDelta += bs.delta * mult;
+        netGamma += bs.gamma * mult;
+        netTheta += bs.theta * mult * 100;
+        netVega += bs.vega * mult * 100;
+    });
+
+    return { delta: netDelta, gamma: netGamma, theta: netTheta, vega: netVega };
+}
+
+function calcBreakevens() {
+    const price = underlying.last || underlying.mark || 100;
+    const low = price * 0.7;
+    const high = price * 1.3;
+    const step = (high - low) / 1000;
+    const breakevens = [];
+    let prevPnl = calcPnlAtPrice(low, currentDTE, 0); // at expiration
+
+    for (let s = low + step; s <= high; s += step) {
+        const pnl = calcPnlAtPrice(s, currentDTE, 0);
+        if ((prevPnl < 0 && pnl >= 0) || (prevPnl > 0 && pnl <= 0) || (prevPnl >= 0 && pnl < 0) || (prevPnl <= 0 && pnl > 0)) {
+            // Linear interpolation
+            const ratio = Math.abs(prevPnl) / (Math.abs(prevPnl) + Math.abs(pnl));
+            breakevens.push(s - step + step * ratio);
+        }
+        prevPnl = pnl;
+    }
+    return breakevens;
+}
+
+function calcMaxProfitLoss() {
+    const price = underlying.last || underlying.mark || 100;
+    const low = price * 0.5;
+    const high = price * 1.5;
+    const step = (high - low) / 500;
+    let maxProfit = -Infinity, maxLoss = Infinity;
+
+    for (let s = low; s <= high; s += step) {
+        const pnl = calcPnlAtPrice(s, currentDTE, 0); // at expiration
+        if (pnl > maxProfit) maxProfit = pnl;
+        if (pnl < maxLoss) maxLoss = pnl;
+    }
+
+    return { maxProfit, maxLoss };
+}
+
+// =========================================================================
+//  RECALC & RENDER
+// =========================================================================
+
+function recalcAll() {
+    if (legs.length === 0) return;
+
+    netPremium = calcNetPremium();
+    const { maxProfit, maxLoss } = calcMaxProfitLoss();
+    const breakevens = calcBreakevens();
+
+    // Strategy summary
+    document.getElementById('sumCost').textContent = (netPremium >= 0 ? '-' : '+') + '$' + Math.abs(netPremium).toFixed(0);
+    document.getElementById('sumCost').className = 'summary-value ' + (netPremium > 0 ? 'negative' : 'positive');
+    document.getElementById('sumMaxProfit').textContent = maxProfit > 100000 ? 'Unlimited' : '$' + maxProfit.toFixed(0);
+    document.getElementById('sumMaxLoss').textContent = maxLoss < -100000 ? 'Unlimited' : '$' + maxLoss.toFixed(0);
+    document.getElementById('sumBreakeven').textContent = breakevens.map(b => '$' + b.toFixed(2)).join(', ') || '--';
+
+    // Setup sliders
+    setupSliders();
+
+    // Render chart
+    renderChart();
+
+    // Update Greeks at current slider position
+    updateGreeks();
+
+    // Render scenarios
+    renderScenarios();
+
+    // Show all sections
+    show('chartSection');
+    show('sliderSection');
+    show('greeksSection');
+    show('scenarioSection');
+}
+
+function setupSliders() {
+    const price = underlying.last || underlying.mark || 100;
+    const pSlider = document.getElementById('priceSlider');
+    const low = Math.floor(price * 0.8 * 100) / 100;
+    const high = Math.ceil(price * 1.2 * 100) / 100;
+    const step = Math.max(0.01, (high - low) / 400);
+    pSlider.min = low;
+    pSlider.max = high;
+    pSlider.step = step;
+    pSlider.value = price;
+    document.getElementById('priceSliderVal').textContent = '$' + price.toFixed(2);
+    document.getElementById('priceMin').textContent = '$' + low.toFixed(2);
+    document.getElementById('priceMax').textContent = '$' + high.toFixed(2);
+
+    const dSlider = document.getElementById('dteSlider');
+    dSlider.max = currentDTE;
+    dSlider.value = 0;
+    document.getElementById('dteSliderVal').textContent = '0';
+    document.getElementById('dteMax').textContent = currentDTE + 'd';
+}
+
+function onSliderChange() {
+    const price = parseFloat(document.getElementById('priceSlider').value);
+    const days = parseInt(document.getElementById('dteSlider').value);
+    const ivChg = parseInt(document.getElementById('ivSlider').value);
+
+    document.getElementById('priceSliderVal').textContent = '$' + price.toFixed(2);
+    document.getElementById('dteSliderVal').textContent = days + 'd';
+    document.getElementById('ivSliderVal').textContent = (ivChg >= 0 ? '+' : '') + ivChg + '%';
+
+    updateGreeks();
+}
+
+function updateGreeks() {
+    const price = parseFloat(document.getElementById('priceSlider').value);
+    const days = parseInt(document.getElementById('dteSlider').value);
+    const ivChg = parseInt(document.getElementById('ivSlider').value);
+
+    const greeks = calcGreeksAtPrice(price, days, ivChg);
+    const pnl = calcPnlAtPrice(price, days, ivChg);
+    const ret = netPremium !== 0 ? (pnl / Math.abs(netPremium) * 100) : 0;
+
+    document.getElementById('grkDelta').textContent = greeks.delta.toFixed(3);
+    document.getElementById('grkDelta').className = 'greek-value ' + (greeks.delta >= 0 ? 'positive' : 'negative');
+    document.getElementById('grkGamma').textContent = greeks.gamma.toFixed(4);
+    document.getElementById('grkTheta').textContent = greeks.theta.toFixed(2);
+    document.getElementById('grkTheta').className = 'greek-value ' + (greeks.theta >= 0 ? 'positive' : 'negative');
+    document.getElementById('grkVega').textContent = greeks.vega.toFixed(2);
+    document.getElementById('grkPnl').textContent = (pnl >= 0 ? '+' : '') + '$' + pnl.toFixed(0);
+    document.getElementById('grkPnl').className = 'greek-value ' + (pnl >= 0 ? 'positive' : 'negative');
+    document.getElementById('grkReturn').textContent = (ret >= 0 ? '+' : '') + ret.toFixed(1) + '%';
+    document.getElementById('grkReturn').className = 'greek-value ' + (ret >= 0 ? 'positive' : 'negative');
+}
+
+// =========================================================================
+//  CHART
+// =========================================================================
+
+function renderChart() {
+    const price = underlying.last || underlying.mark || 100;
+    const low = price * 0.8;
+    const high = price * 1.2;
+    const step = (high - low) / 200;
+    const breakevens = calcBreakevens();
+
+    const pricePoints = [];
+    for (let s = low; s <= high; s += step) pricePoints.push(s);
+
+    // Curves: At Expiration, +7d to expiry, +14d from now, Today
+    const curves = [
+        { label: 'At Expiration', daysHeld: currentDTE, color: '#e5e7eb', width: 2 },
+        { label: `+${Math.min(14, Math.floor(currentDTE * 0.75))}d`, daysHeld: Math.min(14, Math.floor(currentDTE * 0.75)), color: '#ffc107', width: 1.5 },
+        { label: `+${Math.min(7, Math.floor(currentDTE * 0.5))}d`, daysHeld: Math.min(7, Math.floor(currentDTE * 0.5)), color: '#3b82f6', width: 1.5 },
+        { label: 'Today', daysHeld: 0, color: '#00d4aa', width: 2.5 },
+    ];
+
+    const datasets = curves.map(c => ({
+        label: c.label,
+        data: pricePoints.map(s => ({ x: s, y: calcPnlAtPrice(s, c.daysHeld, 0) })),
+        borderColor: c.color,
+        borderWidth: c.width,
+        pointRadius: 0,
+        pointHitRadius: 10,
+        tension: 0.1,
+        fill: false
+    }));
+
+    // Add zero line reference
+    datasets.push({
+        label: 'Breakeven',
+        data: pricePoints.map(s => ({ x: s, y: 0 })),
+        borderColor: 'rgba(255,255,255,0.15)',
+        borderWidth: 1,
+        borderDash: [4, 4],
+        pointRadius: 0,
+        pointHitRadius: 0,
+        fill: false
+    });
+
+    const ctx = document.getElementById('pnlChart').getContext('2d');
+
+    if (pnlChart) pnlChart.destroy();
+
+    // Annotation lines plugin
+    const annotationPlugin = {
+        id: 'verticalLines',
+        afterDraw(chart) {
+            const { ctx, chartArea, scales } = chart;
+            if (!chartArea) return;
+
+            // Current price - cyan dashed
+            drawVertical(ctx, scales.x, chartArea, price, '#00d4aa', 'Price');
+
+            // Strike lines - purple dashed
+            const uniqueStrikes = [...new Set(legs.map(l => l.strike))];
+            uniqueStrikes.forEach(s => {
+                drawVertical(ctx, scales.x, chartArea, s, '#a855f7', '$' + s);
+            });
+
+            // Breakeven - white dashed
+            breakevens.forEach(b => {
+                drawVertical(ctx, scales.x, chartArea, b, 'rgba(255,255,255,0.6)', 'BE $' + b.toFixed(1));
+            });
+        }
+    };
+
+    pnlChart = new Chart(ctx, {
+        type: 'line',
+        data: { datasets },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'nearest', axis: 'x', intersect: false },
+            plugins: {
+                legend: {
+                    labels: { color: '#8b92a8', font: { size: 11 }, usePointStyle: true, pointStyle: 'line' }
+                },
+                tooltip: {
+                    backgroundColor: '#151821',
+                    borderColor: '#2a3641',
+                    borderWidth: 1,
+                    titleColor: '#e5e7eb',
+                    bodyColor: '#8b92a8',
+                    titleFont: { size: 12 },
+                    bodyFont: { size: 11 },
+                    padding: 10,
+                    callbacks: {
+                        title: (items) => 'Price: $' + items[0].parsed.x.toFixed(2),
+                        label: (item) => {
+                            if (item.dataset.label === 'Breakeven') return null;
+                            const val = item.parsed.y;
+                            return `${item.dataset.label}: ${val >= 0 ? '+' : ''}$${val.toFixed(0)}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    type: 'linear',
+                    grid: { color: 'rgba(42, 54, 65, 0.5)' },
+                    ticks: {
+                        color: '#4a5568',
+                        font: { size: 10 },
+                        maxTicksLimit: 15,
+                        callback: (val) => '$' + val.toFixed(0)
+                    }
+                },
+                y: {
+                    grid: { color: 'rgba(42, 54, 65, 0.5)' },
+                    ticks: {
+                        color: '#4a5568',
+                        font: { size: 10 },
+                        callback: (val) => (val >= 0 ? '+' : '') + '$' + val.toFixed(0)
+                    }
+                }
+            }
+        },
+        plugins: [annotationPlugin]
+    });
+}
+
+function drawVertical(ctx, xScale, area, value, color, label) {
+    const x = xScale.getPixelForValue(value);
+    if (x < area.left || x > area.right) return;
+
+    ctx.save();
+    ctx.setLineDash([4, 4]);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, area.top);
+    ctx.lineTo(x, area.bottom);
+    ctx.stroke();
+
+    // Label
+    ctx.setLineDash([]);
+    ctx.fillStyle = color;
+    ctx.font = '10px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, x, area.top - 4);
+    ctx.restore();
+}
+
+// =========================================================================
+//  SCENARIO TABLE
+// =========================================================================
+
+function renderScenarios() {
+    const price = underlying.last || underlying.mark || 100;
+    const tbody = document.getElementById('scenarioBody');
+    tbody.innerHTML = '';
+
+    const scenarios = [
+        { name: 'Quick Bounce (+5%, 7d)', priceMult: 1.05, days: Math.min(7, currentDTE) },
+        { name: 'Moderate Move (+10%, 14d)', priceMult: 1.10, days: Math.min(14, currentDTE) },
+        { name: 'Full Target (+15%, 21d)', priceMult: 1.15, days: Math.min(21, currentDTE) },
+        { name: 'Sideways (0%, 14d)', priceMult: 1.00, days: Math.min(14, currentDTE) },
+        { name: 'Drop (-5%, 14d)', priceMult: 0.95, days: Math.min(14, currentDTE) },
+        { name: 'Drop (-10%, 14d)', priceMult: 0.90, days: Math.min(14, currentDTE) },
+        { name: 'At Expiry (current price)', priceMult: 1.00, days: currentDTE },
+    ];
+
+    // Add per-strike at-expiry scenarios
+    const uniqueStrikes = [...new Set(legs.map(l => l.strike))].sort((a, b) => a - b);
+    uniqueStrikes.forEach(s => {
+        scenarios.push({
+            name: `At Expiry ($${s})`,
+            priceMult: s / price,
+            days: currentDTE
+        });
+    });
+
+    scenarios.forEach(sc => {
+        const scPrice = price * sc.priceMult;
+        const pnl = calcPnlAtPrice(scPrice, sc.days, 0);
+        const optVal = pnl + netPremium;
+        const ret = netPremium !== 0 ? (pnl / Math.abs(netPremium) * 100) : 0;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${sc.name}</td>
+            <td>$${scPrice.toFixed(2)}</td>
+            <td>${sc.days}d</td>
+            <td>$${optVal.toFixed(0)}</td>
+            <td class="${pnl >= 0 ? 'positive' : 'negative'}">${pnl >= 0 ? '+' : ''}$${pnl.toFixed(0)}</td>
+            <td class="${ret >= 0 ? 'positive' : 'negative'}">${ret >= 0 ? '+' : ''}${ret.toFixed(1)}%</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+// =========================================================================
+//  UTILITIES
+// =========================================================================
+
+function show(id) { document.getElementById(id).classList.remove('hidden'); }
+function hide(id) { document.getElementById(id).classList.add('hidden'); }
+
+function setStatus(msg, isError) {
+    const el = document.getElementById('statusMsg');
+    el.textContent = msg;
+    el.style.color = isError ? '#ff6b6b' : '#8b92a8';
+}
+
+// Focus symbol input on load
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('symbolInput').focus();
+});
+</script>
+</body>
+</html>

@@ -378,6 +378,53 @@ function initSchema() {
         CREATE INDEX IF NOT EXISTS idx_market_internals_date ON market_internals(date);
     `);
 
+    // Analysis journal table (research deep-dives)
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS analyses (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            symbol TEXT NOT NULL,
+            analysis_date TEXT NOT NULL,
+            score INTEGER,
+            tier TEXT,
+            direction TEXT,
+            verdict TEXT NOT NULL,
+            price_at_analysis REAL,
+            bull_factors_json TEXT,
+            bull_summary TEXT,
+            bear_factors_json TEXT,
+            bear_summary TEXT,
+            sector_etf TEXT,
+            sector_rsi REAL,
+            sector_rs_percentile REAL,
+            rotation_phase TEXT,
+            put_wall REAL,
+            call_wall REAL,
+            max_pain REAL,
+            target_price REAL,
+            stop_price REAL,
+            vix REAL,
+            vix_regime TEXT,
+            spy_trend TEXT,
+            spy_price REAL,
+            verdict_reasoning TEXT,
+            outcome TEXT,
+            outcome_price REAL,
+            outcome_date TEXT,
+            outcome_notes TEXT,
+            outcome_pct_change REAL,
+            thesis_correct INTEGER,
+            tags TEXT,
+            source TEXT DEFAULT 'manual',
+            created_at TEXT DEFAULT (datetime('now')),
+            updated_at TEXT DEFAULT (datetime('now'))
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_analyses_symbol ON analyses(symbol);
+        CREATE INDEX IF NOT EXISTS idx_analyses_date ON analyses(analysis_date);
+        CREATE INDEX IF NOT EXISTS idx_analyses_verdict ON analyses(verdict);
+        CREATE INDEX IF NOT EXISTS idx_analyses_outcome ON analyses(outcome);
+    `);
+
     // Migration: Add decn and ad_spread columns to existing market_internals table
     migrateMarketInternals();
 
@@ -3178,6 +3225,204 @@ function getInternalsToday() {
     `).all(today);
 }
 
+// ============================================================
+// ANALYSIS JOURNAL FUNCTIONS
+// ============================================================
+
+/**
+ * Insert a new analysis
+ */
+function insertAnalysis(data) {
+    const stmt = getDb().prepare(`
+        INSERT INTO analyses (
+            symbol, analysis_date, score, tier, direction, verdict,
+            price_at_analysis,
+            bull_factors_json, bull_summary,
+            bear_factors_json, bear_summary,
+            sector_etf, sector_rsi, sector_rs_percentile, rotation_phase,
+            put_wall, call_wall, max_pain, target_price, stop_price,
+            vix, vix_regime, spy_trend, spy_price,
+            verdict_reasoning, tags, source
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    const result = stmt.run(
+        data.symbol,
+        data.analysis_date || new Date().toISOString(),
+        data.score || null,
+        data.tier || null,
+        data.direction || null,
+        data.verdict,
+        data.price_at_analysis || null,
+        data.bull_factors_json ? JSON.stringify(data.bull_factors_json) : null,
+        data.bull_summary || null,
+        data.bear_factors_json ? JSON.stringify(data.bear_factors_json) : null,
+        data.bear_summary || null,
+        data.sector_etf || null,
+        data.sector_rsi || null,
+        data.sector_rs_percentile || null,
+        data.rotation_phase || null,
+        data.put_wall || null,
+        data.call_wall || null,
+        data.max_pain || null,
+        data.target_price || null,
+        data.stop_price || null,
+        data.vix || null,
+        data.vix_regime || null,
+        data.spy_trend || null,
+        data.spy_price || null,
+        data.verdict_reasoning || null,
+        data.tags || null,
+        data.source || 'manual'
+    );
+
+    console.log(`[SignalDB] Added analysis: ${data.symbol} - ${data.verdict}`);
+    return result.lastInsertRowid;
+}
+
+/**
+ * Get analyses with optional filtering
+ */
+function getAnalyses(filters = {}) {
+    let query = 'SELECT * FROM analyses WHERE 1=1';
+    const params = [];
+
+    if (filters.symbol) {
+        query += ' AND symbol = ?';
+        params.push(filters.symbol.toUpperCase());
+    }
+    if (filters.verdict) {
+        query += ' AND verdict = ?';
+        params.push(filters.verdict);
+    }
+    if (filters.outcome) {
+        query += ' AND outcome = ?';
+        params.push(filters.outcome);
+    }
+    if (filters.direction) {
+        query += ' AND direction = ?';
+        params.push(filters.direction);
+    }
+    if (filters.has_outcome !== undefined) {
+        query += filters.has_outcome ? ' AND outcome IS NOT NULL' : ' AND outcome IS NULL';
+    }
+    if (filters.days) {
+        const cutoff = new Date(Date.now() - filters.days * 24 * 60 * 60 * 1000).toISOString();
+        query += ' AND analysis_date >= ?';
+        params.push(cutoff);
+    }
+    if (filters.tag) {
+        query += ' AND tags LIKE ?';
+        params.push(`%${filters.tag}%`);
+    }
+
+    query += ' ORDER BY analysis_date DESC';
+
+    if (filters.limit) {
+        query += ' LIMIT ?';
+        params.push(filters.limit);
+    }
+
+    const rows = getDb().prepare(query).all(...params);
+
+    return rows.map(row => ({
+        ...row,
+        bull_factors: row.bull_factors_json ? JSON.parse(row.bull_factors_json) : [],
+        bear_factors: row.bear_factors_json ? JSON.parse(row.bear_factors_json) : []
+    }));
+}
+
+/**
+ * Get a single analysis by ID
+ */
+function getAnalysisById(id) {
+    const row = getDb().prepare('SELECT * FROM analyses WHERE id = ?').get(id);
+    if (!row) return null;
+    return {
+        ...row,
+        bull_factors: row.bull_factors_json ? JSON.parse(row.bull_factors_json) : [],
+        bear_factors: row.bear_factors_json ? JSON.parse(row.bear_factors_json) : []
+    };
+}
+
+/**
+ * Update the outcome for an existing analysis
+ */
+function updateAnalysisOutcome(id, outcomeData) {
+    const analysis = getDb().prepare('SELECT * FROM analyses WHERE id = ?').get(id);
+    if (!analysis) return null;
+
+    let pctChange = null;
+    if (outcomeData.outcome_price && analysis.price_at_analysis) {
+        pctChange = ((outcomeData.outcome_price - analysis.price_at_analysis) / analysis.price_at_analysis) * 100;
+        if (analysis.direction === 'bearish') pctChange = -pctChange;
+    }
+
+    getDb().prepare(`
+        UPDATE analyses SET
+            outcome = ?,
+            outcome_price = ?,
+            outcome_date = ?,
+            outcome_notes = ?,
+            outcome_pct_change = ?,
+            thesis_correct = ?,
+            updated_at = datetime('now')
+        WHERE id = ?
+    `).run(
+        outcomeData.outcome,
+        outcomeData.outcome_price || null,
+        outcomeData.outcome_date || new Date().toISOString(),
+        outcomeData.outcome_notes || null,
+        pctChange,
+        outcomeData.thesis_correct !== undefined ? outcomeData.thesis_correct : null,
+        id
+    );
+
+    console.log(`[SignalDB] Updated analysis #${id} outcome: ${outcomeData.outcome}`);
+    return { id, symbol: analysis.symbol, outcome: outcomeData.outcome, pct_change: pctChange };
+}
+
+/**
+ * Get aggregate stats for the research dashboard
+ */
+function getAnalysisStats() {
+    const db = getDb();
+    const total = db.prepare('SELECT COUNT(*) as count FROM analyses').get().count;
+    const withOutcome = db.prepare('SELECT COUNT(*) as count FROM analyses WHERE outcome IS NOT NULL').get().count;
+
+    const byVerdict = db.prepare(
+        'SELECT verdict, COUNT(*) as count FROM analyses GROUP BY verdict'
+    ).all();
+
+    const byOutcome = db.prepare(
+        'SELECT outcome, COUNT(*) as count FROM analyses WHERE outcome IS NOT NULL GROUP BY outcome'
+    ).all();
+
+    const thesisAccuracy = db.prepare(
+        'SELECT COUNT(*) as total, SUM(CASE WHEN thesis_correct = 1 THEN 1 ELSE 0 END) as correct FROM analyses WHERE thesis_correct IS NOT NULL'
+    ).get();
+
+    const avgPctChange = db.prepare(
+        'SELECT AVG(outcome_pct_change) as avg_change FROM analyses WHERE outcome_pct_change IS NOT NULL'
+    ).get();
+
+    const uniqueSymbols = db.prepare('SELECT COUNT(DISTINCT symbol) as count FROM analyses').get().count;
+
+    return {
+        total,
+        pending: total - withOutcome,
+        with_outcome: withOutcome,
+        unique_symbols: uniqueSymbols,
+        by_verdict: byVerdict,
+        by_outcome: byOutcome,
+        thesis_accuracy: thesisAccuracy.total > 0
+            ? ((thesisAccuracy.correct / thesisAccuracy.total) * 100).toFixed(1)
+            : null,
+        thesis_total: thesisAccuracy.total,
+        avg_pct_change: avgPctChange.avg_change
+    };
+}
+
 module.exports = {
     getDb,
     insertSignal,
@@ -3264,5 +3509,11 @@ module.exports = {
     insertMarketInternals,
     getLatestInternals,
     getInternalsHistory,
-    getInternalsToday
+    getInternalsToday,
+    // Analysis journal functions
+    insertAnalysis,
+    getAnalyses,
+    getAnalysisById,
+    updateAnalysisOutcome,
+    getAnalysisStats
 };
