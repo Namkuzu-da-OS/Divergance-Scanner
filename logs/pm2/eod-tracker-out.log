@@ -569,3 +569,82 @@ By Direction:
 ==================================================
 
 [Telegram] Sent alert
+[16:15:00 ET] [EOD Tracker] Scheduled run triggered
+
+============================================================
+   EOD GAP TRACKER - SCHEDULED RUN
+============================================================
+Time: 2026-02-13T21:15:00.052Z
+Options API: http://192.168.10.60:8000
+============================================================
+
+[16:15:00 ET] [EOD Tracker] Starting EOD gap tracking...
+[16:15:07 ET] [EOD Tracker] Found 13 gaps to process
+[16:15:08 ET] [EOD Tracker]   BAX: NOT FILLED | LOSS | EOD: -4.4%
+[16:15:09 ET] [EOD Tracker]   BNAI: NOT FILLED | LOSS | EOD: +0.9%
+[16:15:11 ET] [EOD Tracker]   COIN: NOT FILLED | LOSS | EOD: -8.0%
+[16:15:15 ET] [EOD Tracker]   HOOD: FILLED | LOSS | EOD: -3.2%
+[16:15:26 ET] [EOD Tracker]   IBIT: NOT FILLED | LOSS | EOD: -2.2%
+[16:15:27 ET] [EOD Tracker] Failed to fetch daily bar for INTC: fetch failed
+[16:15:27 ET] [EOD Tracker]   INTC: No EOD data available
+[16:15:34 ET] [EOD Tracker]   IREN: FILLED | LOSS | EOD: -3.6%
+[16:15:35 ET] [EOD Tracker]   LBTYB: FILLED | LOSS | EOD: +8.6%
+[16:15:36 ET] [EOD Tracker]   MSTR: FILLED | LOSS | EOD: -3.7%
+[16:15:38 ET] [EOD Tracker]   MU: FILLED | LOSS | EOD: +2.7%
+[16:15:39 ET] [EOD Tracker]   NCLH: FILLED | LOSS | EOD: +2.6%
+[16:15:40 ET] [EOD Tracker]   RIVN: NOT FILLED | LOSS | EOD: -8.7%
+[16:15:42 ET] [EOD Tracker]   SNDK: FILLED | LOSS | EOD: +5.0%
+[16:15:42 ET] [EOD Tracker] Updating stats for 12 tickers...
+[16:15:42 ET] [EOD Tracker] Done. Processed 13 gaps, updated 12
+
+==================================================
+TODAY'S GAP SUMMARY
+==================================================
+
+Total Gaps: 12
+Filled: 7 (58.3%)
+
+By Tier:
+  TRADEABLE: 5/7 filled (71.4%)
+  WATCH: 1/2 filled (50%)
+  HIGH_CONVICTION: 1/3 filled (33.3%)
+
+By Direction:
+  Gap Down: 4/5 filled (80%)
+  Gap Up: 3/7 filled (42.9%)
+==================================================
+
+[Telegram] Sent alert
+[16:30:06 ET] [EOD Tracker] Backup run triggered - found gaps still needing EOD data
+
+============================================================
+   EOD GAP TRACKER - SCHEDULED RUN
+============================================================
+Time: 2026-02-13T21:30:06.933Z
+Options API: http://192.168.10.60:8000
+============================================================
+
+[16:30:06 ET] [EOD Tracker] Starting EOD gap tracking...
+[16:30:13 ET] [EOD Tracker] Found 1 gaps to process
+[16:30:15 ET] [EOD Tracker]   INTC: NOT FILLED | LOSS | EOD: +1.4%
+[16:30:15 ET] [EOD Tracker] Updating stats for 1 tickers...
+[16:30:15 ET] [EOD Tracker] Done. Processed 1 gaps, updated 1
+
+==================================================
+TODAY'S GAP SUMMARY
+==================================================
+
+Total Gaps: 13
+Filled: 7 (53.8%)
+
+By Tier:
+  TRADEABLE: 5/8 filled (62.5%)
+  WATCH: 1/2 filled (50%)
+  HIGH_CONVICTION: 1/3 filled (33.3%)
+
+By Direction:
+  Gap Down: 4/6 filled (66.7%)
+  Gap Up: 3/7 filled (42.9%)
+==================================================
+
+[Telegram] Sent alert
