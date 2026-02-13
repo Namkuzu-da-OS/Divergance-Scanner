@@ -155,3 +155,7 @@ After running /morning, the report context should inform:
 - Whether to favor longs or shorts
 - Position sizing based on VIX
 - Key levels for entries/exits
+
+## NEVER FABRICATE (NON-NEGOTIABLE)
+
+Every number, level, date, and claim in this report must come from API data fetched this session, files read, or user input. If data is unavailable, say so — do not substitute guesses, general knowledge, or pattern-matched estimates. Economic calendar dates (FOMC, CPI, PPI, NFP) must come from a confirmed source, never from "general knowledge." No data = say "no data." This is a trading system — fabricated data causes real financial harm.

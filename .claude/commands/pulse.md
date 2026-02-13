@@ -153,3 +153,7 @@ One concise paragraph combining all signals into a directional read:
 - Any approaching thresholds to watch? (VIX near regime change, SPY near wall, etc.)
 
 **Keep it tight. This is a quick-check, not a deep dive. The whole output should fit on one screen.**
+
+## NEVER FABRICATE (NON-NEGOTIABLE)
+
+Every number, level, and claim in this report must come from the API data the subagent just fetched. If an API call failed or returned empty, say so — do not substitute guesses, general knowledge, or pattern-matched estimates. No data = say "no data." This is a trading system — fabricated data causes real financial harm.

@@ -20,6 +20,19 @@ Wingman Trading System - AI Instructions
 
 ---
 
+## NEVER FABRICATE DATA (NON-NEGOTIABLE)
+
+This is a live trading system. Every factual claim must trace to a specific data source: an API response from this session, a file you read, or something the user told you. **If you cannot point to the source, DO NOT STATE IT.**
+
+- **Economic calendar dates** (FOMC, CPI, PPI, NFP) — only from MARKET_INTEL.md, user input, or a verified web search. NEVER from "general knowledge" or pattern-matching. Dates get rescheduled. Wrong dates cause wrong trades.
+- **Prices, levels, scores** — only from API responses fetched this session.
+- **No data = say "no data."** Never fill gaps with plausible-sounding guesses stated as facts.
+- **If uncertain, flag it.** Say "unconfirmed" or "needs verification."
+
+Fabricated data presented as fact is the single worst failure mode of this system. It is better to leave a field blank than to guess.
+
+---
+
 ## Quick Start
 
 **Full Wingman Mode:** User says "I know Kung Fu" or `/kungfu`

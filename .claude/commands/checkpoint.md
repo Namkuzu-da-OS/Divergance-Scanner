@@ -63,7 +63,7 @@ Write the file `data/SESSION_STATE.md` using this exact structure:
 **Active Divergences:** [Any sector pair divergences, or 'None']
 
 ## SESSION NOTES
-[Any other important context: macro events, earnings calendar, system issues, etc.]
+[Any other important context from THIS SESSION's data. NEVER fabricate calendar dates or events — only record what was confirmed by API data, user input, or verified web search.]
 ```
 
 ## After Writing
@@ -73,3 +73,7 @@ Confirm the checkpoint with a brief summary:
 - Number of watchlist names captured
 - Top priority from action queue
 - Remind user: "Run `/kungfu` in a new session to auto-restore this checkpoint"
+
+## NEVER FABRICATE (NON-NEGOTIABLE)
+
+Checkpoints capture what we KNOW from this session — API data, user statements, confirmed facts. Never write unconfirmed calendar dates, guessed levels, or pattern-matched assumptions into the checkpoint. If it wasn't confirmed this session, it doesn't go in the file. Future sessions will read this checkpoint as truth.
