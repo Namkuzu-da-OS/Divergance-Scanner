@@ -218,7 +218,7 @@ Core autonomous opportunity detection system. Discovers symbols dynamically (sta
 
 | Tier | Criteria |
 |------|----------|
-| HIGH_CONVICTION | AT_WALL + EXTENDED_RSI + score ≥40, OR score ≥50 at wall |
+| HIGH_CONVICTION | AT_WALL + EXTENDED_RSI + score ≥40, OR score ≥60 at wall |
 | TRADEABLE | Score ≥35 at wall + action |
 | WATCH | Score ≥20 near wall, OR EXTENDED_LOW + oversold RSI, OR MID_RANGE/PINNED + score ≥35 |
 | FILTERED | Everything else |

@@ -41,10 +41,10 @@ const SETTINGS = {
     // Display timezone
     displayTimezone: 'America/Los_Angeles', // PST/PDT for user display
 
-    // === DATA-DRIVEN THRESHOLDS (from 179 signal backtest) ===
-    // AT_WALL + EXTENDED_RSI = 89.5% win rate
-    // ELEVATED_VOLUME = 76.9% win rate
-    // VIX_ELEVATED = 66.7% win rate
+    // === DATA-DRIVEN THRESHOLDS (223 signal backtest, Feb 2026) ===
+    // BUY_ZONE + bullish: 75.3% WR | Elevated VIX: 92.9% WR
+    // Dip buy (bullish + bearish SPY): 100% WR (13/13)
+    // Score 60+: 63.1% WR | Score 50-59: 28.6% WR
     WALL_THRESHOLD_PCT: 1.0,        // Within 1% = "at wall"
     RSI_OVERSOLD: 30,
     RSI_OVERBOUGHT: 70,
@@ -53,7 +53,7 @@ const SETTINGS = {
     VIX_FEAR: 30,
 
     // Tier thresholds (0-100 scale)
-    TIER_HIGH_CONVICTION: 50,       // Requires prime setup or multiple high-edge factors
+    TIER_HIGH_CONVICTION: 60,       // Data: 60+ = 63.1% WR, 50-59 = 28.6% WR (223 signals)
     TIER_TRADEABLE: 35,
     TIER_WATCH: 20,
 };
@@ -1479,21 +1479,20 @@ async function analyzeSymbol(symbol, discoveryData) {
         else if (direction === 'pinned') {
             signals.push(`Market: SPY ${spyTrend}, VIX ${vix.toFixed(1)}`);
         }
-        // Aligned with market
-        else if ((direction === 'bullish' && spyTrend === 'bullish') ||
-            (direction === 'bearish' && spyTrend === 'bearish')) {
+        // DATA-DRIVEN SPY TREND SCORING (223 signals):
+        // Bearish SPY + bullish signal = 100% WR (dip buying)
+        // Neutral SPY = 67.2% WR (solid baseline)
+        // Bullish SPY + bullish signal = 42.9% WR (chasing)
+        else if (direction === 'bullish' && spyTrend === 'bearish') {
             scores.standard += 5;
-            signals.push(`Aligned with SPY ${spyTrend}`);
+            signals.push(`Dip buy setup (SPY ${spyTrend})`);
         }
-        // Against market (note it, but data shows counter-trend can work)
+        else if (direction === 'bullish' && spyTrend === 'bullish') {
+            scores.standard -= 5;
+            signals.push(`⚠️ Chasing (aligned SPY ${spyTrend})`);
+        }
         else if (direction !== 'neutral' && spyTrend && direction !== spyTrend) {
             signals.push(`⚠️ Against SPY ${spyTrend}`);
-            // BACKTEST: Counter-trend bullish in bearish SPY = 63.6% win rate
-            // So we don't heavily penalize counter-trend anymore
-            if (direction === 'bearish' && spyTrend === 'bullish') {
-                direction = 'pinned';
-                signals.push(`📍 Downgraded to PINNED (counter-trend)`);
-            }
         }
 
         // --- HIGH-EDGE FACTOR: VIX ELEVATED/FEAR (66.7% win rate) ---
@@ -1640,20 +1639,22 @@ async function analyzeSymbol(symbol, discoveryData) {
         action = 'SELL';
     }
 
-    // Extended high = reversal watch, not bullish continuation
+    // Extended high = reversal watch (excluded from tradeable tiers via badZones)
     if (zone === 'EXTENDED_HIGH' && direction === 'bullish') {
-        direction = 'pinned';
         signals.push(`📍 Extended high - reversal watch`);
+        // Note: direction stays 'bullish' — badZones excludes EXTENDED_HIGH from tradeable tiers
+        // Previously this set direction='pinned' which polluted pinned stats (0% WR, 29 signals)
     }
 
     // ============================================
     // DATA-DRIVEN TIER ASSIGNMENT
-    // Based on 201 signal backtest:
-    // - PRIME SETUP (AT_WALL + EXTENDED_RSI) = 89.5% win rate
-    // - STREAK signals: 73.7% win rate (+5 pts)
-    // - NEW signals: 66.7% win rate (+3 pts)
-    // - RETURNED signals: 11.1% win rate (capped at WATCH)
-    // - Pinned direction: 0% win rate (capped at WATCH)
+    // Based on 223 signal backtest (Jan 20 - Feb 13, 2026):
+    // - BUY_ZONE + bullish: 75.3% WR (core setup)
+    // - Score 60+: 63.1% WR | Score 50-59: 28.6% WR → threshold raised to 60
+    // - Elevated VIX: 92.9% WR | Normal VIX: 57.6% WR
+    // - Bearish SPY (dip buy): 100% WR | Bullish SPY (chase): 42.9% WR
+    // - Pinned/bearish/neutral direction: 0% WR → capped at WATCH
+    // - RETURNED signals: 11.1% WR → capped at WATCH
     // ============================================
 
     // Exclude historically bad zones from tradeable tiers
@@ -1697,10 +1698,9 @@ async function analyzeSymbol(symbol, discoveryData) {
     }
 
     // ============================================
-    // DATA-DRIVEN TIER CAPS
-    // Based on 201 validated signals:
-    // - RETURNED: 11.1% win rate → cap at WATCH
-    // - Pinned direction: 0% win rate → cap at WATCH
+    // DATA-DRIVEN TIER CAPS (223 signals)
+    // Pinned: 0% WR (0W/16L), Bearish: 0% (0W/3L), Neutral: 0% (0W/1L)
+    // RETURNED: 11.1% WR → all capped at WATCH
     // ============================================
     if (historyStatus?.label === 'RETURNED' && (tier === 'HIGH_CONVICTION' || tier === 'TRADEABLE')) {
         tier = 'WATCH';
@@ -1710,7 +1710,7 @@ async function analyzeSymbol(symbol, discoveryData) {
         tier = 'WATCH';
         tradeable = false;
     }
-    // Bearish/neutral: 0% win rate across 11 signals in backtest
+    // Bearish: 0% WR (0W/3L), Neutral: 0% WR (0W/1L) — 223 signal backtest
     if ((direction === 'bearish' || direction === 'neutral') && (tier === 'HIGH_CONVICTION' || tier === 'TRADEABLE')) {
         tier = 'WATCH';
         tradeable = false;

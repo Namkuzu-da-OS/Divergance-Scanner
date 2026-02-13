@@ -88,7 +88,7 @@ Bloodhound is the autonomous opportunity detection system running via PM2. It:
 - Discovers symbols from 3 sources (watchlist, market data, sector rotation)
 - Maps crypto/indices to ETFs (BTC→IBIT, ETH→ETHA, SPX→SPY)
 - Scores confluence (0-100) and classifies into tiers:
-  - **HIGH_CONVICTION**: Prime setup (AT_WALL + EXTENDED_RSI) + score >=40, or score >=50 at wall -> Telegram alert + signal logged
+  - **HIGH_CONVICTION**: Prime setup (AT_WALL + EXTENDED_RSI) + score >=40, or score >=60 at wall -> Telegram alert + signal logged
   - **TRADEABLE**: Score >=35 at wall + action -> Signal logged
   - **WATCH**: Score >=20 near wall, or EXTENDED_LOW + oversold RSI -> Alert only
   - **FILTERED**: Everything else -> No action
