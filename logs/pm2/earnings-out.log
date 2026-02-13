@@ -4622,3 +4622,80 @@ SCAN RESULTS:
 [2026-02-13T10:14:48.254Z] 🌙 Market CLOSED
 
 [2026-02-13T10:44:48.255Z] 🌙 Market CLOSED
+
+============================================================
+[2026-02-13T11:14:48.257Z] EARNINGS SCAN
+============================================================
+[Calendar] Stale (last updated: 2/12/2026). Auto-refreshing...
+
+Fetching earnings for 69 symbols...
+
+  Fetched 10 symbols with earnings...  Fetched 20 symbols with earnings...  Fetched 30 symbols with earnings...  Fetched 40 symbols with earnings...  Fetched 50 symbols with earnings...
+  Found 57 symbols with earnings data
+
+✅ Saved 59 earnings (57 fresh + 2 kept from cache)
+
+============================================================
+EARNINGS CALENDAR SUMMARY
+============================================================
+
+📈 PREM WINDOW (5-10 days out) - 2 candidates:
+   LBTYB  2026-02-18 (5 days) before_open
+   WMT    2026-02-19 (6 days) before_open
+
+📅 THIS WEEK (1-5 days out) - 1 stocks:
+   LBTYB  2026-02-18 (5 days) before_open
+
+⚠️  IMMINENT (0-2 days) - Avoid new positions:
+   CSCO   2026-02-11 (0 days) before_open
+   MAT    2026-02-10 (0 days) before_open
+   SNDK   2026-01-29 (0 days) before_open
+   IREN   2026-02-05 (0 days) before_open
+   BNAI   2025-12-02 (0 days) before_open
+   NKE    2025-12-18 (0 days) before_open
+   FDX    2025-12-18 (0 days) before_open
+
+🔴 REPORTING TODAY:
+   CSCO   before_open
+   MAT    before_open
+   SNDK   before_open
+   IREN   before_open
+   BNAI   before_open
+   NKE    before_open
+   FDX    before_open
+
+============================================================
+[Scan] Found 2 PREM candidates (5-10 days out)
+  Analyzing LBTYB...
+  Analyzing WMT...
+[SignalDB] Inserted earnings scan: 2 results, scanId=131
+[Scan] Saved 2 earnings results to DB (scanId=131)
+
+----------------------------------------
+SCAN RESULTS:
+  Total analyzed: 2
+  HIGH_CONVICTION: 0
+  TRADEABLE: 0
+  Alerts sent: 0
+
+[Done] Scan complete (153s). Next in 30 min.
+============================================================
+
+============================================================
+[2026-02-13T11:44:48.257Z] EARNINGS SCAN
+============================================================
+[Scan] Found 2 PREM candidates (5-10 days out)
+  Analyzing LBTYB...
+  Analyzing WMT...
+[SignalDB] Inserted earnings scan: 2 results, scanId=132
+[Scan] Saved 2 earnings results to DB (scanId=132)
+
+----------------------------------------
+SCAN RESULTS:
+  Total analyzed: 2
+  HIGH_CONVICTION: 0
+  TRADEABLE: 0
+  Alerts sent: 0
+
+[Done] Scan complete (10s). Next in 30 min.
+============================================================
