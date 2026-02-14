@@ -16,11 +16,22 @@ function getDb() {
     if (!db) {
         db = new Database(DB_PATH);
         db.pragma('journal_mode = WAL');
-        db.pragma('busy_timeout = 5000');
+        db.pragma('busy_timeout = 15000');
         initSchema();
     }
     return db;
 }
+
+// Graceful shutdown — close DB on process exit
+function closeDb() {
+    if (db) {
+        try { db.close(); } catch (e) { /* already closed */ }
+        db = null;
+    }
+}
+process.on('SIGTERM', () => { closeDb(); process.exit(0); });
+process.on('SIGINT', () => { closeDb(); process.exit(0); });
+process.on('exit', closeDb);
 
 function initSchema() {
     db.exec(`

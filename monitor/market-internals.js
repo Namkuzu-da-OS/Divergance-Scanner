@@ -53,50 +53,43 @@ function logError(msg) {
 }
 
 /**
- * Check if date is in DST
- */
-function isDST(date) {
-    const jan = new Date(date.getFullYear(), 0, 1);
-    const jul = new Date(date.getFullYear(), 6, 1);
-    return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset()) !== date.getTimezoneOffset();
-}
-
-/**
- * Get current ET hour and minute
+ * Get current ET time components (handles DST automatically via Intl)
  */
 function getETTime() {
     const now = new Date();
-    const etOffset = isDST(now) ? -4 : -5;
-    const etHour = (now.getUTCHours() + etOffset + 24) % 24;
-    const etMinute = now.getUTCMinutes();
-    return { hour: etHour, minute: etMinute };
+    const etStr = now.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false });
+    const [datePart, timePart] = etStr.split(', ');
+    const [hour, minute] = timePart.split(':').map(Number);
+    const day = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' })).getDay();
+    return { hour, minute, day };
 }
 
 /**
  * Get current ET time string
  */
 function getETTimeString() {
-    const now = new Date();
-    const etOffset = isDST(now) ? -4 : -5;
-    const etTime = new Date(now.getTime() + etOffset * 60 * 60 * 1000);
-    return etTime.toISOString().replace('T', ' ').substring(0, 19) + ' ET';
+    return new Date().toLocaleString('en-US', {
+        timeZone: 'America/New_York',
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: false
+    }) + ' ET';
 }
 
 /**
  * Get current ET date string (YYYY-MM-DD)
  */
 function getETDateString() {
-    const now = new Date();
-    const etOffset = isDST(now) ? -4 : -5;
-    const etTime = new Date(now.getTime() + etOffset * 60 * 60 * 1000);
-    return etTime.toISOString().substring(0, 10);
+    return new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
 }
 
 /**
  * Check if we're in Regular Trading Hours (9:30 AM - 4:00 PM ET)
  */
 function isRTH() {
-    const { hour, minute } = getETTime();
+    const { hour, minute, day } = getETTime();
+    // Skip weekends
+    if (day === 0 || day === 6) return false;
     const totalMin = hour * 60 + minute;
     const startMin = CONFIG.RTH_START_HOUR * 60 + CONFIG.RTH_START_MINUTE;  // 570
     const endMin = CONFIG.RTH_END_HOUR * 60 + CONFIG.RTH_END_MINUTE;        // 960
@@ -132,7 +125,13 @@ async function fetchQuote(symbol) {
 /**
  * Run a full internals scan — fetch all 9 symbols and store
  */
+let _scanInProgress = false;
+
 async function runScan() {
+    if (_scanInProgress) { log('Scan already in progress — skipping'); return; }
+    _scanInProgress = true;
+    try {
+
     if (isPaused) {
         log('Scanner paused, skipping scan');
         return;
@@ -225,6 +224,8 @@ async function runScan() {
     } catch (e) {
         logError(`Failed to store snapshot: ${e.message}`);
     }
+
+    } finally { _scanInProgress = false; }
 }
 
 // ============================================
@@ -317,6 +318,17 @@ async function main() {
         await runScan();
     }, CONFIG.SCAN_INTERVAL_MS);
 }
+
+// Global error handlers — log and exit cleanly for PM2 restart
+process.on('uncaughtException', (err) => {
+    logError(`Uncaught exception: ${err.message}`);
+    console.error(err);
+    process.exit(1);
+});
+process.on('unhandledRejection', (reason) => {
+    logError(`Unhandled rejection: ${reason}`);
+    process.exit(1);
+});
 
 main().catch(e => {
     logError(`Fatal error: ${e.message}`);

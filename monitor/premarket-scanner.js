@@ -64,50 +64,51 @@ function logError(msg) {
 }
 
 /**
- * Check if we're in pre-market hours (6 AM - 9:30 AM ET)
+ * Get current ET time components (handles DST automatically via Intl)
  */
-function isPremarketHours() {
+function getETTime() {
     const now = new Date();
-    // Convert to ET (UTC-5 or UTC-4 DST)
-    const etOffset = isDST(now) ? -4 : -5;
-    const etHour = (now.getUTCHours() + etOffset + 24) % 24;
-    const etMinute = now.getUTCMinutes();
-
-    // Pre-market: 6:00 AM - 9:30 AM ET
-    if (etHour < CONFIG.PREMARKET_START_HOUR) return false;
-    if (etHour > CONFIG.PREMARKET_END_HOUR) return false;
-    if (etHour === CONFIG.PREMARKET_END_HOUR && etMinute >= CONFIG.PREMARKET_END_MINUTE) return false;
-
-    return true;
+    const etStr = now.toLocaleString('en-US', { timeZone: 'America/New_York', hour12: false });
+    const [datePart, timePart] = etStr.split(', ');
+    const [hour, minute] = timePart.split(':').map(Number);
+    const day = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' })).getDay();
+    return { hour, minute, day };
 }
 
 /**
- * Check if date is in DST
+ * Check if we're in pre-market hours (6 AM - 9:30 AM ET, weekdays only)
  */
-function isDST(date) {
-    const jan = new Date(date.getFullYear(), 0, 1);
-    const jul = new Date(date.getFullYear(), 6, 1);
-    return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset()) !== date.getTimezoneOffset();
+function isPremarketHours() {
+    const { hour, minute, day } = getETTime();
+
+    // Skip weekends
+    if (day === 0 || day === 6) return false;
+
+    // Pre-market: 6:00 AM - 9:30 AM ET
+    if (hour < CONFIG.PREMARKET_START_HOUR) return false;
+    if (hour > CONFIG.PREMARKET_END_HOUR) return false;
+    if (hour === CONFIG.PREMARKET_END_HOUR && minute >= CONFIG.PREMARKET_END_MINUTE) return false;
+
+    return true;
 }
 
 /**
  * Get current ET time string
  */
 function getETTimeString() {
-    const now = new Date();
-    const etOffset = isDST(now) ? -4 : -5;
-    const etTime = new Date(now.getTime() + etOffset * 60 * 60 * 1000);
-    return etTime.toISOString().replace('T', ' ').substring(0, 19) + ' ET';
+    return new Date().toLocaleString('en-US', {
+        timeZone: 'America/New_York',
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: false
+    }) + ' ET';
 }
 
 /**
  * Get current ET date string (YYYY-MM-DD)
  */
 function getETDateString() {
-    const now = new Date();
-    const etOffset = isDST(now) ? -4 : -5;
-    const etTime = new Date(now.getTime() + etOffset * 60 * 60 * 1000);
-    return etTime.toISOString().substring(0, 10);
+    return new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
 }
 
 /**
@@ -352,13 +353,11 @@ async function discoverSymbols() {
     });
 
     try {
-        // SOURCE 3: Market Movers from S&P 500
+        // SOURCE 3: Market Movers from S&P 500 (sequential to respect API pacing)
         // These endpoints return today's biggest movers - perfect for finding gaps
-        const [volumeMovers, gainers, losers] = await Promise.all([
-            httpGet(`${CONFIG.OPTIONS_API}/api/movers/$SPX?sort=VOLUME`).catch(() => ({ screeners: [] })),
-            httpGet(`${CONFIG.OPTIONS_API}/api/movers/$SPX?sort=PERCENT_CHANGE_UP`).catch(() => ({ screeners: [] })),
-            httpGet(`${CONFIG.OPTIONS_API}/api/movers/$SPX?sort=PERCENT_CHANGE_DOWN`).catch(() => ({ screeners: [] }))
-        ]);
+        const volumeMovers = await httpGet(`${CONFIG.OPTIONS_API}/api/movers/$SPX?sort=VOLUME`).catch(() => ({ screeners: [] }));
+        const gainers = await httpGet(`${CONFIG.OPTIONS_API}/api/movers/$SPX?sort=PERCENT_CHANGE_UP`).catch(() => ({ screeners: [] }));
+        const losers = await httpGet(`${CONFIG.OPTIONS_API}/api/movers/$SPX?sort=PERCENT_CHANGE_DOWN`).catch(() => ({ screeners: [] }));
 
         // Volume leaders (high activity = something happening)
         (volumeMovers.screeners || []).slice(0, 15).forEach(m => {
@@ -438,7 +437,7 @@ async function fetchMarketData() {
         // Step 2: Fetch quotes from Options API (has closePrice for gap calculation)
         const marketData = {};
 
-        // Fetch in batches to avoid overwhelming the API
+        // Fetch sequentially with inter-call delay (API pacing)
         for (const symbol of symbols) {
             try {
                 const quoteResponse = await axios.get(
@@ -465,6 +464,8 @@ async function fetchMarketData() {
             } catch (e) {
                 // Skip symbols that fail
             }
+            // API pacing: 100ms between calls
+            await new Promise(r => setTimeout(r, 100));
         }
 
         // Add VIX separately (from Intel API - VIX is an index, not available via quotes)
@@ -649,7 +650,13 @@ function determineTier(score) {
 // MAIN SCAN LOGIC
 // ============================================
 
+let _scanInProgress = false;
+
 async function runScan() {
+    if (_scanInProgress) { log('Scan already in progress — skipping'); return; }
+    _scanInProgress = true;
+    try {
+
     if (isPaused) {
         log('Scanner is paused');
         return;
@@ -933,6 +940,8 @@ async function runScan() {
 
     lastScanTime = new Date();
     log(`Scan complete. Next scan in ${CONFIG.SCAN_INTERVAL_MS / 60000} minutes`);
+
+    } finally { _scanInProgress = false; }
 }
 
 // ============================================
@@ -1063,6 +1072,17 @@ async function main() {
         await runScan();
     }, CONFIG.SCAN_INTERVAL_MS);
 }
+
+// Global error handlers — log and exit cleanly for PM2 restart
+process.on('uncaughtException', (err) => {
+    logError(`Uncaught exception: ${err.message}`);
+    console.error(err);
+    process.exit(1);
+});
+process.on('unhandledRejection', (reason) => {
+    logError(`Unhandled rejection: ${reason}`);
+    process.exit(1);
+});
 
 main().catch(e => {
     logError(`Fatal error: ${e.message}`);

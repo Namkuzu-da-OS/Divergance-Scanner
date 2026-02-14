@@ -23,6 +23,26 @@ const MIME_TYPES = {
     '.ico': 'image/x-icon'
 };
 
+const MAX_BODY_SIZE = 1048576; // 1MB request body limit
+
+// Helper: collect request body with size limit
+function collectBody(req, res, callback) {
+    let body = '';
+    let exceeded = false;
+    req.on('data', chunk => {
+        body += chunk;
+        if (body.length > MAX_BODY_SIZE) {
+            exceeded = true;
+            res.writeHead(413, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Request body too large' }));
+            req.destroy();
+        }
+    });
+    req.on('end', () => {
+        if (!exceeded) callback(body);
+    });
+}
+
 const server = http.createServer((req, res) => {
     // CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -41,9 +61,7 @@ const server = http.createServer((req, res) => {
 
     // API: Save paper trades
     if (req.method === 'POST' && urlPath === '/api/save-paper-trades') {
-        let body = '';
-        req.on('data', chunk => { body += chunk; });
-        req.on('end', () => {
+        collectBody(req, res, (body) => {
             try {
                 const data = JSON.parse(body);
                 const filePath = path.join(ROOT, 'data', 'paper_trades.json');
@@ -811,9 +829,7 @@ const server = http.createServer((req, res) => {
 
     // API: Add a new position
     if (req.method === 'POST' && urlPath === '/api/positions') {
-        let body = '';
-        req.on('data', chunk => { body += chunk; });
-        req.on('end', () => {
+        collectBody(req, res, (body) => {
             try {
                 const data = JSON.parse(body);
                 if (!data.symbol || !data.entry_price) {
@@ -836,9 +852,7 @@ const server = http.createServer((req, res) => {
 
     // API: Close a position
     if (req.method === 'PATCH' && urlPath === '/api/positions/close') {
-        let body = '';
-        req.on('data', chunk => { body += chunk; });
-        req.on('end', () => {
+        collectBody(req, res, (body) => {
             try {
                 const data = JSON.parse(body);
                 if (!data.id || !data.exit_price) {
@@ -994,9 +1008,7 @@ const server = http.createServer((req, res) => {
 
     // POST /api/analyses - Create new analysis
     if (req.method === 'POST' && urlPath === '/api/analyses') {
-        let body = '';
-        req.on('data', chunk => { body += chunk; });
-        req.on('end', () => {
+        collectBody(req, res, (body) => {
             try {
                 const data = JSON.parse(body);
                 if (!data.symbol || !data.verdict) {
@@ -1019,9 +1031,7 @@ const server = http.createServer((req, res) => {
 
     // PATCH /api/analyses/:id/outcome - Update outcome
     if (req.method === 'PATCH' && urlPath.match(/^\/api\/analyses\/\d+\/outcome$/)) {
-        let body = '';
-        req.on('data', chunk => { body += chunk; });
-        req.on('end', () => {
+        collectBody(req, res, (body) => {
             try {
                 const id = parseInt(urlPath.split('/')[3]);
                 const data = JSON.parse(body);
@@ -1048,10 +1058,19 @@ const server = http.createServer((req, res) => {
         return;
     }
 
-    let filePath = path.join(ROOT, urlPath === '/' ? 'morning.html' : urlPath);
+    // Decode URL encoding first, then resolve to prevent traversal via %2e%2e etc.
+    let decodedPath;
+    try {
+        decodedPath = decodeURIComponent(urlPath);
+    } catch (e) {
+        res.writeHead(400);
+        res.end('Bad Request');
+        return;
+    }
+    let filePath = path.resolve(ROOT, '.' + (decodedPath === '/' ? '/morning.html' : decodedPath));
 
-    // Security: prevent directory traversal
-    if (!filePath.startsWith(ROOT)) {
+    // Security: prevent directory traversal (resolve normalizes ../)
+    if (!filePath.startsWith(ROOT + path.sep) && filePath !== ROOT) {
         res.writeHead(403);
         res.end('Forbidden');
         return;
@@ -1088,4 +1107,16 @@ server.on('error', (err) => {
     } else {
         console.error(`[Web Server] Error:`, err.message);
     }
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+    console.log('[Web Server] SIGTERM received, shutting down gracefully...');
+    server.close(() => process.exit(0));
+    setTimeout(() => process.exit(0), 5000); // Force exit after 5s
+});
+process.on('SIGINT', () => {
+    console.log('[Web Server] SIGINT received, shutting down...');
+    server.close(() => process.exit(0));
+    setTimeout(() => process.exit(0), 5000);
 });

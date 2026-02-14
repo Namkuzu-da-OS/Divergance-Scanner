@@ -992,10 +992,9 @@ async function fetchRsFromApi() {
     const divergenceApi = CONFIG.apis.divergence;
     if (!divergenceApi) return null;
 
-    const [rankings, regime] = await Promise.all([
-        fetchJSON(`${divergenceApi}/api/relative-strength/rankings`, 15000),
-        fetchJSON(`${divergenceApi}/api/rotation/regime`, 5000)
-    ]);
+    // Sequential to respect API pacing (was Promise.all)
+    const rankings = await fetchJSON(`${divergenceApi}/api/relative-strength/rankings`, 15000);
+    const regime = await fetchJSON(`${divergenceApi}/api/rotation/regime`, 5000);
 
     if (!rankings) {
         console.log('[RS] Divergence scanner unavailable — skipping RS scoring');
@@ -1474,6 +1473,11 @@ async function analyzeSymbol(symbol, discoveryData) {
         const isIndexETF = symbol === 'SPY' || symbol === 'QQQ';
 
         if (isIndexETF) {
+            // SPY/QQQ: 0% WR in 19 signals. Index ETFs have circular confluence —
+            // "SPY at SPY's put wall during bullish SPY trend" is self-referential.
+            // Penalize to require stronger non-market factors for conviction.
+            scores.standard -= 8;
+            signals.push(`Index ETF penalty (self-referential confluence)`);
             signals.push(`Market: VIX ${vix.toFixed(1)}`);
         }
         else if (direction === 'pinned') {
@@ -1595,9 +1599,11 @@ async function analyzeSymbol(symbol, discoveryData) {
     // Standard: BB, trend, flow, confluence, RS, history (0-30)
     // ============================================
 
-    const totalScore = Math.max(0, Math.min(100,
-        scores.base + scores.highEdge + scores.standard
-    ));
+    // Raw score uncapped — preserves differentiation at the top.
+    // Components can sum to ~115, so capping at 100 lost signal quality.
+    // Display score is capped at 100 for UI, but raw score used for tier ranking.
+    const rawScore = Math.max(0, scores.base + scores.highEdge + scores.standard);
+    const totalScore = Math.min(100, rawScore);
 
     // Track if this is a "prime setup" for tier determination
     const isPrimeSetup = atWallCondition && extendedRsiCondition;
@@ -1698,23 +1704,32 @@ async function analyzeSymbol(symbol, discoveryData) {
     }
 
     // ============================================
-    // DATA-DRIVEN TIER CAPS (223 signals)
-    // Pinned: 0% WR (0W/16L), Bearish: 0% (0W/3L), Neutral: 0% (0W/1L)
-    // RETURNED: 11.1% WR → all capped at WATCH
+    // DATA-DRIVEN TIER ADJUSTMENTS (223 signals)
     // ============================================
+
+    // VIX REGIME BOOST: Elevated VIX = 92.9% WR (vs 57.6% normal)
+    // Promote TRADEABLE → HIGH_CONVICTION during elevated/fear VIX
+    const vixForBoost = marketContext?.vix || 0;
+    if (vixForBoost >= SETTINGS.VIX_ELEVATED && tier === 'TRADEABLE' && notBadZone) {
+        tier = 'HIGH_CONVICTION';
+        signals.push(`🔥 VIX regime boost (elevated VIX → HC)`);
+    }
+
+    // TIER CAPS (data-driven)
+    // RETURNED: 11.1% WR → capped at WATCH
     if (historyStatus?.label === 'RETURNED' && (tier === 'HIGH_CONVICTION' || tier === 'TRADEABLE')) {
         tier = 'WATCH';
         tradeable = false;
     }
+    // Pinned: 0% WR (0W/16L) → capped at WATCH
     if (direction === 'pinned' && (tier === 'HIGH_CONVICTION' || tier === 'TRADEABLE')) {
         tier = 'WATCH';
         tradeable = false;
     }
-    // Bearish: 0% WR (0W/3L), Neutral: 0% WR (0W/1L) — 223 signal backtest
-    if ((direction === 'bearish' || direction === 'neutral') && (tier === 'HIGH_CONVICTION' || tier === 'TRADEABLE')) {
-        tier = 'WATCH';
-        tradeable = false;
-    }
+    // Bearish/neutral: removed cap (was based on n=3 sample). System needs to collect
+    // short-side data to validate tier thresholds. Counter-trend signals show 75% WR
+    // when bearish SPY + bullish signal, so short-side can outperform.
+    // Bearish signals still require same confluence (wall + RSI + score) to qualify.
 
     // Calculate distances for output
     const distances = {
@@ -1731,12 +1746,12 @@ async function analyzeSymbol(symbol, discoveryData) {
     // ============================================
 
     // Strategy #1: Smart Money Dip Buy
-    // When RSI low momentum + unusual CALL activity + at put wall support = smart money buying the dip
-    const hasRsiLowMomentum = signals.some(s => s.includes('RSI low momentum'));
+    // RSI oversold + unusual CALL activity + at put wall support = smart money buying the dip
+    const hasRsiOversold = signals.some(s => s.includes('RSI oversold'));
     const hasUnusualCall = signals.some(s => s.includes('Unusual CALL'));
     const hasAtPutWall = signals.some(s => s.includes('put wall support'));
 
-    if (hasRsiLowMomentum && hasUnusualCall && hasAtPutWall) {
+    if (hasRsiOversold && hasUnusualCall && hasAtPutWall) {
         signals.unshift('🎯 TRIGGER: Smart Money Dip Buy');
     }
 
@@ -1745,6 +1760,7 @@ async function analyzeSymbol(symbol, discoveryData) {
         price,
         direction,
         totalScore,
+        rawScore,  // Uncapped score for ranking/differentiation
         scores,
         signals,
         // Zone data for zone-scanner UI
@@ -2216,7 +2232,17 @@ function startControlServer() {
 // MAIN SCAN LOOP
 // ============================================
 
+let _scanInProgress = false;
+
 async function runScan() {
+    // Prevent overlapping scans
+    if (_scanInProgress) {
+        console.log(`[${new Date().toISOString()}] ⏳ Scan already in progress — skipping`);
+        return;
+    }
+    _scanInProgress = true;
+
+    try {
     // Check if paused
     if (isPaused()) {
         console.log(`\n[${new Date().toISOString()}] 💤 Bloodhound PAUSED - skipping scan`);
@@ -2290,10 +2316,7 @@ async function runScan() {
         console.log('[Context] Could not fetch market context');
     }
 
-    // 1.5. Validate old signals (4h window)
-    await signalLogger.validateOldSignals().catch(e => {
-        console.error('[Signal Validation] Error:', e.message);
-    });
+    // Signal validation moved to end of scan cycle (with priceCache) — see step 9
 
     // 1.6. Fetch market internals snapshot for scoring
     latestInternals = signalDb.getLatestInternals();
@@ -2346,9 +2369,10 @@ async function runScan() {
     for (let i = 0; i < symbols.length; i++) {
         const symbolData = symbols[i];
 
-        // Pace requests: small delay between every symbol to avoid overwhelming the API
+        // Pace requests: adaptive delay based on API response times
         if (i > 0) {
-            await sleep(200);
+            const paceDelay = backoffState.active ? backoffState.batchDelayMs : 200;
+            await sleep(paceDelay);
         }
 
         let analysis = await analyzeSymbol(symbolData.symbol, symbolData);
@@ -2475,6 +2499,41 @@ async function runScan() {
         });
     }
 
+    // Helper: build signal log data from analysis
+    function buildSignalLogData(analysis) {
+        const logData = {
+            symbol: analysis.symbol,
+            price: analysis.price,
+            direction: analysis.direction,
+            score: analysis.totalScore,
+            zone: analysis.zone,
+            tier: analysis.tier,
+            signals: analysis.signals,
+            vix: marketContext?.vix,
+            vix_regime: marketContext?.vixRegime,
+            spy_trend: marketContext?.spyTrend,
+            spy_price: marketContext?.spyPrice,
+            gamma_regime: marketContext?.gammaRegime,
+            intraday_bias: marketContext?.intradayBias,
+            signal_type: analysis.tier,
+            history_status: analysis.history_status?.label,
+            consecutive_days: analysis.history_status?.consecutive_days
+        };
+
+        if (analysis.unusualOption) {
+            const opt = analysis.unusualOption;
+            logData.option_contract = opt.contract;
+            logData.option_type = opt.type;
+            logData.option_strike = opt.strike;
+            logData.option_expiration = opt.expiration;
+            logData.option_dte = opt.dte;
+            logData.option_vol_oi = opt.vol_oi;
+            logData.option_premium_flow = opt.premium_flow;
+        }
+
+        return logData;
+    }
+
     // Send Telegram alerts for HIGH_CONVICTION only
     if (highConviction.length > 0) {
         console.log(`\n[Alerts] Sending ${highConviction.length} HIGH CONVICTION alert(s)...`);
@@ -2493,42 +2552,19 @@ async function runScan() {
                 alertCount: (existing?.alertCount || 0) + 1
             });
 
-            // Log signal for validation tracking
-            const logData = {
-                symbol: analysis.symbol,
-                price: analysis.price,
-                direction: analysis.direction,
-                score: analysis.totalScore,
-                zone: analysis.zone,
-                tier: analysis.tier,
-                signals: analysis.signals,
-                vix: marketContext?.vix,
-                vix_regime: marketContext?.vixRegime,
-                spy_trend: marketContext?.spyTrend,
-                spy_price: marketContext?.spyPrice,
-                gamma_regime: marketContext?.gammaRegime,
-                intraday_bias: marketContext?.intradayBias,
-                signal_type: analysis.tier,
-                history_status: analysis.history_status?.label,
-                consecutive_days: analysis.history_status?.consecutive_days
-            };
-
-            // Include unusual option data for option signal tracking
-            if (analysis.unusualOption) {
-                const opt = analysis.unusualOption;
-                logData.option_contract = opt.contract;
-                logData.option_type = opt.type;
-                logData.option_strike = opt.strike;
-                logData.option_expiration = opt.expiration;
-                logData.option_dte = opt.dte;
-                logData.option_vol_oi = opt.vol_oi;
-                logData.option_premium_flow = opt.premium_flow;
-            }
-
-            await signalLogger.logSignal(logData);
+            await signalLogger.logSignal(buildSignalLogData(analysis));
         }
     } else {
         console.log(`\n[Alerts] No high-conviction opportunities (${tradeable.length} tradeable, ${watchList.length} on watch)`);
+    }
+
+    // Log TRADEABLE signals too (no Telegram alert, just DB tracking)
+    // This enables tier threshold calibration by comparing HC vs TRADEABLE outcomes
+    if (tradeable.length > 0) {
+        console.log(`\n[Signal Logger] Logging ${tradeable.length} TRADEABLE signal(s) for validation...`);
+        for (const analysis of tradeable) {
+            await signalLogger.logSignal(buildSignalLogData(analysis));
+        }
     }
 
     // 7. Write results to file (format compatible with scanner.html)
@@ -2564,7 +2600,9 @@ async function runScan() {
             swing_bias: marketContext?.swingBias || 'NEUTRAL',
             gamma_regime: marketContext?.gammaRegime || 'unknown',
             iv_rank: marketContext?.ivRank || 0,
-            rotation_regime: rsContext?.regime || null
+            rotation_regime: rsContext?.regime || null,
+            rs_data_available: !!rsContext,
+            internals_available: !!latestInternals
         },
         // Bloodhound-specific data
         discovery: {
@@ -2743,6 +2781,9 @@ async function runScan() {
     } catch (e) {
         console.error('[Bloodhound] Signal validation error:', e.message);
     }
+    } finally {
+        _scanInProgress = false;
+    }
 }
 
 // ============================================
@@ -2807,5 +2848,15 @@ async function main() {
     console.log('\nBloodhound running. Press Ctrl+C to stop.');
     console.log('Commands: node bloodhound-scanner.js [pause|resume|status]');
 }
+
+// Global error handlers — log and exit cleanly for PM2 restart
+process.on('uncaughtException', (err) => {
+    console.error(`[Bloodhound FATAL] Uncaught exception:`, err);
+    process.exit(1);
+});
+process.on('unhandledRejection', (reason) => {
+    console.error(`[Bloodhound FATAL] Unhandled rejection:`, reason);
+    process.exit(1);
+});
 
 main().catch(console.error);

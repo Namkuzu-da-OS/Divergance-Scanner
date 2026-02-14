@@ -17,7 +17,8 @@ module.exports = {
       watch: false,
       autorestart: true,
       max_restarts: 10,
-      restart_delay: 5000
+      restart_delay: 5000,
+      max_memory_restart: '512M'
     },
     {
       name: 'opportunity',
@@ -26,7 +27,8 @@ module.exports = {
       watch: false,
       autorestart: true,
       max_restarts: 10,
-      restart_delay: 5000
+      restart_delay: 5000,
+      max_memory_restart: '256M'
     },
     {
       name: 'earnings',
@@ -35,7 +37,8 @@ module.exports = {
       watch: false,
       autorestart: true,
       max_restarts: 10,
-      restart_delay: 5000
+      restart_delay: 5000,
+      max_memory_restart: '256M'
     },
     {
       name: 'premarket',
@@ -44,7 +47,8 @@ module.exports = {
       watch: false,
       autorestart: true,
       max_restarts: 10,
-      restart_delay: 5000
+      restart_delay: 5000,
+      max_memory_restart: '256M'
     },
     {
       name: 'webserver',
@@ -53,7 +57,8 @@ module.exports = {
       watch: false,
       autorestart: true,
       max_restarts: 10,
-      restart_delay: 5000
+      restart_delay: 5000,
+      max_memory_restart: '512M'
     },
     {
       name: 'eod-tracker',
@@ -62,7 +67,8 @@ module.exports = {
       watch: false,
       autorestart: true,
       max_restarts: 5,
-      restart_delay: 10000
+      restart_delay: 10000,
+      max_memory_restart: '128M'
     },
     {
       name: 'internals',
@@ -71,7 +77,8 @@ module.exports = {
       watch: false,
       autorestart: true,
       max_restarts: 10,
-      restart_delay: 5000
+      restart_delay: 5000,
+      max_memory_restart: '128M'
     }
   ]
 };

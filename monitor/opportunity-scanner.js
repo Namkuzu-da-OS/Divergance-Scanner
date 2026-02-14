@@ -12,6 +12,7 @@
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
+const https = require('https');
 const opportunityDb = require('./opportunity-db');
 const { sendTelegram } = require('./telegram');
 
@@ -143,12 +144,10 @@ async function discoverSymbols() {
     });
 
     try {
-        // SOURCE 3: Market Movers from S&P 500
-        const [volumeMovers, gainers, losers] = await Promise.all([
-            httpGet(`${APIS.options}/api/movers/$SPX?sort=VOLUME`).catch(() => ({ screeners: [] })),
-            httpGet(`${APIS.options}/api/movers/$SPX?sort=PERCENT_CHANGE_UP`).catch(() => ({ screeners: [] })),
-            httpGet(`${APIS.options}/api/movers/$SPX?sort=PERCENT_CHANGE_DOWN`).catch(() => ({ screeners: [] }))
-        ]);
+        // SOURCE 3: Market Movers from S&P 500 (sequential to respect API pacing)
+        const volumeMovers = await httpGet(`${APIS.options}/api/movers/$SPX?sort=VOLUME`).catch(() => ({ screeners: [] }));
+        const gainers = await httpGet(`${APIS.options}/api/movers/$SPX?sort=PERCENT_CHANGE_UP`).catch(() => ({ screeners: [] }));
+        const losers = await httpGet(`${APIS.options}/api/movers/$SPX?sort=PERCENT_CHANGE_DOWN`).catch(() => ({ screeners: [] }));
 
         // Volume leaders (highest activity)
         (volumeMovers.screeners || []).slice(0, 10).forEach(m => {
@@ -704,7 +703,13 @@ function buildSignalsWithEarningsContext(signals, earnings, unusualCalls, unusua
     return signals;
 }
 
+let _scanInProgress = false;
+
 async function runScan() {
+    if (_scanInProgress) { console.log('[Opportunity] Scan already in progress — skipping'); return; }
+    _scanInProgress = true;
+    try {
+
     if (isPaused) {
         console.log('[Opportunity] Scanner paused, skipping scan');
         return;
@@ -855,6 +860,8 @@ async function runScan() {
 
     const scanElapsed = Math.round((Date.now() - scanStart) / 1000);
     console.log(`[Opportunity] Scan complete in ${scanElapsed}s. Next scan at ${nextScanTime.toISOString()}`);
+
+    } finally { _scanInProgress = false; }
 }
 
 // ============================================
@@ -1171,3 +1178,13 @@ if (args.includes('pause')) {
         }
     }, 60 * 1000); // Check every minute
 }
+
+// Global error handlers — log and exit cleanly for PM2 restart
+process.on('uncaughtException', (err) => {
+    console.error(`[Opportunity FATAL] Uncaught exception:`, err);
+    process.exit(1);
+});
+process.on('unhandledRejection', (reason) => {
+    console.error(`[Opportunity FATAL] Unhandled rejection:`, reason);
+    process.exit(1);
+});

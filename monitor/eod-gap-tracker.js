@@ -95,7 +95,10 @@ async function sendTelegramSummary(processResult) {
  */
 async function fetchQuote(symbol) {
     try {
-        const response = await fetch(`${OPTIONS_API}/api/quotes/${symbol}`);
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
+        const response = await fetch(`${OPTIONS_API}/api/quotes/${symbol}`, { signal: controller.signal });
+        clearTimeout(timeout);
         if (!response.ok) return null;
         return await response.json();
     } catch (e) {
@@ -110,7 +113,10 @@ async function fetchQuote(symbol) {
 async function fetchDailyBar(symbol) {
     try {
         // Try to get today's OHLC from history endpoint
-        const response = await fetch(`${OPTIONS_API}/api/history/${symbol}?range=1d`);
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 15000);
+        const response = await fetch(`${OPTIONS_API}/api/history/${symbol}?range=1d`, { signal: controller.signal });
+        clearTimeout(timeout);
         if (!response.ok) {
             // Fallback to quote
             return await fetchQuoteAsDailyBar(symbol);

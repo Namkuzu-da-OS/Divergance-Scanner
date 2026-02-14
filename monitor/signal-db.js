@@ -26,11 +26,22 @@ function getDb() {
     if (!db) {
         db = new Database(DB_PATH);
         db.pragma('journal_mode = WAL');
-        db.pragma('busy_timeout = 5000');
+        db.pragma('busy_timeout = 15000');
         initSchema();
     }
     return db;
 }
+
+// Graceful shutdown — close DB on process exit
+function closeDb() {
+    if (db) {
+        try { db.close(); } catch (e) { /* already closed */ }
+        db = null;
+    }
+}
+process.on('SIGTERM', () => { closeDb(); process.exit(0); });
+process.on('SIGINT', () => { closeDb(); process.exit(0); });
+process.on('exit', closeDb);
 
 function initSchema() {
     db.exec(`
@@ -1156,6 +1167,10 @@ function closeStaleSignals() {
 /**
  * Get signals needing checkpoint validation
  * Uses safe column mapping instead of string interpolation
+ *
+ * Note: 7d checkpoints run on CLOSED signals too, because the 72h time stop
+ * closes signals before 7 days. For 7d, we fetch the current price at checkpoint
+ * time to see how the signal performed after a full week.
  */
 function getSignalsForCheckpoint(checkpointType) {
     validateCheckpointType(checkpointType);
@@ -1171,9 +1186,15 @@ function getSignalsForCheckpoint(checkpointType) {
     };
     const checkpointColumn = columnMap[checkpointType];
 
+    // 4h and 24h: only active signals (still being tracked)
+    // 7d: include closed signals too (72h time stop closes before 7d checkpoint)
+    const statusFilter = checkpointType === '7d'
+        ? "status IN ('active', 'closed')"
+        : "status = 'active'";
+
     return getDb().prepare(`
         SELECT * FROM signals
-        WHERE status = 'active'
+        WHERE ${statusFilter}
         AND ${checkpointColumn} = 0
         AND timestamp <= ?
     `).all(cutoffTime);
@@ -1473,15 +1494,31 @@ function computeHistoryStatus(symbol) {
     }
 
     const today = new Date().toISOString().split('T')[0];
-    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-    // Check consecutive days
+    // Check consecutive TRADING days (skip weekends)
     let consecutiveDays = 0;
     const sortedDates = history.map(h => h.date).sort().reverse();
 
-    for (let i = 0; i < sortedDates.length; i++) {
-        const expectedDate = new Date(Date.now() - i * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-        if (sortedDates[i] === expectedDate) {
+    // Build list of expected trading days going backwards from today
+    function getTradingDaysBack(count) {
+        const dates = [];
+        let d = new Date();
+        d.setHours(12, 0, 0, 0); // noon to avoid timezone edge cases
+        for (let found = 0; found < count; ) {
+            const dateStr = d.toISOString().split('T')[0];
+            const day = d.getDay();
+            if (day !== 0 && day !== 6) { // Skip Saturday (6) and Sunday (0)
+                dates.push(dateStr);
+                found++;
+            }
+            d = new Date(d.getTime() - 24 * 60 * 60 * 1000);
+        }
+        return dates;
+    }
+
+    const expectedDates = getTradingDaysBack(sortedDates.length + 5);
+    for (let i = 0; i < sortedDates.length && i < expectedDates.length; i++) {
+        if (sortedDates[i] === expectedDates[i]) {
             consecutiveDays++;
         } else {
             break;

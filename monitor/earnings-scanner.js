@@ -406,7 +406,13 @@ async function refreshCalendarIfNeeded() {
 /**
  * Run the earnings scan
  */
+let _scanInProgress = false;
+
 async function runScan() {
+    if (_scanInProgress) { console.log('[Earnings] Scan already in progress — skipping'); return; }
+    _scanInProgress = true;
+    try {
+
     // Check pause state
     if (isPaused()) {
         console.log(`\n[${new Date().toISOString()}] 💤 Earnings Scanner PAUSED`);
@@ -567,6 +573,8 @@ async function runScan() {
         console.log(`\n[Done] Scan complete (${scannerState.lastScanDuration}s). Next in ${SETTINGS.scanIntervalMs / 60000} min.`);
         console.log('='.repeat(60));
     }
+
+    } finally { _scanInProgress = false; }
 }
 
 /**
@@ -817,6 +825,16 @@ module.exports = {
     sendTelegram,
     SETTINGS
 };
+
+// Global error handlers — log and exit cleanly for PM2 restart
+process.on('uncaughtException', (err) => {
+    console.error(`[Earnings FATAL] Uncaught exception:`, err);
+    process.exit(1);
+});
+process.on('unhandledRejection', (reason) => {
+    console.error(`[Earnings FATAL] Unhandled rejection:`, reason);
+    process.exit(1);
+});
 
 // Run if called directly
 if (require.main === module) {
