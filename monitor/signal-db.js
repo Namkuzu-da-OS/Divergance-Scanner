@@ -42,6 +42,14 @@ function closeDb() {
 // Let the importing process control exit — it already gets 'exit' event for DB cleanup
 process.on('exit', closeDb);
 
+/**
+ * Get today's date in ET timezone (YYYY-MM-DD format)
+ * Replaces new Date().toISOString().split('T')[0] which returns UTC date
+ */
+function getETDate(date = new Date()) {
+    return date.toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+}
+
 function initSchema() {
     db.exec(`
         -- Core signals table
@@ -1528,7 +1536,7 @@ function computeHistoryStatus(symbol) {
         return { label: 'NEW', consecutive_days: 0, trend: null };
     }
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = getETDate();
 
     // Check consecutive TRADING days (skip weekends)
     let consecutiveDays = 0;
@@ -1690,8 +1698,8 @@ function getSymbolVelocity(symbol) {
  * Get velocity for all recent symbols (for batch processing)
  */
 function getAllVelocities() {
-    const today = new Date().toISOString().split('T')[0];
-    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const today = getETDate();
+    const yesterday = getETDate(new Date(Date.now() - 24 * 60 * 60 * 1000));
 
     return getDb().prepare(`
         SELECT
@@ -1874,7 +1882,7 @@ function getLatestPremarketData() {
  * Get pre-market stats for today
  */
 function getTodayPremarketStats() {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getETDate();
 
     const scans = getDb().prepare(`
         SELECT COUNT(*) as scan_count,
@@ -1905,7 +1913,7 @@ function getTodayPremarketStats() {
  * Used to restore session watchlist after scanner restart
  */
 function getTodaySessionMovers() {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getETDate();
 
     // Get all unique movers from today, keeping the best (peak) data for each
     const movers = getDb().prepare(`
@@ -1999,7 +2007,7 @@ function updateGapEOD(moverId, eodData) {
  * Get gaps that need EOD tracking (from today, no EOD data yet)
  */
 function getGapsNeedingEOD() {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getETDate();
 
     // Get ONE row per symbol (the one with peak gap) that needs EOD data
     return getDb().prepare(`
@@ -2240,7 +2248,7 @@ function getRepeatOffenders(options = {}) {
  * Get today's gaps enriched with historical context
  */
 function getTodayGapsWithHistory() {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getETDate();
 
     // Get today's unique gaps - one per symbol with peak gap value
     const todayGaps = getDb().prepare(`
@@ -3497,6 +3505,7 @@ function getAnalysisStats() {
 
 module.exports = {
     getDb,
+    getETDate,
     insertSignal,
     updatePriceTracking,
     recordCheckpoint,

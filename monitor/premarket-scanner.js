@@ -981,7 +981,7 @@ function startControlServer() {
             res.end(JSON.stringify({ success: true, paused: false }));
         } else if (req.method === 'POST' && url === '/scan') {
             log('Manual scan triggered');
-            runScan();
+            runScan().catch(err => console.error('[Pre-Market] Manual scan error:', err.message));
             res.writeHead(200);
             res.end(JSON.stringify({ success: true, message: 'Scan triggered' }));
         } else if (req.method === 'GET' && url === '/latest') {

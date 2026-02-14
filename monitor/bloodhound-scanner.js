@@ -2640,11 +2640,11 @@ async function runScan() {
                 reasons.push(`RSI ${a.technicals.rsi.toFixed(1)} < 30 (low momentum)`);
                 reasons.push('At put wall support + momentum reset = Strong buy');
             } else {
-                reasons.push(`Within 0.5% of put wall ($${a.levels.putWall?.toFixed(2) || 'N/A'})`);
+                reasons.push(`Within ${SETTINGS.WALL_THRESHOLD_PCT}% of put wall ($${a.levels.putWall?.toFixed(2) || 'N/A'})`);
                 reasons.push(`RSI ${a.technicals.rsi?.toFixed(1) || 'N/A'} - momentum not extended`);
             }
         } else if (a.zone === 'SELL_ZONE') {
-            reasons.push(`Within 0.5% of call wall ($${a.levels.callWall?.toFixed(2) || 'N/A'})`);
+            reasons.push(`Within ${SETTINGS.WALL_THRESHOLD_PCT}% of call wall ($${a.levels.callWall?.toFixed(2) || 'N/A'})`);
             reasons.push(`RSI ${a.technicals.rsi?.toFixed(1) || 'N/A'} - momentum not depleted`);
         } else if (a.zone === 'EXTENDED_HIGH') {
             reasons.push('Price above call wall (breakout or reversal)');

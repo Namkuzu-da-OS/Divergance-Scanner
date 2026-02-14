@@ -934,14 +934,18 @@ const server = http.createServer((req, res) => {
 
         proxyReq.on('error', (err) => {
             console.error('[Web Server] Proxy error (analytics):', err.message);
-            res.writeHead(502, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: 'Upstream unavailable: ' + err.message }));
+            if (!res.headersSent) {
+                res.writeHead(502, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Upstream unavailable: ' + err.message }));
+            }
         });
 
         proxyReq.on('timeout', () => {
             proxyReq.destroy();
-            res.writeHead(504, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ error: 'Upstream timeout' }));
+            if (!res.headersSent) {
+                res.writeHead(504, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Upstream timeout' }));
+            }
         });
 
         // Forward request body for POST/PUT

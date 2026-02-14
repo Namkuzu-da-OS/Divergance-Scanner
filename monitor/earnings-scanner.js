@@ -530,7 +530,7 @@ async function runScan() {
             try {
                 signalDb.addToWatchlist(result.symbol, {
                     source: 'earnings',
-                    notes: `Earnings PREM: ${result.earningsDate || 'upcoming'} - score ${result.score}`,
+                    notes: `Earnings PREM: ${result.earnings_date || 'upcoming'} - score ${result.score}`,
                     scoreAtAdd: result.score,
                     tierAtAdd: result.tier,
                     expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
