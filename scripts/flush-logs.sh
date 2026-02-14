@@ -6,7 +6,7 @@
 /home/bigpic/github/wingman/scripts/archive-logs.sh
 
 # Then flush
-for service in bloodhound opportunity earnings premarket eod-tracker webserver; do
+for service in bloodhound opportunity earnings premarket eod-tracker webserver internals; do
     pm2 flush "$service" 2>/dev/null
 done
 

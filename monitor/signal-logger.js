@@ -21,6 +21,21 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// Tier hierarchy for promotion checks (higher index = higher tier)
+const TIER_RANK = { FILTERED: 0, WATCH: 1, TRADEABLE: 2, HIGH_CONVICTION: 3 };
+
+/**
+ * Check if newTier outranks existingTier — if so, promote in DB
+ */
+function maybePromoteTier(signalId, symbol, existingTier, newTier, newScore) {
+  const existingRank = TIER_RANK[existingTier] ?? -1;
+  const newRank = TIER_RANK[newTier] ?? -1;
+  if (newRank > existingRank) {
+    signalDb.updateSignalTier(signalId, newTier, newScore);
+    console.log(`[Signal Logger] ${symbol} tier promoted: ${existingTier} → ${newTier} (score: ${newScore})`);
+  }
+}
+
 /**
  * Log a new signal when alert fires
  * Deduplicates: only one active signal per symbol allowed
@@ -53,6 +68,9 @@ async function logSignal(alertData) {
       }
     }
 
+    // Promote tier if new alert outranks existing (e.g. TRADEABLE → HC)
+    maybePromoteTier(existingSignal.signal_id, alertData.symbol, existingSignal.tier, alertData.tier, alertData.score);
+
     // Return existing signal ID - price tracking continues via updateActiveSignalPrices()
     return existingSignal.signal_id;
   }
@@ -61,6 +79,9 @@ async function logSignal(alertData) {
   // This catches the re-logging-after-auto-close bug
   const todaySignal = signalDb.hasSignalToday(alertData.symbol);
   if (todaySignal) {
+    // Promote tier if new alert outranks existing (e.g. TRADEABLE → HC)
+    maybePromoteTier(todaySignal.signal_id, alertData.symbol, todaySignal.tier, alertData.tier, alertData.score);
+
     console.log(`[Signal Logger] ${alertData.symbol} already has signal today (${todaySignal.signal_id}, status: ${todaySignal.status}) — skipping`);
     return todaySignal.signal_id;
   }

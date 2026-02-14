@@ -20,6 +20,20 @@ const { sendTelegram } = require('./telegram');
 
 const OPTIONS_API = config.apis.options;
 
+// Re-entrancy guard — prevent overlapping scans (4:15 + 4:30 backup)
+let _scanInProgress = false;
+
+// Global error handlers — log and stay alive (PM2 will restart if needed)
+process.on('uncaughtException', (err) => {
+    log(`UNCAUGHT EXCEPTION: ${err.message}`);
+    console.error(err.stack);
+    _scanInProgress = false;
+});
+process.on('unhandledRejection', (reason) => {
+    log(`UNHANDLED REJECTION: ${reason}`);
+    _scanInProgress = false;
+});
+
 // ============================================
 // LOGGING
 // ============================================
@@ -168,6 +182,12 @@ async function fetchQuoteAsDailyBar(symbol) {
  * Process all gaps needing EOD data
  */
 async function processGaps() {
+    if (_scanInProgress) {
+        log('Scan already in progress — skipping');
+        return { processed: 0, updated: 0, symbols: [], skipped: true };
+    }
+    _scanInProgress = true;
+
     log('Starting EOD gap tracking...');
 
     // Get gaps that need EOD data
@@ -175,6 +195,7 @@ async function processGaps() {
 
     if (gaps.length === 0) {
         log('No gaps to process');
+        _scanInProgress = false;
         return { processed: 0, updated: 0, symbols: [] };
     }
 
@@ -227,6 +248,7 @@ async function processGaps() {
     }
 
     log(`Done. Processed ${gaps.length} gaps, updated ${updated}`);
+    _scanInProgress = false;
 
     return { processed: gaps.length, updated, symbols: Array.from(symbolsUpdated), results };
 }

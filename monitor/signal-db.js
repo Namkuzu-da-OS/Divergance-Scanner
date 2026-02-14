@@ -39,8 +39,7 @@ function closeDb() {
         db = null;
     }
 }
-process.on('SIGTERM', () => { closeDb(); process.exit(0); });
-process.on('SIGINT', () => { closeDb(); process.exit(0); });
+// Let the importing process control exit — it already gets 'exit' event for DB cleanup
 process.on('exit', closeDb);
 
 function initSchema() {
@@ -1219,11 +1218,30 @@ function getActiveSignals() {
 function hasSignalToday(symbol) {
     const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
     return getDb().prepare(`
-        SELECT signal_id, status, score, zone, direction
+        SELECT signal_id, status, score, zone, direction, tier
         FROM signals
         WHERE symbol = ? AND date(timestamp) = ?
         LIMIT 1
     `).get(symbol, today);
+}
+
+/**
+ * Promote a signal's tier (e.g. TRADEABLE → HIGH_CONVICTION)
+ * Also updates score if new score is higher
+ */
+function updateSignalTier(signalId, newTier, newScore) {
+    const updates = ['tier = ?'];
+    const params = [newTier];
+
+    if (newScore !== undefined) {
+        updates.push('score = MAX(score, ?)');
+        params.push(newScore);
+    }
+
+    params.push(signalId);
+    return getDb().prepare(`
+        UPDATE signals SET ${updates.join(', ')} WHERE signal_id = ?
+    `).run(...params);
 }
 
 /**
@@ -3487,6 +3505,7 @@ module.exports = {
     getSignalsForCheckpoint,
     getActiveSignals,
     hasSignalToday,
+    updateSignalTier,
     getStats,
     getStatsByTier,
     getStatsByVixRegime,

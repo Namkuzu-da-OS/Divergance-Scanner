@@ -9,7 +9,7 @@ PM2_LOGS="/home/bigpic/.pm2/logs"
 mkdir -p "$LOG_DIR"
 
 # Copy only Wingman scanner logs (not other PM2 processes)
-for service in bloodhound opportunity earnings premarket eod-tracker webserver; do
+for service in bloodhound opportunity earnings premarket eod-tracker webserver internals; do
     cp "$PM2_LOGS/${service}-out.log" "$LOG_DIR/" 2>/dev/null
     cp "$PM2_LOGS/${service}-error.log" "$LOG_DIR/" 2>/dev/null
 done
