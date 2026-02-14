@@ -478,6 +478,42 @@
             .sr-chart-grid { grid-template-columns: 1fr; }
         }
 
+        /* ===== Project Audit Tab ===== */
+        .audit-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .audit-date { font-size: 11px; color: #64748b; }
+        .audit-score-ring { display: flex; align-items: center; gap: 20px; }
+        .score-ring { position: relative; width: 100px; height: 100px; }
+        .score-ring svg { transform: rotate(-90deg); }
+        .score-ring-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+        .score-ring-value { font-size: 28px; font-weight: 800; color: #e5e7eb; display: block; }
+        .score-ring-sub { font-size: 9px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
+        .audit-summary-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+        @media (max-width: 900px) { .audit-summary-cards { grid-template-columns: repeat(2, 1fr); } }
+        .audit-severity { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
+        .sev-critical { background: rgba(255, 107, 107, 0.2); color: #ff6b6b; }
+        .sev-warning { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+        .sev-info { background: rgba(139, 146, 168, 0.2); color: #8b92a8; }
+        .audit-section { margin-bottom: 28px; }
+        .audit-section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; cursor: pointer; user-select: none; }
+        .audit-section-header h3 { font-size: 15px; font-weight: 600; color: #e5e7eb; margin: 0; }
+        .audit-section-icon { font-size: 14px; color: #00d4aa; width: 20px; text-align: center; }
+        .audit-section-count { font-size: 11px; color: #64748b; margin-left: auto; }
+        .audit-finding { background: #151821; border: 1px solid #2a3641; border-radius: 8px; padding: 14px 16px; margin-bottom: 8px; }
+        .audit-finding-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+        .audit-finding-id { font-size: 10px; color: #64748b; font-family: monospace; min-width: 36px; }
+        .audit-finding-title { font-size: 13px; font-weight: 600; color: #e5e7eb; }
+        .audit-finding-body { font-size: 12px; color: #8b92a8; line-height: 1.6; }
+        .audit-finding-body code { background: #0f1428; padding: 1px 5px; border-radius: 3px; font-size: 11px; color: #00d4aa; }
+        .audit-finding-file { font-size: 11px; color: #64748b; font-family: monospace; margin-top: 4px; }
+        .audit-rec { background: #151821; border-left: 3px solid #00d4aa; border-radius: 0 8px 8px 0; padding: 14px 16px; margin-bottom: 8px; }
+        .audit-rec-pri { display: inline-block; width: 22px; height: 22px; line-height: 22px; text-align: center; border-radius: 50%; background: rgba(0,212,170,0.15); color: #00d4aa; font-size: 11px; font-weight: 700; margin-right: 10px; }
+        .audit-rec-title { font-size: 13px; font-weight: 600; color: #e5e7eb; display: inline; }
+        .audit-rec-body { font-size: 12px; color: #8b92a8; line-height: 1.5; margin-top: 6px; }
+        .audit-stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 24px; }
+        .audit-stat-card { background: #151821; border: 1px solid #2a3641; border-radius: 8px; padding: 14px 16px; }
+        .audit-stat-label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+        .audit-stat-value { font-size: 22px; font-weight: 700; }
+
         /* ===== Insights Tab ===== */
         .insight-hero { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 32px; }
         .hero-stat { text-align: center; padding: 28px 16px; background: #151821; border: 1px solid #2a3641; border-radius: 12px; }
@@ -650,6 +686,7 @@
             <button class="tab-btn active" data-tab="journal" onclick="switchTab('journal')">Journal</button>
             <button class="tab-btn" data-tab="system-report" onclick="switchTab('system-report')">System Report</button>
             <button class="tab-btn" data-tab="insights" onclick="switchTab('insights')">Insights</button>
+            <button class="tab-btn" data-tab="audit" onclick="switchTab('audit')">Project Audit</button>
         </div>
 
         <!-- JOURNAL TAB -->
@@ -991,6 +1028,663 @@
             <div id="insightRecs"></div>
 
         </div><!-- /tabInsights -->
+
+        <!-- PROJECT AUDIT TAB -->
+        <div id="tabAudit" style="display:none">
+
+            <div class="audit-header">
+                <div>
+                    <h2 style="font-size:20px;font-weight:700;color:#e5e7eb;margin-bottom:4px;">Wingman System Audit</h2>
+                    <div class="audit-date">Generated 2026-02-13 06:22 UTC &mdash; 4-agent parallel audit (code, data, ops, docs)</div>
+                </div>
+                <div class="audit-score-ring">
+                    <div class="score-ring">
+                        <svg width="100" height="100" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="42" fill="none" stroke="#2a3641" stroke-width="6"/>
+                            <circle cx="50" cy="50" r="42" fill="none" stroke="#fbbf24" stroke-width="6"
+                                stroke-dasharray="264" stroke-dashoffset="66" stroke-linecap="round"/>
+                        </svg>
+                        <div class="score-ring-label">
+                            <span class="score-ring-value" style="color:#fbbf24;">C+</span>
+                            <span class="score-ring-sub">Health</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Severity Summary -->
+            <div class="audit-summary-cards">
+                <div class="card">
+                    <div class="card-title">Critical</div>
+                    <div class="card-value negative">7</div>
+                    <div class="card-subtitle">Require attention</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Warning</div>
+                    <div class="card-value warning">32</div>
+                    <div class="card-subtitle">Should address</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Info</div>
+                    <div class="card-value neutral">31</div>
+                    <div class="card-subtitle">Noted</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Total Findings</div>
+                    <div class="card-value" style="color:#e5e7eb;">70</div>
+                    <div class="card-subtitle">Across 4 audit domains</div>
+                </div>
+            </div>
+
+            <!-- Key Stats -->
+            <div class="audit-stats-grid">
+                <div class="audit-stat-card">
+                    <div class="audit-stat-label">Codebase</div>
+                    <div class="audit-stat-value" style="color:#e5e7eb;">~14K <span style="font-size:12px;color:#64748b;">lines JS</span></div>
+                    <div style="font-size:11px;color:#64748b;margin-top:4px;">20 JS files, 11 HTML dashboards, 3 deps</div>
+                </div>
+                <div class="audit-stat-card">
+                    <div class="audit-stat-label">Database</div>
+                    <div class="audit-stat-value" style="color:#e5e7eb;">41 <span style="font-size:12px;color:#64748b;">MB</span></div>
+                    <div style="font-size:11px;color:#64748b;margin-top:4px;">18 tables, 46 indices, 120K+ total rows</div>
+                </div>
+                <div class="audit-stat-card">
+                    <div class="audit-stat-label">PM2 Processes</div>
+                    <div class="audit-stat-value" style="color:#00d4aa;">9/9 <span style="font-size:12px;color:#64748b;">online</span></div>
+                    <div style="font-size:11px;color:#64748b;margin-top:4px;">753 MB total memory</div>
+                </div>
+                <div class="audit-stat-card">
+                    <div class="audit-stat-label">API Endpoints</div>
+                    <div class="audit-stat-value" style="color:#00d4aa;">16/16 <span style="font-size:12px;color:#64748b;">HTTP 200</span></div>
+                    <div style="font-size:11px;color:#64748b;margin-top:4px;">All internal + 3 external healthy</div>
+                </div>
+                <div class="audit-stat-card">
+                    <div class="audit-stat-label">Signal Accuracy</div>
+                    <div class="audit-stat-value" style="color:#fbbf24;">41.5<span style="font-size:12px;color:#64748b;">% win</span></div>
+                    <div style="font-size:11px;color:#64748b;margin-top:4px;">209 signals, 1.72:1 W:L ratio</div>
+                </div>
+                <div class="audit-stat-card">
+                    <div class="audit-stat-label">Test Coverage</div>
+                    <div class="audit-stat-value negative">0<span style="font-size:12px;color:#64748b;">%</span></div>
+                    <div style="font-size:11px;color:#64748b;margin-top:4px;">No test files, no test infrastructure</div>
+                </div>
+            </div>
+
+            <!-- ======================= CRITICAL FINDINGS ======================= -->
+            <div class="audit-section">
+                <div class="audit-section-header" onclick="toggleAuditSection('critical')">
+                    <div class="audit-section-icon" id="auditIconCritical">&#9660;</div>
+                    <h3>Critical Findings</h3>
+                    <span class="audit-severity sev-critical">7 issues</span>
+                </div>
+                <div id="auditCritical">
+
+                    <div class="audit-finding" style="border-left:3px solid #ff6b6b;">
+                        <div class="audit-finding-header">
+                            <span class="audit-finding-id">C1</span>
+                            <span class="audit-severity sev-critical">CRITICAL</span>
+                            <span class="audit-finding-title">7-Day Signal Checkpoints Never Execute</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            0 out of 187 eligible signals have completed the 7-day checkpoint. The <code>checkpoints</code> table has 252 entries for 4h and 198 for 24h, but zero for 7d. The swing-trade validation tier documented in CLAUDE.md is <strong>completely non-functional</strong>. This means the system cannot validate signal accuracy beyond 24 hours.
+                        </div>
+                        <div class="audit-finding-file">Source: data audit &mdash; signals table, checkpoints table</div>
+                    </div>
+
+                    <div class="audit-finding" style="border-left:3px solid #ff6b6b;">
+                        <div class="audit-finding-header">
+                            <span class="audit-finding-id">C2</span>
+                            <span class="audit-severity sev-critical">CRITICAL</span>
+                            <span class="audit-finding-title">tick_high and tick_low Always Zero in Market Internals</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            533 of 558 <code>market_internals</code> rows have <code>tick_high = 0</code> and <code>tick_low = 0</code>. These fields should capture the intraday TICK range but are never populated correctly. Any dashboard chart relying on TICK high/low is showing flat lines.
+                        </div>
+                        <div class="audit-finding-file">Source: data audit &mdash; market_internals table</div>
+                    </div>
+
+                    <div class="audit-finding" style="border-left:3px solid #ff6b6b;">
+                        <div class="audit-finding-header">
+                            <span class="audit-finding-id">C3</span>
+                            <span class="audit-severity sev-critical">CRITICAL</span>
+                            <span class="audit-finding-title">No Global Error Handlers in Any PM2 Process</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            None of the 7 scanner processes register <code>process.on('uncaughtException')</code> or <code>process.on('unhandledRejection')</code>. An unhandled promise rejection silently crashes the process. PM2 restarts it, but the crash context and stack trace are lost. Only <code>eod-gap-tracker.js</code> has <code>SIGINT/SIGTERM</code> handlers.
+                        </div>
+                        <div class="audit-finding-file">Source: code audit &mdash; all scanner files</div>
+                    </div>
+
+                    <div class="audit-finding" style="border-left:3px solid #ff6b6b;">
+                        <div class="audit-finding-header">
+                            <span class="audit-finding-id">C4</span>
+                            <span class="audit-severity sev-critical">CRITICAL</span>
+                            <span class="audit-finding-title">signal-db.js is a 3,519-Line God File</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            All schema definitions, all migrations, all CRUD operations for 12+ tables live in a single file exporting 60+ functions. This is the single biggest architectural risk &mdash; any bug here affects all 7 services simultaneously. Navigation is difficult and changes have high blast radius.
+                        </div>
+                        <div class="audit-finding-file">Source: code audit &mdash; monitor/signal-db.js (3,519 lines, 60+ exports)</div>
+                    </div>
+
+                    <div class="audit-finding" style="border-left:3px solid #ff6b6b;">
+                        <div class="audit-finding-header">
+                            <span class="audit-finding-id">C5</span>
+                            <span class="audit-severity sev-critical">CRITICAL</span>
+                            <span class="audit-finding-title">No Body Size Limit on POST Endpoints</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            All POST handlers in <code>web-server.js</code> accumulate <code>req.on('data')</code> chunks without any size limit. A large payload (accidental or malicious) can cause an out-of-memory crash. There is also no <code>req.on('error')</code> handler on any request stream.
+                        </div>
+                        <div class="audit-finding-file">Source: code audit &mdash; web-server.js:44, 814, 839, 997, 1022</div>
+                    </div>
+
+                    <div class="audit-finding" style="border-left:3px solid #ff6b6b;">
+                        <div class="audit-finding-header">
+                            <span class="audit-finding-id">C6</span>
+                            <span class="audit-severity sev-critical">CRITICAL</span>
+                            <span class="audit-finding-title"><code>https</code> Module Referenced But Never Imported</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            <code>opportunity-scanner.js:317</code> references <code>https</code> in a conditional but only imports <code>http</code>. If any URL starts with <code>https://</code>, this throws <code>ReferenceError: https is not defined</code> and crashes the scanner. Currently all API URLs are HTTP so this hasn't manifested, but it's a latent crash waiting to happen.
+                        </div>
+                        <div class="audit-finding-file">Source: code audit &mdash; opportunity-scanner.js:14 (import), :317 (usage)</div>
+                    </div>
+
+                    <div class="audit-finding" style="border-left:3px solid #ff6b6b;">
+                        <div class="audit-finding-header">
+                            <span class="audit-finding-id">C7</span>
+                            <span class="audit-severity sev-critical">CRITICAL</span>
+                            <span class="audit-finding-title">Divergence Scanner Logging 42 MB to stderr</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            The divergence-scanner Python service writes httpx INFO-level messages to stderr, inflating the PM2 error log to <strong>42 MB</strong> (89% of all PM2 log disk usage). This is not being flushed by the weekly log rotation script because divergence-scanner is not included in the archive/flush scripts.
+                        </div>
+                        <div class="audit-finding-file">Source: ops audit &mdash; ~/.pm2/logs/divergence-scanner-error.log (42 MB)</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ======================= WARNING FINDINGS ======================= -->
+            <div class="audit-section">
+                <div class="audit-section-header" onclick="toggleAuditSection('warning')">
+                    <div class="audit-section-icon" id="auditIconWarning">&#9660;</div>
+                    <h3>Warnings</h3>
+                    <span class="audit-severity sev-warning">32 issues</span>
+                </div>
+                <div id="auditWarning">
+
+                    <div style="font-size:12px;color:#8b92a8;margin-bottom:16px;font-style:italic;">Grouped by domain. Click section headers above to collapse.</div>
+
+                    <!-- Code Quality Warnings -->
+                    <div style="font-size:11px;color:#fbbf24;text-transform:uppercase;letter-spacing:1px;margin:16px 0 10px;font-weight:600;">Code Quality (14)</div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-warning">WARNING</span>
+                            <span class="audit-finding-title">Massive Code Duplication Across Scanners</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            8 categories of duplicated logic found: <code>isDST()</code> in 2 files, market hours checks in 6 files (each using different approaches &mdash; some fragile timezone math), HTTP fetch utilities in 5 files (using 3 different libraries: http, axios, fetch), <code>sleep()</code> in 5 files, <code>formatTimePST()</code> in 3 files, <code>getETTimeString()</code> in 2 files, <code>loadWatchlist()</code> in 4 files, <code>addSymbol()</code> in 2 files. No shared utility module exists.
+                        </div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-warning">WARNING</span>
+                            <span class="audit-finding-title">Promise.all Violates Documented API Pacing Rule</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            <code>opportunity-scanner.js:147</code> and <code>premarket-scanner.js:357</code> use <code>Promise.all</code> for 3 simultaneous requests. CLAUDE.md explicitly states "Sequential API calls only &mdash; never Promise.all" for the Options API.
+                        </div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-warning">WARNING</span>
+                            <span class="audit-finding-title">web-server.js is 1,091-Line Monolith</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            The entire web server is one <code>http.createServer</code> callback with 30+ route handlers as nested if-blocks. No router, no middleware. <code>require('./signal-db')</code> is called 23 times inline rather than once at the top.
+                        </div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-warning">WARNING</span>
+                            <span class="audit-finding-title">bloodhound-scanner.js at 2,811 Lines</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            Discovery, scoring, Fibonacci analysis, wall classification, alert dedup, Telegram messaging, signal logging, scanner history, control server, market context, relative strength &mdash; all in one file. The Fibonacci functions alone (lines 203-386) could be their own module.
+                        </div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-warning">WARNING</span>
+                            <span class="audit-finding-title">signal-db.js Never Closes Database Connection</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            The SQLite connection opened via <code>getDb()</code> is never closed. No <code>process.on('exit')</code> handler. Only <code>readRsFromDatabase()</code> in bloodhound properly closes its DB handle.
+                        </div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-warning">WARNING</span>
+                            <span class="audit-finding-title">SOLQ vs SOLZ Symbol Inconsistency</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            <code>bloodhound-scanner.js:123</code> maps SOL to <code>SOLQ</code>, but CLAUDE.md and opportunity-scanner both reference <code>SOLZ</code>. One is wrong and would cause failed API lookups if SOL is discovered dynamically.
+                        </div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-warning">WARNING</span>
+                            <span class="audit-finding-title">No price_snapshots Table Cleanup</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            Price snapshots insert every scan cycle for every active signal (~5,760 rows/day). <code>cleanupOldBloodhoundScans</code> exists for scan metadata but there is no purge logic for price_snapshots. Currently at 32,717 rows and growing.
+                        </div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-warning">WARNING</span>
+                            <span class="audit-finding-title">Directory Traversal Protection is Shallow</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            <code>web-server.js:1054</code> prevents basic traversal, but <code>path.join(ROOT, urlPath)</code> could allow access to sensitive files within the project root (e.g., <code>.env</code>, <code>config.json</code>, <code>wingman.db</code>). Should restrict to specific directories.
+                        </div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-warning">WARNING</span>
+                            <span class="audit-finding-title">CORS is Wildcard * on All Endpoints</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            <code>web-server.js:29</code> sets <code>Access-Control-Allow-Origin: *</code>. For a LAN tool this is acceptable, but all API endpoints (including position creation) are accessible from any origin.
+                        </div>
+                    </div>
+
+                    <!-- Operations Warnings -->
+                    <div style="font-size:11px;color:#fbbf24;text-transform:uppercase;letter-spacing:1px;margin:24px 0 10px;font-weight:600;">Operations (8)</div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-warning">WARNING</span>
+                            <span class="audit-finding-title">Webserver: 26 Restarts, ERR_HTTP_HEADERS_SENT Bug</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            Highest restart count of all processes (26) with only 12.1h uptime vs 33.7h for peers. Logs show <code>ERR_HTTP_HEADERS_SENT</code> at <code>web-server.js:681</code> and <code>:486</code> &mdash; proxy error handlers don't check <code>res.headersSent</code> before writing error responses. This is a code bug directly causing crashes.
+                        </div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-warning">WARNING</span>
+                            <span class="audit-finding-title">Bloodhound: 21 Restarts, LBTYB/BNAI Fail Every Scan</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            Second-highest restart count. ~455 log entries for LBTYB and BNAI "API returned no data" errors. These symbols consistently have no Options API data &mdash; should be blacklisted from discovery to eliminate log noise and wasted API calls.
+                        </div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-warning">WARNING</span>
+                            <span class="audit-finding-title">Scan Durations Approaching Interval Limits</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            Bloodhound scans take 150-270s (avg ~4 min) with a 5-min interval &mdash; 70-90% utilization. Opportunity scanner regularly exceeds its 5-min interval (4.3-6.6 min per scan). BACKOFF ACTIVE appears in ~60% of recent Bloodhound scans. Very little headroom for API slowdowns.
+                        </div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-warning">WARNING</span>
+                            <span class="audit-finding-title">Divergence Scanner Rotation/Regime Timeouts</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            ~50 timeout occurrences for <code>rotation/regime</code> endpoint (5s timeout). The web API proxy takes 2.6-6.6 seconds. Bloodhound reads RS data directly from SQLite (76ms), but the web endpoints still proxy to the slow remote service.
+                        </div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-warning">WARNING</span>
+                            <span class="audit-finding-title">Opportunity Scanner Aborts on Market Context Timeout</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            "Failed to fetch market context: Request timeout" appears 18 times in error log. The scanner aborts the <em>entire</em> scan cycle when market context fails. During RTH this means missed scan windows.
+                        </div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-warning">WARNING</span>
+                            <span class="audit-finding-title">Archive/Flush Scripts Missing 3 Processes</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            Log archive and flush scripts only cover 6 of 9 processes. Missing: internals, divergence-scanner, invoicing. The divergence-scanner (42 MB stderr) is the worst offender and is completely unmanaged.
+                        </div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-warning">WARNING</span>
+                            <span class="audit-finding-title">Hourly Git Commits for Log Archival</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            82 archive commits in 4 days (24/day). This inflates git history and the <code>.git/</code> directory (30 MB). Consider less frequent archival (every 6h or daily) or a separate log mechanism.
+                        </div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-warning">WARNING</span>
+                            <span class="audit-finding-title">Intermittent NULL Values in Market Internals</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            TICK is NULL in 4.5% of readings, TRIN 3.2%, VIX 2.3%. Individual symbol timeouts within otherwise-successful scan cycles produce partial data gaps in internals snapshots.
+                        </div>
+                    </div>
+
+                    <!-- Documentation Warnings -->
+                    <div style="font-size:11px;color:#fbbf24;text-transform:uppercase;letter-spacing:1px;margin:24px 0 10px;font-weight:600;">Documentation &amp; Config (7)</div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-warning">WARNING</span>
+                            <span class="audit-finding-title">KNOWN_ISSUES.md References Deleted File 6 Times</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            6 of 10 known issues reference <code>monitor/paper-trade-manager.js</code> which was deleted in the Feb 9 audit. The document is severely outdated and misleading.
+                        </div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-warning">WARNING</span>
+                            <span class="audit-finding-title">config.json Missing Ports for Premarket and Internals</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            <code>config.json</code> ports section only lists 4 ports (8080-8083). Ports 8084 (premarket) and 8085 (internals) are hardcoded in their scanner files but absent from config.
+                        </div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-warning">WARNING</span>
+                            <span class="audit-finding-title">Earnings Telegram Config Has Placeholder Values</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            <code>config.json</code> has <code>"YOUR_EARNINGS_BOT_TOKEN"</code> and <code>"YOUR_EARNINGS_CHAT_ID"</code> &mdash; never configured. Earnings Telegram alerts silently fail.
+                        </div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-warning">WARNING</span>
+                            <span class="audit-finding-title">data/opportunities.json Not Archived</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            Documented as deprecated and replaced by SQLite, but the 39KB file still sits in <code>data/</code> instead of <code>data/archive/</code>.
+                        </div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-warning">WARNING</span>
+                            <span class="audit-finding-title">22 MB Database Backup in data/</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            <code>data/opportunity_history.db.backup</code> (22 MB) is not referenced by any code. Gitignored but taking disk space.
+                        </div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-warning">WARNING</span>
+                            <span class="audit-finding-title">CLAUDE.md References Non-Existent data/watchlist.json</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            CLAUDE.md lists <code>data/watchlist.json</code> in the Bloodhound output section, but this file no longer exists (only in <code>data/archive/</code>).
+                        </div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-warning">WARNING</span>
+                            <span class="audit-finding-title">No Input Validation on Web Server POST Endpoints</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            Zero sanitization, validation, or schema checking on any POST endpoint. JSON bodies are parsed and used directly. Low practical risk on LAN, but no defense-in-depth.
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ======================= INFO FINDINGS ======================= -->
+            <div class="audit-section">
+                <div class="audit-section-header" onclick="toggleAuditSection('info')">
+                    <div class="audit-section-icon" id="auditIconInfo">&#9654;</div>
+                    <h3>Informational</h3>
+                    <span class="audit-severity sev-info">31 items</span>
+                    <span class="audit-section-count">collapsed &mdash; click to expand</span>
+                </div>
+                <div id="auditInfo" style="display:none;">
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-info">INFO</span>
+                            <span class="audit-finding-title">Dependencies Minimal and Healthy</span>
+                        </div>
+                        <div class="audit-finding-body">Only 3 dependencies: <code>axios</code>, <code>better-sqlite3</code>, <code>node-cron</code>. Clean, no bloat. SQL injection prevention is solid throughout (parameterized queries, column whitelists).</div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-info">INFO</span>
+                            <span class="audit-finding-title">Mixed HTTP Client Usage (3 libraries)</span>
+                        </div>
+                        <div class="audit-finding-body"><code>axios</code> (premarket, internals), native <code>fetch</code> (bloodhound, earnings, eod, telegram), native <code>http</code> (opportunity, web-server). Could standardize on native <code>fetch</code> and drop axios.</div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-info">INFO</span>
+                            <span class="audit-finding-title">~15K Lines of Dead Migration/Legacy Code</span>
+                        </div>
+                        <div class="audit-finding-body">
+                            <code>_legacy/zone-scanner.js</code> (14,604 lines), <code>cleanup-duplicate-signals.js</code> (63), <code>migrate-watchlist.js</code> (42), <code>migrate-to-db.js</code> (284). All completed their purpose and are no longer referenced.
+                        </div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-info">INFO</span>
+                            <span class="audit-finding-title">Zero Test Coverage</span>
+                        </div>
+                        <div class="audit-finding-body">No test files, no test directories, no test script in package.json. All validation is manual. Acceptable for a personal tool but means regressions are only caught in production.</div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-info">INFO</span>
+                            <span class="audit-finding-title">Only 1 TODO in Entire Codebase</span>
+                        </div>
+                        <div class="audit-finding-body"><code>bloodhound-scanner.js:2544</code> &mdash; <code>change_pct: 0, // TODO: get from API if needed</code>. Impressively clean for 14K lines.</div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-info">INFO</span>
+                            <span class="audit-finding-title">CLAUDE.md Verified Accurate</span>
+                        </div>
+                        <div class="audit-finding-body">All 7 ports correct. All 16 web-server API endpoints exist. All 11 HTML dashboard files match documentation. Architecture diagram is current.</div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-info">INFO</span>
+                            <span class="audit-finding-title">13 Active Signals May Be Past 72h Time Stop</span>
+                        </div>
+                        <div class="audit-finding-body">13 signals have <code>status = active</code> with no <code>final_outcome</code>. Oldest from Feb 10 (right at the 72h edge). Auto-close may not be triggering reliably.</div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-info">INFO</span>
+                            <span class="audit-finding-title">Legacy scans Table (1,810 rows)</span>
+                        </div>
+                        <div class="audit-finding-body">Pre-migration table still in the database. Not referenced by active code. Can be dropped to reclaim space.</div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-info">INFO</span>
+                            <span class="audit-finding-title">opportunities Table at 49,949 Rows</span>
+                        </div>
+                        <div class="audit-finding-body">Largest table by far. May benefit from periodic pruning of old data (e.g., keep last 30 days).</div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-info">INFO</span>
+                            <span class="audit-finding-title">Test Positions in Database</span>
+                        </div>
+                        <div class="audit-finding-body">5 of 6 positions are test entries (TEST, VERIFY, VERIFY2) from Feb 6. Harmless but clutters the table.</div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-info">INFO</span>
+                            <span class="audit-finding-title">Stale Data Files</span>
+                        </div>
+                        <div class="audit-finding-body"><code>goals.json</code> (goals feature removed), <code>scanner_config.json</code> (unreferenced), <code>earnings-paper-trades.json</code> (stub), 3 handoff markdown files (historical). Could be archived.</div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-info">INFO</span>
+                            <span class="audit-finding-title">toolbox/ Directory is a Grab-Bag</span>
+                        </div>
+                        <div class="audit-finding-body">Mix of old strategy docs, R&amp;D notes, changelogs, backup copies of files that now live in docs/. The backup files and archive could be cleaned up.</div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-info">INFO</span>
+                            <span class="audit-finding-title">eod.js at Project Root</span>
+                        </div>
+                        <div class="audit-finding-body">Manual EOD script at project root instead of in <code>scripts/</code>. Minor organizational inconsistency.</div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-info">INFO</span>
+                            <span class="audit-finding-title">All 11 Dashboards Serving HTTP 200</span>
+                        </div>
+                        <div class="audit-finding-body">Every dashboard confirmed accessible and serving correctly.</div>
+                    </div>
+
+                    <div class="audit-finding">
+                        <div class="audit-finding-header">
+                            <span class="audit-severity sev-info">INFO</span>
+                            <span class="audit-finding-title">Telegram Alert Pipeline Operational</span>
+                        </div>
+                        <div class="audit-finding-body">HIGH_CONVICTION alerts, velocity alerts, and EOD gap summaries all sending successfully.</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ======================= RECOMMENDATIONS ======================= -->
+            <div class="audit-section">
+                <div class="audit-section-header">
+                    <div class="audit-section-icon" style="color:#00d4aa;">&#9733;</div>
+                    <h3>Prioritized Recommendations</h3>
+                </div>
+
+                <div style="font-size:11px;color:#ff6b6b;text-transform:uppercase;letter-spacing:1px;margin:8px 0 12px;font-weight:600;">Priority 1 &mdash; Fix Now</div>
+
+                <div class="audit-rec">
+                    <span class="audit-rec-pri" style="background:rgba(255,107,107,0.15);color:#ff6b6b;">1</span>
+                    <span class="audit-rec-title">Fix 7-Day Checkpoint Execution</span>
+                    <div class="audit-rec-body">The 7d checkpoint tier has never fired. Investigate the checkpoint scheduling logic in <code>signal-logger.js</code> and <code>bloodhound-scanner.js</code>. This is a documented feature that is completely broken &mdash; swing-trade validation data is being lost every day it's not fixed.</div>
+                </div>
+
+                <div class="audit-rec">
+                    <span class="audit-rec-pri" style="background:rgba(255,107,107,0.15);color:#ff6b6b;">2</span>
+                    <span class="audit-rec-title">Fix tick_high / tick_low Population</span>
+                    <div class="audit-rec-body">The market internals scanner is not capturing TICK range data. Check the Schwab API response for $TICK &mdash; verify whether <code>highPrice</code> and <code>lowPrice</code> fields are being extracted correctly in <code>market-internals.js</code>.</div>
+                </div>
+
+                <div class="audit-rec">
+                    <span class="audit-rec-pri" style="background:rgba(255,107,107,0.15);color:#ff6b6b;">3</span>
+                    <span class="audit-rec-title">Fix ERR_HTTP_HEADERS_SENT in Web Server</span>
+                    <div class="audit-rec-body">Add <code>if (res.headersSent) return;</code> guards in proxy error handlers at <code>web-server.js:486</code> and <code>:681</code>. This is directly causing the webserver's 26 restarts.</div>
+                </div>
+
+                <div class="audit-rec">
+                    <span class="audit-rec-pri" style="background:rgba(255,107,107,0.15);color:#ff6b6b;">4</span>
+                    <span class="audit-rec-title">Add Global Error Handlers to All PM2 Processes</span>
+                    <div class="audit-rec-body">Add <code>process.on('uncaughtException')</code> and <code>process.on('unhandledRejection')</code> to every scanner entry point. Log the error with full stack trace before allowing PM2 to restart. Add <code>SIGTERM</code>/<code>SIGINT</code> handlers to close DB connections gracefully.</div>
+                </div>
+
+                <div style="font-size:11px;color:#fbbf24;text-transform:uppercase;letter-spacing:1px;margin:24px 0 12px;font-weight:600;">Priority 2 &mdash; Address Soon</div>
+
+                <div class="audit-rec">
+                    <span class="audit-rec-pri">5</span>
+                    <span class="audit-rec-title">Extract Shared Utilities Module</span>
+                    <div class="audit-rec-body">Create <code>monitor/utils.js</code> for <code>isDST</code>, <code>sleep</code>, <code>formatTimePST</code>, <code>getETTime*</code>, <code>fetchJSON</code>, <code>loadWatchlist</code>, <code>addSymbol</code>, <code>isMarketOpen</code>. Removes 200+ duplicate lines and fixes the fragile <code>isDST</code> timezone issue.</div>
+                </div>
+
+                <div class="audit-rec">
+                    <span class="audit-rec-pri">6</span>
+                    <span class="audit-rec-title">Fix Divergence Scanner Logging + Update Flush Script</span>
+                    <div class="audit-rec-body">Configure Python httpx logger to WARNING level (not INFO). Add divergence-scanner, internals, and invoicing to the archive/flush scripts. This immediately recovers 42 MB of disk space.</div>
+                </div>
+
+                <div class="audit-rec">
+                    <span class="audit-rec-pri">7</span>
+                    <span class="audit-rec-title">Add Body Size Limits to POST Endpoints</span>
+                    <div class="audit-rec-body">Cap request body accumulation at a reasonable size (e.g., 1 MB) in all <code>req.on('data')</code> handlers. Add <code>req.on('error')</code> handlers. Fix the <code>https</code> import bug in opportunity-scanner.</div>
+                </div>
+
+                <div class="audit-rec">
+                    <span class="audit-rec-pri">8</span>
+                    <span class="audit-rec-title">Blacklist LBTYB/BNAI + Reduce Log Archive Frequency</span>
+                    <div class="audit-rec-body">Add a symbol blacklist to Bloodhound discovery to stop wasting API calls on symbols with no data (~455 error entries per session). Reduce log archive commits from hourly to every 6h or daily.</div>
+                </div>
+
+                <div style="font-size:11px;color:#8b92a8;text-transform:uppercase;letter-spacing:1px;margin:24px 0 12px;font-weight:600;">Priority 3 &mdash; Cleanup</div>
+
+                <div class="audit-rec">
+                    <span class="audit-rec-pri" style="background:rgba(139,146,168,0.15);color:#8b92a8;">9</span>
+                    <span class="audit-rec-title">Delete Dead Code &amp; Archive Stale Files</span>
+                    <div class="audit-rec-body">Remove <code>_legacy/</code> directory (14K lines), 3 migration scripts, stale data files. Move <code>opportunities.json</code> to archive. Delete the 22 MB DB backup. Rewrite <code>KNOWN_ISSUES.md</code>. Fix <code>watchlist.json</code> reference in CLAUDE.md.</div>
+                </div>
+
+                <div class="audit-rec">
+                    <span class="audit-rec-pri" style="background:rgba(139,146,168,0.15);color:#8b92a8;">10</span>
+                    <span class="audit-rec-title">Consider Splitting signal-db.js</span>
+                    <div class="audit-rec-body">At 3,519 lines with 60+ exports, this is the single biggest maintenance risk. Extract into domain modules sharing the same DB connection: <code>signal-db-bloodhound.js</code>, <code>signal-db-internals.js</code>, <code>signal-db-premarket.js</code>, etc.</div>
+                </div>
+
+            </div>
+
+            <div style="text-align:center;padding:24px 0;border-top:1px solid #2a3641;margin-top:24px;">
+                <div style="font-size:11px;color:#64748b;">Audit conducted by 4 parallel agents: code-auditor, data-auditor, ops-auditor, docs-auditor</div>
+                <div style="font-size:11px;color:#64748b;margin-top:4px;">Total findings: 7 critical, 32 warnings, 31 informational across code quality, data integrity, operational health, and documentation</div>
+            </div>
+
+        </div><!-- /tabAudit -->
 
     </div>
 
@@ -1349,6 +2043,7 @@
             document.getElementById('tabJournal').style.display = tab === 'journal' ? '' : 'none';
             document.getElementById('tabSystemReport').style.display = tab === 'system-report' ? '' : 'none';
             document.getElementById('tabInsights').style.display = tab === 'insights' ? '' : 'none';
+            document.getElementById('tabAudit').style.display = tab === 'audit' ? '' : 'none';
             if (tab === 'system-report' && !srLoaded) {
                 srLoaded = true;
                 loadSystemReport();
@@ -1356,6 +2051,20 @@
             if (tab === 'insights' && !insightsLoaded) {
                 insightsLoaded = true;
                 loadInsights();
+            }
+        }
+
+        function toggleAuditSection(section) {
+            const id = 'audit' + section.charAt(0).toUpperCase() + section.slice(1);
+            const iconId = 'auditIcon' + section.charAt(0).toUpperCase() + section.slice(1);
+            const el = document.getElementById(id);
+            const icon = document.getElementById(iconId);
+            if (el.style.display === 'none') {
+                el.style.display = '';
+                icon.innerHTML = '&#9660;';
+            } else {
+                el.style.display = 'none';
+                icon.innerHTML = '&#9654;';
             }
         }
 
