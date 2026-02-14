@@ -648,3 +648,46 @@ By Direction:
 ==================================================
 
 [Telegram] Sent alert
+[10:00:08 ET] [EOD Tracker] Received SIGINT. Shutting down...
+============================================================
+   EOD GAP TRACKER
+   Scheduled daily at 4:15 PM ET
+============================================================
+Current time: 10:00:09 AM ET
+Options API: http://192.168.10.60:8000
+============================================================
+
+[10:00:09 ET] [EOD Tracker] Scheduler started. Waiting for 4:15 PM ET...
+
+Commands:
+  Manual run: node eod-gap-tracker.js --now
+  PM2 logs:   pm2 logs eod-tracker
+
+============================================================
+   EOD GAP TRACKER
+   Scheduled daily at 4:15 PM ET
+============================================================
+Current time: 10:15:07 AM ET
+Options API: http://192.168.10.60:8000
+============================================================
+
+[10:15:07 ET] [EOD Tracker] Scheduler started. Waiting for 4:15 PM ET...
+
+Commands:
+  Manual run: node eod-gap-tracker.js --now
+  PM2 logs:   pm2 logs eod-tracker
+
+============================================================
+   EOD GAP TRACKER
+   Scheduled daily at 4:15 PM ET
+============================================================
+Current time: 10:26:58 AM ET
+Options API: http://192.168.10.60:8000
+============================================================
+
+[10:26:58 ET] [EOD Tracker] Scheduler started. Waiting for 4:15 PM ET...
+
+Commands:
+  Manual run: node eod-gap-tracker.js --now
+  PM2 logs:   pm2 logs eod-tracker
+
