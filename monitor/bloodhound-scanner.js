@@ -1090,7 +1090,7 @@ async function analyzeSymbol(symbol, discoveryData) {
     // --- BASE CONDITION: EXTENDED RSI (15 pts) ---
     const rsi = technicals.rsi || 50;
     const trend = technicals.trend || 'neutral';
-    const bbPosition = technicals.bb_position || 0.5;
+    const bbPosition = technicals.bb_position ?? 0.5;
 
     // Check for extended RSI (oversold/overbought) - 89.5% win rate when combined with wall
     if (rsi <= SETTINGS.RSI_OVERSOLD) {
@@ -1117,11 +1117,11 @@ async function analyzeSymbol(symbol, discoveryData) {
     if (bbPosition <= 0.1) {
         scores.standard += 5;
         signals.push('At lower Bollinger Band');
-        direction = direction || 'bullish';
+        if (direction === 'neutral') direction = 'bullish';
     } else if (bbPosition >= 0.9) {
         scores.standard += 5;
         signals.push('At upper Bollinger Band');
-        direction = direction || 'bearish';
+        if (direction === 'neutral') direction = 'bearish';
     }
 
     // --- FIBONACCI SCORE (bonus points) ---
@@ -1195,8 +1195,8 @@ async function analyzeSymbol(symbol, discoveryData) {
     const isPinned = atPutWall && atCallWall;
 
     // Check for extended scenarios (breakouts/breakdowns)
-    const aboveCallWall = distToCallWall !== null && distToCallWall < -0.3; // Price above call wall
-    const belowPutWall = distToPutWall !== null && distToPutWall < -0.3; // Price below put wall
+    const aboveCallWall = distToCallWall !== null && distToCallWall < -wallThresholdPct; // Price above call wall (beyond AT_WALL zone)
+    const belowPutWall = distToPutWall !== null && distToPutWall < -wallThresholdPct; // Price below put wall (beyond AT_WALL zone)
 
     if (isPinned) {
         // Pinned between walls - both at support and resistance

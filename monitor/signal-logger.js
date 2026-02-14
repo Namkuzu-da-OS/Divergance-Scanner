@@ -57,6 +57,14 @@ async function logSignal(alertData) {
     return existingSignal.signal_id;
   }
 
+  // Check if ANY signal (including closed) exists today for this symbol
+  // This catches the re-logging-after-auto-close bug
+  const todaySignal = signalDb.hasSignalToday(alertData.symbol);
+  if (todaySignal) {
+    console.log(`[Signal Logger] ${alertData.symbol} already has signal today (${todaySignal.signal_id}, status: ${todaySignal.status}) — skipping`);
+    return todaySignal.signal_id;
+  }
+
   // No existing active signal for this symbol - create new one
   const timestamp = new Date().toISOString();
   const id = `${alertData.symbol}_${Date.now()}`;

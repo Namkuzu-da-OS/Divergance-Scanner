@@ -224,9 +224,7 @@ async function sendGapAlert(mover, marketContext) {
     }
 
     // Only send Telegram alerts during pre-market and first 30 min after open (6:00 AM - 10:00 AM ET)
-    const now = new Date();
-    const etOffset = isDST(now) ? -4 : -5;
-    const etHour = (now.getUTCHours() + etOffset + 24) % 24;
+    const { hour: etHour } = getETTime();
     if (etHour >= 10) {
         return;
     }

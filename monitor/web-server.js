@@ -1067,6 +1067,16 @@ const server = http.createServer((req, res) => {
         res.end('Bad Request');
         return;
     }
+
+    // Security: block access to sensitive files and directories
+    const blockedPaths = ['.env', '.git', '.claude/', 'node_modules', 'logs/', 'monitor/config.json', 'data/wingman.db', 'data/', 'package.json', 'package-lock.json', 'ecosystem.config.js'];
+    const normalizedReqPath = decodedPath.replace(/^\/+/, '').toLowerCase();
+    if (blockedPaths.some(bp => normalizedReqPath === bp || normalizedReqPath.startsWith(bp.endsWith('/') ? bp : bp + '/'))) {
+        res.writeHead(403);
+        res.end('Forbidden');
+        return;
+    }
+
     let filePath = path.resolve(ROOT, '.' + (decodedPath === '/' ? '/morning.html' : decodedPath));
 
     // Security: prevent directory traversal (resolve normalizes ../)

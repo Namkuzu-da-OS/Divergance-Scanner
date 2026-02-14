@@ -228,8 +228,11 @@ function initSchema() {
         CREATE INDEX IF NOT EXISTS idx_signals_tier ON signals(tier);
         CREATE INDEX IF NOT EXISTS idx_signals_direction ON signals(direction);
         CREATE INDEX IF NOT EXISTS idx_signals_vix_regime ON signals(vix_regime);
+        CREATE INDEX IF NOT EXISTS idx_signals_symbol_date ON signals(symbol, date(timestamp));
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_signals_one_active_per_symbol ON signals(symbol) WHERE status = 'active';
         CREATE INDEX IF NOT EXISTS idx_checkpoints_signal ON checkpoints(signal_id);
         CREATE INDEX IF NOT EXISTS idx_checkpoints_type ON checkpoints(checkpoint_type);
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_checkpoints_signal_type ON checkpoints(signal_id, checkpoint_type);
         CREATE INDEX IF NOT EXISTS idx_price_snapshots_signal ON price_snapshots(signal_id);
         CREATE INDEX IF NOT EXISTS idx_scanner_history_symbol ON scanner_history(symbol);
         CREATE INDEX IF NOT EXISTS idx_scanner_history_date ON scanner_history(date);
@@ -800,12 +803,12 @@ function updatePriceTracking(signalId, currentPrice, optionPrice = null) {
         // Drawdown is negative because price went UP (wrong direction)
         maxDrawdownPct = -((newPeak - signal.entry_price) / signal.entry_price) * 100;
     } else {
-        // Pinned - just track absolute deviation as drawdown
-        peakGainPct = 0;
-        maxDrawdownPct = -Math.max(
-            Math.abs(((newPeak - signal.entry_price) / signal.entry_price) * 100),
-            Math.abs(((newTrough - signal.entry_price) / signal.entry_price) * 100)
-        );
+        // Pinned/neutral - track max absolute move in either direction as gain,
+        // and max adverse move as drawdown (so pinned signals can still WIN/LOSE)
+        const upMove = ((newPeak - signal.entry_price) / signal.entry_price) * 100;
+        const downMove = ((signal.entry_price - newTrough) / signal.entry_price) * 100;
+        peakGainPct = Math.max(upMove, downMove);
+        maxDrawdownPct = -Math.min(upMove, downMove);
     }
 
     getDb().prepare(`
@@ -1207,6 +1210,20 @@ function getActiveSignals() {
     return getDb().prepare(`
         SELECT * FROM signals WHERE status = 'active'
     `).all();
+}
+
+/**
+ * Check if any signal (active or closed) exists today for a symbol
+ * Prevents re-logging after auto-close (the dedup bug)
+ */
+function hasSignalToday(symbol) {
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+    return getDb().prepare(`
+        SELECT signal_id, status, score, zone, direction
+        FROM signals
+        WHERE symbol = ? AND date(timestamp) = ?
+        LIMIT 1
+    `).get(symbol, today);
 }
 
 /**
@@ -3469,6 +3486,7 @@ module.exports = {
     closeStaleSignals,
     getSignalsForCheckpoint,
     getActiveSignals,
+    hasSignalToday,
     getStats,
     getStatsByTier,
     getStatsByVixRegime,
