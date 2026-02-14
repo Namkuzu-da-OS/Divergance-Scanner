@@ -135,6 +135,9 @@ function isMarketOpen() {
     const minutes = etDate.getMinutes();
     const timeInMinutes = hours * 60 + minutes;
 
+    // Skip market holidays
+    if (signalDb.isMarketHoliday()) return false;
+
     // Extended hours for earnings: 6:00 AM - 8:00 PM ET
     // (captures pre-market moves and after-hours earnings releases)
     if (day >= 1 && day <= 5 && timeInMinutes >= 360 && timeInMinutes <= 1200) {
@@ -799,6 +802,12 @@ async function main() {
     console.log(`Scan Interval: ${SETTINGS.scanIntervalMs / 60000} minutes`);
     console.log(`PREM Window: ${SETTINGS.premWindowDays.min}-${SETTINGS.premWindowDays.max} days`);
     console.log('='.repeat(60));
+
+    // Clear stale pause file from previous PM2 session
+    if (fs.existsSync(PAUSE_FILE)) {
+        fs.unlinkSync(PAUSE_FILE);
+        console.log('[Startup] Cleared stale pause file from previous session');
+    }
 
     // Start HTTP control server
     startControlServer();

@@ -88,8 +88,8 @@ function getETDateString() {
  */
 function isRTH() {
     const { hour, minute, day } = getETTime();
-    // Skip weekends
-    if (day === 0 || day === 6) return false;
+    // Skip weekends and market holidays
+    if (day === 0 || day === 6 || signalDb.isMarketHoliday()) return false;
     const totalMin = hour * 60 + minute;
     const startMin = CONFIG.RTH_START_HOUR * 60 + CONFIG.RTH_START_MINUTE;  // 570
     const endMin = CONFIG.RTH_END_HOUR * 60 + CONFIG.RTH_END_MINUTE;        // 960
@@ -203,6 +203,12 @@ async function runScan() {
         dji_change: get('$DJI', 'netChange'),
         dji_change_pct: get('$DJI', 'netPercentChange')
     };
+
+    // Skip storage if all key fields are null (API failure)
+    if (snapshot.tick == null && snapshot.trin == null && snapshot.vix == null && snapshot.spx == null) {
+        console.log('[Internals] All API responses empty — skipping snapshot storage');
+        return;
+    }
 
     // Store in database
     try {

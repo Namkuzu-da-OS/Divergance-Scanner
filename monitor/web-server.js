@@ -837,6 +837,12 @@ const server = http.createServer((req, res) => {
                     res.end(JSON.stringify({ error: 'symbol and entry_price are required' }));
                     return;
                 }
+                if (typeof data.symbol !== 'string' || typeof data.entry_price !== 'number' || data.entry_price <= 0) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: 'symbol must be string, entry_price must be positive number' }));
+                    return;
+                }
+                data.symbol = data.symbol.toUpperCase().trim();
                 const signalDb = require('./signal-db');
                 const id = signalDb.addPosition(data);
                 res.writeHead(201, { 'Content-Type': 'application/json' });
@@ -1020,6 +1026,13 @@ const server = http.createServer((req, res) => {
                     res.end(JSON.stringify({ error: 'symbol and verdict are required' }));
                     return;
                 }
+                const validVerdicts = ['APPROVE', 'CHALLENGE', 'RED_FLAG', 'NEUTRAL', 'BULLISH', 'BEARISH'];
+                if (typeof data.symbol !== 'string' || typeof data.verdict !== 'string' || !validVerdicts.includes(data.verdict.toUpperCase())) {
+                    res.writeHead(400, { 'Content-Type': 'application/json' });
+                    res.end(JSON.stringify({ error: `verdict must be one of: ${validVerdicts.join(', ')}` }));
+                    return;
+                }
+                data.symbol = data.symbol.toUpperCase().trim();
                 const signalDb = require('./signal-db');
                 const id = signalDb.insertAnalysis(data);
                 res.writeHead(201, { 'Content-Type': 'application/json' });

@@ -348,8 +348,8 @@ function isMarketHours() {
 
     const day = etDate.getDay();
 
-    // Skip weekends
-    if (day === 0 || day === 6) return false;
+    // Skip weekends and market holidays
+    if (day === 0 || day === 6 || signalDb.isMarketHoliday()) return false;
 
     const { startHour, endHour } = SETTINGS.marketHours;
     const etHour = etDate.getHours();
@@ -745,9 +745,10 @@ async function runScan() {
 
     const results = [];
 
-    for (const { symbol, sources } of discoveredSymbols) {
+    for (const { symbol, discoveryScore, sources } of discoveredSymbols) {
         try {
             const result = await analyzeSymbol(symbol);
+            result.discovery_score = discoveryScore || 0;
             result.discovery_sources = sources; // Track how we found it
             results.push(result);
 

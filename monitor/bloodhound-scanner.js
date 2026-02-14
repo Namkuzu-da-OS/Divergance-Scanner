@@ -418,8 +418,8 @@ function isMarketOpen() {
     const minutes = etDate.getMinutes();
     const timeInMinutes = hours * 60 + minutes;
 
-    // Closed on weekends
-    if (day === 0 || day === 6) {
+    // Closed on weekends and market holidays
+    if (day === 0 || day === 6 || signalDb.isMarketHoliday()) {
         return false;
     }
 
@@ -590,7 +590,10 @@ async function fetchJSON(url, timeout = 10000, trackBackoff = false) {
             updateBackoffState(responseTime, url);
         }
 
-        if (!response.ok) return null;
+        if (!response.ok) {
+            console.error(`[API] HTTP ${response.status}: ${url}`);
+            return null;
+        }
         return await response.json();
     } catch (e) {
         clearTimeout(timeoutId);

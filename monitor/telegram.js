@@ -22,6 +22,7 @@ const config = require('./config-loader');
 
 const MAX_RETRIES = 3;
 const BASE_DELAY_MS = 1000;
+const MAX_MESSAGE_LENGTH = 4096;
 
 /**
  * Escape HTML special characters for Telegram HTML parse mode.
@@ -57,6 +58,12 @@ async function sendTelegram(message, options = {}) {
     const chatId = options.chatId || config.telegram.chatId;
     const parseMode = options.parseMode || 'HTML';
     const disablePreview = options.disablePreview !== false;
+
+    // Truncate messages exceeding Telegram's limit
+    if (message.length > MAX_MESSAGE_LENGTH) {
+        const truncateNote = '\n\n... [truncated]';
+        message = message.substring(0, MAX_MESSAGE_LENGTH - truncateNote.length) + truncateNote;
+    }
 
     if (!botToken || !chatId || botToken.includes('YOUR_')) {
         console.log('[Telegram] Not configured, skipping alert');

@@ -1,0 +1,22 @@
+{
+  "telegram": {
+    "botToken": "YOUR_TELEGRAM_BOT_TOKEN",
+    "chatId": "YOUR_TELEGRAM_CHAT_ID"
+  },
+  "earnings_telegram": {
+    "botToken": "YOUR_EARNINGS_BOT_TOKEN",
+    "chatId": "YOUR_EARNINGS_CHAT_ID"
+  },
+  "apis": {
+    "intel": "http://192.168.10.60:3000",
+    "options": "http://192.168.10.60:8000",
+    "divergence": "http://192.168.10.61:32212"
+  },
+  "ports": {
+    "_comment": "Port assignments - DO NOT CHANGE without updating all references",
+    "web_server": 8080,
+    "bloodhound_control": 8081,
+    "earnings_control": 8082,
+    "opportunity_control": 8083
+  }
+}

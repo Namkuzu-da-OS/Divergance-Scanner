@@ -81,8 +81,8 @@ function getETTime() {
 function isPremarketHours() {
     const { hour, minute, day } = getETTime();
 
-    // Skip weekends
-    if (day === 0 || day === 6) return false;
+    // Skip weekends and market holidays
+    if (day === 0 || day === 6 || signalDb.isMarketHoliday()) return false;
 
     // Pre-market: 6:00 AM - 9:30 AM ET
     if (hour < CONFIG.PREMARKET_START_HOUR) return false;
@@ -572,8 +572,8 @@ async function buildEarningsLookup(symbols) {
             earningsMap.set(symbol, result);
             log(`[Earnings] ${symbol} reports ${result.time === 'before_open' ? 'BMO' : result.time === 'after_close' ? 'AMC' : result.time}`);
         }
-        // Small delay to avoid hammering the API
-        await new Promise(r => setTimeout(r, 50));
+        // Inter-symbol delay per API pacing rules
+        await new Promise(r => setTimeout(r, 100));
     }
 
     return earningsMap;

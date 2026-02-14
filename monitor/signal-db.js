@@ -50,6 +50,28 @@ function getETDate(date = new Date()) {
     return date.toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
 }
 
+/**
+ * NYSE/NASDAQ market holidays for 2026 (update annually)
+ * Standard holidays: New Year's, MLK, Presidents', Good Friday,
+ * Memorial Day, Juneteenth, Independence Day, Labor Day, Thanksgiving, Christmas
+ */
+const MARKET_HOLIDAYS_2026 = new Set([
+    '2026-01-01', // New Year's Day
+    '2026-01-19', // MLK Day
+    '2026-02-16', // Presidents' Day
+    '2026-04-03', // Good Friday
+    '2026-05-25', // Memorial Day
+    '2026-06-19', // Juneteenth
+    '2026-07-03', // Independence Day (observed)
+    '2026-09-07', // Labor Day
+    '2026-11-26', // Thanksgiving
+    '2026-12-25', // Christmas
+]);
+
+function isMarketHoliday(dateStr) {
+    return MARKET_HOLIDAYS_2026.has(dateStr || getETDate());
+}
+
 function initSchema() {
     db.exec(`
         -- Core signals table
@@ -3506,6 +3528,7 @@ function getAnalysisStats() {
 module.exports = {
     getDb,
     getETDate,
+    isMarketHoliday,
     insertSignal,
     updatePriceTracking,
     recordCheckpoint,
