@@ -217,6 +217,19 @@
         .rsi-boost-val.positive { color: #00d4aa; }
         .rsi-boost-val.negative { color: #ff6b6b; }
         .rsi-boost-val.neutral { color: #64748b; }
+        .vix-badge {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        .vix-badge.complacent { background: rgba(96, 165, 250, 0.15); color: #60a5fa; }
+        .vix-badge.normal { background: rgba(0, 212, 170, 0.15); color: #00d4aa; }
+        .vix-badge.elevated { background: rgba(250, 204, 21, 0.15); color: #facc15; }
+        .vix-badge.fear { background: rgba(255, 107, 107, 0.15); color: #ff6b6b; }
+        .vix-badge.capitulation { background: rgba(239, 68, 68, 0.25); color: #ef4444; }
+        .vix-badge.none { background: rgba(139, 146, 168, 0.1); color: #64748b; }
 
         .empty-state {
             text-align: center;
@@ -450,6 +463,55 @@
         return `<span class="rsi-boost-val ${cls}">+${rsiInfo.boost.toFixed(1)}%</span>`;
     }
 
+    // Find the best VIX regime for a crossover row (golden cross side)
+    function getBestVIXRegime(results) {
+        const vixData = results.golden_cross_vix;
+        if (!vixData) return null;
+        const baseWR = parseWR(results.golden_cross?.['5d']?.winRate);
+        if (baseWR === null) return null;
+
+        let best = null;
+        for (const [regime, stats] of Object.entries(vixData)) {
+            const wr = parseWR(stats['5d']?.winRate);
+            const count = stats['5d']?.count || 0;
+            if (wr === null || count < 3) continue;
+            const boost = wr - baseWR;
+            if (boost <= 0) continue;
+            if (!best || wr > best.wr) {
+                best = { regime, wr, count, boost };
+            }
+        }
+        return best;
+    }
+
+    function vixBadgeClass(regime) {
+        const r = (regime || '').toLowerCase();
+        if (r === 'complacent') return 'complacent';
+        if (r === 'normal') return 'normal';
+        if (r === 'elevated') return 'elevated';
+        if (r === 'fear') return 'fear';
+        if (r === 'capitulation') return 'capitulation';
+        return 'none';
+    }
+
+    function fmtVIXRegime(vixInfo) {
+        if (!vixInfo) return '<span class="vix-badge none">--</span>';
+        return `<span class="vix-badge ${vixBadgeClass(vixInfo.regime)}">${vixInfo.regime}</span>`;
+    }
+
+    function fmtVIXWR(vixInfo) {
+        if (!vixInfo) return '<span style="color:#64748b">--</span>';
+        const cls = wrClass(vixInfo.wr);
+        const low = vixInfo.count < 15;
+        return `<span class="${cls} ${low ? 'low-confidence' : ''}">${vixInfo.wr.toFixed(1)}%${low ? '<span class="low-confidence-marker">*</span>' : ''}</span>`;
+    }
+
+    function fmtVIXBoost(vixInfo) {
+        if (!vixInfo) return '<span class="rsi-boost-val neutral">--</span>';
+        const cls = vixInfo.boost > 0 ? 'positive' : vixInfo.boost < 0 ? 'negative' : 'neutral';
+        return `<span class="rsi-boost-val ${cls}">+${vixInfo.boost.toFixed(1)}%</span>`;
+    }
+
     function renderBestPanel() {
         const rows = data.crossover || [];
         if (!rows.length) { document.getElementById('best-panel').style.display = 'none'; return; }
@@ -619,6 +681,14 @@
                     else { va = ra ? ra.filter : ''; vb = rb ? rb.filter : '';
                         return dir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va); }
                 }
+                else if (col === 'vix_regime' || col === 'vix_wr' || col === 'vix_boost') {
+                    const va2 = getBestVIXRegime(a.results);
+                    const vb2 = getBestVIXRegime(b.results);
+                    if (col === 'vix_wr') { va = va2?.wr || 0; vb = vb2?.wr || 0; }
+                    else if (col === 'vix_boost') { va = va2?.boost || 0; vb = vb2?.boost || 0; }
+                    else { va = va2 ? va2.regime : ''; vb = vb2 ? vb2.regime : '';
+                        return dir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va); }
+                }
                 else if (col === 'death_count') {
                     const da = a.results.death_cross;
                     const db2 = b.results.death_cross;
@@ -671,6 +741,9 @@
                     <th onclick="handleSort('rsi_filter')">RSI Filter ${sortArrow('rsi_filter')}</th>
                     <th onclick="handleSort('rsi_wr')">RSI WR ${sortArrow('rsi_wr')}</th>
                     <th onclick="handleSort('rsi_boost')">Boost ${sortArrow('rsi_boost')}</th>
+                    <th onclick="handleSort('vix_regime')">VIX Best ${sortArrow('vix_regime')}</th>
+                    <th onclick="handleSort('vix_wr')">VIX WR ${sortArrow('vix_wr')}</th>
+                    <th onclick="handleSort('vix_boost')">Boost ${sortArrow('vix_boost')}</th>
                     <th onclick="handleSort('death_count')">Death # ${sortArrow('death_count')}</th>
                     <th onclick="handleSort('death_5d_wr')">Death 5d WR ${sortArrow('death_5d_wr')}</th>
                     <th>Tested</th>
@@ -683,6 +756,7 @@
             const gcCount = gc['5d']?.count || 0;
             const dcCount = dc['5d']?.count || 0;
             const rsi = getBestRSIFilter(r.results);
+            const vix = getBestVIXRegime(r.results);
 
             html += `<tr>
                 <td><strong>${r.symbol}</strong></td>
@@ -694,6 +768,9 @@
                 <td>${fmtRSIFilter(rsi)}</td>
                 <td>${fmtRSIWR(rsi)}</td>
                 <td>${fmtRSIBoost(rsi)}</td>
+                <td>${fmtVIXRegime(vix)}</td>
+                <td>${fmtVIXWR(vix)}</td>
+                <td>${fmtVIXBoost(vix)}</td>
                 <td>${dcCount}</td>
                 <td>${fmtWR(dc['5d']?.winRate, dcCount)}</td>
                 <td style="font-size:11px;color:#8b92a8;">${r.data_start?.slice(0,10) || ''} &rarr; ${r.data_end?.slice(0,10) || ''}</td>
