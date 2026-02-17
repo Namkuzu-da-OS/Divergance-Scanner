@@ -3525,6 +3525,117 @@ function getAnalysisStats() {
     };
 }
 
+/**
+ * Get backtest runs from ma_backtest_runs table
+ * Keeps full history (multiple runs per combo). Dashboard shows latest per combo.
+ * Results cached in memory; invalidated when MAX(id) changes (new save).
+ */
+let _backtestCache = { maxId: null, data: null };
+
+function getBacktestRuns(options = {}) {
+    const { type = null, symbol = null } = options;
+    const db = getDb();
+
+    // Check if table exists
+    const tableExists = db.prepare(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='ma_backtest_runs'"
+    ).get();
+    if (!tableExists) {
+        return { crossover: [], alignment: [], meta: { total: 0, last_run: null } };
+    }
+
+    // Check cache validity — single PK index lookup
+    const { maxId } = db.prepare('SELECT MAX(id) as maxId FROM ma_backtest_runs').get();
+    if (_backtestCache.maxId !== maxId || !_backtestCache.data) {
+        // Rebuild cache — latest row per combo+ma_type, uses composite index
+        const rows = db.prepare(`
+            SELECT * FROM (
+                SELECT *,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY run_type, symbol, fast_period, slow_period, COALESCE(ma_type, 'SMA')
+                        ORDER BY created_at DESC
+                    ) as rn
+                FROM ma_backtest_runs
+            ) WHERE rn = 1
+            ORDER BY run_type, COALESCE(ma_type, 'SMA'), symbol, fast_period, slow_period
+        `).all();
+
+        const crossover = [];
+        const alignment = [];
+
+        for (const row of rows) {
+            let results;
+            try {
+                results = JSON.parse(row.results_json);
+            } catch (e) {
+                continue;
+            }
+
+            const maType = row.ma_type || 'SMA';
+            const entry = {
+                id: row.id,
+                symbol: row.symbol,
+                fast_period: row.fast_period,
+                slow_period: row.slow_period,
+                combo: `${row.fast_period}/${row.slow_period}`,
+                ma_type: maType,
+                data_start: row.data_start,
+                data_end: row.data_end,
+                total_bars: row.total_bars,
+                created_at: row.created_at,
+                results
+            };
+
+            if (row.run_type === 'crossover') {
+                crossover.push(entry);
+            } else if (row.run_type === 'alignment') {
+                alignment.push(entry);
+            }
+        }
+
+        const meta = db.prepare(`
+            SELECT COUNT(*) as total, MAX(created_at) as last_run
+            FROM ma_backtest_runs
+        `).get();
+
+        _backtestCache = {
+            maxId,
+            data: {
+                crossover,
+                alignment,
+                meta: {
+                    total: meta.total,
+                    last_run: meta.last_run,
+                    crossover_count: crossover.length,
+                    alignment_count: alignment.length
+                }
+            }
+        };
+    }
+
+    // Filter cached data by type/symbol
+    const cached = _backtestCache.data;
+    if (!type && !symbol) return cached;
+
+    const filterFn = (entry) => {
+        if (symbol && entry.symbol !== symbol.toUpperCase()) return false;
+        return true;
+    };
+
+    const crossover = (!type || type === 'crossover') ? cached.crossover.filter(filterFn) : [];
+    const alignment = (!type || type === 'alignment') ? cached.alignment.filter(filterFn) : [];
+
+    return {
+        crossover,
+        alignment,
+        meta: {
+            ...cached.meta,
+            crossover_count: crossover.length,
+            alignment_count: alignment.length
+        }
+    };
+}
+
 module.exports = {
     getDb,
     getETDate,
@@ -3621,5 +3732,7 @@ module.exports = {
     getAnalyses,
     getAnalysisById,
     updateAnalysisOutcome,
-    getAnalysisStats
+    getAnalysisStats,
+    // Backtest results functions
+    getBacktestRuns
 };

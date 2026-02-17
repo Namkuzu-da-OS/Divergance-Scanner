@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MA Backtests</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #0a0e1a;
+            color: #e5e7eb;
+            padding: 16px;
+            line-height: 1.5;
+        }
+        .container { max-width: 1600px; margin: 0 auto; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #2a3641;
+            padding-bottom: 16px;
+        }
+        .header h1 { font-size: 24px; font-weight: 600; color: #00d4aa; }
+        .header-subtitle { color: #8b92a8; margin-top: 4px; font-size: 12px; }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .card {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 16px;
+        }
+        .card-title {
+            font-size: 11px;
+            color: #8b92a8;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .card-value { font-size: 32px; font-weight: 700; }
+        .card-subtitle { font-size: 12px; color: #64748b; margin-top: 4px; }
+        .positive { color: #00d4aa; }
+        .negative { color: #ff6b6b; }
+        .neutral { color: #8b92a8; }
+
+        /* Best per symbol panel */
+        .best-panel {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .best-panel-title { font-size: 16px; font-weight: 600; margin-bottom: 14px; }
+        .best-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 10px;
+        }
+        .best-card {
+            background: #0f1428;
+            border: 1px solid #2a3641;
+            border-radius: 6px;
+            padding: 12px 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .best-card-symbol { font-size: 15px; font-weight: 700; width: 50px; }
+        .best-card-details { flex: 1; margin-left: 10px; }
+        .best-card-combo { font-size: 12px; margin-bottom: 2px; }
+        .best-card-wr { font-size: 22px; font-weight: 700; text-align: right; }
+        .best-card-count { font-size: 10px; color: #8b92a8; text-align: right; }
+        .ma-badge {
+            display: inline-block;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+            font-family: monospace;
+            margin-left: 4px;
+        }
+        .ma-badge.sma { background: rgba(139, 146, 168, 0.2); color: #8b92a8; }
+        .ma-badge.ema { background: rgba(96, 165, 250, 0.2); color: #60a5fa; }
+        .ma-badge.hma { background: rgba(250, 204, 21, 0.2); color: #facc15; }
+
+        .tab-bar {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px 8px 0 0;
+            color: #8b92a8;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+        }
+        .tab:hover { color: #e5e7eb; border-color: #3a4651; }
+        .tab.active {
+            background: #1a2332;
+            color: #00d4aa;
+            border-color: #00d4aa;
+            border-bottom-color: #1a2332;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .filter-bar select, .filter-bar input {
+            background: #151821;
+            border: 1px solid #2a3641;
+            color: #e5e7eb;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+        .filter-bar label {
+            font-size: 11px;
+            color: #8b92a8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .toggle-group {
+            display: inline-flex;
+            border: 1px solid #2a3641;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .toggle-btn {
+            padding: 6px 12px;
+            background: #151821;
+            color: #8b92a8;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .toggle-btn:not(:last-child) { border-right: 1px solid #2a3641; }
+        .toggle-btn.active { background: #00d4aa; color: #0a0e1a; }
+        .toggle-btn:hover:not(.active) { color: #e5e7eb; }
+
+        .section {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
+
+        table { width: 100%; border-collapse: collapse; }
+        thead th {
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 11px;
+            color: #8b92a8;
+            border-bottom: 1px solid #2a3641;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+        thead th:hover { color: #e5e7eb; }
+        thead th .sort-arrow { font-size: 9px; margin-left: 4px; }
+        tbody td { padding: 10px 12px; border-bottom: 1px solid #1a2332; font-size: 13px; }
+        tbody tr { background: #0f1428; transition: background 0.2s; }
+        tbody tr:hover { background: #1a2332; }
+
+        .wr-green { color: #00d4aa; font-weight: 600; }
+        .wr-yellow { color: #f0b429; font-weight: 600; }
+        .wr-dim { color: #8b92a8; }
+        .low-confidence { opacity: 0.6; }
+        .low-confidence-marker { font-size: 10px; color: #f0b429; margin-left: 2px; }
+
+        .combo-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            background: rgba(0, 212, 170, 0.1);
+            border: 1px solid rgba(0, 212, 170, 0.3);
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #00d4aa;
+            font-family: monospace;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8b92a8;
+        }
+        .empty-state-title { font-size: 18px; font-weight: 600; color: #e5e7eb; margin-bottom: 8px; }
+        .empty-state-text { font-size: 13px; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+        .empty-state code {
+            display: block;
+            background: #0f1428;
+            border: 1px solid #2a3641;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin: 12px auto;
+            max-width: 560px;
+            text-align: left;
+            font-size: 12px;
+            color: #00d4aa;
+            line-height: 1.8;
+        }
+
+        .loading { text-align: center; padding: 30px; font-size: 13px; color: #8b92a8; }
+
+        .btn {
+            padding: 8px 14px;
+            background: transparent;
+            border: 1px solid #00d4aa;
+            color: #00d4aa;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn:hover { background: #00d4aa; color: #0a0e1a; }
+    </style>
+    <link rel="stylesheet" href="css/nav.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <h1>MA BACKTESTS</h1>
+                <p class="header-subtitle">Moving average crossover & alignment sweep results</p>
+            </div>
+            <div class="header-center">
+                <nav class="nav-links">
+                    <a href="morning.html" class="nav-link">MORNING</a>
+                    <a href="zone-scanner.html" class="nav-link">ZONES</a>
+                    <a href="premarket.html" class="nav-link">GAPS</a>
+                    <a href="earnings-scanner.html" class="nav-link">EARNINGS</a>
+                    <a href="opportunity-scanner.html" class="nav-link">FLOW</a>
+                    <a href="scanner.html" class="nav-link">MARKET</a>
+                    <div class="nav-dropdown">
+                        <div class="nav-dropdown-toggle">INSIGHTS</div>
+                        <div class="nav-dropdown-menu">
+                            <a href="analytics.html">Analytics</a>
+                            <a href="research.html">Research</a>
+                            <a href="strategies.html">Strategies</a>
+                            <a href="options-lab.html">Options Lab</a>
+                            <a href="backtests.html" class="active">Backtests</a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            <div class="header-right">
+                <button class="btn" onclick="loadData()">Refresh</button>
+            </div>
+        </div>
+
+        <!-- Best per symbol panel -->
+        <div class="best-panel" id="best-panel" style="display:none;">
+            <div class="best-panel-title">Best Combo Per Symbol (Golden Cross 5d WR, min 15 signals)</div>
+            <div class="best-grid" id="best-grid"></div>
+        </div>
+
+        <div class="summary-cards" id="summary-cards">
+            <div class="card">
+                <div class="card-title">Total Combos</div>
+                <div class="card-value neutral" id="total-combos">--</div>
+                <div class="card-subtitle" id="total-combos-detail"></div>
+            </div>
+            <div class="card">
+                <div class="card-title">Best Performer</div>
+                <div class="card-value positive" id="best-performer" style="font-size:20px;">--</div>
+                <div class="card-subtitle" id="best-performer-detail"></div>
+            </div>
+            <div class="card">
+                <div class="card-title">Combos &ge; 65% WR</div>
+                <div class="card-value positive" id="combos-65">--</div>
+                <div class="card-subtitle" id="combos-65-detail"></div>
+            </div>
+            <div class="card">
+                <div class="card-title">Data Range</div>
+                <div class="card-value neutral" id="data-range" style="font-size:16px;">--</div>
+                <div class="card-subtitle" id="data-range-detail"></div>
+            </div>
+        </div>
+
+        <div class="tab-bar">
+            <div class="tab active" data-tab="crossover" onclick="switchTab('crossover')">Crossover</div>
+            <div class="tab" data-tab="alignment" onclick="switchTab('alignment')">Alignment</div>
+        </div>
+
+        <div class="filter-bar">
+            <label>MA Type:</label>
+            <div class="toggle-group" id="ma-type-toggle">
+                <button class="toggle-btn active" data-val="all" onclick="setMAFilter('all')">All</button>
+                <button class="toggle-btn" data-val="SMA" onclick="setMAFilter('SMA')">SMA</button>
+                <button class="toggle-btn" data-val="EMA" onclick="setMAFilter('EMA')">EMA</button>
+                <button class="toggle-btn" data-val="HMA" onclick="setMAFilter('HMA')">HMA</button>
+            </div>
+            <label>Symbol:</label>
+            <select id="filter-symbol"><option value="">All</option></select>
+            <label>Min Signals:</label>
+            <input type="number" id="filter-min-signals" value="0" min="0" style="width:60px;">
+            <label>Min WR%:</label>
+            <input type="number" id="filter-min-wr" value="0" min="0" max="100" style="width:60px;">
+        </div>
+
+        <div id="content-area">
+            <div class="loading">Loading backtest results...</div>
+        </div>
+    </div>
+
+    <script>
+    let data = { crossover: [], alignment: [], meta: {} };
+    let activeTab = 'crossover';
+    let maFilter = 'all';
+    let sortCol = null;
+    let sortDir = 'desc';
+
+    async function loadData() {
+        try {
+            const resp = await fetch('/api/backtest/results');
+            data = await resp.json();
+            populateSymbolFilter();
+            renderBestPanel();
+            renderSummary();
+            renderTable();
+        } catch (e) {
+            document.getElementById('content-area').innerHTML =
+                '<div class="loading" style="color:#ff6b6b;">Failed to load data: ' + e.message + '</div>';
+        }
+    }
+
+    function populateSymbolFilter() {
+        const symbols = new Set();
+        data.crossover.forEach(r => symbols.add(r.symbol));
+        data.alignment.forEach(r => symbols.add(r.symbol));
+        const sel = document.getElementById('filter-symbol');
+        const current = sel.value;
+        sel.innerHTML = '<option value="">All</option>';
+        [...symbols].sort().forEach(s => {
+            sel.innerHTML += `<option value="${s}" ${s === current ? 'selected' : ''}>${s}</option>`;
+        });
+    }
+
+    function setMAFilter(val) {
+        maFilter = val;
+        document.querySelectorAll('#ma-type-toggle .toggle-btn').forEach(b => {
+            b.classList.toggle('active', b.dataset.val === val);
+        });
+        renderSummary();
+        renderTable();
+    }
+
+    function parseWR(wrStr) {
+        if (!wrStr || wrStr === 'N/A') return null;
+        return parseFloat(wrStr);
+    }
+
+    function wrClass(wr) {
+        if (wr === null) return 'wr-dim';
+        if (wr >= 65) return 'wr-green';
+        if (wr >= 55) return 'wr-yellow';
+        return 'wr-dim';
+    }
+
+    function fmtWR(wrStr, count) {
+        const wr = parseWR(wrStr);
+        if (wr === null) return '<span class="wr-dim">N/A</span>';
+        const cls = wrClass(wr);
+        const low = count < 15;
+        return `<span class="${cls} ${low ? 'low-confidence' : ''}">${wr.toFixed(1)}%${low ? '<span class="low-confidence-marker">*</span>' : ''}</span>`;
+    }
+
+    function maBadge(maType) {
+        const t = maType || 'SMA';
+        return `<span class="ma-badge ${t.toLowerCase()}">${t}</span>`;
+    }
+
+    function renderBestPanel() {
+        const rows = data.crossover || [];
+        if (!rows.length) { document.getElementById('best-panel').style.display = 'none'; return; }
+
+        // Find best combo per symbol across all MA types
+        const bySymbol = {};
+        for (const c of rows) {
+            const gc = c.results.golden_cross;
+            const wr = parseWR(gc?.['5d']?.winRate);
+            const cnt = gc?.['5d']?.count || 0;
+            if (cnt < 15 || wr === null) continue;
+            const key = c.symbol;
+            if (!bySymbol[key] || wr > bySymbol[key].wr) {
+                bySymbol[key] = { combo: c.combo, wr, count: cnt, ma_type: c.ma_type || 'SMA', avg: gc['5d'].avgReturn };
+            }
+        }
+
+        const grid = document.getElementById('best-grid');
+        const symbols = Object.keys(bySymbol).sort((a, b) => bySymbol[b].wr - bySymbol[a].wr);
+
+        if (!symbols.length) { document.getElementById('best-panel').style.display = 'none'; return; }
+
+        let html = '';
+        for (const sym of symbols) {
+            const d = bySymbol[sym];
+            const cls = wrClass(d.wr);
+            html += `<div class="best-card">
+                <div class="best-card-symbol">${sym}</div>
+                <div class="best-card-details">
+                    <div class="best-card-combo"><span class="combo-tag">${d.combo}</span> ${maBadge(d.ma_type)}</div>
+                    <div style="font-size:11px;color:#64748b;">avg ${d.avg}</div>
+                </div>
+                <div>
+                    <div class="best-card-wr ${cls}">${d.wr.toFixed(1)}%</div>
+                    <div class="best-card-count">${d.count} signals</div>
+                </div>
+            </div>`;
+        }
+        grid.innerHTML = html;
+        document.getElementById('best-panel').style.display = '';
+    }
+
+    function renderSummary() {
+        const tab = activeTab;
+        const allRows = data[tab] || [];
+        const rows = allRows.filter(r => maFilter === 'all' || (r.ma_type || 'SMA') === maFilter);
+
+        document.getElementById('total-combos').textContent = rows.length;
+        const smaCount = allRows.filter(r => (r.ma_type || 'SMA') === 'SMA').length;
+        const emaCount = allRows.filter(r => r.ma_type === 'EMA').length;
+        const hmaCount = allRows.filter(r => r.ma_type === 'HMA').length;
+        const parts = [];
+        if (smaCount) parts.push(`${smaCount} SMA`);
+        if (emaCount) parts.push(`${emaCount} EMA`);
+        if (hmaCount) parts.push(`${hmaCount} HMA`);
+        document.getElementById('total-combos-detail').textContent = parts.length > 1 ? parts.join(' + ') : '';
+
+        let best = null;
+        let bestWR = 0;
+        let combos65 = 0;
+
+        rows.forEach(r => {
+            const results = r.results;
+            if (tab === 'crossover') {
+                const gc = results.golden_cross;
+                if (gc) {
+                    const wr = parseWR(gc['5d']?.winRate);
+                    if (wr !== null && gc['5d']?.count >= 5) {
+                        if (wr > bestWR) { bestWR = wr; best = r; }
+                        if (wr >= 65) combos65++;
+                    }
+                }
+            } else {
+                for (const [state, stats] of Object.entries(results)) {
+                    const wr = parseWR(stats['5d']?.winRate);
+                    if (wr !== null && stats['5d']?.count >= 5) {
+                        if (wr > bestWR) { bestWR = wr; best = { ...r, _bestState: state }; }
+                        if (wr >= 65) combos65++;
+                    }
+                }
+            }
+        });
+
+        if (best) {
+            const mt = best.ma_type || 'SMA';
+            const label = tab === 'crossover'
+                ? `${best.symbol} ${mt} ${best.combo}`
+                : `${best.symbol} ${mt} ${best.combo} (${best._bestState})`;
+            document.getElementById('best-performer').textContent = label;
+            document.getElementById('best-performer-detail').textContent = `${bestWR.toFixed(1)}% win rate (5d)`;
+        } else {
+            document.getElementById('best-performer').textContent = '--';
+            document.getElementById('best-performer-detail').textContent = '';
+        }
+
+        document.getElementById('combos-65').textContent = combos65;
+        document.getElementById('combos-65-detail').textContent = combos65 > 0
+            ? 'Meets Bloodhound factor threshold' : 'None yet';
+
+        if (rows.length > 0) {
+            const starts = rows.map(r => r.data_start).filter(Boolean).sort();
+            const ends = rows.map(r => r.data_end).filter(Boolean).sort();
+            if (starts.length && ends.length) {
+                document.getElementById('data-range').textContent = `${starts[0]} to ${ends[ends.length - 1]}`;
+            }
+            document.getElementById('data-range-detail').textContent =
+                `Last run: ${data.meta.last_run || 'unknown'}`;
+        }
+    }
+
+    function getFilteredRows() {
+        const rows = data[activeTab] || [];
+        const sym = document.getElementById('filter-symbol').value;
+        const minSignals = parseInt(document.getElementById('filter-min-signals').value) || 0;
+        const minWR = parseFloat(document.getElementById('filter-min-wr').value) || 0;
+
+        return rows.filter(r => {
+            if (maFilter !== 'all' && (r.ma_type || 'SMA') !== maFilter) return false;
+            if (sym && r.symbol !== sym) return false;
+            if (activeTab === 'crossover') {
+                const gc = r.results.golden_cross;
+                const count = gc?.['5d']?.count || 0;
+                const wr = parseWR(gc?.['5d']?.winRate);
+                if (minSignals > 0 && count < minSignals) return false;
+                if (minWR > 0 && (wr === null || wr < minWR)) return false;
+            }
+            return true;
+        });
+    }
+
+    function sortRows(rows, col, dir) {
+        return rows.sort((a, b) => {
+            let va, vb;
+            if (col === 'symbol') {
+                va = a.symbol; vb = b.symbol;
+                return dir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+            }
+            if (col === 'ma_type') {
+                va = a.ma_type || 'SMA'; vb = b.ma_type || 'SMA';
+                return dir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+            }
+            if (col === 'combo') {
+                va = a.fast_period * 1000 + a.slow_period;
+                vb = b.fast_period * 1000 + b.slow_period;
+            } else if (activeTab === 'crossover') {
+                const ga = a.results.golden_cross;
+                const gb = b.results.golden_cross;
+                if (col === 'gold_count') { va = ga?.['5d']?.count || 0; vb = gb?.['5d']?.count || 0; }
+                else if (col === 'gold_5d_wr') { va = parseWR(ga?.['5d']?.winRate) || 0; vb = parseWR(gb?.['5d']?.winRate) || 0; }
+                else if (col === 'gold_avg_5d') { va = parseFloat(ga?.['5d']?.avgReturn) || 0; vb = parseFloat(gb?.['5d']?.avgReturn) || 0; }
+                else if (col === 'death_count') {
+                    const da = a.results.death_cross;
+                    const db2 = b.results.death_cross;
+                    va = da?.['5d']?.count || 0; vb = db2?.['5d']?.count || 0;
+                }
+                else if (col === 'death_5d_wr') {
+                    const da = a.results.death_cross;
+                    const db2 = b.results.death_cross;
+                    va = parseWR(da?.['5d']?.winRate) || 0; vb = parseWR(db2?.['5d']?.winRate) || 0;
+                }
+                else { va = 0; vb = 0; }
+            } else {
+                va = 0; vb = 0;
+            }
+            return dir === 'asc' ? va - vb : vb - va;
+        });
+    }
+
+    function handleSort(col) {
+        if (sortCol === col) {
+            sortDir = sortDir === 'desc' ? 'asc' : 'desc';
+        } else {
+            sortCol = col;
+            sortDir = 'desc';
+        }
+        renderTable();
+    }
+
+    function sortArrow(col) {
+        if (sortCol !== col) return '';
+        return `<span class="sort-arrow">${sortDir === 'desc' ? '\u25BC' : '\u25B2'}</span>`;
+    }
+
+    function renderCrossoverTable(rows) {
+        if (!rows.length) return renderEmpty();
+
+        if (!sortCol) { sortCol = 'gold_5d_wr'; sortDir = 'desc'; }
+        rows = sortRows([...rows], sortCol, sortDir);
+
+        let html = `<div class="section">
+            <div class="section-title">Crossover Results — Golden & Death Cross Performance</div>
+            <table>
+                <thead><tr>
+                    <th onclick="handleSort('symbol')">Symbol ${sortArrow('symbol')}</th>
+                    <th onclick="handleSort('ma_type')">Type ${sortArrow('ma_type')}</th>
+                    <th onclick="handleSort('combo')">Combo ${sortArrow('combo')}</th>
+                    <th onclick="handleSort('gold_count')">Gold # ${sortArrow('gold_count')}</th>
+                    <th onclick="handleSort('gold_5d_wr')">Gold 5d WR ${sortArrow('gold_5d_wr')}</th>
+                    <th onclick="handleSort('gold_avg_5d')">Gold Avg 5d ${sortArrow('gold_avg_5d')}</th>
+                    <th onclick="handleSort('death_count')">Death # ${sortArrow('death_count')}</th>
+                    <th onclick="handleSort('death_5d_wr')">Death 5d WR ${sortArrow('death_5d_wr')}</th>
+                    <th>Tested</th>
+                </tr></thead>
+                <tbody>`;
+
+        for (const r of rows) {
+            const gc = r.results.golden_cross || {};
+            const dc = r.results.death_cross || {};
+            const gcCount = gc['5d']?.count || 0;
+            const dcCount = dc['5d']?.count || 0;
+
+            html += `<tr>
+                <td><strong>${r.symbol}</strong></td>
+                <td>${maBadge(r.ma_type)}</td>
+                <td><span class="combo-tag">${r.combo}</span></td>
+                <td>${gcCount}</td>
+                <td>${fmtWR(gc['5d']?.winRate, gcCount)}</td>
+                <td>${gc['5d']?.avgReturn || 'N/A'}</td>
+                <td>${dcCount}</td>
+                <td>${fmtWR(dc['5d']?.winRate, dcCount)}</td>
+                <td style="font-size:11px;color:#8b92a8;">${r.data_start?.slice(0,10) || ''} &rarr; ${r.data_end?.slice(0,10) || ''}</td>
+            </tr>`;
+        }
+
+        html += '</tbody></table></div>';
+        return html;
+    }
+
+    function renderAlignmentTable(rows) {
+        if (!rows.length) return renderEmpty();
+
+        const flat = [];
+        for (const r of rows) {
+            for (const [state, stats] of Object.entries(r.results)) {
+                flat.push({ ...r, state, stats });
+            }
+        }
+
+        flat.sort((a, b) => {
+            const wa = parseWR(a.stats['5d']?.winRate) || 0;
+            const wb = parseWR(b.stats['5d']?.winRate) || 0;
+            return wb - wa;
+        });
+
+        let html = `<div class="section">
+            <div class="section-title">Alignment Results — Performance by MA State</div>
+            <table>
+                <thead><tr>
+                    <th>Symbol</th>
+                    <th>Type</th>
+                    <th>Combo</th>
+                    <th>State</th>
+                    <th>Count</th>
+                    <th>5d WR</th>
+                    <th>10d WR</th>
+                    <th>20d WR</th>
+                    <th>Avg 5d</th>
+                    <th>Edge vs Base</th>
+                </tr></thead>
+                <tbody>`;
+
+        const baselines = {};
+        for (const r of rows) {
+            let totalWR = 0, count = 0;
+            for (const stats of Object.values(r.results)) {
+                const wr = parseWR(stats['5d']?.winRate);
+                if (wr !== null) { totalWR += wr; count++; }
+            }
+            baselines[r.symbol + '_' + r.combo + '_' + (r.ma_type || 'SMA')] = count > 0 ? totalWR / count : 50;
+        }
+
+        for (const f of flat) {
+            const s = f.stats;
+            const cnt = s['5d']?.count || 0;
+            const baseline = baselines[f.symbol + '_' + f.combo + '_' + (f.ma_type || 'SMA')] || 50;
+            const wr5 = parseWR(s['5d']?.winRate);
+            const edge = wr5 !== null ? (wr5 - baseline).toFixed(1) : 'N/A';
+            const edgeClass = edge !== 'N/A' ? (parseFloat(edge) > 0 ? 'positive' : parseFloat(edge) < 0 ? 'negative' : 'neutral') : 'neutral';
+
+            const stateBg = f.state === 'full_bull' ? 'rgba(0,212,170,0.05)' :
+                           f.state === 'full_bear' ? 'rgba(255,107,107,0.05)' : 'transparent';
+
+            html += `<tr style="background:${stateBg}">
+                <td><strong>${f.symbol}</strong></td>
+                <td>${maBadge(f.ma_type)}</td>
+                <td><span class="combo-tag">${f.combo}</span></td>
+                <td>${f.state.replace(/_/g, ' ')}</td>
+                <td class="${cnt < 15 ? 'low-confidence' : ''}">${cnt}${cnt < 15 ? '<span class="low-confidence-marker">*</span>' : ''}</td>
+                <td>${fmtWR(s['5d']?.winRate, cnt)}</td>
+                <td>${fmtWR(s['10d']?.winRate, s['10d']?.count || 0)}</td>
+                <td>${fmtWR(s['20d']?.winRate, s['20d']?.count || 0)}</td>
+                <td>${s['5d']?.avgReturn || 'N/A'}</td>
+                <td class="${edgeClass}">${edge !== 'N/A' ? (parseFloat(edge) > 0 ? '+' : '') + edge + '%' : 'N/A'}</td>
+            </tr>`;
+        }
+
+        html += '</tbody></table></div>';
+        return html;
+    }
+
+    function renderEmpty() {
+        return `<div class="section">
+            <div class="empty-state">
+                <div class="empty-state-title">No Backtest Data Found</div>
+                <div class="empty-state-text">
+                    Run the MA backtester with --save to populate this dashboard:
+                    <code>node scripts/ma-backtest.js crossover --sweep --symbol ALL --save<br>
+node scripts/ma-backtest.js crossover --sweep --symbol ALL --ema --save<br>
+node scripts/ma-backtest.js crossover --sweep --symbol ALL --hma --save<br>
+node scripts/ma-backtest.js alignment --sweep --symbol ALL --save</code>
+                    Data is stored in the ma_backtest_runs table in wingman.db.
+                </div>
+            </div>
+        </div>`;
+    }
+
+    function renderTable() {
+        const rows = getFilteredRows();
+        const area = document.getElementById('content-area');
+
+        if (activeTab === 'crossover') {
+            area.innerHTML = renderCrossoverTable(rows);
+        } else {
+            area.innerHTML = renderAlignmentTable(rows);
+        }
+    }
+
+    function switchTab(tab) {
+        activeTab = tab;
+        sortCol = null;
+        sortDir = 'desc';
+        document.querySelectorAll('.tab').forEach(t => {
+            t.classList.toggle('active', t.dataset.tab === tab);
+        });
+        renderSummary();
+        renderTable();
+    }
+
+    // Filter listeners
+    document.getElementById('filter-symbol').addEventListener('change', () => { renderSummary(); renderTable(); });
+    document.getElementById('filter-min-signals').addEventListener('input', renderTable);
+    document.getElementById('filter-min-wr').addEventListener('input', renderTable);
+
+    // Initial load
+    loadData();
+    </script>
+</body>
+</html>

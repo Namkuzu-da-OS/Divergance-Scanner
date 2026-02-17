@@ -400,6 +400,28 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // API: Backtest results
+    if (req.method === 'GET' && urlPath === '/api/backtest/results') {
+        try {
+            const signalDb = require('./signal-db');
+            const url = new URL(req.url, `http://${req.headers.host}`);
+            const type = url.searchParams.get('type');
+            const symbol = url.searchParams.get('symbol');
+
+            const results = signalDb.getBacktestRuns({
+                type: type || null,
+                symbol: symbol || null
+            });
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(results));
+        } catch (e) {
+            console.error('[Web Server] Error loading backtest results:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
     // API: Get latest market internals snapshot
     if (req.method === 'GET' && urlPath === '/api/internals/latest') {
         try {

@@ -140,7 +140,7 @@ All scanners share Options API at `192.168.10.60:8000`. **Never use Promise.all*
 | 32212 | Divergence Scanner | External (192.168.10.61) — RS rankings, rotation |
 
 ### Dashboard URLs (all at localhost:8080)
-morning.html (default), zone-scanner.html, premarket.html, earnings-scanner.html, opportunity-scanner.html, analytics.html, strategies.html, dashboard.html, options-lab.html, research.html, scanner.html
+morning.html (default), zone-scanner.html, premarket.html, earnings-scanner.html, opportunity-scanner.html, analytics.html, strategies.html, dashboard.html, options-lab.html, research.html, scanner.html, backtests.html
 
 ### Key Web Server API Endpoints (Port 8080)
 | Endpoint | Purpose |
@@ -158,6 +158,7 @@ morning.html (default), zone-scanner.html, premarket.html, earnings-scanner.html
 | `/api/signals/options?days=30` | Option signal tracking stats |
 | `/api/alerts?days=7&limit=50` | Alert history |
 | `/api/analyses` | Research journal (GET list, POST new) |
+| `/api/backtest/results` | MA backtest sweep results (?type=crossover&symbol=NVDA) |
 | `/api/premarket` | Latest premarket scan |
 | `/api/gaps/analytics?days=30` | Gap fill rates |
 | `/api/gaps/today-with-history` | Today's gaps + historical context |
