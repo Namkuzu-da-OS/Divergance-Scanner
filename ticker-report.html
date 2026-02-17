@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticker Report</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #0a0e1a;
+            color: #e5e7eb;
+            padding: 16px;
+            line-height: 1.5;
+        }
+        .container { max-width: 1600px; margin: 0 auto; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #2a3641;
+            padding-bottom: 16px;
+        }
+        .header h1 { font-size: 24px; font-weight: 600; color: #00d4aa; }
+        .header-subtitle { color: #8b92a8; margin-top: 4px; font-size: 12px; }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .search-bar input {
+            background: #151821;
+            border: 1px solid #2a3641;
+            color: #e5e7eb;
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 700;
+            width: 200px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .search-bar input:focus { border-color: #00d4aa; }
+        .search-bar input::placeholder { color: #3a4651; font-weight: 400; letter-spacing: 0; }
+        .btn {
+            padding: 12px 24px;
+            background: transparent;
+            border: 1px solid #00d4aa;
+            color: #00d4aa;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn:hover { background: #00d4aa; color: #0a0e1a; }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .spinner {
+            display: none;
+            width: 20px; height: 20px;
+            border: 2px solid #2a3641;
+            border-top-color: #00d4aa;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .card {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 16px;
+        }
+        .card-title {
+            font-size: 11px;
+            color: #8b92a8;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .card-value { font-size: 28px; font-weight: 700; }
+        .card-subtitle { font-size: 12px; color: #64748b; margin-top: 4px; }
+        .positive { color: #00d4aa; }
+        .negative { color: #ff6b6b; }
+        .neutral { color: #8b92a8; }
+
+        .section {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .section-title { font-size: 16px; font-weight: 600; margin-bottom: 14px; }
+
+        /* Recommendations */
+        .rec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 12px;
+        }
+        .rec-card {
+            background: #0f1428;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 14px 16px;
+        }
+        .rec-card.actionable { border-color: rgba(0, 212, 170, 0.4); }
+        .rec-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .rec-combo { font-size: 16px; font-weight: 700; }
+        .rec-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .rec-badge.action { background: rgba(0, 212, 170, 0.2); color: #00d4aa; }
+        .rec-badge.watch { background: rgba(240, 180, 41, 0.2); color: #f0b429; }
+        .rec-reasons { font-size: 12px; color: #8b92a8; line-height: 1.7; }
+        .rec-reasons li { list-style: none; }
+        .rec-reasons li::before { content: '•'; color: #3a4651; margin-right: 6px; }
+
+        /* Tabs */
+        .tab-bar {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px 8px 0 0;
+            color: #8b92a8;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+        }
+        .tab:hover { color: #e5e7eb; border-color: #3a4651; }
+        .tab.active {
+            background: #1a2332;
+            color: #00d4aa;
+            border-color: #00d4aa;
+            border-bottom-color: #1a2332;
+        }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; }
+        thead th {
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 11px;
+            color: #8b92a8;
+            border-bottom: 1px solid #2a3641;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+        thead th:hover { color: #e5e7eb; }
+        thead th .sort-arrow { font-size: 9px; margin-left: 4px; }
+        tbody td { padding: 10px 12px; border-bottom: 1px solid #1a2332; font-size: 13px; }
+        tbody tr { background: #0f1428; transition: background 0.2s; }
+        tbody tr:hover { background: #1a2332; }
+
+        .wr-green { color: #00d4aa; font-weight: 600; }
+        .wr-yellow { color: #f0b429; font-weight: 600; }
+        .wr-dim { color: #8b92a8; }
+        .low-confidence { opacity: 0.6; }
+        .low-confidence-marker { font-size: 10px; color: #f0b429; margin-left: 2px; }
+
+        .combo-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            background: rgba(0, 212, 170, 0.1);
+            border: 1px solid rgba(0, 212, 170, 0.3);
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #00d4aa;
+            font-family: monospace;
+        }
+        .ma-badge {
+            display: inline-block;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+            font-family: monospace;
+            margin-left: 4px;
+        }
+        .ma-badge.sma { background: rgba(139, 146, 168, 0.2); color: #8b92a8; }
+        .ma-badge.ema { background: rgba(96, 165, 250, 0.2); color: #60a5fa; }
+        .ma-badge.hma { background: rgba(250, 204, 21, 0.2); color: #facc15; }
+
+        .filter-badge {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        .filter-badge.active { background: rgba(0, 212, 170, 0.15); color: #00d4aa; }
+        .filter-badge.none { background: rgba(139, 146, 168, 0.1); color: #64748b; }
+        .boost-val { font-size: 11px; font-weight: 600; }
+        .boost-val.pos { color: #00d4aa; }
+        .boost-val.neg { color: #ff6b6b; }
+        .boost-val.neutral { color: #64748b; }
+
+        .edge-positive { color: #00d4aa; font-weight: 600; }
+        .edge-neutral { color: #f0b429; font-weight: 600; }
+        .edge-negative { color: #ff6b6b; font-weight: 600; }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #8b92a8;
+        }
+        .empty-state-title { font-size: 18px; font-weight: 600; color: #e5e7eb; margin-bottom: 8px; }
+        .empty-state-text { font-size: 13px; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+        .empty-state code {
+            display: block;
+            background: #0f1428;
+            border: 1px solid #2a3641;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin: 12px auto;
+            max-width: 560px;
+            text-align: left;
+            font-size: 12px;
+            color: #00d4aa;
+            line-height: 1.8;
+        }
+
+        .state-label {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .state-label.full-bull { background: rgba(0, 212, 170, 0.15); color: #00d4aa; }
+        .state-label.bull-structure { background: rgba(96, 165, 250, 0.15); color: #60a5fa; }
+        .state-label.bear-structure { background: rgba(250, 204, 21, 0.15); color: #facc15; }
+        .state-label.full-bear { background: rgba(255, 107, 107, 0.15); color: #ff6b6b; }
+    </style>
+    <link rel="stylesheet" href="css/nav.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <h1>TICKER REPORT</h1>
+                <p class="header-subtitle">Per-symbol MA backtest analysis — crossover, bounce & alignment</p>
+            </div>
+            <div class="header-center">
+                <nav class="nav-links">
+                    <a href="morning.html" class="nav-link">MORNING</a>
+                    <a href="zone-scanner.html" class="nav-link">ZONES</a>
+                    <a href="premarket.html" class="nav-link">GAPS</a>
+                    <a href="earnings-scanner.html" class="nav-link">EARNINGS</a>
+                    <a href="opportunity-scanner.html" class="nav-link">FLOW</a>
+                    <a href="scanner.html" class="nav-link">MARKET</a>
+                    <div class="nav-dropdown">
+                        <div class="nav-dropdown-toggle">INSIGHTS</div>
+                        <div class="nav-dropdown-menu">
+                            <a href="analytics.html">Analytics</a>
+                            <a href="research.html">Research</a>
+                            <a href="strategies.html">Strategies</a>
+                            <a href="options-lab.html">Options Lab</a>
+                            <a href="backtests.html">Backtests</a>
+                            <a href="ticker-report.html" class="active">Ticker Report</a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            <div class="header-right"></div>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" id="symbol-input" placeholder="NVDA" maxlength="10" autofocus>
+            <button class="btn" id="go-btn" onclick="doSearch()">Analyze</button>
+            <button class="btn" id="rerun-btn" onclick="doSearch(true)" style="border-color:#f0b429;color:#f0b429;display:none;" title="Re-run all sweeps from scratch">Re-run</button>
+            <div class="spinner" id="spinner"></div>
+        </div>
+
+        <div id="report-area">
+            <div class="empty-state">
+                <div class="empty-state-title">Enter a symbol above to generate a full MA analysis report</div>
+                <div class="empty-state-text">
+                    Compiles all crossover, bounce, and alignment backtest data into a single view.
+                    Available symbols with data:
+                    <code id="available-symbols">Loading...</code>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let report = null;
+    let activeTab = 'crossover';
+    let sortCol = null;
+    let sortDir = 'desc';
+
+    // Load available symbols on page load
+    async function loadAvailableSymbols() {
+        try {
+            const resp = await fetch('/api/backtest/results');
+            const data = await resp.json();
+            const symbols = new Set();
+            data.crossover.forEach(r => symbols.add(r.symbol));
+            data.alignment.forEach(r => symbols.add(r.symbol));
+            (data.bounce || []).forEach(r => symbols.add(r.symbol));
+            const el = document.getElementById('available-symbols');
+            if (symbols.size > 0) {
+                el.textContent = [...symbols].sort().join('  ');
+            } else {
+                el.textContent = 'No backtest data found. Run: node scripts/ma-backtest.js crossover --sweep --symbol ALL --save';
+            }
+        } catch (e) {
+            document.getElementById('available-symbols').textContent = 'Error loading symbols';
+        }
+    }
+
+    // Handle Enter key
+    document.getElementById('symbol-input').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') doSearch();
+    });
+
+    // Handle URL hash
+    function checkHash() {
+        const hash = window.location.hash.replace('#', '').trim().toUpperCase();
+        if (hash) {
+            document.getElementById('symbol-input').value = hash;
+            doSearch();
+        }
+    }
+
+    function setLoading(msg) {
+        const btn = document.getElementById('go-btn');
+        const spinner = document.getElementById('spinner');
+        btn.disabled = true;
+        spinner.style.display = 'block';
+        if (msg) {
+            document.getElementById('report-area').innerHTML = `
+                <div class="empty-state">
+                    <div class="spinner" style="display:inline-block;width:28px;height:28px;margin-bottom:12px;border-width:3px;"></div>
+                    <div class="empty-state-title">${msg}</div>
+                    <div class="empty-state-text" id="run-status" style="color:#8b92a8;margin-top:8px;">This may take a minute for new symbols...</div>
+                </div>`;
+        }
+    }
+
+    function clearLoading() {
+        document.getElementById('go-btn').disabled = false;
+        document.getElementById('spinner').style.display = 'none';
+    }
+
+    async function doSearch(forceRun) {
+        const input = document.getElementById('symbol-input');
+        const symbol = input.value.trim().toUpperCase();
+        if (!symbol) return;
+
+        input.value = symbol;
+        window.location.hash = symbol;
+
+        setLoading('Loading ' + symbol + '...');
+
+        try {
+            // Try existing data first (unless force-run requested)
+            if (!forceRun) {
+                const resp = await fetch(`/api/backtest/ticker/${symbol}`);
+                report = await resp.json();
+
+                if (!report.error) {
+                    activeTab = 'crossover';
+                    sortCol = null;
+                    clearLoading();
+                    renderReport();
+                    return;
+                }
+            }
+
+            // No data or force-run — trigger all sweeps
+            setLoading('Running backtests for ' + symbol + '...');
+
+            const resp2 = await fetch(`/api/backtest/run/${symbol}`, { method: 'POST' });
+            report = await resp2.json();
+
+            if (report.error === 'no_data') {
+                document.getElementById('report-area').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-title" style="color:#ff6b6b">Could not generate data for ${symbol}</div>
+                        <div class="empty-state-text">The backtester ran but produced no results. The symbol may not have enough price history.</div>
+                    </div>`;
+                return;
+            }
+
+            activeTab = 'crossover';
+            sortCol = null;
+            renderReport();
+        } catch (e) {
+            document.getElementById('report-area').innerHTML =
+                `<div class="empty-state"><div class="empty-state-title" style="color:#ff6b6b">Error: ${e.message}</div></div>`;
+        } finally {
+            clearLoading();
+        }
+    }
+
+    // --- Rendering ---
+
+    function parseWR(wrStr) {
+        if (wrStr === null || wrStr === undefined) return null;
+        if (typeof wrStr === 'number') return wrStr;
+        return parseFloat(wrStr);
+    }
+
+    function wrClass(wr) {
+        if (wr === null) return 'wr-dim';
+        if (wr >= 65) return 'wr-green';
+        if (wr >= 55) return 'wr-yellow';
+        return 'wr-dim';
+    }
+
+    function fmtWR(wr, count) {
+        if (wr === null || wr === undefined) return '<span class="wr-dim">N/A</span>';
+        const cls = wrClass(wr);
+        const low = count !== undefined && count < 15;
+        return `<span class="${cls} ${low ? 'low-confidence' : ''}">${wr.toFixed(1)}%${low ? '<span class="low-confidence-marker">*</span>' : ''}</span>`;
+    }
+
+    function maBadge(t) {
+        return `<span class="ma-badge ${(t||'SMA').toLowerCase()}">${t||'SMA'}</span>`;
+    }
+
+    function fmtFilter(f) {
+        if (!f) return '<span class="filter-badge none">--</span>';
+        return `<span class="filter-badge active">${f.filter}</span> ${fmtWR(f.wr, f.count)} <span class="boost-val pos">+${f.boost.toFixed(1)}%</span>`;
+    }
+
+    function stateLabel(state) {
+        const cls = state.replace(/_/g, '-');
+        const text = state.replace(/_/g, ' ');
+        return `<span class="state-label ${cls}">${text}</span>`;
+    }
+
+    function renderReport() {
+        if (!report || report.error) return;
+
+        // Show Re-run button
+        document.getElementById('rerun-btn').style.display = '';
+
+        const s = report.summary;
+        let html = '';
+
+        // Summary cards
+        html += '<div class="summary-cards">';
+        html += `<div class="card"><div class="card-title">Symbol</div><div class="card-value positive">${report.symbol}</div><div class="card-subtitle">${s.modes_covered.join(', ')}</div></div>`;
+        html += `<div class="card"><div class="card-title">Combos Tested</div><div class="card-value neutral">${s.total_combos_tested}</div><div class="card-subtitle">${s.modes_covered.length} modes</div></div>`;
+
+        if (s.best_overall) {
+            html += `<div class="card"><div class="card-title">Best Overall</div><div class="card-value positive" style="font-size:20px">${s.best_overall.combo} ${maBadge(s.best_overall.ma_type)}</div><div class="card-subtitle">${s.best_overall.value} — ${s.best_overall.metric}</div></div>`;
+        }
+
+        html += `<div class="card"><div class="card-title">Recommendations</div><div class="card-value ${report.recommendations.filter(r=>r.actionable).length > 0 ? 'positive' : 'neutral'}">${report.recommendations.filter(r=>r.actionable).length}</div><div class="card-subtitle">${report.recommendations.length} total combos flagged</div></div>`;
+        html += `<div class="card"><div class="card-title">Data Range</div><div class="card-value neutral" style="font-size:14px">${s.data_range || 'N/A'}</div></div>`;
+        html += '</div>';
+
+        // Recommendations
+        if (report.recommendations.length > 0) {
+            html += '<div class="section"><div class="section-title">Recommendations</div><div class="rec-grid">';
+            for (const rec of report.recommendations) {
+                const cls = rec.actionable ? 'actionable' : '';
+                const badge = rec.actionable
+                    ? '<span class="rec-badge action">ACTIONABLE</span>'
+                    : '<span class="rec-badge watch">WATCH</span>';
+                html += `<div class="rec-card ${cls}">
+                    <div class="rec-header">
+                        <span class="rec-combo"><span class="combo-tag">${rec.combo}</span> ${maBadge(rec.ma_type)}</span>
+                        ${badge}
+                    </div>
+                    <ul class="rec-reasons">${rec.reasons.map(r => `<li>${r}</li>`).join('')}</ul>
+                </div>`;
+            }
+            html += '</div></div>';
+        }
+
+        // Tab bar
+        html += '<div class="tab-bar">';
+        html += `<div class="tab ${activeTab==='crossover'?'active':''}" onclick="switchTab('crossover')">Crossover (${report.crossover.all.length})</div>`;
+        html += `<div class="tab ${activeTab==='bounce'?'active':''}" onclick="switchTab('bounce')">Bounce (${report.bounce.all.length})</div>`;
+        html += `<div class="tab ${activeTab==='alignment'?'active':''}" onclick="switchTab('alignment')">Alignment (${report.alignment.all.length})</div>`;
+        html += '</div>';
+
+        // Table
+        html += '<div class="section" id="table-section">';
+        html += renderTable();
+        html += '</div>';
+
+        document.getElementById('report-area').innerHTML = html;
+    }
+
+    function renderTable() {
+        if (!report) return '';
+        if (activeTab === 'crossover') return renderCrossoverTable();
+        if (activeTab === 'bounce') return renderBounceTable();
+        if (activeTab === 'alignment') return renderAlignmentTable();
+        return '';
+    }
+
+    function sortData(data, col, dir) {
+        if (!col) return data;
+        return [...data].sort((a, b) => {
+            let va = a[col], vb = b[col];
+            if (va === null || va === undefined) va = dir === 'desc' ? -Infinity : Infinity;
+            if (vb === null || vb === undefined) vb = dir === 'desc' ? -Infinity : Infinity;
+            return dir === 'desc' ? vb - va : va - vb;
+        });
+    }
+
+    function sortHeader(label, col) {
+        const arrow = sortCol === col ? (sortDir === 'desc' ? ' &#9660;' : ' &#9650;') : '';
+        return `<th onclick="doSort('${col}')">${label}<span class="sort-arrow">${arrow}</span></th>`;
+    }
+
+    function doSort(col) {
+        if (sortCol === col) {
+            sortDir = sortDir === 'desc' ? 'asc' : 'desc';
+        } else {
+            sortCol = col;
+            sortDir = 'desc';
+        }
+        const section = document.getElementById('table-section');
+        if (section) section.innerHTML = renderTable();
+    }
+
+    function renderCrossoverTable() {
+        const rows = sortData(report.crossover.all, sortCol, sortDir);
+        let html = '<table><thead><tr>';
+        html += '<th>Combo</th><th>MA</th>';
+        html += sortHeader('Golden 5d WR', 'golden_5d_wr');
+        html += sortHeader('Count', 'golden_5d_count');
+        html += sortHeader('Avg Ret', 'golden_5d_avg');
+        html += '<th>RSI Filter</th><th>VIX Regime</th>';
+        html += sortHeader('Death 5d WR', 'death_5d_wr');
+        html += sortHeader('D Count', 'death_5d_count');
+        html += sortHeader('10d WR', 'golden_10d_wr');
+        html += sortHeader('20d WR', 'golden_20d_wr');
+        html += '</tr></thead><tbody>';
+
+        for (const r of rows) {
+            html += '<tr>';
+            html += `<td><span class="combo-tag">${r.combo}</span></td>`;
+            html += `<td>${maBadge(r.ma_type)}</td>`;
+            html += `<td>${fmtWR(r.golden_5d_wr, r.golden_5d_count)}</td>`;
+            html += `<td>${r.golden_5d_count}</td>`;
+            html += `<td>${r.golden_5d_avg || '--'}</td>`;
+            html += `<td>${fmtFilter(r.rsi_filter)}</td>`;
+            html += `<td>${fmtFilter(r.vix_regime)}</td>`;
+            html += `<td>${fmtWR(r.death_5d_wr, r.death_5d_count)}</td>`;
+            html += `<td>${r.death_5d_count}</td>`;
+            html += `<td>${fmtWR(r.golden_10d_wr, r.golden_5d_count)}</td>`;
+            html += `<td>${fmtWR(r.golden_20d_wr, r.golden_5d_count)}</td>`;
+            html += '</tr>';
+        }
+
+        html += '</tbody></table>';
+        if (rows.length === 0) html = '<div style="text-align:center;padding:30px;color:#8b92a8">No crossover data</div>';
+        return html;
+    }
+
+    function renderBounceTable() {
+        const rows = sortData(report.bounce.all, sortCol, sortDir);
+        let html = '<table><thead><tr>';
+        html += '<th>Combo</th><th>MA</th>';
+        html += sortHeader('Bull 5d WR', 'bull_5d_wr');
+        html += sortHeader('Count', 'bull_5d_count');
+        html += sortHeader('Avg Ret', 'bull_5d_avg');
+        html += '<th>Touch Filter</th><th>RSI Filter</th><th>VIX Regime</th>';
+        html += sortHeader('Bear 5d WR', 'bear_5d_wr');
+        html += sortHeader('B Count', 'bear_5d_count');
+        html += sortHeader('10d WR', 'bull_10d_wr');
+        html += sortHeader('20d WR', 'bull_20d_wr');
+        html += '</tr></thead><tbody>';
+
+        for (const r of rows) {
+            html += '<tr>';
+            html += `<td><span class="combo-tag">${r.combo}</span></td>`;
+            html += `<td>${maBadge(r.ma_type)}</td>`;
+            html += `<td>${fmtWR(r.bull_5d_wr, r.bull_5d_count)}</td>`;
+            html += `<td>${r.bull_5d_count}</td>`;
+            html += `<td>${r.bull_5d_avg || '--'}</td>`;
+            html += `<td>${fmtFilter(r.touch_filter)}</td>`;
+            html += `<td>${fmtFilter(r.rsi_filter)}</td>`;
+            html += `<td>${fmtFilter(r.vix_regime)}</td>`;
+            html += `<td>${fmtWR(r.bear_5d_wr, r.bear_5d_count)}</td>`;
+            html += `<td>${r.bear_5d_count}</td>`;
+            html += `<td>${fmtWR(r.bull_10d_wr, r.bull_5d_count)}</td>`;
+            html += `<td>${fmtWR(r.bull_20d_wr, r.bull_5d_count)}</td>`;
+            html += '</tr>';
+        }
+
+        html += '</tbody></table>';
+        if (rows.length === 0) html = '<div style="text-align:center;padding:30px;color:#8b92a8">No bounce data</div>';
+        return html;
+    }
+
+    function renderAlignmentTable() {
+        const rows = sortData(report.alignment.all, sortCol, sortDir);
+        let html = '<table><thead><tr>';
+        html += '<th>Combo</th><th>MA</th><th>State</th>';
+        html += sortHeader('5d WR', 'wr');
+        html += sortHeader('Edge', 'edge');
+        html += sortHeader('Count', 'count');
+        html += '<th>Baseline</th>';
+        html += sortHeader('Avg Ret', 'avg_return');
+        html += sortHeader('1d WR', 'wr_1d');
+        html += sortHeader('10d WR', 'wr_10d');
+        html += sortHeader('20d WR', 'wr_20d');
+        html += '</tr></thead><tbody>';
+
+        for (const r of rows) {
+            const edgeCls = r.edge >= 5 ? 'edge-positive' : r.edge >= 2 ? 'edge-neutral' : r.edge < 0 ? 'edge-negative' : 'wr-dim';
+            html += '<tr>';
+            html += `<td><span class="combo-tag">${r.combo}</span></td>`;
+            html += `<td>${maBadge(r.ma_type)}</td>`;
+            html += `<td>${stateLabel(r.state)}</td>`;
+            html += `<td>${fmtWR(r.wr, r.count)}</td>`;
+            html += `<td><span class="${edgeCls}">${r.edge >= 0 ? '+' : ''}${r.edge.toFixed(1)}%</span></td>`;
+            html += `<td>${r.count}</td>`;
+            html += `<td class="wr-dim">${r.baseline}%</td>`;
+            html += `<td>${r.avg_return || '--'}</td>`;
+            html += `<td>${fmtWR(r.wr_1d, r.count)}</td>`;
+            html += `<td>${fmtWR(r.wr_10d, r.count)}</td>`;
+            html += `<td>${fmtWR(r.wr_20d, r.count)}</td>`;
+            html += '</tr>';
+        }
+
+        html += '</tbody></table>';
+        if (rows.length === 0) html = '<div style="text-align:center;padding:30px;color:#8b92a8">No alignment data</div>';
+        return html;
+    }
+
+    function switchTab(tab) {
+        activeTab = tab;
+        sortCol = null;
+        sortDir = 'desc';
+        // Update tab visuals
+        document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.textContent.toLowerCase().startsWith(tab)));
+        const section = document.getElementById('table-section');
+        if (section) section.innerHTML = renderTable();
+    }
+
+    // Init
+    loadAvailableSymbols();
+    checkHash();
+    </script>
+</body>
+</html>

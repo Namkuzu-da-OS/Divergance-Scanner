@@ -422,6 +422,77 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // API: Ticker report — compiled backtest analysis for a single symbol
+    if (req.method === 'GET' && urlPath.startsWith('/api/backtest/ticker/')) {
+        try {
+            const signalDb = require('./signal-db');
+            const symbol = urlPath.split('/api/backtest/ticker/')[1];
+            if (!symbol) {
+                res.writeHead(400, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ error: 'Symbol required' }));
+                return;
+            }
+            const report = signalDb.compileTickerReport(symbol);
+            if (!report) {
+                res.writeHead(200, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ symbol: symbol.toUpperCase(), error: 'no_data', message: 'No backtest data found for this symbol' }));
+                return;
+            }
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(report));
+        } catch (e) {
+            console.error('[Web Server] Error compiling ticker report:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
+    // API: Run all MA backtest sweeps for a symbol, then return compiled report
+    if (req.method === 'POST' && urlPath.startsWith('/api/backtest/run/')) {
+        const symbol = urlPath.split('/api/backtest/run/')[1]?.toUpperCase();
+        if (!symbol) {
+            res.writeHead(400, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Symbol required' }));
+            return;
+        }
+
+        const { exec } = require('child_process');
+        const scriptPath = path.join(__dirname, '..', 'scripts', 'ma-backtest.js');
+        const modes = ['crossover', 'alignment', 'bounce'];
+        const maTypes = ['SMA', 'EMA', 'HMA'];
+
+        console.log(`[Web Server] Running all MA sweeps for ${symbol}...`);
+
+        const runSweep = (mode, maType) => new Promise((resolve) => {
+            const cmd = `node "${scriptPath}" ${mode} --sweep --symbol ${symbol} --ma ${maType} --save`;
+            exec(cmd, { timeout: 300000 }, (err, stdout, stderr) => {
+                if (err) console.error(`[Web Server] Sweep ${mode}/${maType} failed for ${symbol}:`, err.message);
+                else console.log(`[Web Server] Sweep ${mode}/${maType} done for ${symbol}`);
+                resolve();
+            });
+        });
+
+        (async () => {
+            for (const mode of modes) {
+                for (const maType of maTypes) {
+                    await runSweep(mode, maType);
+                }
+            }
+
+            console.log(`[Web Server] All sweeps done for ${symbol}`);
+            const signalDb = require('./signal-db');
+            const report = signalDb.compileTickerReport(symbol);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(report || { symbol, error: 'no_data', message: 'Sweeps completed but no data generated' }));
+        })().catch(err => {
+            console.error('[Web Server] Error running sweeps:', err.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: err.message }));
+        });
+        return;
+    }
+
     // API: Get latest market internals snapshot
     if (req.method === 'GET' && urlPath === '/api/internals/latest') {
         try {

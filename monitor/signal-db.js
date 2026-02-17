@@ -3644,6 +3644,297 @@ function getBacktestRuns(options = {}) {
     };
 }
 
+/**
+ * Compile a full ticker report from backtest data for a single symbol.
+ * Aggregates crossover, bounce, and alignment results into a structured report
+ * with best performers, filter analysis, and cross-mode recommendations.
+ */
+function compileTickerReport(symbol) {
+    const sym = symbol.toUpperCase();
+    const data = getBacktestRuns({ symbol: sym });
+
+    if (!data.crossover.length && !data.alignment.length && !data.bounce.length) {
+        return null;
+    }
+
+    function parseWR(wrStr) {
+        if (!wrStr || wrStr === 'N/A') return null;
+        return parseFloat(wrStr);
+    }
+
+    // Find best filter (RSI/VIX/touch) that improves on base WR
+    function findBestFilter(filterData, baseWR) {
+        if (!filterData || baseWR === null) return null;
+        let best = null;
+        for (const [filter, stats] of Object.entries(filterData)) {
+            const wr = parseWR(stats['5d']?.winRate);
+            const count = stats['5d']?.count || 0;
+            if (wr === null || count < 5) continue;
+            const boost = wr - baseWR;
+            if (boost <= 0) continue;
+            if (!best || wr > best.wr) {
+                best = { filter, wr, count, boost };
+            }
+        }
+        return best;
+    }
+
+    // Extract a crossover entry's metrics
+    function extractCrossoverMetrics(entry) {
+        const gc = entry.results.golden_cross;
+        const dc = entry.results.death_cross;
+        const gcWR = parseWR(gc?.['5d']?.winRate);
+        const dcWR = parseWR(dc?.['5d']?.winRate);
+        return {
+            combo: entry.combo,
+            ma_type: entry.ma_type,
+            golden_5d_wr: gcWR,
+            golden_5d_count: gc?.['5d']?.count || 0,
+            golden_5d_avg: gc?.['5d']?.avgReturn || null,
+            death_5d_wr: dcWR,
+            death_5d_count: dc?.['5d']?.count || 0,
+            death_5d_avg: dc?.['5d']?.avgReturn || null,
+            rsi_filter: findBestFilter(entry.results.golden_cross_rsi, gcWR),
+            vix_regime: findBestFilter(entry.results.golden_cross_vix, gcWR),
+            golden_1d_wr: parseWR(gc?.['1d']?.winRate),
+            golden_10d_wr: parseWR(gc?.['10d']?.winRate),
+            golden_20d_wr: parseWR(gc?.['20d']?.winRate)
+        };
+    }
+
+    // Extract a bounce entry's metrics
+    function extractBounceMetrics(entry) {
+        const bb = entry.results.bull_bounce;
+        const brb = entry.results.bear_bounce;
+        const bbWR = parseWR(bb?.['5d']?.winRate);
+        const brbWR = parseWR(brb?.['5d']?.winRate);
+        return {
+            combo: entry.combo,
+            ma_type: entry.ma_type,
+            bull_5d_wr: bbWR,
+            bull_5d_count: bb?.['5d']?.count || 0,
+            bull_5d_avg: bb?.['5d']?.avgReturn || null,
+            bear_5d_wr: brbWR,
+            bear_5d_count: brb?.['5d']?.count || 0,
+            bear_5d_avg: brb?.['5d']?.avgReturn || null,
+            touch_filter: findBestFilter(entry.results.bull_bounce_touch, bbWR),
+            rsi_filter: findBestFilter(entry.results.bull_bounce_rsi, bbWR),
+            vix_regime: findBestFilter(entry.results.bull_bounce_vix, bbWR),
+            bull_1d_wr: parseWR(bb?.['1d']?.winRate),
+            bull_10d_wr: parseWR(bb?.['10d']?.winRate),
+            bull_20d_wr: parseWR(bb?.['20d']?.winRate)
+        };
+    }
+
+    // Data range from first entry
+    const anyEntry = data.crossover[0] || data.alignment[0] || data.bounce[0];
+    const dataStart = anyEntry?.data_start || null;
+    const dataEnd = anyEntry?.data_end || null;
+
+    // === CROSSOVER ANALYSIS ===
+    const crossoverSorted = [...data.crossover].sort((a, b) => {
+        const aWR = parseWR(a.results.golden_cross?.['5d']?.winRate) || 0;
+        const bWR = parseWR(b.results.golden_cross?.['5d']?.winRate) || 0;
+        return bWR - aWR;
+    });
+
+    const crossoverAll = crossoverSorted.map(extractCrossoverMetrics);
+
+    const bestGolden = crossoverSorted[0] ? (() => {
+        const r = crossoverSorted[0];
+        const gc = r.results.golden_cross;
+        const baseWR = parseWR(gc?.['5d']?.winRate);
+        return {
+            combo: r.combo, ma_type: r.ma_type,
+            wr: baseWR, count: gc?.['5d']?.count || 0,
+            avg_return: gc?.['5d']?.avgReturn || null,
+            rsi_filter: findBestFilter(r.results.golden_cross_rsi, baseWR),
+            vix_regime: findBestFilter(r.results.golden_cross_vix, baseWR)
+        };
+    })() : null;
+
+    // Best death cross — lowest WR = strongest bearish signal
+    const deathSorted = [...data.crossover].sort((a, b) => {
+        const aWR = parseWR(a.results.death_cross?.['5d']?.winRate) ?? 100;
+        const bWR = parseWR(b.results.death_cross?.['5d']?.winRate) ?? 100;
+        return aWR - bWR;
+    });
+
+    const bestDeath = deathSorted[0] ? (() => {
+        const r = deathSorted[0];
+        const dc = r.results.death_cross;
+        const baseWR = parseWR(dc?.['5d']?.winRate);
+        return {
+            combo: r.combo, ma_type: r.ma_type,
+            wr: baseWR, count: dc?.['5d']?.count || 0,
+            avg_return: dc?.['5d']?.avgReturn || null,
+            rsi_filter: findBestFilter(r.results.death_cross_rsi, baseWR),
+            vix_regime: findBestFilter(r.results.death_cross_vix, baseWR)
+        };
+    })() : null;
+
+    // === BOUNCE ANALYSIS ===
+    const bounceSorted = [...data.bounce].sort((a, b) => {
+        const aWR = parseWR(a.results.bull_bounce?.['5d']?.winRate) || 0;
+        const bWR = parseWR(b.results.bull_bounce?.['5d']?.winRate) || 0;
+        return bWR - aWR;
+    });
+
+    const bounceAll = bounceSorted.map(extractBounceMetrics);
+
+    const bestBull = bounceSorted[0] ? (() => {
+        const r = bounceSorted[0];
+        const bb = r.results.bull_bounce;
+        const baseWR = parseWR(bb?.['5d']?.winRate);
+        return {
+            combo: r.combo, ma_type: r.ma_type,
+            wr: baseWR, count: bb?.['5d']?.count || 0,
+            avg_return: bb?.['5d']?.avgReturn || null,
+            touch_filter: findBestFilter(r.results.bull_bounce_touch, baseWR),
+            rsi_filter: findBestFilter(r.results.bull_bounce_rsi, baseWR),
+            vix_regime: findBestFilter(r.results.bull_bounce_vix, baseWR)
+        };
+    })() : null;
+
+    // Best bear bounce — lowest WR = strongest bearish signal
+    const bearSorted = [...data.bounce].sort((a, b) => {
+        const aWR = parseWR(a.results.bear_bounce?.['5d']?.winRate) ?? 100;
+        const bWR = parseWR(b.results.bear_bounce?.['5d']?.winRate) ?? 100;
+        return aWR - bWR;
+    });
+
+    const bestBear = bearSorted[0] ? (() => {
+        const r = bearSorted[0];
+        const brb = r.results.bear_bounce;
+        const baseWR = parseWR(brb?.['5d']?.winRate);
+        return {
+            combo: r.combo, ma_type: r.ma_type,
+            wr: baseWR, count: brb?.['5d']?.count || 0,
+            avg_return: brb?.['5d']?.avgReturn || null,
+            touch_filter: findBestFilter(r.results.bear_bounce_touch, baseWR),
+            rsi_filter: findBestFilter(r.results.bear_bounce_rsi, baseWR),
+            vix_regime: findBestFilter(r.results.bear_bounce_vix, baseWR)
+        };
+    })() : null;
+
+    // === ALIGNMENT ANALYSIS ===
+    const ALIGN_STATES = ['full_bull', 'bull_structure', 'bear_structure', 'full_bear'];
+    const alignmentEntries = [];
+
+    for (const r of data.alignment) {
+        const res = r.results;
+        // Baseline: weighted average 5d WR across all states
+        let totalCount = 0, totalWins = 0;
+        for (const state of ALIGN_STATES) {
+            if (res[state]?.['5d']) {
+                const count = res[state]['5d'].count || 0;
+                const wr = parseWR(res[state]['5d'].winRate) || 0;
+                totalCount += count;
+                totalWins += (wr / 100) * count;
+            }
+        }
+        const baseline = totalCount > 0 ? (totalWins / totalCount) * 100 : 50;
+
+        for (const state of ALIGN_STATES) {
+            const stateData = res[state];
+            if (!stateData?.['5d']) continue;
+            const wr = parseWR(stateData['5d'].winRate);
+            const count = stateData['5d'].count || 0;
+            if (wr === null) continue;
+            alignmentEntries.push({
+                combo: r.combo, ma_type: r.ma_type, state,
+                wr, count,
+                avg_return: stateData['5d'].avgReturn || null,
+                edge: parseFloat((wr - baseline).toFixed(1)),
+                baseline: parseFloat(baseline.toFixed(1)),
+                wr_1d: parseWR(stateData['1d']?.winRate),
+                wr_10d: parseWR(stateData['10d']?.winRate),
+                wr_20d: parseWR(stateData['20d']?.winRate)
+            });
+        }
+    }
+
+    alignmentEntries.sort((a, b) => b.edge - a.edge);
+
+    // === RECOMMENDATIONS ===
+    const comboScores = new Map();
+
+    function addRec(combo, maType, reason, wr) {
+        const key = `${combo}|${maType}`;
+        if (!comboScores.has(key)) comboScores.set(key, { combo, ma_type: maType, reasons: [], maxWR: 0 });
+        const entry = comboScores.get(key);
+        entry.reasons.push(reason);
+        entry.maxWR = Math.max(entry.maxWR, wr);
+    }
+
+    // Top crossover combos
+    for (let i = 0; i < Math.min(crossoverAll.length, 10); i++) {
+        const c = crossoverAll[i];
+        if (c.golden_5d_wr === null) continue;
+        if (c.golden_5d_wr >= 65 || i < 3) {
+            addRec(c.combo, c.ma_type, `Golden cross 5d WR: ${c.golden_5d_wr.toFixed(1)}% (${c.golden_5d_count} signals)`, c.golden_5d_wr);
+        }
+    }
+
+    // Top bounce combos
+    for (let i = 0; i < Math.min(bounceAll.length, 10); i++) {
+        const b = bounceAll[i];
+        if (b.bull_5d_wr === null) continue;
+        if (b.bull_5d_wr >= 65 || i < 3) {
+            addRec(b.combo, b.ma_type, `Bull bounce 5d WR: ${b.bull_5d_wr.toFixed(1)}% (${b.bull_5d_count} signals)`, b.bull_5d_wr);
+        }
+    }
+
+    // Top alignment states
+    for (let i = 0; i < Math.min(alignmentEntries.length, 10); i++) {
+        const a = alignmentEntries[i];
+        if (a.wr >= 65 || (a.edge >= 5 && i < 5)) {
+            const stateLabel = a.state.replace(/_/g, ' ');
+            addRec(a.combo, a.ma_type, `${stateLabel} 5d WR: ${a.wr.toFixed(1)}% (+${a.edge.toFixed(1)}% edge)`, a.wr);
+        }
+    }
+
+    const recommendations = [];
+    for (const [, entry] of comboScores) {
+        recommendations.push({
+            combo: entry.combo, ma_type: entry.ma_type,
+            reasons: entry.reasons, modes: entry.reasons.length,
+            max_wr: entry.maxWR,
+            actionable: entry.reasons.length >= 2 || entry.maxWR >= 65
+        });
+    }
+    recommendations.sort((a, b) => b.modes !== a.modes ? b.modes - a.modes : b.max_wr - a.max_wr);
+
+    // === SUMMARY ===
+    const totalCombos = data.crossover.length + data.alignment.length + data.bounce.length;
+    const modesCovered = [];
+    if (data.crossover.length) modesCovered.push('crossover');
+    if (data.alignment.length) modesCovered.push('alignment');
+    if (data.bounce.length) modesCovered.push('bounce');
+
+    let bestOverall = null;
+    if (bestGolden?.wr !== null && bestGolden?.wr !== undefined) {
+        bestOverall = { combo: bestGolden.combo, ma_type: bestGolden.ma_type, mode: 'crossover', metric: 'golden 5d WR', value: bestGolden.wr.toFixed(1) + '%' };
+    }
+    if (bestBull?.wr !== null && bestBull?.wr !== undefined && (!bestOverall || bestBull.wr > parseFloat(bestOverall.value))) {
+        bestOverall = { combo: bestBull.combo, ma_type: bestBull.ma_type, mode: 'bounce', metric: 'bull bounce 5d WR', value: bestBull.wr.toFixed(1) + '%' };
+    }
+
+    return {
+        symbol: sym,
+        summary: {
+            total_combos_tested: totalCombos,
+            modes_covered: modesCovered,
+            data_range: dataStart && dataEnd ? `${dataStart} → ${dataEnd}` : null,
+            best_overall: bestOverall
+        },
+        recommendations,
+        crossover: { best_golden: bestGolden, best_death: bestDeath, all: crossoverAll },
+        alignment: { best_state: alignmentEntries[0] || null, all: alignmentEntries },
+        bounce: { best_bull: bestBull, best_bear: bestBear, all: bounceAll }
+    };
+}
+
 module.exports = {
     getDb,
     getETDate,
@@ -3742,5 +4033,6 @@ module.exports = {
     updateAnalysisOutcome,
     getAnalysisStats,
     // Backtest results functions
-    getBacktestRuns
+    getBacktestRuns,
+    compileTickerReport
 };
