@@ -306,6 +306,31 @@ const RSI_FILTERS_DEATH = [
     { label: 'RSI 30-70', test: rsi => rsi >= 30 && rsi <= 70 },
 ];
 
+// VIX regime buckets (matches CLAUDE.md thresholds)
+const VIX_REGIMES = [
+    { label: 'Complacent', test: vix => vix < 12 },
+    { label: 'Normal', test: vix => vix >= 12 && vix < 20 },
+    { label: 'Elevated', test: vix => vix >= 20 && vix < 30 },
+    { label: 'Fear', test: vix => vix >= 30 && vix < 40 },
+    { label: 'Capitulation', test: vix => vix >= 40 },
+];
+
+// VIX date lookup — built once from $VIX history, keyed by YYYY-MM-DD
+let _vixByDate = null;
+
+function buildVIXLookup(vixCandles) {
+    _vixByDate = {};
+    for (const c of vixCandles) {
+        const d = new Date(c.datetime).toISOString().split('T')[0];
+        _vixByDate[d] = c.close;
+    }
+}
+
+function getVIXForDate(dateString) {
+    if (!_vixByDate) return null;
+    return _vixByDate[dateString] || null;
+}
+
 function classifyAlignment(price, fastMA, slowMA) {
     if (fastMA == null || slowMA == null) return null;
     if (price > fastMA && fastMA > slowMA) return 'full_bull';
@@ -528,14 +553,16 @@ function runCrossover(candles, fastPeriod, slowPeriod) {
             const type = fastAbove ? 'golden_cross' : 'death_cross';
             const returns = getForwardReturns(closes, i);
 
+            const crossDate = dateStr(sorted[i].datetime);
             crosses.push({
-                date: dateStr(sorted[i].datetime),
+                date: crossDate,
                 price: closes[i],
                 fastMA,
                 slowMA,
                 type,
                 returns,
                 rsi: rsiSeries[i] != null ? Math.round(rsiSeries[i] * 10) / 10 : null,
+                vix: getVIXForDate(crossDate),
             });
         }
 
@@ -584,12 +611,29 @@ function printCrossoverResults(symbol, fastPeriod, slowPeriod, result) {
             }
         }
 
+        // VIX regime breakdown
+        const goldenWithVIX = golden.filter(c => c.vix != null);
+        if (goldenWithVIX.length > 0) {
+            console.log('\n  VIX REGIME ANALYSIS (golden crosses):');
+            const baseWR = parseFloat(calcGroupStats(goldenWithVIX)['5d'].winRate);
+            for (const v of VIX_REGIMES) {
+                const filtered = goldenWithVIX.filter(c => v.test(c.vix));
+                if (filtered.length < 3) continue;
+                const vStats = calcGroupStats(filtered);
+                const vWR = parseFloat(vStats['5d'].winRate);
+                const delta = (vWR - baseWR).toFixed(1);
+                const sign = vWR > baseWR ? '+' : '';
+                console.log(`    ${v.label.padEnd(14)} → ${filtered.length} signals, 5d WR: ${vStats['5d'].winRate} (${sign}${delta}%), avg: ${vStats['5d'].avgReturn}`);
+            }
+        }
+
         console.log('\nRecent golden crosses:');
         golden.slice(-5).forEach(c => {
             const r5 = c.returns[5] != null ? `${c.returns[5] >= 0 ? '+' : ''}${c.returns[5].toFixed(2)}%` : 'N/A';
             const r20 = c.returns[20] != null ? `${c.returns[20] >= 0 ? '+' : ''}${c.returns[20].toFixed(2)}%` : 'N/A';
             const rsiStr = c.rsi != null ? ` RSI:${c.rsi}` : '';
-            console.log(`  ${c.date}: $${c.price.toFixed(2)} — 5d: ${r5}, 20d: ${r20}${rsiStr}`);
+            const vixStr = c.vix != null ? ` VIX:${c.vix.toFixed(1)}` : '';
+            console.log(`  ${c.date}: $${c.price.toFixed(2)} — 5d: ${r5}, 20d: ${r20}${rsiStr}${vixStr}`);
         });
     }
 
@@ -621,12 +665,29 @@ function printCrossoverResults(symbol, fastPeriod, slowPeriod, result) {
             }
         }
 
+        // VIX regime breakdown for death crosses
+        const deathWithVIX = invertedDeath.filter(c => c.vix != null);
+        if (deathWithVIX.length > 0) {
+            console.log('\n  VIX REGIME ANALYSIS (death crosses):');
+            const baseWR = parseFloat(calcGroupStats(deathWithVIX)['5d'].winRate);
+            for (const v of VIX_REGIMES) {
+                const filtered = deathWithVIX.filter(c => v.test(c.vix));
+                if (filtered.length < 3) continue;
+                const vStats = calcGroupStats(filtered);
+                const vWR = parseFloat(vStats['5d'].winRate);
+                const delta = (vWR - baseWR).toFixed(1);
+                const sign = vWR > baseWR ? '+' : '';
+                console.log(`    ${v.label.padEnd(14)} → ${filtered.length} signals, 5d WR: ${vStats['5d'].winRate} (${sign}${delta}%), avg: ${vStats['5d'].avgReturn}`);
+            }
+        }
+
         console.log('\nRecent death crosses:');
         death.slice(-5).forEach(c => {
             const r5 = c.returns[5] != null ? `${c.returns[5] >= 0 ? '+' : ''}${c.returns[5].toFixed(2)}%` : 'N/A';
             const r20 = c.returns[20] != null ? `${c.returns[20] >= 0 ? '+' : ''}${c.returns[20].toFixed(2)}%` : 'N/A';
             const rsiStr = c.rsi != null ? ` RSI:${c.rsi}` : '';
-            console.log(`  ${c.date}: $${c.price.toFixed(2)} — 5d: ${r5}, 20d: ${r20}${rsiStr}`);
+            const vixStr = c.vix != null ? ` VIX:${c.vix.toFixed(1)}` : '';
+            console.log(`  ${c.date}: $${c.price.toFixed(2)} — 5d: ${r5}, 20d: ${r20}${rsiStr}${vixStr}`);
         });
     }
 
@@ -705,6 +766,18 @@ function buildRSIFilterStats(signals, filters) {
     return Object.keys(result).length > 0 ? result : null;
 }
 
+function buildVIXRegimeStats(signals) {
+    const withVIX = signals.filter(c => c.vix != null);
+    if (withVIX.length === 0) return null;
+    const result = {};
+    for (const v of VIX_REGIMES) {
+        const filtered = withVIX.filter(c => v.test(c.vix));
+        if (filtered.length < 3) continue;
+        result[v.label] = { count: filtered.length, ...calcGroupStats(filtered) };
+    }
+    return Object.keys(result).length > 0 ? result : null;
+}
+
 function saveCrossoverRun(db, symbol, fast, slow, result) {
     const { crosses, dataStart, dataEnd, totalBars } = result;
 
@@ -730,6 +803,13 @@ function saveCrossoverRun(db, symbol, fast, slow, result) {
 
     const deathRSI = buildRSIFilterStats(invertedDeath, RSI_FILTERS_DEATH);
     if (deathRSI) summary.death_cross_rsi = deathRSI;
+
+    // VIX regime breakdowns
+    const goldenVIX = buildVIXRegimeStats(golden);
+    if (goldenVIX) summary.golden_cross_vix = goldenVIX;
+
+    const deathVIX = buildVIXRegimeStats(invertedDeath);
+    if (deathVIX) summary.death_cross_vix = deathVIX;
 
     ensureBacktestTables(db);
     db.prepare(`
@@ -856,6 +936,18 @@ async function main() {
             log(`  ${sym}... FAILED`);
         }
         if (symbols.indexOf(sym) < symbols.length - 1) await sleep(200);
+    }
+
+    // Fetch VIX history for regime segmentation (crossover mode only)
+    if (mode === 'crossover') {
+        if (!JSON_OUT) process.stdout.write('  $VIX...');
+        const vixCandles = await fetchHistory('$VIX');
+        if (vixCandles) {
+            buildVIXLookup(vixCandles);
+            log(`  $VIX... ${vixCandles.length} candles (regime lookup)`);
+        } else {
+            log('  $VIX... FAILED (VIX regime data unavailable)');
+        }
     }
 
     let db = null;
