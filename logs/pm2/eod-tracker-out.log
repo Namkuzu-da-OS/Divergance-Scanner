@@ -14,3 +14,44 @@ Options API: http://192.168.10.60:8000
 TODAY'S GAP SUMMARY
 ==================================================
 No tracked gaps today
+[16:15:00 ET] [EOD Tracker] Scheduled run triggered
+
+============================================================
+   EOD GAP TRACKER - SCHEDULED RUN
+============================================================
+Time: 2026-02-17T21:15:00.037Z
+Options API: http://192.168.10.60:8000
+============================================================
+
+[16:15:00 ET] [EOD Tracker] Starting EOD gap tracking...
+[16:15:07 ET] [EOD Tracker] Found 9 gaps to process
+[16:15:10 ET] [EOD Tracker]   AMD: NOT FILLED | LOSS | EOD: +2.3%
+[16:15:12 ET] [EOD Tracker]   INTC: NOT FILLED | LOSS | EOD: +2.7%
+[16:15:15 ET] [EOD Tracker]   MU: NOT FILLED | LOSS | EOD: +2.4%
+[16:15:15 ET] [EOD Tracker]   NCLH: NOT FILLED | LOSS | EOD: -8.7%
+[16:15:17 ET] [EOD Tracker]   NOW: NOT FILLED | LOSS | EOD: -2.6%
+[16:15:19 ET] [EOD Tracker]   PLTR: FILLED | LOSS | EOD: +3.3%
+[16:15:20 ET] [EOD Tracker]   PSKY: NOT FILLED | LOSS | EOD: -3.7%
+[16:15:22 ET] [EOD Tracker]   SNDK: FILLED | LOSS | EOD: +3.0%
+[16:15:23 ET] [EOD Tracker]   WBD: NOT FILLED | LOSS | EOD: -3.0%
+[16:15:23 ET] [EOD Tracker] Updating stats for 9 tickers...
+[16:15:23 ET] [EOD Tracker] Done. Processed 9 gaps, updated 9
+
+==================================================
+TODAY'S GAP SUMMARY
+==================================================
+
+Total Gaps: 9
+Filled: 2 (22.2%)
+
+By Tier:
+  TRADEABLE: 2/5 filled (40%)
+  WATCH: 0/3 filled (0%)
+  HIGH_CONVICTION: 0/1 filled (0%)
+
+By Direction:
+  Gap Down: 2/5 filled (40%)
+  Gap Up: 0/4 filled (0%)
+==================================================
+
+[Telegram] Sent alert
