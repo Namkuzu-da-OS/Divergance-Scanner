@@ -197,194 +197,6 @@ function mapSymbol(ticker) {
     return ticker; // Pass through
 }
 
-// ============================================
-// FIBONACCI LEVEL DETECTION
-// ============================================
-
-/**
- * Calculate Fibonacci retracement and extension levels from swing points
- * @param {number} swingLow - Recent swing low price
- * @param {number} swingHigh - Recent swing high price
- * @returns {object} Fib levels with prices
- */
-function calculateFibLevels(swingLow, swingHigh) {
-    if (!swingLow || !swingHigh || swingLow >= swingHigh) {
-        return null;
-    }
-
-    const range = swingHigh - swingLow;
-
-    return {
-        swingLow,
-        swingHigh,
-        range,
-        // Retracements (from high going down toward low)
-        retracements: {
-            0.236: swingHigh - (range * 0.236),
-            0.382: swingHigh - (range * 0.382),
-            0.5: swingHigh - (range * 0.5),
-            0.618: swingHigh - (range * 0.618),  // Golden Pocket
-            0.786: swingHigh - (range * 0.786),
-        },
-        // Extensions (from low going up past high)
-        extensions: {
-            1.0: swingHigh,
-            1.272: swingLow + (range * 1.272),
-            1.618: swingLow + (range * 1.618),
-            2.0: swingLow + (range * 2.0),
-            2.618: swingLow + (range * 2.618),
-        }
-    };
-}
-
-/**
- * Check if price is near a Fibonacci level
- * @param {number} price - Current price
- * @param {object} fibLevels - Calculated Fib levels
- * @param {number} threshold - % threshold for "at level" (default 1%)
- * @returns {object|null} Nearest Fib level info or null
- */
-function checkFibProximity(price, fibLevels, threshold = 1.0) {
-    if (!fibLevels || !price) return null;
-
-    const results = [];
-
-    // Check retracements
-    for (const [level, fibPrice] of Object.entries(fibLevels.retracements)) {
-        const distance = Math.abs((price - fibPrice) / fibPrice * 100);
-        if (distance <= threshold) {
-            results.push({
-                type: 'retracement',
-                level: parseFloat(level),
-                price: fibPrice,
-                distance,
-                isGoldenPocket: parseFloat(level) === 0.618,
-            });
-        }
-    }
-
-    // Check extensions
-    for (const [level, fibPrice] of Object.entries(fibLevels.extensions)) {
-        const distance = Math.abs((price - fibPrice) / fibPrice * 100);
-        if (distance <= threshold) {
-            results.push({
-                type: 'extension',
-                level: parseFloat(level),
-                price: fibPrice,
-                distance,
-            });
-        }
-    }
-
-    // Return closest match, preferring Golden Pocket
-    if (results.length === 0) return null;
-
-    // Sort by: Golden Pocket first, then by distance
-    results.sort((a, b) => {
-        if (a.isGoldenPocket && !b.isGoldenPocket) return -1;
-        if (!a.isGoldenPocket && b.isGoldenPocket) return 1;
-        return a.distance - b.distance;
-    });
-
-    return results[0];
-}
-
-/**
- * Check if Fib level aligns with a moving average
- * @param {number} fibPrice - Fibonacci level price
- * @param {object} technicals - Technical data with MAs
- * @param {number} threshold - % threshold for alignment (default 1%)
- * @returns {object|null} MA alignment info or null
- */
-function checkFibMAConfluence(fibPrice, technicals, threshold = 1.0) {
-    if (!fibPrice || !technicals) return null;
-
-    const mas = [
-        { name: 'SMA 20', price: technicals.sma_20 },
-        { name: 'SMA 50', price: technicals.sma_50 },
-        { name: 'SMA 200', price: technicals.sma_200 || technicals.bb_middle }, // Use BB middle as proxy if no 200
-    ].filter(ma => ma.price);
-
-    for (const ma of mas) {
-        const distance = Math.abs((fibPrice - ma.price) / ma.price * 100);
-        if (distance <= threshold) {
-            return {
-                ma: ma.name,
-                maPrice: ma.price,
-                fibPrice,
-                distance,
-            };
-        }
-    }
-
-    return null;
-}
-
-/**
- * Check if Fib extension aligns with a gamma wall
- * @param {object} fibLevels - Calculated Fib levels
- * @param {number} callWall - Call wall price
- * @param {number} putWall - Put wall price
- * @param {number} threshold - % threshold for alignment (default 1%)
- * @returns {object|null} Wall alignment info or null
- */
-function checkFibWallConfluence(fibLevels, callWall, putWall, threshold = 1.0) {
-    if (!fibLevels) return null;
-
-    const alignments = [];
-
-    // Helper: Check if Fib price matches wall within tight tolerance
-    // Uses hybrid: $2 OR 0.3% of wall price, whichever is larger
-    // This prevents false matches like "$703 Fib = $695 Call Wall"
-    const isWithinTolerance = (fibPrice, wallPrice) => {
-        const dollarDiff = Math.abs(wallPrice - fibPrice);
-        const tolerance = Math.max(2.0, wallPrice * 0.003);  // $2 or 0.3%
-        return dollarDiff <= tolerance;
-    };
-
-    // Check profit target extensions against call wall (resistance)
-    // 1.272 = first target, 1.618 = extended target
-    const targetExtensions = ['1.272', '1.618'];
-    for (const ext of targetExtensions) {
-        if (callWall && fibLevels.extensions[ext]) {
-            const fibPrice = fibLevels.extensions[ext];
-            if (isWithinTolerance(fibPrice, callWall)) {
-                const distance = Math.abs((callWall - fibPrice) / callWall * 100);
-                alignments.push({
-                    type: 'resistance',
-                    fibLevel: parseFloat(ext),
-                    fibPrice,
-                    wallType: 'call',
-                    wallPrice: callWall,
-                    distance,
-                });
-            }
-        }
-    }
-
-    // Check Golden Zone retracements against put wall (support)
-    // 0.5 = first support (strong trends), 0.618 = Golden Pocket (deeper pullback)
-    const goldenZone = ['0.5', '0.618'];
-    for (const ret of goldenZone) {
-        if (putWall && fibLevels.retracements[ret]) {
-            const fibPrice = fibLevels.retracements[ret];
-            if (isWithinTolerance(fibPrice, putWall)) {
-                const distance = Math.abs((putWall - fibPrice) / putWall * 100);
-                alignments.push({
-                    type: 'support',
-                    fibLevel: parseFloat(ret),
-                    fibPrice,
-                    wallType: 'put',
-                    wallPrice: putWall,
-                    distance,
-                });
-            }
-        }
-    }
-
-    return alignments.length > 0 ? alignments : null;
-}
-
 // State
 const setupTracker = new Map(); // symbol → { zone, direction, score, firstSeen, lastAlerted, alertCount }
 const DEDUP = {
@@ -551,8 +363,8 @@ function updateScannerHistory(analyses, marketContext) {
                 peak_direction: analysis.direction,
                 peak_signals: analysis.signals?.slice(0, 5) || [],
                 time_in_scanner_mins: timeInScannerMins,
-                above_20ema: analysis.technicals?.above20EMA,
-                above_50sma: analysis.technicals?.above50SMA,
+                above_20ema: analysis.technicals?.sma20 ? (analysis.price > analysis.technicals.sma20 ? 1 : 0) : null,
+                above_50sma: analysis.technicals?.sma50 ? (analysis.price > analysis.technicals.sma50 ? 1 : 0) : null,
                 bb_position: analysis.technicals?.bbPosition || 'MIDDLE'
             });
         } catch (e) {
@@ -1073,14 +885,14 @@ async function analyzeSymbol(symbol, discoveryData) {
     // DATA-DRIVEN CONFLUENCE SCORING (0-100)
     // Based on backtest of 201 signals:
     // - AT_WALL + EXTENDED_RSI = 89.5% win rate
-    // - ELEVATED_VOLUME = 76.9% win rate
+    // - VOLUME_SPIKE (2x+) = 71.4% WR (1.5-2x removed at 20% WR)
     // - VIX_ELEVATED = 66.7% win rate
     // ============================================
 
     const scores = {
         base: 0,       // AT_WALL + EXTENDED_RSI (0-50 with combo)
-        highEdge: 0,   // Volume + VIX factors (0-35)
-        standard: 0    // BB, trend, flow, confluence (0-25)
+        highEdge: 0,   // Volume spike + VIX factors (0-35)
+        standard: 0    // BB, trend, flow, MA structure, confluence (0-25)
     };
 
     const signals = [];
@@ -1125,58 +937,6 @@ async function analyzeSymbol(symbol, discoveryData) {
         scores.standard += 5;
         signals.push('At upper Bollinger Band');
         if (direction === 'neutral') direction = 'bearish';
-    }
-
-    // --- FIBONACCI SCORE (bonus points) ---
-    // Calculate Fib levels from recent swing high/low
-    const swingHigh = technicals.recent_high;
-    const swingLow = technicals.recent_low;
-    const fibLevels = calculateFibLevels(swingLow, swingHigh);
-    let fibSignal = null;
-    let fibMAConfluence = null;
-
-    if (fibLevels) {
-        // Check if price is at a Fib level (1.5% threshold)
-        fibSignal = checkFibProximity(price, fibLevels, 1.5);
-
-        if (fibSignal) {
-            if (fibSignal.isGoldenPocket) {
-                // Golden Pocket (0.618) - deeper pullback entry in Golden Zone
-                scores.standard += 5;
-                signals.push(`📐 At Golden Pocket (0.618 @ $${fibSignal.price.toFixed(2)})`);
-                if (direction === 'neutral') direction = 'bullish'; // Fib support = bullish bias
-
-                // Check for MA confluence at Golden Pocket
-                fibMAConfluence = checkFibMAConfluence(fibSignal.price, technicals, 1.5);
-                if (fibMAConfluence) {
-                    scores.standard += 3;
-                    signals.push(`📐 Golden Pocket + ${fibMAConfluence.ma} confluence`);
-                }
-            } else if (fibSignal.type === 'retracement' && fibSignal.level === 0.5) {
-                // 50% retracement - first entry in Golden Zone (strong trends)
-                scores.standard += 4;
-                signals.push(`📐 At 50% Fib ($${fibSignal.price.toFixed(2)})`);
-                if (direction === 'neutral') direction = 'bullish';
-
-                // Check for MA confluence at 50%
-                fibMAConfluence = checkFibMAConfluence(fibSignal.price, technicals, 1.5);
-                if (fibMAConfluence) {
-                    scores.standard += 3;
-                    signals.push(`📐 50% Fib + ${fibMAConfluence.ma} confluence`);
-                }
-            } else if (fibSignal.type === 'extension' && fibSignal.level === 1.272) {
-                // 1.272 extension - first profit target
-                scores.standard += 3;
-                signals.push(`🎯 At 1.272 extension ($${fibSignal.price.toFixed(2)}) - TP1`);
-                if (direction === 'neutral') direction = 'bearish'; // Extension = potential reversal
-            } else if (fibSignal.type === 'extension' && fibSignal.level === 1.618) {
-                // 1.618 extension - extended profit target
-                scores.standard += 3;
-                signals.push(`🎯 At 1.618 extension ($${fibSignal.price.toFixed(2)}) - TP2`);
-                if (direction === 'neutral') direction = 'bearish'; // Extension = potential reversal
-            }
-            // Only track: 0.5, 0.618 (Golden Zone entries) + 1.272, 1.618 (profit targets)
-        }
     }
 
     // --- BASE CONDITION: AT WALL (15 pts) + COMBO BONUS ---
@@ -1255,21 +1015,6 @@ async function analyzeSymbol(symbol, discoveryData) {
         signals.push(`At VWAP ($${vwap})`);
     }
 
-    // Fib + Wall Confluence
-    if (fibLevels && (callWall || putWall)) {
-        const fibWallAlignments = checkFibWallConfluence(fibLevels, callWall, putWall, 1.5);
-        if (fibWallAlignments) {
-            for (const alignment of fibWallAlignments) {
-                scores.standard += 3;
-                if (alignment.type === 'resistance') {
-                    signals.push(`🎯 ${alignment.fibLevel} Fib ($${alignment.fibPrice.toFixed(0)}) = Call Wall ($${alignment.wallPrice})`);
-                } else {
-                    signals.push(`🎯 ${alignment.fibLevel} Fib ($${alignment.fibPrice.toFixed(0)}) = Put Wall ($${alignment.wallPrice})`);
-                }
-            }
-        }
-    }
-
     // Confluence zones from API
     if (levels.confluence_zones?.length > 0) {
         const nearbyZone = levels.confluence_zones.find(z =>
@@ -1297,29 +1042,33 @@ async function analyzeSymbol(symbol, discoveryData) {
                 optionsAnalysis, wallPrice, wallType, wallExpiration, totalChainVolume
             );
 
-            // Only penalize DORMANT - don't reward ACTIVE (can't verify direction)
-            if (wallActivity.status === 'DORMANT') {
+            // Wall activity scoring — research-backed (see SCORING_OVERHAUL.md)
+            // ENGAGED (2-5x vol/OI): 68.8% WR — institutional positioning stabilizes wall
+            // ACTIVE (5x+ vol/OI): 0% WR — hedging cascade risk overwhelms wall
+            // DORMANT (low activity): 0% WR — stale OI, wall is paper
+            if (wallActivity.status === 'ENGAGED') {
+                scores.highEdge += 8;
+                signals.push(`✅ ${wallType.toUpperCase()} wall ENGAGED (${wallActivity.volOiRatio.toFixed(1)}x vol/OI — institutional positioning)`);
+            } else if (wallActivity.status === 'ACTIVE') {
+                scores.standard -= 3;
+                signals.push(`⚠️ ${wallType.toUpperCase()} wall ACTIVE (${wallActivity.volOiRatio.toFixed(1)}x vol/OI — cascade risk)`);
+            } else if (wallActivity.status === 'DORMANT') {
                 scores.standard -= 3;
                 signals.push(`⚠️ ${wallType.toUpperCase()} wall dormant (stale OI)`);
-            } else if (wallActivity.status === 'ACTIVE') {
-                // Log for visibility but no score change - activity doesn't tell us direction
-                signals.push(`${wallType.toUpperCase()} wall ACTIVE (${wallActivity.volOiRatio.toFixed(1)}x vol/OI)`);
-            } else if (wallActivity.status === 'ENGAGED') {
-                signals.push(`${wallType.toUpperCase()} wall engaged (${wallActivity.volOiRatio.toFixed(1)}x vol/OI)`);
             }
             // UNKNOWN: No action (illiquid symbol)
         }
     }
 
-    // --- HIGH-EDGE FACTOR: ELEVATED VOLUME (76.9% win rate) ---
+    // --- HIGH-EDGE FACTOR: VOLUME SPIKE (71.4% WR at 2x+; 1.5-2x removed at 20% WR) ---
     const volRatio = discoveryData?.volRatio || technicals.volume_ratio || 1;
 
     if (volRatio >= 2) {
         scores.highEdge += 20;
         signals.push(`Volume spike (${volRatio.toFixed(1)}x avg)`);
     } else if (volRatio >= SETTINGS.VOLUME_ELEVATED) {
-        scores.highEdge += 15;
-        signals.push(`Elevated volume (${volRatio.toFixed(1)}x avg)`);
+        // No score — 1.5-2x elevated volume has 20% WR (3W/12L). Annotation for trader visibility only.
+        signals.push(`ℹ️ Elevated volume (${volRatio.toFixed(1)}x avg)`);
     }
 
     // --- OPTIONS FLOW SCORE (0-25) ---
@@ -1338,12 +1087,27 @@ async function analyzeSymbol(symbol, discoveryData) {
         const liquidPuts = unusualPuts.filter(p => (p.open_interest || 0) >= MIN_OI_THRESHOLD);
 
         // Find the option with max vol/OI ratio from LIQUID strikes only
+        // Used for elevated flow (2x) annotations
         const topCall = liquidCalls.reduce((max, c) =>
             (c.vol_oi_ratio || 0) > (max?.vol_oi_ratio || 0) ? c : max, null);
         const topPut = liquidPuts.reduce((max, p) =>
             (p.vol_oi_ratio || 0) > (max?.vol_oi_ratio || 0) ? p : max, null);
         const maxCallVolOI = topCall?.vol_oi_ratio || 0;
         const maxPutVolOI = topPut?.vol_oi_ratio || 0;
+
+        // Premium filter: institutional-grade flow requires $100K+ premium
+        // Industry standards: Unusual Whales $500K, Cheddar $100K sweeps
+        const MIN_PREMIUM = 100000;
+        const significantCalls = liquidCalls.filter(c => (c.premium || 0) >= MIN_PREMIUM);
+        const significantPuts = liquidPuts.filter(p => (p.premium || 0) >= MIN_PREMIUM);
+
+        // Top picks from premium-filtered lists (used for 5x+ unusual flow)
+        const sigTopCall = significantCalls.reduce((max, c) =>
+            (c.vol_oi_ratio || 0) > (max?.vol_oi_ratio || 0) ? c : max, null);
+        const sigTopPut = significantPuts.reduce((max, p) =>
+            (p.vol_oi_ratio || 0) > (max?.vol_oi_ratio || 0) ? p : max, null);
+        const maxSigCallVolOI = sigTopCall?.vol_oi_ratio || 0;
+        const maxSigPutVolOI = sigTopPut?.vol_oi_ratio || 0;
 
         // Helper: Calculate DTE from expiration string (e.g., "2026-01-16")
         const getDTE = (expiration) => {
@@ -1353,26 +1117,31 @@ async function analyzeSymbol(symbol, discoveryData) {
             return Math.max(0, Math.ceil((expDate - now) / (1000 * 60 * 60 * 24)));
         };
 
-        // Score based on unusual activity
-        if (maxCallVolOI >= 5 || maxPutVolOI >= 5) {
-            scores.highEdge += 10;
-            if (maxCallVolOI > maxPutVolOI) {
-                const exp = topCall.expiration?.slice(5).replace('-', '/') || '';
-                const prem = ((topCall.premium || 0) / 1000000).toFixed(1);
-                signals.push(`🔥 Unusual CALL $${topCall.strike} ${exp} (${maxCallVolOI.toFixed(1)}x, $${prem}M)`);
+        // Score based on unusual activity (premium-filtered: $100K+ only)
+        // No generic score bonus here. Wall-activity scoring (above) handles
+        // the reward when flow is AT a wall. Unanchored flow is informational only.
+        if (maxSigCallVolOI >= 5 || maxSigPutVolOI >= 5) {
+            // Annotate when flow is NOT at a wall (informational, no score)
+            if (!wallActivity || wallActivity.status === 'UNKNOWN') {
+                signals.push(`ℹ️ Options flow detected (not at wall — informational)`);
+            }
+            if (maxSigCallVolOI > maxSigPutVolOI) {
+                const exp = sigTopCall.expiration?.slice(5).replace('-', '/') || '';
+                const prem = ((sigTopCall.premium || 0) / 1000000).toFixed(1);
+                signals.push(`🔥 Unusual CALL $${sigTopCall.strike} ${exp} (${maxSigCallVolOI.toFixed(1)}x, $${prem}M)`);
                 if (direction === 'neutral') direction = 'bullish';
 
                 // Capture structured option data for signal tracking
-                const callDTE = getDTE(topCall.expiration);
-                const expFmt = (topCall.expiration || '').replace(/-/g, '').slice(2);
+                const callDTE = getDTE(sigTopCall.expiration);
+                const expFmt = (sigTopCall.expiration || '').replace(/-/g, '').slice(2);
                 unusualOption = {
-                    contract: `.${symbol}${expFmt}C${topCall.strike}`,
+                    contract: `.${symbol}${expFmt}C${sigTopCall.strike}`,
                     type: 'CALL',
-                    strike: topCall.strike,
-                    expiration: topCall.expiration,
+                    strike: sigTopCall.strike,
+                    expiration: sigTopCall.expiration,
                     dte: callDTE,
-                    vol_oi: maxCallVolOI,
-                    premium_flow: topCall.premium || 0
+                    vol_oi: maxSigCallVolOI,
+                    premium_flow: sigTopCall.premium || 0
                 };
             } else {
                 // Context-aware PUT interpretation based on research:
@@ -1380,10 +1149,10 @@ async function analyzeSymbol(symbol, discoveryData) {
                 // - ATM puts (within 0.5% of spot) = directional bet, treat as bearish
                 // - OTM puts (strike < spot by >0.5%) = protective hedge, "charm bid" (supportive)
                 // - 0DTE ITM/ATM = often expiration mechanics, less directional signal
-                const exp = topPut.expiration?.slice(5).replace('-', '/') || '';
-                const prem = ((topPut.premium || 0) / 1000000).toFixed(1);
-                const strike = topPut.strike;
-                const dte = getDTE(topPut.expiration);
+                const exp = sigTopPut.expiration?.slice(5).replace('-', '/') || '';
+                const prem = ((sigTopPut.premium || 0) / 1000000).toFixed(1);
+                const strike = sigTopPut.strike;
+                const dte = getDTE(sigTopPut.expiration);
 
                 // Moneyness calculation
                 const distFromSpot = (strike - price) / price * 100;  // positive = ITM, negative = OTM
@@ -1393,32 +1162,32 @@ async function analyzeSymbol(symbol, discoveryData) {
 
                 if ((isITM || isATM) && dte === 0) {
                     // 0DTE ITM/ATM = expiration mechanics (exercise, closing, gamma hedge)
-                    signals.push(`🔥 Unusual PUT $${strike} 0DTE (expiration activity, ${maxPutVolOI.toFixed(1)}x, $${prem}M)`);
+                    signals.push(`🔥 Unusual PUT $${strike} 0DTE (expiration activity, ${maxSigPutVolOI.toFixed(1)}x, $${prem}M)`);
                     // Don't change direction - this is expiration noise
                 } else if (isITM) {
                     // ITM with DTE = bearish conviction (someone paying intrinsic value)
-                    signals.push(`🔥 Unusual PUT $${strike} ITM (bearish, ${maxPutVolOI.toFixed(1)}x, $${prem}M)`);
+                    signals.push(`🔥 Unusual PUT $${strike} ITM (bearish, ${maxSigPutVolOI.toFixed(1)}x, $${prem}M)`);
                     if (direction === 'neutral') direction = 'bearish';
                 } else if (isATM) {
                     // ATM puts = directional bet at current price level
-                    signals.push(`🔥 Unusual PUT $${strike} ATM (bearish, ${maxPutVolOI.toFixed(1)}x, $${prem}M)`);
+                    signals.push(`🔥 Unusual PUT $${strike} ATM (bearish, ${maxSigPutVolOI.toFixed(1)}x, $${prem}M)`);
                     if (direction === 'neutral') direction = 'bearish';
                 } else {
                     // OTM puts = protective hedge, creates "charm bid" (supportive, not bearish)
-                    signals.push(`🔥 Unusual PUT $${strike} OTM (hedge, ${maxPutVolOI.toFixed(1)}x, $${prem}M)`);
+                    signals.push(`🔥 Unusual PUT $${strike} OTM (hedge, ${maxSigPutVolOI.toFixed(1)}x, $${prem}M)`);
                     // OTM puts are hedges - don't flag as bearish
                 }
 
                 // Capture structured option data for signal tracking (all PUT cases)
-                const expFmt = (topPut.expiration || '').replace(/-/g, '').slice(2);
+                const expFmt = (sigTopPut.expiration || '').replace(/-/g, '').slice(2);
                 unusualOption = {
                     contract: `.${symbol}${expFmt}P${strike}`,
                     type: 'PUT',
                     strike: strike,
-                    expiration: topPut.expiration,
+                    expiration: sigTopPut.expiration,
                     dte: dte,
-                    vol_oi: maxPutVolOI,
-                    premium_flow: topPut.premium || 0
+                    vol_oi: maxSigPutVolOI,
+                    premium_flow: sigTopPut.premium || 0
                 };
             }
         } else if (maxCallVolOI >= 2 || maxPutVolOI >= 2) {
@@ -1431,6 +1200,14 @@ async function analyzeSymbol(symbol, discoveryData) {
                 const exp = topPut.expiration?.slice(5).replace('-', '/') || '';
                 const prem = ((topPut.premium || 0) / 1000000).toFixed(1);
                 signals.push(`Elevated put $${topPut.strike} ${exp} (${maxPutVolOI.toFixed(1)}x, $${prem}M)`);
+            }
+        }
+
+        // Flow direction alignment annotation (informational, no score change)
+        if (maxCallVolOI >= 2 || maxPutVolOI >= 2) {
+            const flowDirection = (maxCallVolOI > maxPutVolOI) ? 'bullish' : 'bearish';
+            if (direction !== 'neutral' && direction !== 'pinned' && flowDirection !== direction) {
+                signals.push(`⚠️ Flow direction (${flowDirection}) opposes signal (${direction})`);
             }
         }
 
@@ -1491,15 +1268,16 @@ async function analyzeSymbol(symbol, discoveryData) {
         // Neutral SPY = 67.2% WR (solid baseline)
         // Bullish SPY + bullish signal = 42.9% WR (chasing)
         else if (direction === 'bullish' && spyTrend === 'bearish') {
-            scores.standard += 5;
+            scores.standard += 8;
             signals.push(`Dip buy setup (SPY ${spyTrend})`);
         }
         else if (direction === 'bullish' && spyTrend === 'bullish') {
-            scores.standard -= 5;
+            scores.standard -= 8;
             signals.push(`⚠️ Chasing (aligned SPY ${spyTrend})`);
         }
         else if (direction !== 'neutral' && spyTrend && direction !== spyTrend) {
-            signals.push(`⚠️ Against SPY ${spyTrend}`);
+            scores.standard -= 3;
+            signals.push(`⚠️ Against SPY ${spyTrend} (-3)`);
         }
 
         // --- HIGH-EDGE FACTOR: VIX ELEVATED/FEAR (66.7% win rate) ---
@@ -1553,6 +1331,33 @@ async function analyzeSymbol(symbol, discoveryData) {
         }
     }
 
+    // --- ANNOTATION: MA Structure Alignment (no score — pending backtest validation) ---
+    const sma20 = technicals.sma_20;
+    const sma50 = technicals.sma_50;
+
+    if (sma20 != null && sma50 != null && sma50 > 0) {
+        const maStructure = sma20 > sma50 ? 'bullish' : 'bearish';
+        const maSeparation = ((sma20 - sma50) / sma50 * 100).toFixed(1);
+
+        if (direction === 'bullish' || direction === 'bearish') {
+            if (maStructure === direction) {
+                signals.push(`MA trend confirmed (SMA20 ${maStructure === 'bullish' ? '>' : '<'} SMA50, ${maSeparation}%)`);
+            } else {
+                signals.push(`⚠️ MA opposes signal (SMA20 ${sma20 > sma50 ? '>' : '<'} SMA50, ${maSeparation}%)`);
+            }
+        }
+    }
+
+    // --- ANNOTATION: Price near SMA 50 (no score — pending backtest validation) ---
+    if (sma50 != null && sma50 > 0) {
+        const distToSma50 = ((price - sma50) / sma50 * 100);
+
+        if (Math.abs(distToSma50) <= 1.0) {
+            const label = direction === 'bearish' ? 'resistance' : 'support';
+            signals.push(`Near SMA 50 ${label} ($${sma50.toFixed(2)}, ${distToSma50 >= 0 ? '+' : ''}${distToSma50.toFixed(1)}%)`);
+        }
+    }
+
     // --- HISTORY STATUS SCORING (data-driven: STREAK 73.7% win, NEW 66.7%) ---
     if (historyStatus?.label === 'STREAK') {
         scores.standard += 5;
@@ -1560,6 +1365,12 @@ async function analyzeSymbol(symbol, discoveryData) {
     } else if (historyStatus?.label === 'NEW') {
         scores.standard += 3;
         signals.push(`🆕 New discovery`);
+    } else if (historyStatus?.label === 'DAY_2') {
+        scores.standard -= 5;
+        signals.push(`⚠️ Day 2 setup — historically weak (23% WR)`);
+    } else if (historyStatus?.label === 'RETURNED') {
+        scores.standard -= 3;
+        signals.push(`⚠️ Returned setup — historically weak (31% WR)`);
     }
 
     // --- MARKET INTERNALS CONFIRMATION (±5 pts) ---
@@ -1607,6 +1418,10 @@ async function analyzeSymbol(symbol, discoveryData) {
     // Display score is capped at 100 for UI, but raw score used for tier ranking.
     const rawScore = Math.max(0, scores.base + scores.highEdge + scores.standard);
     const totalScore = Math.min(100, rawScore);
+
+    if (totalScore >= 70) {
+        signals.push(`🎯 HIGH CONFLUENCE (${totalScore}/100)`);
+    }
 
     // Track if this is a "prime setup" for tier determination
     const isPrimeSetup = atWallCondition && extendedRsiCondition;
@@ -1700,9 +1515,9 @@ async function analyzeSymbol(symbol, discoveryData) {
         tier = 'WATCH';
         action = 'WATCH_LEVEL';
     }
-    // WATCH: Pinned with good score (waiting for direction)
+    // TRADEABLE: Pinned with good score (breakout setup)
     else if (zone === 'PINNED' && totalScore >= SETTINGS.TIER_TRADEABLE) {
-        tier = 'WATCH';
+        tier = 'TRADEABLE';
         action = 'WATCH_BREAKOUT';
     }
 
@@ -1719,15 +1534,19 @@ async function analyzeSymbol(symbol, discoveryData) {
     }
 
     // TIER CAPS (data-driven)
-    // RETURNED: 11.1% WR → capped at WATCH
+    // RETURNED: 31% WR → capped at WATCH
     if (historyStatus?.label === 'RETURNED' && (tier === 'HIGH_CONVICTION' || tier === 'TRADEABLE')) {
         tier = 'WATCH';
         tradeable = false;
     }
-    // Pinned: 0% WR (0W/16L) → capped at WATCH
-    if (direction === 'pinned' && (tier === 'HIGH_CONVICTION' || tier === 'TRADEABLE')) {
+    // DAY_2: 30% WR, avg -6.5% drawdown → capped at WATCH
+    if (historyStatus?.label === 'DAY_2' && (tier === 'HIGH_CONVICTION' || tier === 'TRADEABLE')) {
         tier = 'WATCH';
         tradeable = false;
+    }
+    // Pinned: capped at TRADEABLE (can't reach HC)
+    if (direction === 'pinned' && tier === 'HIGH_CONVICTION') {
+        tier = 'TRADEABLE';
     }
     // Bearish/neutral: removed cap (was based on n=3 sample). System needs to collect
     // short-side data to validate tier thresholds. Counter-trend signals show 75% WR
@@ -1785,25 +1604,11 @@ async function analyzeSymbol(symbol, discoveryData) {
             bbPosition,
             momentum5d: technicals.momentum_5d,
             momentum20d: technicals.momentum_20d,
-            volumeSignal: technicals.volume_signal
+            volumeSignal: technicals.volume_signal,
+            sma20: sma20 || null,
+            sma50: sma50 || null
         },
-        fibonacci: fibLevels ? {
-            swingHigh,
-            swingLow,
-            range: fibLevels.range,
-            retracements: fibLevels.retracements,
-            extensions: fibLevels.extensions,
-            atLevel: fibSignal ? {
-                type: fibSignal.type,
-                level: fibSignal.level,
-                price: fibSignal.price,
-                isGoldenPocket: fibSignal.isGoldenPocket || false
-            } : null,
-            maConfluence: fibMAConfluence ? {
-                ma: fibMAConfluence.ma,
-                maPrice: fibMAConfluence.maPrice
-            } : null
-        } : null,
+        fibonacci: null,  // Removed — underperformed (38.9% vs 51.5% WR), can re-implement later
         context: {
             spyTrend: marketContext?.spyTrend,
             vixRegime: marketContext?.vixRegime,
@@ -2715,19 +2520,11 @@ async function runScan() {
                 momentum5d: a.technicals.momentum5d,
                 momentum20d: a.technicals.momentum20d,
                 bbPosition: a.technicals.bbPosition,
-                volumeSignal: a.technicals.volumeSignal
+                volumeSignal: a.technicals.volumeSignal,
+                sma20: a.technicals.sma20,
+                sma50: a.technicals.sma50
             },
-            fibonacci: a.fibonacci ? {
-                swingHigh: a.fibonacci.swingHigh,
-                swingLow: a.fibonacci.swingLow,
-                atLevel: a.fibonacci.atLevel,
-                maConfluence: a.fibonacci.maConfluence,
-                goldenPocket: a.fibonacci.retracements?.[0.618],
-                fib50: a.fibonacci.retracements?.[0.5],
-                fib382: a.fibonacci.retracements?.[0.382],
-                ext1272: a.fibonacci.extensions?.[1.272],
-                ext1618: a.fibonacci.extensions?.[1.618]
-            } : null,
+            fibonacci: null,
             sourceInfo: {
                 sources: symbols.find(s => s.symbol === a.symbol)?.sources || ['watchlist'],
                 score: a.totalScore,
