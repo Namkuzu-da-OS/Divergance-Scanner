@@ -488,6 +488,9 @@ function initSchema() {
 
     // Migration: Add sector RS columns to bloodhound_results table
     migrateBloodhoundRS();
+
+    // Migration: Add MA bounce column to bloodhound_results table
+    migrateBloodhoundMABounce();
 }
 
 /**
@@ -705,6 +708,15 @@ function migrateBloodhoundRS() {
         } catch (e) {
             // Column already exists, ignore
         }
+    }
+}
+
+function migrateBloodhoundMABounce() {
+    try {
+        db.exec(`ALTER TABLE bloodhound_results ADD COLUMN ma_bounce_json TEXT`);
+        console.log('[SignalDB] Added column ma_bounce_json to bloodhound_results');
+    } catch (e) {
+        // Column already exists, ignore
     }
 }
 
@@ -2741,8 +2753,9 @@ function insertBloodhoundResults(scanId, results) {
             fibonacci_json, score, direction, tier, signals_json,
             is_watchlist, sources_json,
             history_label, consecutive_days, history_trend, reasoning_json,
-            sector_rs_percentile, sector_etf
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            sector_rs_percentile, sector_etf,
+            ma_bounce_json
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const insertMany = getDb().transaction((items) => {
@@ -2780,7 +2793,8 @@ function insertBloodhoundResults(scanId, results) {
                 r.history_status?.trend,
                 JSON.stringify(r.reasoning || []),
                 r.sectorRsPercentile ?? null,
-                r.sectorEtf ?? null
+                r.sectorEtf ?? null,
+                r.maBounceJson ?? null
             );
         }
     });
@@ -2879,7 +2893,8 @@ function getLatestBloodhoundScan() {
             sectorRs: r.sector_rs_percentile != null ? {
                 percentile: r.sector_rs_percentile,
                 sectorEtf: r.sector_etf
-            } : null
+            } : null,
+            maBounce: r.ma_bounce_json ? JSON.parse(r.ma_bounce_json) : null
         }))
     };
 }

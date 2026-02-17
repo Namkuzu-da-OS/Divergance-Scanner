@@ -20,6 +20,9 @@ const signalLogger = require('./signal-logger');
 const signalDb = require('./signal-db');
 const { sendTelegram, escapeHtml } = require('./telegram');
 
+// MA bounce detection (backtest-validated per-ticker configs)
+const maBounce = require('./ma-bounce');
+
 // Load config
 const CONFIG = require('./config-loader');
 
@@ -863,7 +866,7 @@ function getSymbolRsPercentile(symbol, rsData) {
 // SYMBOL ANALYSIS
 // ============================================
 
-async function analyzeSymbol(symbol, discoveryData) {
+async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache) {
     // Sequential API calls to avoid overwhelming the Options API
     const levels = await fetchJSON(`${APIS.options}/api/levels/${symbol}`, 15000);
     if (!levels) return null; // Can't analyze without levels
@@ -934,8 +937,8 @@ async function analyzeSymbol(symbol, discoveryData) {
         signals.push('At lower Bollinger Band');
         if (direction === 'neutral') direction = 'bullish';
     } else if (bbPosition >= 0.9) {
-        scores.standard += 5;
-        signals.push('At upper Bollinger Band');
+        // No score — upper BB has 37.5% WR (3W/5L). Annotation only.
+        signals.push('ℹ️ At upper Bollinger Band');
         if (direction === 'neutral') direction = 'bearish';
     }
 
@@ -1021,8 +1024,8 @@ async function analyzeSymbol(symbol, discoveryData) {
             Math.abs(z.distance_pct) <= 0.5 && z.count >= 2
         );
         if (nearbyZone) {
-            scores.standard += 5;
-            signals.push(`Confluence zone (${nearbyZone.count} levels)`);
+            // No score — confluence zone has 51.6% WR (no edge). Annotation only.
+            signals.push(`ℹ️ Confluence zone (${nearbyZone.count} levels)`);
         }
     }
 
@@ -1050,8 +1053,8 @@ async function analyzeSymbol(symbol, discoveryData) {
                 scores.highEdge += 8;
                 signals.push(`✅ ${wallType.toUpperCase()} wall ENGAGED (${wallActivity.volOiRatio.toFixed(1)}x vol/OI — institutional positioning)`);
             } else if (wallActivity.status === 'ACTIVE') {
-                scores.standard -= 3;
-                signals.push(`⚠️ ${wallType.toUpperCase()} wall ACTIVE (${wallActivity.volOiRatio.toFixed(1)}x vol/OI — cascade risk)`);
+                scores.standard -= 8;
+                signals.push(`⚠️ ${wallType.toUpperCase()} wall ACTIVE (${wallActivity.volOiRatio.toFixed(1)}x vol/OI — cascade risk, 0% WR on 12 signals)`);
             } else if (wallActivity.status === 'DORMANT') {
                 scores.standard -= 3;
                 signals.push(`⚠️ ${wallType.toUpperCase()} wall dormant (stale OI)`);
@@ -1071,8 +1074,9 @@ async function analyzeSymbol(symbol, discoveryData) {
         signals.push(`ℹ️ Elevated volume (${volRatio.toFixed(1)}x avg)`);
     }
 
-    // --- OPTIONS FLOW SCORE (0-25) ---
+    // --- OPTIONS FLOW ANALYSIS ---
     let unusualOption = null;  // Structured data for option signal tracking
+    let hasOtmPutHedge = false;  // Track OTM PUT hedge for ENGAGED wall combo
 
     if (optionsAnalysis?.analysis) {
         const opts = optionsAnalysis.analysis;
@@ -1081,10 +1085,14 @@ async function analyzeSymbol(symbol, discoveryData) {
         const unusualCalls = opts.unusual_calls || [];
         const unusualPuts = opts.unusual_puts || [];
 
-        // Filter out illiquid strikes (noise) - only consider strikes with meaningful OI
-        const MIN_OI_THRESHOLD = 50;
-        const liquidCalls = unusualCalls.filter(c => (c.open_interest || 0) >= MIN_OI_THRESHOLD);
-        const liquidPuts = unusualPuts.filter(p => (p.open_interest || 0) >= MIN_OI_THRESHOLD);
+        // Filter out illiquid strikes (noise) — require meaningful OI AND volume
+        // Raised from 50 to 200 OI (2026-02-17 audit: RGTI/KHC/EEM noise at OI 50-100)
+        const MIN_OI_THRESHOLD = 200;
+        const MIN_VOLUME = 500;  // Minimum contracts on strike — ratio alone isn't enough
+        const liquidCalls = unusualCalls.filter(c =>
+            (c.open_interest || 0) >= MIN_OI_THRESHOLD && (c.volume || 0) >= MIN_VOLUME);
+        const liquidPuts = unusualPuts.filter(p =>
+            (p.open_interest || 0) >= MIN_OI_THRESHOLD && (p.volume || 0) >= MIN_VOLUME);
 
         // Find the option with max vol/OI ratio from LIQUID strikes only
         // Used for elevated flow (2x) annotations
@@ -1095,9 +1103,10 @@ async function analyzeSymbol(symbol, discoveryData) {
         const maxCallVolOI = topCall?.vol_oi_ratio || 0;
         const maxPutVolOI = topPut?.vol_oi_ratio || 0;
 
-        // Premium filter: institutional-grade flow requires $100K+ premium
-        // Industry standards: Unusual Whales $500K, Cheddar $100K sweeps
-        const MIN_PREMIUM = 100000;
+        // Premium filter: institutional-grade flow requires $500K+ premium
+        // Raised from $100K (2026-02-17 audit: <$500K = 33% WR, $500K-$3M = 50% WR)
+        // Industry standard: Unusual Whales uses $500K
+        const MIN_PREMIUM = 500000;
         const significantCalls = liquidCalls.filter(c => (c.premium || 0) >= MIN_PREMIUM);
         const significantPuts = liquidPuts.filter(p => (p.premium || 0) >= MIN_PREMIUM);
 
@@ -1117,9 +1126,10 @@ async function analyzeSymbol(symbol, discoveryData) {
             return Math.max(0, Math.ceil((expDate - now) / (1000 * 60 * 60 * 24)));
         };
 
-        // Score based on unusual activity (premium-filtered: $100K+ only)
-        // No generic score bonus here. Wall-activity scoring (above) handles
-        // the reward when flow is AT a wall. Unanchored flow is informational only.
+        // Unusual activity detection (premium-filtered: $500K+, OI 200+, vol 500+)
+        // No generic score bonus. Wall-activity scoring (above) handles the reward
+        // when flow is AT a wall. Unanchored flow is informational only.
+        // ENGAGED wall + OTM PUT hedge combo scored separately below (+12 highEdge).
         if (maxSigCallVolOI >= 5 || maxSigPutVolOI >= 5) {
             // Annotate when flow is NOT at a wall (informational, no score)
             if (!wallActivity || wallActivity.status === 'UNKNOWN') {
@@ -1174,6 +1184,8 @@ async function analyzeSymbol(symbol, discoveryData) {
                     if (direction === 'neutral') direction = 'bearish';
                 } else {
                     // OTM puts = protective hedge, creates "charm bid" (supportive, not bearish)
+                    // 62.5% WR standalone, 100% WR when combined with ENGAGED wall (5/5)
+                    hasOtmPutHedge = true;
                     signals.push(`🔥 Unusual PUT $${strike} OTM (hedge, ${maxSigPutVolOI.toFixed(1)}x, $${prem}M)`);
                     // OTM puts are hedges - don't flag as bearish
                 }
@@ -1191,15 +1203,17 @@ async function analyzeSymbol(symbol, discoveryData) {
                 };
             }
         } else if (maxCallVolOI >= 2 || maxPutVolOI >= 2) {
-            scores.standard += 5;
-            if (maxCallVolOI > maxPutVolOI) {
+            // No score — elevated flow (2-5x) has 50% WR (n=5), no proven edge.
+            // Annotation only with $250K premium floor to avoid noise.
+            const MIN_ELEVATED_PREMIUM = 250000;
+            if (maxCallVolOI > maxPutVolOI && (topCall?.premium || 0) >= MIN_ELEVATED_PREMIUM) {
                 const exp = topCall.expiration?.slice(5).replace('-', '/') || '';
                 const prem = ((topCall.premium || 0) / 1000000).toFixed(1);
-                signals.push(`Elevated call $${topCall.strike} ${exp} (${maxCallVolOI.toFixed(1)}x, $${prem}M)`);
-            } else {
+                signals.push(`ℹ️ Elevated call $${topCall.strike} ${exp} (${maxCallVolOI.toFixed(1)}x, $${prem}M)`);
+            } else if (maxPutVolOI >= maxCallVolOI && (topPut?.premium || 0) >= MIN_ELEVATED_PREMIUM) {
                 const exp = topPut.expiration?.slice(5).replace('-', '/') || '';
                 const prem = ((topPut.premium || 0) / 1000000).toFixed(1);
-                signals.push(`Elevated put $${topPut.strike} ${exp} (${maxPutVolOI.toFixed(1)}x, $${prem}M)`);
+                signals.push(`ℹ️ Elevated put $${topPut.strike} ${exp} (${maxPutVolOI.toFixed(1)}x, $${prem}M)`);
             }
         }
 
@@ -1216,15 +1230,9 @@ async function analyzeSymbol(symbol, discoveryData) {
         const cpRatio = opts.call_put_ratio || 1;
 
         if (Math.abs(netPremium) >= 10000000) { // $10M+ net premium
-            scores.standard += 5;
+            // No score — net premium has 29% WR (9W/22L). Annotation only.
             const premDir = netPremium > 0 ? 'bullish' : 'bearish';
-            signals.push(`$${(Math.abs(netPremium) / 1000000).toFixed(0)}M net ${premDir} premium`);
-
-            // Alignment bonus (flow aligned with direction)
-            if ((netPremium > 0 && direction === 'bullish') ||
-                (netPremium < 0 && direction === 'bearish')) {
-                scores.standard += 5;
-            }
+            signals.push(`ℹ️ $${(Math.abs(netPremium) / 1000000).toFixed(0)}M net ${premDir} premium`);
         }
 
         // Call/Put ratio extremes
@@ -1233,6 +1241,14 @@ async function analyzeSymbol(symbol, discoveryData) {
         } else if (cpRatio <= 0.5) {
             signals.push(`Heavy put bias (${cpRatio.toFixed(2)} C/P)`);
         }
+    }
+
+    // === COMBO BONUS: ENGAGED WALL + OTM PUT HEDGE (100% WR, 5/5 signals) ===
+    // Institutions hedging longs with OTM puts while the wall is actively defended.
+    // HOOD +7.2%, GOOG +2.2%, AAPL +4.3%, TSLA +3.7%, NVDA +4.9% — zero losses.
+    if (wallActivity?.status === 'ENGAGED' && hasOtmPutHedge) {
+        scores.highEdge += 12;
+        signals.unshift('⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR)');
     }
 
     // --- STANDARD FACTOR: Discovery source bonus ---
@@ -1276,8 +1292,9 @@ async function analyzeSymbol(symbol, discoveryData) {
             signals.push(`⚠️ Chasing (aligned SPY ${spyTrend})`);
         }
         else if (direction !== 'neutral' && spyTrend && direction !== spyTrend) {
-            scores.standard -= 3;
-            signals.push(`⚠️ Against SPY ${spyTrend} (-3)`);
+            // No penalty — counter-trend signals have 54.7% WR vs 46.7% with-trend.
+            // System is a mean-reversion detector; penalizing counter-trend hurts performance.
+            signals.push(`Counter-trend (against SPY ${spyTrend})`);
         }
 
         // --- HIGH-EDGE FACTOR: VIX ELEVATED/FEAR (66.7% win rate) ---
@@ -1358,6 +1375,37 @@ async function analyzeSymbol(symbol, discoveryData) {
         }
     }
 
+    // --- STANDARD FACTOR: MA Bounce Detection (backtest-validated, +8 to +12 pts) ---
+    // MAs computed from daily history (correct — daily MAs need daily candles).
+    // Bounce condition checked against LIVE price from technicals API (real-time).
+    let bounceResult = null;
+    const candles = bounceHistoryCache?.get(symbol);
+    if (candles) {
+        const liveData = {
+            price,                              // Real-time from levels/technicals API
+            high: technicals.recent_high || 0,  // Recent high (best available without extra API call)
+            low: technicals.recent_low || 0     // Recent low
+        };
+        bounceResult = maBounce.detectBounce(symbol, candles, rsi, liveData);
+    } else if (maBounce.MA_BOUNCE_CONFIG[symbol]) {
+        // Validated symbol but no cached history (shouldn't happen, but handle gracefully)
+        bounceResult = { detected: false, symbol, validated: true, reason: 'no_cache' };
+    }
+    // else: unvalidated symbol — no bounce check needed
+
+    if (bounceResult?.detected) {
+        const dirAligns = (bounceResult.direction === 'bullish' && (direction === 'bullish' || direction === 'neutral')) ||
+                          (bounceResult.direction === 'bearish' && (direction === 'bearish' || direction === 'neutral'));
+
+        if (bounceResult.scorePoints > 0 && dirAligns) {
+            scores.standard += bounceResult.scorePoints;
+            signals.push(`✅ ${bounceResult.annotation}`);
+        } else {
+            // Annotation only: unvalidated, bearish, or direction misaligned
+            signals.push(bounceResult.annotation);
+        }
+    }
+
     // --- HISTORY STATUS SCORING (data-driven: STREAK 73.7% win, NEW 66.7%) ---
     if (historyStatus?.label === 'STREAK') {
         scores.standard += 5;
@@ -1409,8 +1457,15 @@ async function analyzeSymbol(symbol, discoveryData) {
     // ============================================
     // FINAL SCORE (0-100 scale, data-driven)
     // Base: AT_WALL + EXTENDED_RSI + combo (0-50)
-    // HighEdge: Volume + VIX (0-35)
-    // Standard: BB, trend, flow, confluence, RS, history (0-30)
+    // HighEdge: Volume + VIX + smart flow combo (0-47)
+    // Standard: BB(lower only), trend, RS, history, internals (±30)
+    // Removed from scoring (2026-02-17 audit):
+    //   - Net premium $10M+ (29% WR) → annotation
+    //   - Upper BB (37.5% WR) → annotation
+    //   - Confluence zone (51.6% WR) → annotation
+    //   - Against SPY penalty (54.7% WR = good) → removed
+    // Added: ENGAGED wall + OTM PUT hedge combo (+12, 100% WR)
+    // Strengthened: Wall ACTIVE penalty (-3 → -8, 0% WR)
     // ============================================
 
     // Raw score uncapped — preserves differentiation at the top.
@@ -1625,7 +1680,9 @@ async function analyzeSymbol(symbol, discoveryData) {
         // Sector relative strength
         sectorRs: symbolRsData,
         // History status (pre-computed for tier caps and display)
-        history_status: historyStatus
+        history_status: historyStatus,
+        // MA bounce detection
+        maBounce: bounceResult
     };
 }
 
@@ -1777,7 +1834,11 @@ const scannerState = {
     nextScanAt: null,
     scanCount: 0,
     isScanning: false,
-    previousVixRegime: null  // Track for regime change alerts
+    previousVixRegime: null,  // Track for regime change alerts
+    // VIX hysteresis: require 3 consecutive readings in new regime before alerting
+    // Prevents chatter when VIX oscillates near thresholds (Feb 12: 13 alerts in one day)
+    vixRegimeCandidate: null,   // The regime we're seeing but haven't confirmed
+    vixRegimeConsecutive: 0     // How many consecutive scans in candidate regime
 };
 
 function isPaused() {
@@ -2083,43 +2144,75 @@ async function runScan() {
     if (marketContext) {
         console.log(`[Context] VIX: ${marketContext.vix} (${marketContext.vixRegime}) | SPY: ${marketContext.spyTrend}`);
 
-        // VIX Regime Change Detection (consolidated from wingman-monitor)
+        // VIX Regime Change Detection with hysteresis
+        // Requires 3 consecutive readings (~15 min) in new regime before alerting.
+        // Prevents chatter when VIX oscillates near thresholds.
+        // (2026-02-17 audit: Feb 12 had 13 alerts in one day from VIX bouncing 19.77-20.26)
         const currentRegime = marketContext.vixRegime;
-        if (scannerState.previousVixRegime && currentRegime !== scannerState.previousVixRegime) {
-            const regimeEmoji = {
-                'complacent': '😴',
-                'normal': '⚪',
-                'elevated': '⚠️',
-                'fear': '😨',
-                'capitulation': '🔥'
-            };
-            const emoji = regimeEmoji[currentRegime] || '📊';
-            const vixMsg = `${emoji} <b>VIX REGIME CHANGE</b>\n\n` +
-                `<b>From:</b> ${scannerState.previousVixRegime.toUpperCase()}\n` +
-                `<b>To:</b> ${currentRegime.toUpperCase()}\n` +
-                `<b>VIX:</b> ${marketContext.vix}\n\n` +
-                `<i>${formatTimePST()} PST</i>`;
-            await sendTelegram(vixMsg);
-            console.log(`[VIX] Regime change: ${scannerState.previousVixRegime} → ${currentRegime}`);
+        const REGIME_CONFIRM_COUNT = 3;  // Consecutive scans needed to confirm regime change
 
-            // Log VIX regime change to database (replaces alerts_log.json)
-            try {
-                signalDb.insertAlert({
-                    type: 'VIX_REGIME',
-                    priority: currentRegime === 'fear' || currentRegime === 'capitulation' ? 'HIGH' : 'MEDIUM',
-                    message: `VIX regime change: ${scannerState.previousVixRegime} → ${currentRegime}`,
-                    details: {
-                        from: scannerState.previousVixRegime,
-                        to: currentRegime,
-                        vix: marketContext.vix,
-                        spy_price: marketContext.spyPrice
-                    }
-                });
-            } catch (e) {
-                console.error(`[VIX] Failed to log alert to DB:`, e.message);
+        if (scannerState.previousVixRegime && currentRegime !== scannerState.previousVixRegime) {
+            // Regime differs from confirmed — track as candidate
+            if (currentRegime === scannerState.vixRegimeCandidate) {
+                scannerState.vixRegimeConsecutive++;
+            } else {
+                // New candidate — reset counter
+                scannerState.vixRegimeCandidate = currentRegime;
+                scannerState.vixRegimeConsecutive = 1;
+            }
+
+            if (scannerState.vixRegimeConsecutive >= REGIME_CONFIRM_COUNT) {
+                // Confirmed regime change — alert
+                const regimeEmoji = {
+                    'complacent': '😴',
+                    'normal': '⚪',
+                    'elevated': '⚠️',
+                    'fear': '😨',
+                    'capitulation': '🔥'
+                };
+                const emoji = regimeEmoji[currentRegime] || '📊';
+                const vixMsg = `${emoji} <b>VIX REGIME CHANGE</b>\n\n` +
+                    `<b>From:</b> ${scannerState.previousVixRegime.toUpperCase()}\n` +
+                    `<b>To:</b> ${currentRegime.toUpperCase()}\n` +
+                    `<b>VIX:</b> ${marketContext.vix}\n` +
+                    `<b>Confirmed:</b> ${REGIME_CONFIRM_COUNT} consecutive readings\n\n` +
+                    `<i>${formatTimePST()} PST</i>`;
+                await sendTelegram(vixMsg);
+                console.log(`[VIX] Regime change confirmed: ${scannerState.previousVixRegime} → ${currentRegime} (${REGIME_CONFIRM_COUNT} readings)`);
+
+                // Log to database
+                try {
+                    signalDb.insertAlert({
+                        type: 'VIX_REGIME',
+                        priority: currentRegime === 'fear' || currentRegime === 'capitulation' ? 'HIGH' : 'MEDIUM',
+                        message: `VIX regime change: ${scannerState.previousVixRegime} → ${currentRegime}`,
+                        details: {
+                            from: scannerState.previousVixRegime,
+                            to: currentRegime,
+                            vix: marketContext.vix,
+                            spy_price: marketContext.spyPrice,
+                            consecutive_readings: REGIME_CONFIRM_COUNT
+                        }
+                    });
+                } catch (e) {
+                    console.error(`[VIX] Failed to log alert to DB:`, e.message);
+                }
+
+                // Update confirmed regime and reset candidate
+                scannerState.previousVixRegime = currentRegime;
+                scannerState.vixRegimeCandidate = null;
+                scannerState.vixRegimeConsecutive = 0;
+            } else {
+                console.log(`[VIX] Regime candidate: ${currentRegime} (${scannerState.vixRegimeConsecutive}/${REGIME_CONFIRM_COUNT} readings)`);
+            }
+        } else {
+            // Current matches confirmed regime — reset any candidate
+            scannerState.vixRegimeCandidate = null;
+            scannerState.vixRegimeConsecutive = 0;
+            if (!scannerState.previousVixRegime) {
+                scannerState.previousVixRegime = currentRegime;
             }
         }
-        scannerState.previousVixRegime = currentRegime;
     } else {
         console.log('[Context] Could not fetch market context');
     }
@@ -2143,6 +2236,21 @@ async function runScan() {
             console.log(`[RS] Rankings loaded (${rsContext.assetCount} assets), no regime data`);
         }
     }
+
+    // 1.8. Pre-fetch MA bounce history for validated symbols (cached 24h)
+    const bounceHistoryCache = new Map();
+    const bounceSymbols = Object.keys(maBounce.MA_BOUNCE_CONFIG);
+    const sleep100 = (ms) => new Promise(r => setTimeout(r, ms));
+    let bounceFetchCount = 0;
+    for (const bSym of bounceSymbols) {
+        const history = await maBounce.fetchHistory(bSym);
+        if (history?.candles) {
+            bounceHistoryCache.set(bSym, history.candles);
+            bounceFetchCount++;
+        }
+        if (bounceFetchCount > 0) await sleep100(200); // API pacing
+    }
+    console.log(`[MA-Bounce] Pre-fetched history for ${bounceFetchCount}/${bounceSymbols.length} validated symbols`);
 
     // 2. Discover symbols from all sources
     const symbols = await discoverSymbols();
@@ -2183,13 +2291,13 @@ async function runScan() {
             await sleep(paceDelay);
         }
 
-        let analysis = await analyzeSymbol(symbolData.symbol, symbolData);
+        let analysis = await analyzeSymbol(symbolData.symbol, symbolData, bounceHistoryCache);
 
         // Retry once for static watchlist symbols that failed
         if (!analysis && symbolData.sources?.includes('watchlist')) {
             console.warn(`[Bloodhound] ${symbolData.symbol} failed (watchlist), retrying in 2s...`);
             await sleep(2000);
-            analysis = await analyzeSymbol(symbolData.symbol, symbolData);
+            analysis = await analyzeSymbol(symbolData.symbol, symbolData, bounceHistoryCache);
         }
 
         if (analysis) {
@@ -2535,7 +2643,8 @@ async function runScan() {
             },
             history_status: a.history_status,  // Pre-computed in analyzeSymbol()
             sectorRsPercentile: a.sectorRs?.percentile ?? null,
-            sectorEtf: a.sectorRs?.sectorEtf ?? null
+            sectorEtf: a.sectorRs?.sectorEtf ?? null,
+            maBounceJson: a.maBounce ? JSON.stringify(a.maBounce) : null
         }));
 
         signalDb.insertBloodhoundResults(scanId, resultsForDb);
