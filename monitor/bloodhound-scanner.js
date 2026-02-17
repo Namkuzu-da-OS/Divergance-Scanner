@@ -1377,14 +1377,18 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache) {
 
     // --- STANDARD FACTOR: MA Bounce Detection (backtest-validated, +8 to +12 pts) ---
     // MAs computed from daily history (correct — daily MAs need daily candles).
-    // Bounce condition checked against LIVE price from technicals API (real-time).
+    // Bounce condition checked against LIVE quote data (real-time intraday high/low).
     let bounceResult = null;
     const candles = bounceHistoryCache?.get(symbol);
     if (candles) {
+        // Fetch today's intraday high/low from quote API (only for bounce-configured symbols)
+        await new Promise(r => setTimeout(r, 100));
+        const quote = await fetchJSON(`${APIS.options}/api/quotes/${symbol}`, 15000);
+        const q = quote?.quote || {};
         const liveData = {
-            price,                              // Real-time from levels/technicals API
-            high: technicals.recent_high || 0,  // Recent high (best available without extra API call)
-            low: technicals.recent_low || 0     // Recent low
+            price,                                     // Real-time from levels/technicals API
+            high: q.highPrice || technicals.recent_high || 0,   // Today's intraday high
+            low: q.lowPrice || technicals.recent_low || 0       // Today's intraday low
         };
         bounceResult = maBounce.detectBounce(symbol, candles, rsi, liveData);
     } else if (maBounce.MA_BOUNCE_CONFIG[symbol]) {
