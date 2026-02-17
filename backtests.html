@@ -203,6 +203,20 @@
             color: #00d4aa;
             font-family: monospace;
         }
+        .rsi-badge {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+            font-family: monospace;
+        }
+        .rsi-badge.boost { background: rgba(250, 204, 21, 0.15); color: #facc15; }
+        .rsi-badge.no-boost { background: rgba(139, 146, 168, 0.1); color: #64748b; }
+        .rsi-boost-val { font-size: 11px; font-weight: 600; }
+        .rsi-boost-val.positive { color: #00d4aa; }
+        .rsi-boost-val.negative { color: #ff6b6b; }
+        .rsi-boost-val.neutral { color: #64748b; }
 
         .empty-state {
             text-align: center;
@@ -396,41 +410,92 @@
         return `<span class="ma-badge ${t.toLowerCase()}">${t}</span>`;
     }
 
+    // Find the best RSI filter for a crossover row (golden cross side)
+    // Returns { filter, wr, count, boost } or null
+    function getBestRSIFilter(results) {
+        const rsiData = results.golden_cross_rsi;
+        if (!rsiData) return null;
+        const baseWR = parseWR(results.golden_cross?.['5d']?.winRate);
+        if (baseWR === null) return null;
+
+        let best = null;
+        for (const [filter, stats] of Object.entries(rsiData)) {
+            const wr = parseWR(stats['5d']?.winRate);
+            const count = stats['5d']?.count || 0;
+            if (wr === null || count < 5) continue;
+            const boost = wr - baseWR;
+            if (boost <= 0) continue; // Only show filters that improve
+            if (!best || wr > best.wr) {
+                best = { filter, wr, count, boost };
+            }
+        }
+        return best;
+    }
+
+    function fmtRSIFilter(rsiInfo) {
+        if (!rsiInfo) return '<span class="rsi-badge no-boost">--</span>';
+        return `<span class="rsi-badge boost">${rsiInfo.filter}</span>`;
+    }
+
+    function fmtRSIWR(rsiInfo) {
+        if (!rsiInfo) return '<span style="color:#64748b">--</span>';
+        const cls = wrClass(rsiInfo.wr);
+        const low = rsiInfo.count < 15;
+        return `<span class="${cls} ${low ? 'low-confidence' : ''}">${rsiInfo.wr.toFixed(1)}%${low ? '<span class="low-confidence-marker">*</span>' : ''}</span>`;
+    }
+
+    function fmtRSIBoost(rsiInfo) {
+        if (!rsiInfo) return '<span class="rsi-boost-val neutral">--</span>';
+        const cls = rsiInfo.boost > 0 ? 'positive' : rsiInfo.boost < 0 ? 'negative' : 'neutral';
+        return `<span class="rsi-boost-val ${cls}">+${rsiInfo.boost.toFixed(1)}%</span>`;
+    }
+
     function renderBestPanel() {
         const rows = data.crossover || [];
         if (!rows.length) { document.getElementById('best-panel').style.display = 'none'; return; }
 
-        // Find best combo per symbol across all MA types
+        // Find best combo per symbol across all MA types (consider RSI-boosted WR)
         const bySymbol = {};
         for (const c of rows) {
             const gc = c.results.golden_cross;
             const wr = parseWR(gc?.['5d']?.winRate);
             const cnt = gc?.['5d']?.count || 0;
             if (cnt < 15 || wr === null) continue;
+            const rsi = getBestRSIFilter(c.results);
+            const effectiveWR = rsi ? rsi.wr : wr;
             const key = c.symbol;
-            if (!bySymbol[key] || wr > bySymbol[key].wr) {
-                bySymbol[key] = { combo: c.combo, wr, count: cnt, ma_type: c.ma_type || 'SMA', avg: gc['5d'].avgReturn };
+            if (!bySymbol[key] || effectiveWR > (bySymbol[key].rsi ? bySymbol[key].rsi.wr : bySymbol[key].wr)) {
+                bySymbol[key] = { combo: c.combo, wr, count: cnt, ma_type: c.ma_type || 'SMA', avg: gc['5d'].avgReturn, rsi };
             }
         }
 
         const grid = document.getElementById('best-grid');
-        const symbols = Object.keys(bySymbol).sort((a, b) => bySymbol[b].wr - bySymbol[a].wr);
+        const symbols = Object.keys(bySymbol).sort((a, b) => {
+            const wrA = bySymbol[a].rsi ? bySymbol[a].rsi.wr : bySymbol[a].wr;
+            const wrB = bySymbol[b].rsi ? bySymbol[b].rsi.wr : bySymbol[b].wr;
+            return wrB - wrA;
+        });
 
         if (!symbols.length) { document.getElementById('best-panel').style.display = 'none'; return; }
 
         let html = '';
         for (const sym of symbols) {
             const d = bySymbol[sym];
-            const cls = wrClass(d.wr);
+            const displayWR = d.rsi ? d.rsi.wr : d.wr;
+            const cls = wrClass(displayWR);
+            const rsiLine = d.rsi
+                ? `<div style="font-size:10px;margin-top:2px;"><span class="rsi-badge boost">${d.rsi.filter}</span> <span style="color:#facc15">+${d.rsi.boost.toFixed(1)}%</span></div>`
+                : '';
             html += `<div class="best-card">
                 <div class="best-card-symbol">${sym}</div>
                 <div class="best-card-details">
                     <div class="best-card-combo"><span class="combo-tag">${d.combo}</span> ${maBadge(d.ma_type)}</div>
                     <div style="font-size:11px;color:#64748b;">avg ${d.avg}</div>
+                    ${rsiLine}
                 </div>
                 <div>
-                    <div class="best-card-wr ${cls}">${d.wr.toFixed(1)}%</div>
-                    <div class="best-card-count">${d.count} signals</div>
+                    <div class="best-card-wr ${cls}">${displayWR.toFixed(1)}%</div>
+                    <div class="best-card-count">${d.rsi ? d.rsi.count : d.count} signals</div>
                 </div>
             </div>`;
         }
@@ -546,6 +611,14 @@
                 if (col === 'gold_count') { va = ga?.['5d']?.count || 0; vb = gb?.['5d']?.count || 0; }
                 else if (col === 'gold_5d_wr') { va = parseWR(ga?.['5d']?.winRate) || 0; vb = parseWR(gb?.['5d']?.winRate) || 0; }
                 else if (col === 'gold_avg_5d') { va = parseFloat(ga?.['5d']?.avgReturn) || 0; vb = parseFloat(gb?.['5d']?.avgReturn) || 0; }
+                else if (col === 'rsi_filter' || col === 'rsi_wr' || col === 'rsi_boost') {
+                    const ra = getBestRSIFilter(a.results);
+                    const rb = getBestRSIFilter(b.results);
+                    if (col === 'rsi_wr') { va = ra?.wr || 0; vb = rb?.wr || 0; }
+                    else if (col === 'rsi_boost') { va = ra?.boost || 0; vb = rb?.boost || 0; }
+                    else { va = ra ? ra.filter : ''; vb = rb ? rb.filter : '';
+                        return dir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va); }
+                }
                 else if (col === 'death_count') {
                     const da = a.results.death_cross;
                     const db2 = b.results.death_cross;
@@ -595,6 +668,9 @@
                     <th onclick="handleSort('gold_count')">Gold # ${sortArrow('gold_count')}</th>
                     <th onclick="handleSort('gold_5d_wr')">Gold 5d WR ${sortArrow('gold_5d_wr')}</th>
                     <th onclick="handleSort('gold_avg_5d')">Gold Avg 5d ${sortArrow('gold_avg_5d')}</th>
+                    <th onclick="handleSort('rsi_filter')">RSI Filter ${sortArrow('rsi_filter')}</th>
+                    <th onclick="handleSort('rsi_wr')">RSI WR ${sortArrow('rsi_wr')}</th>
+                    <th onclick="handleSort('rsi_boost')">Boost ${sortArrow('rsi_boost')}</th>
                     <th onclick="handleSort('death_count')">Death # ${sortArrow('death_count')}</th>
                     <th onclick="handleSort('death_5d_wr')">Death 5d WR ${sortArrow('death_5d_wr')}</th>
                     <th>Tested</th>
@@ -606,6 +682,7 @@
             const dc = r.results.death_cross || {};
             const gcCount = gc['5d']?.count || 0;
             const dcCount = dc['5d']?.count || 0;
+            const rsi = getBestRSIFilter(r.results);
 
             html += `<tr>
                 <td><strong>${r.symbol}</strong></td>
@@ -614,6 +691,9 @@
                 <td>${gcCount}</td>
                 <td>${fmtWR(gc['5d']?.winRate, gcCount)}</td>
                 <td>${gc['5d']?.avgReturn || 'N/A'}</td>
+                <td>${fmtRSIFilter(rsi)}</td>
+                <td>${fmtRSIWR(rsi)}</td>
+                <td>${fmtRSIBoost(rsi)}</td>
                 <td>${dcCount}</td>
                 <td>${fmtWR(dc['5d']?.winRate, dcCount)}</td>
                 <td style="font-size:11px;color:#8b92a8;">${r.data_start?.slice(0,10) || ''} &rarr; ${r.data_end?.slice(0,10) || ''}</td>
