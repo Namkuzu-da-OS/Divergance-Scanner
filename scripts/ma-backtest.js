@@ -255,6 +255,57 @@ function computeMA(closes, period, endIndex) {
     return computeSMA(closes, period, endIndex);
 }
 
+// Pre-compute full RSI series (standard 14-period Wilder smoothing)
+const _rsiCache = new Map();
+function getRSISeries(closes, period = 14) {
+    const key = `${closes.length}_${period}`;
+    if (_rsiCache.has(key)) return _rsiCache.get(key);
+
+    const rsi = new Array(closes.length).fill(null);
+    if (closes.length < period + 1) { _rsiCache.set(key, rsi); return rsi; }
+
+    // First avg gain/loss from initial window
+    let avgGain = 0, avgLoss = 0;
+    for (let i = 1; i <= period; i++) {
+        const change = closes[i] - closes[i - 1];
+        if (change > 0) avgGain += change;
+        else avgLoss += Math.abs(change);
+    }
+    avgGain /= period;
+    avgLoss /= period;
+
+    rsi[period] = avgLoss === 0 ? 100 : 100 - (100 / (1 + avgGain / avgLoss));
+
+    // Wilder smoothing for remaining bars
+    for (let i = period + 1; i < closes.length; i++) {
+        const change = closes[i] - closes[i - 1];
+        const gain = change > 0 ? change : 0;
+        const loss = change < 0 ? Math.abs(change) : 0;
+        avgGain = (avgGain * (period - 1) + gain) / period;
+        avgLoss = (avgLoss * (period - 1) + loss) / period;
+        rsi[i] = avgLoss === 0 ? 100 : 100 - (100 / (1 + avgGain / avgLoss));
+    }
+
+    _rsiCache.set(key, rsi);
+    return rsi;
+}
+
+// RSI filter buckets for golden crosses (buy signals)
+const RSI_FILTERS_GOLDEN = [
+    { label: 'RSI < 50', test: rsi => rsi < 50 },
+    { label: 'RSI < 60', test: rsi => rsi < 60 },
+    { label: 'RSI < 70', test: rsi => rsi < 70 },
+    { label: 'RSI 30-70', test: rsi => rsi >= 30 && rsi <= 70 },
+];
+
+// RSI filter buckets for death crosses (short/sell signals)
+const RSI_FILTERS_DEATH = [
+    { label: 'RSI > 50', test: rsi => rsi > 50 },
+    { label: 'RSI > 40', test: rsi => rsi > 40 },
+    { label: 'RSI > 30', test: rsi => rsi > 30 },
+    { label: 'RSI 30-70', test: rsi => rsi >= 30 && rsi <= 70 },
+];
+
 function classifyAlignment(price, fastMA, slowMA) {
     if (fastMA == null || slowMA == null) return null;
     if (price > fastMA && fastMA > slowMA) return 'full_bull';
@@ -461,6 +512,7 @@ function runCrossover(candles, fastPeriod, slowPeriod) {
     const sorted = [...candles].sort((a, b) => a.datetime - b.datetime);
     const closes = sorted.map(c => c.close);
     const warmup = slowPeriod;
+    const rsiSeries = getRSISeries(closes);
 
     const crosses = [];
     let prevFastAbove = null;
@@ -483,6 +535,7 @@ function runCrossover(candles, fastPeriod, slowPeriod) {
                 slowMA,
                 type,
                 returns,
+                rsi: rsiSeries[i] != null ? Math.round(rsiSeries[i] * 10) / 10 : null,
             });
         }
 
@@ -515,11 +568,28 @@ function printCrossoverResults(symbol, fastPeriod, slowPeriod, result) {
         const stats = calcGroupStats(golden);
         console.table(stats);
 
-        console.log('Recent golden crosses:');
+        // RSI-filtered breakdown
+        const goldenWithRSI = golden.filter(c => c.rsi != null);
+        if (goldenWithRSI.length > 0) {
+            console.log('\n  RSI FILTER ANALYSIS (golden crosses):');
+            const baseWR = parseFloat(calcGroupStats(goldenWithRSI)['5d'].winRate);
+            for (const f of RSI_FILTERS_GOLDEN) {
+                const filtered = goldenWithRSI.filter(c => f.test(c.rsi));
+                if (filtered.length < 3) continue;
+                const fStats = calcGroupStats(filtered);
+                const fWR = parseFloat(fStats['5d'].winRate);
+                const delta = (fWR - baseWR).toFixed(1);
+                const sign = fWR > baseWR ? '+' : '';
+                console.log(`    ${f.label.padEnd(12)} → ${filtered.length} signals, 5d WR: ${fStats['5d'].winRate} (${sign}${delta}%), avg: ${fStats['5d'].avgReturn}`);
+            }
+        }
+
+        console.log('\nRecent golden crosses:');
         golden.slice(-5).forEach(c => {
             const r5 = c.returns[5] != null ? `${c.returns[5] >= 0 ? '+' : ''}${c.returns[5].toFixed(2)}%` : 'N/A';
             const r20 = c.returns[20] != null ? `${c.returns[20] >= 0 ? '+' : ''}${c.returns[20].toFixed(2)}%` : 'N/A';
-            console.log(`  ${c.date}: $${c.price.toFixed(2)} — 5d: ${r5}, 20d: ${r20}`);
+            const rsiStr = c.rsi != null ? ` RSI:${c.rsi}` : '';
+            console.log(`  ${c.date}: $${c.price.toFixed(2)} — 5d: ${r5}, 20d: ${r20}${rsiStr}`);
         });
     }
 
@@ -535,11 +605,28 @@ function printCrossoverResults(symbol, fastPeriod, slowPeriod, result) {
         const stats = calcGroupStats(invertedDeath);
         console.table(stats);
 
-        console.log('Recent death crosses:');
+        // RSI-filtered breakdown for death crosses
+        const deathWithRSI = invertedDeath.filter(c => c.rsi != null);
+        if (deathWithRSI.length > 0) {
+            console.log('\n  RSI FILTER ANALYSIS (death crosses):');
+            const baseWR = parseFloat(calcGroupStats(deathWithRSI)['5d'].winRate);
+            for (const f of RSI_FILTERS_DEATH) {
+                const filtered = deathWithRSI.filter(c => f.test(c.rsi));
+                if (filtered.length < 3) continue;
+                const fStats = calcGroupStats(filtered);
+                const fWR = parseFloat(fStats['5d'].winRate);
+                const delta = (fWR - baseWR).toFixed(1);
+                const sign = fWR > baseWR ? '+' : '';
+                console.log(`    ${f.label.padEnd(12)} → ${filtered.length} signals, 5d WR: ${fStats['5d'].winRate} (${sign}${delta}%), avg: ${fStats['5d'].avgReturn}`);
+            }
+        }
+
+        console.log('\nRecent death crosses:');
         death.slice(-5).forEach(c => {
             const r5 = c.returns[5] != null ? `${c.returns[5] >= 0 ? '+' : ''}${c.returns[5].toFixed(2)}%` : 'N/A';
             const r20 = c.returns[20] != null ? `${c.returns[20] >= 0 ? '+' : ''}${c.returns[20].toFixed(2)}%` : 'N/A';
-            console.log(`  ${c.date}: $${c.price.toFixed(2)} — 5d: ${r5}, 20d: ${r20}`);
+            const rsiStr = c.rsi != null ? ` RSI:${c.rsi}` : '';
+            console.log(`  ${c.date}: $${c.price.toFixed(2)} — 5d: ${r5}, 20d: ${r20}${rsiStr}`);
         });
     }
 
@@ -606,16 +693,43 @@ function saveAlignmentRun(db, symbol, fast, slow, result) {
     `).run('alignment', symbol, fast, slow, dataStart, dataEnd, totalBars, JSON.stringify(summary), MA_TYPE);
 }
 
+function buildRSIFilterStats(signals, filters) {
+    const withRSI = signals.filter(c => c.rsi != null);
+    if (withRSI.length === 0) return null;
+    const result = {};
+    for (const f of filters) {
+        const filtered = withRSI.filter(c => f.test(c.rsi));
+        if (filtered.length < 3) continue;
+        result[f.label] = { count: filtered.length, ...calcGroupStats(filtered) };
+    }
+    return Object.keys(result).length > 0 ? result : null;
+}
+
 function saveCrossoverRun(db, symbol, fast, slow, result) {
     const { crosses, dataStart, dataEnd, totalBars } = result;
 
     const golden = crosses.filter(c => c.type === 'golden_cross');
     const death = crosses.filter(c => c.type === 'death_cross');
 
+    // Invert death cross returns for short signal analysis
+    const invertedDeath = death.map(c => ({
+        ...c,
+        returns: Object.fromEntries(
+            Object.entries(c.returns).map(([k, v]) => [k, v != null ? -v : null])
+        ),
+    }));
+
     const summary = {
         golden_cross: { count: golden.length, ...calcGroupStats(golden) },
-        death_cross: { count: death.length, ...calcGroupStats(death) },
+        death_cross: { count: death.length, ...calcGroupStats(invertedDeath) },
     };
+
+    // RSI-filtered breakdowns
+    const goldenRSI = buildRSIFilterStats(golden, RSI_FILTERS_GOLDEN);
+    if (goldenRSI) summary.golden_cross_rsi = goldenRSI;
+
+    const deathRSI = buildRSIFilterStats(invertedDeath, RSI_FILTERS_DEATH);
+    if (deathRSI) summary.death_cross_rsi = deathRSI;
 
     ensureBacktestTables(db);
     db.prepare(`
@@ -758,6 +872,7 @@ async function main() {
         if (!candles) continue;
         _emaCache.clear();  // Clear EMA series cache between symbols
         _hmaCache.clear();  // Clear HMA series cache between symbols
+        _rsiCache.clear();  // Clear RSI series cache between symbols
 
         for (const combo of combos) {
             if (mode === 'alignment') {
