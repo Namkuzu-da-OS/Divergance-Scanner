@@ -230,6 +230,16 @@
         .vix-badge.fear { background: rgba(255, 107, 107, 0.15); color: #ff6b6b; }
         .vix-badge.capitulation { background: rgba(239, 68, 68, 0.25); color: #ef4444; }
         .vix-badge.none { background: rgba(139, 146, 168, 0.1); color: #64748b; }
+        .touch-badge {
+            display: inline-block;
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+            font-family: monospace;
+        }
+        .touch-badge.active { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
+        .touch-badge.none { background: rgba(139, 146, 168, 0.1); color: #64748b; }
 
         .empty-state {
             text-align: center;
@@ -274,7 +284,7 @@
         <div class="header">
             <div class="header-left">
                 <h1>MA BACKTESTS</h1>
-                <p class="header-subtitle">Moving average crossover & alignment sweep results</p>
+                <p class="header-subtitle">Moving average crossover, alignment & bounce sweep results</p>
             </div>
             <div class="header-center">
                 <nav class="nav-links">
@@ -303,7 +313,7 @@
 
         <!-- Best per symbol panel -->
         <div class="best-panel" id="best-panel" style="display:none;">
-            <div class="best-panel-title">Best Combo Per Symbol (Golden Cross 5d WR, min 15 signals)</div>
+            <div class="best-panel-title" id="best-panel-title">Best Combo Per Symbol (Golden Cross 5d WR, min 15 signals)</div>
             <div class="best-grid" id="best-grid"></div>
         </div>
 
@@ -332,6 +342,7 @@
 
         <div class="tab-bar">
             <div class="tab active" data-tab="crossover" onclick="switchTab('crossover')">Crossover</div>
+            <div class="tab" data-tab="bounce" onclick="switchTab('bounce')">Bounce</div>
             <div class="tab" data-tab="alignment" onclick="switchTab('alignment')">Alignment</div>
         </div>
 
@@ -357,7 +368,7 @@
     </div>
 
     <script>
-    let data = { crossover: [], alignment: [], meta: {} };
+    let data = { crossover: [], alignment: [], bounce: [], meta: {} };
     let activeTab = 'crossover';
     let maFilter = 'all';
     let sortCol = null;
@@ -381,6 +392,7 @@
         const symbols = new Set();
         data.crossover.forEach(r => symbols.add(r.symbol));
         data.alignment.forEach(r => symbols.add(r.symbol));
+        (data.bounce || []).forEach(r => symbols.add(r.symbol));
         const sel = document.getElementById('filter-symbol');
         const current = sel.value;
         sel.innerHTML = '<option value="">All</option>';
@@ -423,26 +435,27 @@
         return `<span class="ma-badge ${t.toLowerCase()}">${t}</span>`;
     }
 
-    // Find the best RSI filter for a crossover row (golden cross side)
+    // Generic: find the best filter/regime from a sub-breakdown vs its base WR
     // Returns { filter, wr, count, boost } or null
-    function getBestRSIFilter(results) {
-        const rsiData = results.golden_cross_rsi;
-        if (!rsiData) return null;
-        const baseWR = parseWR(results.golden_cross?.['5d']?.winRate);
-        if (baseWR === null) return null;
-
+    function getBestFilter(filterData, baseWR) {
+        if (!filterData || baseWR === null) return null;
         let best = null;
-        for (const [filter, stats] of Object.entries(rsiData)) {
+        for (const [filter, stats] of Object.entries(filterData)) {
             const wr = parseWR(stats['5d']?.winRate);
             const count = stats['5d']?.count || 0;
             if (wr === null || count < 5) continue;
             const boost = wr - baseWR;
-            if (boost <= 0) continue; // Only show filters that improve
+            if (boost <= 0) continue;
             if (!best || wr > best.wr) {
                 best = { filter, wr, count, boost };
             }
         }
         return best;
+    }
+
+    // Crossover-specific helpers
+    function getBestRSIFilter(results) {
+        return getBestFilter(results.golden_cross_rsi, parseWR(results.golden_cross?.['5d']?.winRate));
     }
 
     function fmtRSIFilter(rsiInfo) {
@@ -463,25 +476,19 @@
         return `<span class="rsi-boost-val ${cls}">+${rsiInfo.boost.toFixed(1)}%</span>`;
     }
 
-    // Find the best VIX regime for a crossover row (golden cross side)
     function getBestVIXRegime(results) {
-        const vixData = results.golden_cross_vix;
-        if (!vixData) return null;
-        const baseWR = parseWR(results.golden_cross?.['5d']?.winRate);
-        if (baseWR === null) return null;
+        return getBestFilter(results.golden_cross_vix, parseWR(results.golden_cross?.['5d']?.winRate));
+    }
 
-        let best = null;
-        for (const [regime, stats] of Object.entries(vixData)) {
-            const wr = parseWR(stats['5d']?.winRate);
-            const count = stats['5d']?.count || 0;
-            if (wr === null || count < 3) continue;
-            const boost = wr - baseWR;
-            if (boost <= 0) continue;
-            if (!best || wr > best.wr) {
-                best = { regime, wr, count, boost };
-            }
-        }
-        return best;
+    // Bounce-specific helpers
+    function getBestRSIFilterBounce(results) {
+        return getBestFilter(results.bull_bounce_rsi, parseWR(results.bull_bounce?.['5d']?.winRate));
+    }
+    function getBestVIXRegimeBounce(results) {
+        return getBestFilter(results.bull_bounce_vix, parseWR(results.bull_bounce?.['5d']?.winRate));
+    }
+    function getBestTouchFilter(results) {
+        return getBestFilter(results.bull_bounce_touch, parseWR(results.bull_bounce?.['5d']?.winRate));
     }
 
     function vixBadgeClass(regime) {
@@ -496,7 +503,8 @@
 
     function fmtVIXRegime(vixInfo) {
         if (!vixInfo) return '<span class="vix-badge none">--</span>';
-        return `<span class="vix-badge ${vixBadgeClass(vixInfo.regime)}">${vixInfo.regime}</span>`;
+        const name = vixInfo.regime || vixInfo.filter || '--';
+        return `<span class="vix-badge ${vixBadgeClass(name)}">${name}</span>`;
     }
 
     function fmtVIXWR(vixInfo) {
@@ -512,22 +520,35 @@
         return `<span class="rsi-boost-val ${cls}">+${vixInfo.boost.toFixed(1)}%</span>`;
     }
 
+    function fmtTouchFilter(touchInfo) {
+        if (!touchInfo) return '<span class="touch-badge none">--</span>';
+        return `<span class="touch-badge active">${touchInfo.filter}</span>`;
+    }
+
     function renderBestPanel() {
-        const rows = data.crossover || [];
-        if (!rows.length) { document.getElementById('best-panel').style.display = 'none'; return; }
+        // Choose data source based on active tab
+        const isBounce = activeTab === 'bounce';
+        const rows = isBounce ? (data.bounce || []) : (data.crossover || []);
+        if (!rows.length || activeTab === 'alignment') {
+            document.getElementById('best-panel').style.display = 'none'; return;
+        }
+
+        document.getElementById('best-panel-title').textContent = isBounce
+            ? 'Best Combo Per Symbol (Bullish Bounce 5d WR, min 15 signals)'
+            : 'Best Combo Per Symbol (Golden Cross 5d WR, min 15 signals)';
 
         // Find best combo per symbol across all MA types (consider RSI-boosted WR)
         const bySymbol = {};
         for (const c of rows) {
-            const gc = c.results.golden_cross;
-            const wr = parseWR(gc?.['5d']?.winRate);
-            const cnt = gc?.['5d']?.count || 0;
+            const primary = isBounce ? c.results.bull_bounce : c.results.golden_cross;
+            const wr = parseWR(primary?.['5d']?.winRate);
+            const cnt = primary?.['5d']?.count || 0;
             if (cnt < 15 || wr === null) continue;
-            const rsi = getBestRSIFilter(c.results);
+            const rsi = isBounce ? getBestRSIFilterBounce(c.results) : getBestRSIFilter(c.results);
             const effectiveWR = rsi ? rsi.wr : wr;
             const key = c.symbol;
             if (!bySymbol[key] || effectiveWR > (bySymbol[key].rsi ? bySymbol[key].rsi.wr : bySymbol[key].wr)) {
-                bySymbol[key] = { combo: c.combo, wr, count: cnt, ma_type: c.ma_type || 'SMA', avg: gc['5d'].avgReturn, rsi };
+                bySymbol[key] = { combo: c.combo, wr, count: cnt, ma_type: c.ma_type || 'SMA', avg: primary['5d'].avgReturn, rsi };
             }
         }
 
@@ -595,6 +616,15 @@
                         if (wr >= 65) combos65++;
                     }
                 }
+            } else if (tab === 'bounce') {
+                const bb = results.bull_bounce;
+                if (bb) {
+                    const wr = parseWR(bb['5d']?.winRate);
+                    if (wr !== null && bb['5d']?.count >= 5) {
+                        if (wr > bestWR) { bestWR = wr; best = r; }
+                        if (wr >= 65) combos65++;
+                    }
+                }
             } else {
                 for (const [state, stats] of Object.entries(results)) {
                     const wr = parseWR(stats['5d']?.winRate);
@@ -608,7 +638,7 @@
 
         if (best) {
             const mt = best.ma_type || 'SMA';
-            const label = tab === 'crossover'
+            const label = (tab === 'crossover' || tab === 'bounce')
                 ? `${best.symbol} ${mt} ${best.combo}`
                 : `${best.symbol} ${mt} ${best.combo} (${best._bestState})`;
             document.getElementById('best-performer').textContent = label;
@@ -646,6 +676,12 @@
                 const gc = r.results.golden_cross;
                 const count = gc?.['5d']?.count || 0;
                 const wr = parseWR(gc?.['5d']?.winRate);
+                if (minSignals > 0 && count < minSignals) return false;
+                if (minWR > 0 && (wr === null || wr < minWR)) return false;
+            } else if (activeTab === 'bounce') {
+                const bb = r.results.bull_bounce;
+                const count = bb?.['5d']?.count || 0;
+                const wr = parseWR(bb?.['5d']?.winRate);
                 if (minSignals > 0 && count < minSignals) return false;
                 if (minWR > 0 && (wr === null || wr < minWR)) return false;
             }
@@ -686,7 +722,7 @@
                     const vb2 = getBestVIXRegime(b.results);
                     if (col === 'vix_wr') { va = va2?.wr || 0; vb = vb2?.wr || 0; }
                     else if (col === 'vix_boost') { va = va2?.boost || 0; vb = vb2?.boost || 0; }
-                    else { va = va2 ? va2.regime : ''; vb = vb2 ? vb2.regime : '';
+                    else { va = va2 ? va2.filter : ''; vb = vb2 ? vb2.filter : '';
                         return dir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va); }
                 }
                 else if (col === 'death_count') {
@@ -697,6 +733,44 @@
                 else if (col === 'death_5d_wr') {
                     const da = a.results.death_cross;
                     const db2 = b.results.death_cross;
+                    va = parseWR(da?.['5d']?.winRate) || 0; vb = parseWR(db2?.['5d']?.winRate) || 0;
+                }
+                else { va = 0; vb = 0; }
+            } else if (activeTab === 'bounce') {
+                const ba = a.results.bull_bounce;
+                const bb = b.results.bull_bounce;
+                if (col === 'bull_count') { va = ba?.['5d']?.count || 0; vb = bb?.['5d']?.count || 0; }
+                else if (col === 'bull_5d_wr') { va = parseWR(ba?.['5d']?.winRate) || 0; vb = parseWR(bb?.['5d']?.winRate) || 0; }
+                else if (col === 'bull_avg_5d') { va = parseFloat(ba?.['5d']?.avgReturn) || 0; vb = parseFloat(bb?.['5d']?.avgReturn) || 0; }
+                else if (col === 'touch_filter') {
+                    const ta = getBestTouchFilter(a.results);
+                    const tb = getBestTouchFilter(b.results);
+                    va = ta?.wr || 0; vb = tb?.wr || 0;
+                }
+                else if (col === 'rsi_filter' || col === 'rsi_wr' || col === 'rsi_boost') {
+                    const ra = getBestRSIFilterBounce(a.results);
+                    const rb = getBestRSIFilterBounce(b.results);
+                    if (col === 'rsi_wr') { va = ra?.wr || 0; vb = rb?.wr || 0; }
+                    else if (col === 'rsi_boost') { va = ra?.boost || 0; vb = rb?.boost || 0; }
+                    else { va = ra ? ra.filter : ''; vb = rb ? rb.filter : '';
+                        return dir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va); }
+                }
+                else if (col === 'vix_regime' || col === 'vix_wr' || col === 'vix_boost') {
+                    const va2 = getBestVIXRegimeBounce(a.results);
+                    const vb2 = getBestVIXRegimeBounce(b.results);
+                    if (col === 'vix_wr') { va = va2?.wr || 0; vb = vb2?.wr || 0; }
+                    else if (col === 'vix_boost') { va = va2?.boost || 0; vb = vb2?.boost || 0; }
+                    else { va = va2 ? va2.filter : ''; vb = vb2 ? vb2.filter : '';
+                        return dir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va); }
+                }
+                else if (col === 'bear_count') {
+                    const da = a.results.bear_bounce;
+                    const db2 = b.results.bear_bounce;
+                    va = da?.['5d']?.count || 0; vb = db2?.['5d']?.count || 0;
+                }
+                else if (col === 'bear_5d_wr') {
+                    const da = a.results.bear_bounce;
+                    const db2 = b.results.bear_bounce;
                     va = parseWR(da?.['5d']?.winRate) || 0; vb = parseWR(db2?.['5d']?.winRate) || 0;
                 }
                 else { va = 0; vb = 0; }
@@ -773,6 +847,68 @@
                 <td>${fmtVIXBoost(vix)}</td>
                 <td>${dcCount}</td>
                 <td>${fmtWR(dc['5d']?.winRate, dcCount)}</td>
+                <td style="font-size:11px;color:#8b92a8;">${r.data_start?.slice(0,10) || ''} &rarr; ${r.data_end?.slice(0,10) || ''}</td>
+            </tr>`;
+        }
+
+        html += '</tbody></table></div>';
+        return html;
+    }
+
+    function renderBounceTable(rows) {
+        if (!rows.length) return renderEmpty();
+
+        if (!sortCol) { sortCol = 'bull_5d_wr'; sortDir = 'desc'; }
+        rows = sortRows([...rows], sortCol, sortDir);
+
+        let html = `<div class="section">
+            <div class="section-title">Bounce Results — MA Support/Resistance Bounce Performance</div>
+            <table>
+                <thead><tr>
+                    <th onclick="handleSort('symbol')">Symbol ${sortArrow('symbol')}</th>
+                    <th onclick="handleSort('ma_type')">Type ${sortArrow('ma_type')}</th>
+                    <th onclick="handleSort('combo')">Combo ${sortArrow('combo')}</th>
+                    <th onclick="handleSort('bull_count')">Bull # ${sortArrow('bull_count')}</th>
+                    <th onclick="handleSort('bull_5d_wr')">Bull 5d WR ${sortArrow('bull_5d_wr')}</th>
+                    <th onclick="handleSort('bull_avg_5d')">Bull Avg 5d ${sortArrow('bull_avg_5d')}</th>
+                    <th onclick="handleSort('touch_filter')">Touch ${sortArrow('touch_filter')}</th>
+                    <th onclick="handleSort('rsi_filter')">RSI Filter ${sortArrow('rsi_filter')}</th>
+                    <th onclick="handleSort('rsi_wr')">RSI WR ${sortArrow('rsi_wr')}</th>
+                    <th onclick="handleSort('rsi_boost')">Boost ${sortArrow('rsi_boost')}</th>
+                    <th onclick="handleSort('vix_regime')">VIX Best ${sortArrow('vix_regime')}</th>
+                    <th onclick="handleSort('vix_wr')">VIX WR ${sortArrow('vix_wr')}</th>
+                    <th onclick="handleSort('vix_boost')">Boost ${sortArrow('vix_boost')}</th>
+                    <th onclick="handleSort('bear_count')">Bear # ${sortArrow('bear_count')}</th>
+                    <th onclick="handleSort('bear_5d_wr')">Bear 5d WR ${sortArrow('bear_5d_wr')}</th>
+                    <th>Tested</th>
+                </tr></thead>
+                <tbody>`;
+
+        for (const r of rows) {
+            const bb = r.results.bull_bounce || {};
+            const br = r.results.bear_bounce || {};
+            const bbCount = bb['5d']?.count || 0;
+            const brCount = br['5d']?.count || 0;
+            const touch = getBestTouchFilter(r.results);
+            const rsi = getBestRSIFilterBounce(r.results);
+            const vix = getBestVIXRegimeBounce(r.results);
+
+            html += `<tr>
+                <td><strong>${r.symbol}</strong></td>
+                <td>${maBadge(r.ma_type)}</td>
+                <td><span class="combo-tag">${r.combo}</span></td>
+                <td>${bbCount}</td>
+                <td>${fmtWR(bb['5d']?.winRate, bbCount)}</td>
+                <td>${bb['5d']?.avgReturn || 'N/A'}</td>
+                <td>${fmtTouchFilter(touch)}</td>
+                <td>${fmtRSIFilter(rsi)}</td>
+                <td>${fmtRSIWR(rsi)}</td>
+                <td>${fmtRSIBoost(rsi)}</td>
+                <td>${fmtVIXRegime(vix)}</td>
+                <td>${fmtVIXWR(vix)}</td>
+                <td>${fmtVIXBoost(vix)}</td>
+                <td>${brCount}</td>
+                <td>${fmtWR(br['5d']?.winRate, brCount)}</td>
                 <td style="font-size:11px;color:#8b92a8;">${r.data_start?.slice(0,10) || ''} &rarr; ${r.data_end?.slice(0,10) || ''}</td>
             </tr>`;
         }
@@ -862,6 +998,9 @@
                     <code>node scripts/ma-backtest.js crossover --sweep --symbol ALL --save<br>
 node scripts/ma-backtest.js crossover --sweep --symbol ALL --ema --save<br>
 node scripts/ma-backtest.js crossover --sweep --symbol ALL --hma --save<br>
+node scripts/ma-backtest.js bounce --sweep --symbol ALL --save<br>
+node scripts/ma-backtest.js bounce --sweep --symbol ALL --ema --save<br>
+node scripts/ma-backtest.js bounce --sweep --symbol ALL --hma --save<br>
 node scripts/ma-backtest.js alignment --sweep --symbol ALL --save</code>
                     Data is stored in the ma_backtest_runs table in wingman.db.
                 </div>
@@ -875,6 +1014,8 @@ node scripts/ma-backtest.js alignment --sweep --symbol ALL --save</code>
 
         if (activeTab === 'crossover') {
             area.innerHTML = renderCrossoverTable(rows);
+        } else if (activeTab === 'bounce') {
+            area.innerHTML = renderBounceTable(rows);
         } else {
             area.innerHTML = renderAlignmentTable(rows);
         }
@@ -887,6 +1028,7 @@ node scripts/ma-backtest.js alignment --sweep --symbol ALL --save</code>
         document.querySelectorAll('.tab').forEach(t => {
             t.classList.toggle('active', t.dataset.tab === tab);
         });
+        renderBestPanel();
         renderSummary();
         renderTable();
     }

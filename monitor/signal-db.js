@@ -3541,7 +3541,7 @@ function getBacktestRuns(options = {}) {
         "SELECT name FROM sqlite_master WHERE type='table' AND name='ma_backtest_runs'"
     ).get();
     if (!tableExists) {
-        return { crossover: [], alignment: [], meta: { total: 0, last_run: null } };
+        return { crossover: [], alignment: [], bounce: [], meta: { total: 0, last_run: null } };
     }
 
     // Check cache validity — single PK index lookup
@@ -3562,6 +3562,7 @@ function getBacktestRuns(options = {}) {
 
         const crossover = [];
         const alignment = [];
+        const bounce = [];
 
         for (const row of rows) {
             let results;
@@ -3590,6 +3591,8 @@ function getBacktestRuns(options = {}) {
                 crossover.push(entry);
             } else if (row.run_type === 'alignment') {
                 alignment.push(entry);
+            } else if (row.run_type === 'bounce') {
+                bounce.push(entry);
             }
         }
 
@@ -3603,11 +3606,13 @@ function getBacktestRuns(options = {}) {
             data: {
                 crossover,
                 alignment,
+                bounce,
                 meta: {
                     total: meta.total,
                     last_run: meta.last_run,
                     crossover_count: crossover.length,
-                    alignment_count: alignment.length
+                    alignment_count: alignment.length,
+                    bounce_count: bounce.length
                 }
             }
         };
@@ -3624,14 +3629,17 @@ function getBacktestRuns(options = {}) {
 
     const crossover = (!type || type === 'crossover') ? cached.crossover.filter(filterFn) : [];
     const alignment = (!type || type === 'alignment') ? cached.alignment.filter(filterFn) : [];
+    const bounce = (!type || type === 'bounce') ? cached.bounce.filter(filterFn) : [];
 
     return {
         crossover,
         alignment,
+        bounce,
         meta: {
             ...cached.meta,
             crossover_count: crossover.length,
-            alignment_count: alignment.length
+            alignment_count: alignment.length,
+            bounce_count: bounce.length
         }
     };
 }

@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 /**
- * MA BACKTEST — Moving Average Alignment & Crossover Backtester
+ * MA BACKTEST — Moving Average Alignment, Crossover & Bounce Backtester
  *
- * Tests whether MA alignment or crossover signals have predictive value
- * for forward returns, using 10 years of daily Schwab data.
+ * Tests whether MA alignment, crossover, or bounce signals have predictive
+ * value for forward returns, using 10 years of daily Schwab data.
  *
- * Two modes:
+ * Three modes:
  *   alignment  — classify each bar's MA state, measure forward returns
  *   crossover  — detect golden/death crosses, track round-trip trades
+ *   bounce     — detect price bounces off fast MA with slow MA trend filter
  *
  * Usage:
  *   node scripts/ma-backtest.js alignment --symbol SPY --fast 20 --slow 50
@@ -15,6 +16,7 @@
  *   node scripts/ma-backtest.js alignment --sweep --symbol NVDA
  *   node scripts/ma-backtest.js alignment --sweep --symbol ALL
  *   node scripts/ma-backtest.js crossover --symbol AAPL --fast 20 --slow 50
+ *   node scripts/ma-backtest.js bounce --sweep --symbol ALL --save
  *
  * Options:
  *   --fresh       Force re-fetch (ignore cache)
@@ -117,7 +119,7 @@ if (!fs.existsSync(HISTORY_DIR)) fs.mkdirSync(HISTORY_DIR, { recursive: true });
 // --- CLI Parsing ---
 
 const args = process.argv.slice(2);
-const mode = args[0]; // 'alignment' or 'crossover'
+const mode = args[0]; // 'alignment', 'crossover', or 'bounce'
 
 function getArg(flag, defaultVal) {
     const idx = args.indexOf(flag);
@@ -137,18 +139,20 @@ const USE_HMA = args.includes('--hma');
 const MA_TYPE = USE_HMA ? 'HMA' : USE_EMA ? 'EMA' : 'SMA';
 const YEARS = parseInt(getArg('--years', '10'));
 
-if (!mode || !['alignment', 'crossover'].includes(mode)) {
+if (!mode || !['alignment', 'crossover', 'bounce'].includes(mode)) {
     console.log(`
-MA BACKTEST — Moving Average Alignment & Crossover Backtester
+MA BACKTEST — Moving Average Alignment, Crossover & Bounce Backtester
 
 Usage:
   node scripts/ma-backtest.js alignment --symbol SPY --fast 20 --slow 50
   node scripts/ma-backtest.js alignment --sweep --symbol ALL
   node scripts/ma-backtest.js crossover --symbol AAPL --fast 20 --slow 50
+  node scripts/ma-backtest.js bounce --sweep --symbol ALL --save
 
 Modes:
   alignment   Classify each bar by MA alignment, measure forward returns
   crossover   Detect golden/death crosses, track round-trip performance
+  bounce      Detect price bounces off fast MA (trend confirmed by slow MA)
 
 Options:
   --symbol SYM   Symbol or ALL for full watchlist (default: SPY)
@@ -313,6 +317,18 @@ const VIX_REGIMES = [
     { label: 'Elevated', test: vix => vix >= 20 && vix < 30 },
     { label: 'Fear', test: vix => vix >= 30 && vix < 40 },
     { label: 'Capitulation', test: vix => vix >= 40 },
+];
+
+// Bounce detection constants
+const BOUNCE_TOUCH_PCT = 1.0;   // Max distance from fast MA to count as "approach" (%)
+const BOUNCE_COOLDOWN = 5;      // Min bars between same-type bounces (avoids double-counting pullbacks)
+
+// Bounce touch-tightness filters (applied in analysis, like RSI filters on crossovers)
+const BOUNCE_FILTERS = [
+    { label: 'Wick Touch', test: b => b.touchPct >= 0 },       // actual MA penetration
+    { label: '≤ 0.25%', test: b => b.touchPct > -0.25 },       // very tight near-miss
+    { label: '≤ 0.5%', test: b => b.touchPct > -0.5 },         // tight
+    { label: '≤ 1.0%', test: b => true },                       // all captured bounces
 ];
 
 // VIX date lookup — built once from $VIX history, keyed by YYYY-MM-DD
@@ -694,6 +710,217 @@ function printCrossoverResults(symbol, fastPeriod, slowPeriod, result) {
     return result;
 }
 
+// --- Bounce Mode ---
+
+function runBounce(candles, fastPeriod, slowPeriod) {
+    const sorted = [...candles].sort((a, b) => a.datetime - b.datetime);
+    const closes = sorted.map(c => c.close);
+    const highs = sorted.map(c => c.high);
+    const lows = sorted.map(c => c.low);
+    const warmup = slowPeriod;
+    const rsiSeries = getRSISeries(closes);
+
+    const bounces = [];
+    let lastBullIdx = -BOUNCE_COOLDOWN;
+    let lastBearIdx = -BOUNCE_COOLDOWN;
+
+    for (let i = warmup; i < sorted.length; i++) {
+        const fastMA = computeMA(closes, fastPeriod, i);
+        const slowMA = computeMA(closes, slowPeriod, i);
+        if (fastMA == null || slowMA == null) continue;
+
+        const close = closes[i];
+        const low = lows[i];
+        const high = highs[i];
+        const bounceDate = dateStr(sorted[i].datetime);
+
+        // Bullish bounce: uptrend + wick approaches/penetrates fast MA support + closes above
+        if (fastMA > slowMA && close > fastMA && (i - lastBullIdx) >= BOUNCE_COOLDOWN) {
+            // touchPct: positive = wick went below MA, negative = near miss above MA
+            const touchPct = ((fastMA - low) / fastMA) * 100;
+            if (touchPct >= -BOUNCE_TOUCH_PCT) {
+                bounces.push({
+                    date: bounceDate,
+                    price: close,
+                    fastMA,
+                    slowMA,
+                    type: 'bull_bounce',
+                    touchPct: Math.round(touchPct * 100) / 100,
+                    returns: getForwardReturns(closes, i),
+                    rsi: rsiSeries[i] != null ? Math.round(rsiSeries[i] * 10) / 10 : null,
+                    vix: getVIXForDate(bounceDate),
+                });
+                lastBullIdx = i;
+            }
+        }
+
+        // Bearish bounce: downtrend + wick approaches/penetrates fast MA resistance + closes below
+        if (fastMA < slowMA && close < fastMA && (i - lastBearIdx) >= BOUNCE_COOLDOWN) {
+            // touchPct: positive = wick went above MA, negative = near miss below MA
+            const touchPct = ((high - fastMA) / fastMA) * 100;
+            if (touchPct >= -BOUNCE_TOUCH_PCT) {
+                bounces.push({
+                    date: bounceDate,
+                    price: close,
+                    fastMA,
+                    slowMA,
+                    type: 'bear_bounce',
+                    touchPct: Math.round(touchPct * 100) / 100,
+                    returns: getForwardReturns(closes, i),
+                    rsi: rsiSeries[i] != null ? Math.round(rsiSeries[i] * 10) / 10 : null,
+                    vix: getVIXForDate(bounceDate),
+                });
+                lastBearIdx = i;
+            }
+        }
+    }
+
+    return {
+        bounces,
+        dataStart: dateStr(sorted[0].datetime),
+        dataEnd: dateStr(sorted[sorted.length - 1].datetime),
+        totalBars: sorted.length,
+    };
+}
+
+function printBounceResults(symbol, fastPeriod, slowPeriod, result) {
+    const { bounces, dataStart, dataEnd, totalBars } = result;
+
+    console.log('\n' + '='.repeat(70));
+    console.log(`MA BOUNCE BACKTEST — ${symbol} (${MA_TYPE} ${fastPeriod}/${slowPeriod})`);
+    console.log(`Data: ${dataStart} to ${dataEnd} | ${totalBars} bars`);
+    console.log(`Touch zone: ≤${BOUNCE_TOUCH_PCT}% from fast MA | Cooldown: ${BOUNCE_COOLDOWN} bars`);
+    console.log('='.repeat(70));
+
+    const bull = bounces.filter(b => b.type === 'bull_bounce');
+    const bear = bounces.filter(b => b.type === 'bear_bounce');
+
+    console.log(`\nTotal bounces: ${bounces.length} (${bull.length} bullish, ${bear.length} bearish)`);
+
+    if (bull.length > 0) {
+        console.log('\nBULLISH BOUNCES (uptrend + wick touches fast MA support + closes above)');
+        const stats = calcGroupStats(bull);
+        console.table(stats);
+
+        // Touch filter analysis
+        console.log('\n  TOUCH FILTER ANALYSIS (bullish bounces):');
+        for (const f of BOUNCE_FILTERS) {
+            const filtered = bull.filter(f.test);
+            if (filtered.length < 3) continue;
+            const fStats = calcGroupStats(filtered);
+            console.log(`    ${f.label.padEnd(12)} → ${String(filtered.length).padStart(4)} signals, 5d WR: ${fStats['5d'].winRate}, avg: ${fStats['5d'].avgReturn}`);
+        }
+
+        // RSI filter analysis
+        const bullWithRSI = bull.filter(b => b.rsi != null);
+        if (bullWithRSI.length > 0) {
+            console.log('\n  RSI FILTER ANALYSIS (bullish bounces):');
+            const baseWR = parseFloat(calcGroupStats(bullWithRSI)['5d'].winRate);
+            for (const f of RSI_FILTERS_GOLDEN) {
+                const filtered = bullWithRSI.filter(b => f.test(b.rsi));
+                if (filtered.length < 3) continue;
+                const fStats = calcGroupStats(filtered);
+                const fWR = parseFloat(fStats['5d'].winRate);
+                const delta = (fWR - baseWR).toFixed(1);
+                const sign = fWR > baseWR ? '+' : '';
+                console.log(`    ${f.label.padEnd(12)} → ${filtered.length} signals, 5d WR: ${fStats['5d'].winRate} (${sign}${delta}%), avg: ${fStats['5d'].avgReturn}`);
+            }
+        }
+
+        // VIX regime analysis
+        const bullWithVIX = bull.filter(b => b.vix != null);
+        if (bullWithVIX.length > 0) {
+            console.log('\n  VIX REGIME ANALYSIS (bullish bounces):');
+            const baseWR = parseFloat(calcGroupStats(bullWithVIX)['5d'].winRate);
+            for (const v of VIX_REGIMES) {
+                const filtered = bullWithVIX.filter(b => v.test(b.vix));
+                if (filtered.length < 3) continue;
+                const vStats = calcGroupStats(filtered);
+                const vWR = parseFloat(vStats['5d'].winRate);
+                const delta = (vWR - baseWR).toFixed(1);
+                const sign = vWR > baseWR ? '+' : '';
+                console.log(`    ${v.label.padEnd(14)} → ${filtered.length} signals, 5d WR: ${vStats['5d'].winRate} (${sign}${delta}%), avg: ${vStats['5d'].avgReturn}`);
+            }
+        }
+
+        console.log('\nRecent bullish bounces:');
+        bull.slice(-5).forEach(b => {
+            const r5 = b.returns[5] != null ? `${b.returns[5] >= 0 ? '+' : ''}${b.returns[5].toFixed(2)}%` : 'N/A';
+            const r20 = b.returns[20] != null ? `${b.returns[20] >= 0 ? '+' : ''}${b.returns[20].toFixed(2)}%` : 'N/A';
+            const rsiStr = b.rsi != null ? ` RSI:${b.rsi}` : '';
+            const vixStr = b.vix != null ? ` VIX:${b.vix.toFixed(1)}` : '';
+            const touchStr = ` touch:${b.touchPct >= 0 ? '+' : ''}${b.touchPct.toFixed(2)}%`;
+            console.log(`  ${b.date}: $${b.price.toFixed(2)} — 5d: ${r5}, 20d: ${r20}${touchStr}${rsiStr}${vixStr}`);
+        });
+    }
+
+    if (bear.length > 0) {
+        console.log('\nBEARISH BOUNCES (downtrend + wick touches fast MA resistance + closes below)');
+        // Invert returns for bearish bounces (short signal)
+        const invertedBear = bear.map(b => ({
+            ...b,
+            returns: Object.fromEntries(
+                Object.entries(b.returns).map(([k, v]) => [k, v != null ? -v : null])
+            ),
+        }));
+        const stats = calcGroupStats(invertedBear);
+        console.table(stats);
+
+        // Touch filter for bearish
+        console.log('\n  TOUCH FILTER ANALYSIS (bearish bounces):');
+        for (const f of BOUNCE_FILTERS) {
+            const filtered = invertedBear.filter(f.test);
+            if (filtered.length < 3) continue;
+            const fStats = calcGroupStats(filtered);
+            console.log(`    ${f.label.padEnd(12)} → ${String(filtered.length).padStart(4)} signals, 5d WR: ${fStats['5d'].winRate}, avg: ${fStats['5d'].avgReturn}`);
+        }
+
+        // RSI filter for bearish
+        const bearWithRSI = invertedBear.filter(b => b.rsi != null);
+        if (bearWithRSI.length > 0) {
+            console.log('\n  RSI FILTER ANALYSIS (bearish bounces):');
+            const baseWR = parseFloat(calcGroupStats(bearWithRSI)['5d'].winRate);
+            for (const f of RSI_FILTERS_DEATH) {
+                const filtered = bearWithRSI.filter(b => f.test(b.rsi));
+                if (filtered.length < 3) continue;
+                const fStats = calcGroupStats(filtered);
+                const fWR = parseFloat(fStats['5d'].winRate);
+                const delta = (fWR - baseWR).toFixed(1);
+                const sign = fWR > baseWR ? '+' : '';
+                console.log(`    ${f.label.padEnd(12)} → ${filtered.length} signals, 5d WR: ${fStats['5d'].winRate} (${sign}${delta}%), avg: ${fStats['5d'].avgReturn}`);
+            }
+        }
+
+        // VIX regime for bearish
+        const bearWithVIX = invertedBear.filter(b => b.vix != null);
+        if (bearWithVIX.length > 0) {
+            console.log('\n  VIX REGIME ANALYSIS (bearish bounces):');
+            const baseWR = parseFloat(calcGroupStats(bearWithVIX)['5d'].winRate);
+            for (const v of VIX_REGIMES) {
+                const filtered = bearWithVIX.filter(b => v.test(b.vix));
+                if (filtered.length < 3) continue;
+                const vStats = calcGroupStats(filtered);
+                const vWR = parseFloat(vStats['5d'].winRate);
+                const delta = (vWR - baseWR).toFixed(1);
+                const sign = vWR > baseWR ? '+' : '';
+                console.log(`    ${v.label.padEnd(14)} → ${filtered.length} signals, 5d WR: ${vStats['5d'].winRate} (${sign}${delta}%), avg: ${vStats['5d'].avgReturn}`);
+            }
+        }
+
+        console.log('\nRecent bearish bounces:');
+        bear.slice(-5).forEach(b => {
+            const r5 = b.returns[5] != null ? `${b.returns[5] >= 0 ? '+' : ''}${b.returns[5].toFixed(2)}%` : 'N/A';
+            const r20 = b.returns[20] != null ? `${b.returns[20] >= 0 ? '+' : ''}${b.returns[20].toFixed(2)}%` : 'N/A';
+            const rsiStr = b.rsi != null ? ` RSI:${b.rsi}` : '';
+            const vixStr = b.vix != null ? ` VIX:${b.vix.toFixed(1)}` : '';
+            const touchStr = ` touch:${b.touchPct >= 0 ? '+' : ''}${b.touchPct.toFixed(2)}%`;
+            console.log(`  ${b.date}: $${b.price.toFixed(2)} — 5d: ${r5}, 20d: ${r20}${touchStr}${rsiStr}${vixStr}`);
+        });
+    }
+
+    return result;
+}
+
 // --- SQLite Save ---
 
 function ensureBacktestTables(db) {
@@ -776,6 +1003,61 @@ function buildVIXRegimeStats(signals) {
         result[v.label] = { count: filtered.length, ...calcGroupStats(filtered) };
     }
     return Object.keys(result).length > 0 ? result : null;
+}
+
+function buildBounceFilterStats(bounces) {
+    if (bounces.length === 0) return null;
+    const result = {};
+    for (const f of BOUNCE_FILTERS) {
+        const filtered = bounces.filter(f.test);
+        if (filtered.length < 3) continue;
+        result[f.label] = { count: filtered.length, ...calcGroupStats(filtered) };
+    }
+    return Object.keys(result).length > 0 ? result : null;
+}
+
+function saveBounceRun(db, symbol, fast, slow, result) {
+    const { bounces, dataStart, dataEnd, totalBars } = result;
+
+    const bull = bounces.filter(b => b.type === 'bull_bounce');
+    const bear = bounces.filter(b => b.type === 'bear_bounce');
+
+    // Invert bear returns for short signal analysis
+    const invertedBear = bear.map(b => ({
+        ...b,
+        returns: Object.fromEntries(
+            Object.entries(b.returns).map(([k, v]) => [k, v != null ? -v : null])
+        ),
+    }));
+
+    const summary = {
+        bull_bounce: { count: bull.length, ...calcGroupStats(bull) },
+        bear_bounce: { count: bear.length, ...calcGroupStats(invertedBear) },
+    };
+
+    // Touch filter breakdowns
+    const bullTouch = buildBounceFilterStats(bull);
+    if (bullTouch) summary.bull_bounce_touch = bullTouch;
+    const bearTouch = buildBounceFilterStats(invertedBear);
+    if (bearTouch) summary.bear_bounce_touch = bearTouch;
+
+    // RSI breakdowns
+    const bullRSI = buildRSIFilterStats(bull, RSI_FILTERS_GOLDEN);
+    if (bullRSI) summary.bull_bounce_rsi = bullRSI;
+    const bearRSI = buildRSIFilterStats(invertedBear, RSI_FILTERS_DEATH);
+    if (bearRSI) summary.bear_bounce_rsi = bearRSI;
+
+    // VIX regime breakdowns
+    const bullVIX = buildVIXRegimeStats(bull);
+    if (bullVIX) summary.bull_bounce_vix = bullVIX;
+    const bearVIX = buildVIXRegimeStats(invertedBear);
+    if (bearVIX) summary.bear_bounce_vix = bearVIX;
+
+    ensureBacktestTables(db);
+    db.prepare(`
+        INSERT INTO ma_backtest_runs (run_type, symbol, fast_period, slow_period, data_start, data_end, total_bars, results_json, ma_type)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run('bounce', symbol, fast, slow, dataStart, dataEnd, totalBars, JSON.stringify(summary), MA_TYPE);
 }
 
 function saveCrossoverRun(db, symbol, fast, slow, result) {
@@ -909,12 +1191,66 @@ function printCrossoverSweepSummary(sweepResults) {
     console.log(`\nTotal combos tested: ${rows.length}`);
 }
 
+function printBounceSweepSummary(sweepResults) {
+    console.log('\n' + '═'.repeat(80));
+    console.log('BOUNCE SWEEP SUMMARY — Ranked by Bullish Bounce 5d Win Rate');
+    console.log('═'.repeat(80));
+
+    const rows = [];
+    for (const { symbol, fast, slow, result } of sweepResults) {
+        const { bounces } = result;
+        const bull = bounces.filter(b => b.type === 'bull_bounce');
+        const bear = bounces.filter(b => b.type === 'bear_bounce');
+
+        const bullStats = bull.length > 0 ? calcGroupStats(bull) : null;
+        const invertedBear = bear.map(b => ({
+            ...b,
+            returns: Object.fromEntries(
+                Object.entries(b.returns).map(([k, v]) => [k, v != null ? -v : null])
+            ),
+        }));
+        const bearStats = invertedBear.length > 0 ? calcGroupStats(invertedBear) : null;
+
+        const bullWR = bullStats ? bullStats['5d'].winRate : 'N/A';
+        const bullAvg = bullStats ? bullStats['5d'].avgReturn : 'N/A';
+        const bearWR = bearStats ? bearStats['5d'].winRate : 'N/A';
+        const lowConf = bull.length < 15 ? ' *' : '';
+
+        rows.push({
+            Symbol: symbol,
+            Combo: `${fast}/${slow}`,
+            'Bull #': bull.length,
+            'Bull 5d WR': bullWR + lowConf,
+            'Bull Avg 5d': bullAvg,
+            'Bear #': bear.length,
+            'Bear 5d WR': bearWR + (bear.length < 15 ? ' *' : ''),
+            _sortKey: bullStats ? parseFloat(bullStats['5d'].winRate) : 0,
+        });
+    }
+
+    rows.sort((a, b) => b._sortKey - a._sortKey);
+
+    console.log(`${'Symbol'.padEnd(8)} ${'Combo'.padEnd(8)} ${'Bull#'.padStart(6)} ${'Bull 5d WR'.padStart(12)} ${'Bull Avg 5d'.padStart(13)} ${'Bear#'.padStart(6)} ${'Bear 5d WR'.padStart(12)}`);
+    console.log('-'.repeat(80));
+    for (const r of rows) {
+        console.log(
+            `${r.Symbol.padEnd(8)} ${r.Combo.padEnd(8)} ${String(r['Bull #']).padStart(6)} ${r['Bull 5d WR'].padStart(12)} ${r['Bull Avg 5d'].padStart(13)} ${String(r['Bear #']).padStart(6)} ${r['Bear 5d WR'].padStart(12)}`
+        );
+    }
+
+    const lowConfCount = rows.filter(r => r['Bull #'] < 15).length;
+    if (lowConfCount > 0) {
+        console.log(`\n* = low confidence (< 15 signals)`);
+    }
+    console.log(`\nTotal combos tested: ${rows.length}`);
+}
+
 // --- Main ---
 
 async function main() {
     const symbols = SYMBOL_ARG === 'ALL' ? WATCHLIST_SYMBOLS : [SYMBOL_ARG];
     const combos = SWEEP
-        ? (mode === 'crossover' ? CROSSOVER_COMBOS : MA_COMBOS)
+        ? (mode === 'alignment' ? MA_COMBOS : CROSSOVER_COMBOS)
         : [{ fast: FAST, slow: SLOW }];
 
     const log = JSON_OUT ? (...a) => process.stderr.write(a.join(' ') + '\n') : console.log.bind(console);
@@ -938,8 +1274,8 @@ async function main() {
         if (symbols.indexOf(sym) < symbols.length - 1) await sleep(200);
     }
 
-    // Fetch VIX history for regime segmentation (crossover mode only)
-    if (mode === 'crossover') {
+    // Fetch VIX history for regime segmentation (crossover and bounce modes)
+    if (mode === 'crossover' || mode === 'bounce') {
         if (!JSON_OUT) process.stdout.write('  $VIX...');
         const vixCandles = await fetchHistory('$VIX');
         if (vixCandles) {
@@ -981,6 +1317,13 @@ async function main() {
                 }
                 if (SAVE && db) saveCrossoverRun(db, sym, combo.fast, combo.slow, result);
                 sweepResults.push({ symbol: sym, fast: combo.fast, slow: combo.slow, result });
+            } else if (mode === 'bounce') {
+                const result = runBounce(candles, combo.fast, combo.slow);
+                if (!JSON_OUT) {
+                    printBounceResults(sym, combo.fast, combo.slow, result);
+                }
+                if (SAVE && db) saveBounceRun(db, sym, combo.fast, combo.slow, result);
+                sweepResults.push({ symbol: sym, fast: combo.fast, slow: combo.slow, result });
             }
         }
     }
@@ -989,6 +1332,7 @@ async function main() {
     if (SWEEP && sweepResults.length > 1 && !JSON_OUT) {
         if (mode === 'alignment') printSweepSummary(sweepResults);
         if (mode === 'crossover') printCrossoverSweepSummary(sweepResults);
+        if (mode === 'bounce') printBounceSweepSummary(sweepResults);
     }
 
     // JSON output
@@ -1000,8 +1344,10 @@ async function main() {
                     summary[alignment] = { count: signals.length, stats: calcGroupStats(signals) };
                 }
                 return { symbol, fast, slow, dataStart: result.dataStart, dataEnd: result.dataEnd, totalBars: result.totalBars, alignments: summary };
-            } else {
+            } else if (mode === 'crossover') {
                 return { symbol, fast, slow, dataStart: result.dataStart, dataEnd: result.dataEnd, crosses: result.crosses.length };
+            } else {
+                return { symbol, fast, slow, dataStart: result.dataStart, dataEnd: result.dataEnd, bounces: result.bounces.length };
             }
         });
         console.log(JSON.stringify(output, null, 2));
