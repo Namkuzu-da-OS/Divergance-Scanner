@@ -2386,3 +2386,576 @@ Commands: node bloodhound-scanner.js [pause|resume|status]
 
 [2026-02-17T13:59:08.438Z] 🌙 Market CLOSED - scanner idle
    Next market open: Today 9:30 AM ET (6:30 AM PST)
+
+[2026-02-17T14:04:08.438Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+
+[2026-02-17T14:09:08.438Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+
+[2026-02-17T14:14:08.440Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+
+[2026-02-17T14:19:08.440Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+
+[2026-02-17T14:24:08.441Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+
+[2026-02-17T14:29:08.442Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+
+============================================================
+[2026-02-17T14:34:08.442Z] Running Bloodhound scan...
+============================================================
+[Context] VIX: 21.55 (elevated) | SPY: bearish
+[Internals] TICK: 56, A/D: 386, Vol Ratio: 2.02
+[RS] Read 20 rankings from DB (snapshot 4308m ago)
+[RS] Rankings loaded (20 assets), no regime data
+[MA-Bounce] Pre-fetched history for 8/8 validated symbols
+[Watchlist] Cleaned 28 expired entries
+[Watchlist] DB: 9 static, 1 dynamic
+[Discovery] 9 reserved + 3 dynamic = 12 total
+[Discovery] Found 12 symbols to scan
+[Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+[Bias] Intraday: NEUTRAL | Swing: BULLISH
+[Top Discoveries]
+  1. MSFT (score: 100, watchlist)
+  2. META (score: 100, watchlist)
+  3. AAPL (score: 100, watchlist)
+  4. AMD (score: 100, watchlist)
+  5. IBIT (score: 100, watchlist)
+  6. TSLA (score: 100, watchlist)
+  7. NVDA (score: 100, watchlist)
+  8. QQQ (score: 100, watchlist)
+
+[VELOCITY ALERTS]
+  🚀 MSFT: +16 pts (55→71) 🟢
+  🚀 XLU: +67 pts (0→67) 🔴
+
+[History] Updating scanner history for 12 symbols...
+[History] Updated 12 symbols in database.
+
+[Results] Analyzed 12 symbols:
+  ✅ MSFT: 71/100 🟢 - VELOCITY +16 pts, ⭐ PRIME SETUP: Wall + Extended RSI
+  ✅ XLU: 67/100 🔴 - VELOCITY +67 pts, ⭐ PRIME SETUP: Wall + Extended RSI
+  ✅ META: 39/100 🟢 - At put wall support ($640), ℹ️ Confluence zone (2 levels)
+  ✅ IBIT: 39/100 🟢 - RSI oversold (28.2), ℹ️ Confluence zone (2 levels)
+  ✅ MARA: 36/100 🟢 - 🚀 BREAKOUT above call wall ($7.5) +3.5%, Above gamma flip ($3.17)
+  ⬜ NVDA: 25/100 🔴 - 💥 BREAKDOWN below put wall ($185) -1.4%, Below gamma flip ($189.68)
+  ⬜ SPY: 22/100 📍 - 📍 PINNED between walls ($675-$685), At VWAP ($682.55)
+  ⬜ INTC: 18/100 🔴 - RSI bounce in downtrend (60.0), Heavy call bias (3.13 C/P)
+  ⬜ QQQ: 17/100 📍 - 📍 PINNED between walls ($600-$603), ℹ️ Confluence zone (4 levels)
+  ⬜ AAPL: 13/100 ⚪ - ℹ️ $15M net bullish premium, Heavy call bias (4.73 C/P)
+  ⬜ AMD: 13/100 ⚪ - VIX elevated (21.6), ℹ️ Bearish MA bounce (SMA 10/30)
+  ⬜ TSLA: 13/100 ⚪ - VIX elevated (21.6), ℹ️ Bearish MA bounce (HMA 55/89)
+
+[Tiers] HIGH_CONVICTION: 2 | TRADEABLE: 0 | WATCH: 4 | FILTERED: 6
+[HIGH CONVICTION]
+  🔥 MSFT: 71/100 🟢 [Dormant wall]
+  🔥 META: 39/100 🟢
+[WATCH LIST]
+  👀 XLU: 67/100 
+  👀 IBIT: 39/100 (score 39)
+  👀 NVDA: 25/100 (score 25)
+  👀 SPY: 22/100 (score 22)
+
+[Alerts] Sending 2 HIGH CONVICTION alert(s)...
+[Telegram] Sent alert
+[Signal Logger] MSFT conditions changed on existing signal:
+  Score: 50 → 71 (+21)
+[Telegram] Sent alert
+[SignalDB] Inserted signal META_1771338933603 @ $639.54
+[Signal Logger] Logged META_1771338933603 @ $639.54 (bullish, score 39)
+[Watchlist] Skipped META — manual entry protected (attempted by signal_tracking)
+[SignalDB] Inserted 12 bloodhound results for scan 655
+[Bloodhound] Wrote 12 results to database (scan_id: 655)
+
+[Bloodhound] Scan complete (85s). Next scan in 5 minutes.
+[Signal Logger] Price cache built with 12 symbols
+[SignalDB] Closed option signal GOOG_1770842823307: PARTIAL_WIN (peak +96%, close -100%)
+[Signal Logger] Option .GOOG260213C312.5 expired — closed
+[SignalDB] Closed option signal GOOGL_1770913729571: WIN (peak +125%, close -100%)
+[Signal Logger] Option .GOOGL260213C312.5 expired — closed
+[SignalDB] Closed option signal QQQ_1770913732865: LOSS (peak +23%, close -100%)
+[Signal Logger] Option .QQQ260212C606 expired — closed
+[SignalDB] Closed option signal SPY_1770915828543: LOSS (peak +21%, close -100%)
+[Signal Logger] Option .SPY260212C685 expired — closed
+[SignalDB] Closed option signal INTC_1770994680725: PARTIAL_WIN (peak +62%, close -100%)
+[Signal Logger] Option .INTC260213C45.5 expired — closed
+[SignalDB] Closed option signal AMD_1770998088634: LOSS (peak +16%, close -100%)
+[Signal Logger] Option .AMD260213P205 expired — closed
+[SignalDB] Closed option signal HOOD_1771012318138: LOSS (peak +0%, close -100%)
+[Signal Logger] Option .HOOD260213C77 expired — closed
+[Signal Logger] Updated prices for 24 signal(s), 8 option(s) (11 cached, 13 API)
+[Signal Logger] Validating 2 signal(s) for 4h checkpoint...
+[SignalDB] Recorded 4h checkpoint for MSTR_1771008377866: WRONG (-2.52%)
+[Signal Logger] 4h | MSTR_1771008377866: ❌ -2.52%
+[SignalDB] Recorded 4h checkpoint for HOOD_1771012318138: WRONG (-0.41%)
+[Signal Logger] 4h | HOOD_1771012318138: ❌ -0.41%
+[Signal Logger] Validating 14 signal(s) for 24h checkpoint...
+[SignalDB] Recorded 24h checkpoint for MARA_1770993467960: CORRECT (3.88%)
+[Signal Logger] 24h | MARA_1770993467960: ✅ +3.88%
+[SignalDB] Recorded 24h checkpoint for MU_1770993762395: CORRECT (2.49%)
+[Signal Logger] 24h | MU_1770993762395: ✅ +2.49%
+[SignalDB] Recorded 24h checkpoint for COIN_1770994138885: CORRECT (7.41%)
+[Signal Logger] 24h | COIN_1770994138885: ✅ +7.41%
+[SignalDB] Recorded 24h checkpoint for PLTR_1770994139765: WRONG (-0.28%)
+[Signal Logger] 24h | PLTR_1770994139765: ❌ -0.28%
+[SignalDB] Recorded 24h checkpoint for IWM_1770994140106: WRONG (0.48%)
+[Signal Logger] 24h | IWM_1770994140106: ❌ +0.48%
+[SignalDB] Recorded 24h checkpoint for IREN_1770994402268: CORRECT (0.54%)
+[Signal Logger] 24h | IREN_1770994402268: ✅ +0.54%
+[SignalDB] Recorded 24h checkpoint for INTC_1770994680725: WRONG (-1.36%)
+[Signal Logger] 24h | INTC_1770994680725: ❌ -1.36%
+[SignalDB] Recorded 24h checkpoint for TSLA_1770995053900: WRONG (-1.05%)
+[Signal Logger] 24h | TSLA_1770995053900: ❌ -1.05%
+[SignalDB] Recorded 24h checkpoint for NVDA_1770995062415: WRONG (-0.09%)
+[Signal Logger] 24h | NVDA_1770995062415: ❌ -0.09%
+[SignalDB] Recorded 24h checkpoint for AAPL_1770996009587: WRONG (-0.23%)
+[Signal Logger] 24h | AAPL_1770996009587: ❌ -0.23%
+[SignalDB] Recorded 24h checkpoint for AMD_1770998088634: WRONG (-0.69%)
+[Signal Logger] 24h | AMD_1770998088634: ❌ -0.69%
+[SignalDB] Recorded 24h checkpoint for BAX_1771000005874: CORRECT (1.40%)
+[Signal Logger] 24h | BAX_1771000005874: ✅ +1.40%
+[SignalDB] Recorded 24h checkpoint for MSTR_1771008377866: WRONG (-2.52%)
+[Signal Logger] 24h | MSTR_1771008377866: ❌ -2.52%
+[SignalDB] Recorded 24h checkpoint for HOOD_1771012318138: WRONG (-0.41%)
+[Signal Logger] 24h | HOOD_1771012318138: ❌ -0.41%
+[Signal Logger] Validating 67 signal(s) for 7d checkpoint...
+[SignalDB] Recorded 7d checkpoint for QQQ_1768928720261: WRONG (-2.21%)
+[Signal Logger] 7d | QQQ_1768928720261: ❌ -2.21%
+[SignalDB] Recorded 7d checkpoint for AAPL_1768929621872: CORRECT (3.55%)
+[Signal Logger] 7d | AAPL_1768929621872: ✅ +3.55%
+[SignalDB] Recorded 7d checkpoint for SPY_1768930528469: WRONG (0.00%)
+[Signal Logger] 7d | SPY_1768930528469: ❌ +0.00%
+[SignalDB] Recorded 7d checkpoint for QQQ_1768997030806: WRONG (-1.23%)
+[Signal Logger] 7d | QQQ_1768997030806: ❌ -1.23%
+[SignalDB] Recorded 7d checkpoint for META_1769005970279: CORRECT (6.14%)
+[Signal Logger] 7d | META_1769005970279: ✅ +6.14%
+[SignalDB] Recorded 7d checkpoint for SPY_1769006963883: WRONG (0.09%)
+[Signal Logger] 7d | SPY_1769006963883: ❌ +0.09%
+[SignalDB] Recorded 7d checkpoint for AAPL_1769013791123: CORRECT (5.34%)
+[Signal Logger] 7d | AAPL_1769013791123: ✅ +5.34%
+[SignalDB] Recorded 7d checkpoint for TSLA_1769015290814: WRONG (-3.06%)
+[Signal Logger] 7d | TSLA_1769015290814: ❌ -3.06%
+[SignalDB] Recorded 7d checkpoint for NVDA_1769016487682: CORRECT (1.55%)
+[Signal Logger] 7d | NVDA_1769016487682: ✅ +1.55%
+[SignalDB] Recorded 7d checkpoint for AMD_1769027614000: CORRECT (-18.42%)
+[Signal Logger] 7d | AMD_1769027614000: ✅ -18.42%
+[SignalDB] Recorded 7d checkpoint for QQQ_1769083408445: WRONG (-2.54%)
+[Signal Logger] 7d | QQQ_1769083408445: ❌ -2.54%
+[SignalDB] Recorded 7d checkpoint for IBIT_1769083409267: WRONG (-24.48%)
+[Signal Logger] 7d | IBIT_1769083409267: ❌ -24.48%
+[SignalDB] Recorded 7d checkpoint for META_1769083409663: CORRECT (4.34%)
+[Signal Logger] 7d | META_1769083409663: ✅ +4.34%
+[SignalDB] Recorded 7d checkpoint for MSFT_1769096016673: CORRECT (-10.76%)
+[Signal Logger] 7d | MSFT_1769096016673: ✅ -10.76%
+[SignalDB] Recorded 7d checkpoint for TSLA_1769096598096: WRONG (-6.02%)
+[Signal Logger] 7d | TSLA_1769096598096: ❌ -6.02%
+[SignalDB] Recorded 7d checkpoint for AAPL_1769098701657: WRONG (3.91%)
+[Signal Logger] 7d | AAPL_1769098701657: ❌ +3.91%
+[SignalDB] Recorded 7d checkpoint for GOOGL_1769105004544: WRONG (-8.50%)
+[Signal Logger] 7d | GOOGL_1769105004544: ❌ -8.50%
+[SignalDB] Recorded 7d checkpoint for MSFT_1769169802359: WRONG (-11.63%)
+[Signal Logger] 7d | MSFT_1769169802359: ❌ -11.63%
+[SignalDB] Recorded 7d checkpoint for TSLA_1769169803078: WRONG (-8.97%)
+[Signal Logger] 7d | TSLA_1769169803078: ❌ -8.97%
+[SignalDB] Recorded 7d checkpoint for GOOGL_1769178848959: WRONG (-8.42%)
+[Signal Logger] 7d | GOOGL_1769178848959: ❌ -8.42%
+[SignalDB] Recorded 7d checkpoint for QQQ_1769180921266: WRONG (-3.42%)
+[Signal Logger] 7d | QQQ_1769180921266: ❌ -3.42%
+[SignalDB] Recorded 7d checkpoint for AAPL_1769181815845: CORRECT (5.10%)
+[Signal Logger] 7d | AAPL_1769181815845: ✅ +5.10%
+[SignalDB] Recorded 7d checkpoint for NVDA_1769438049114: WRONG (-2.88%)
+[Signal Logger] 7d | NVDA_1769438049114: ❌ -2.88%
+[SignalDB] Recorded 7d checkpoint for SPY_1769447341840: WRONG (-1.75%)
+[Signal Logger] 7d | SPY_1769447341840: ❌ -1.75%
+[SignalDB] Recorded 7d checkpoint for MARA_1769524317334: WRONG (-22.46%)
+[Signal Logger] 7d | MARA_1769524317334: ❌ -22.46%
+[SignalDB] Recorded 7d checkpoint for TSLA_1769630333367: WRONG (-6.07%)
+[Signal Logger] 7d | TSLA_1769630333367: ❌ -6.07%
+[SignalDB] Recorded 7d checkpoint for MARA_1769697413891: WRONG (-22.46%)
+[Signal Logger] 7d | MARA_1769697413891: ❌ -22.46%
+[SignalDB] Recorded 7d checkpoint for QQQ_1769697840366: WRONG (-4.57%)
+[Signal Logger] 7d | QQQ_1769697840366: ❌ -4.57%
+[SignalDB] Recorded 7d checkpoint for SPY_1769698896547: WRONG (-1.43%)
+[Signal Logger] 7d | SPY_1769698896547: ❌ -1.43%
+[SignalDB] Recorded 7d checkpoint for TSLA_1769700662789: WRONG (-3.09%)
+[Signal Logger] 7d | TSLA_1769700662789: ❌ -3.09%
+[SignalDB] Recorded 7d checkpoint for NVDA_1769701892672: WRONG (-2.21%)
+[Signal Logger] 7d | NVDA_1769701892672: ❌ -2.21%
+[SignalDB] Recorded 7d checkpoint for GOOGL_1769707262388: WRONG (-8.93%)
+[Signal Logger] 7d | GOOGL_1769707262388: ❌ -8.93%
+[SignalDB] Recorded 7d checkpoint for XLC_1769713752531: WRONG (-3.86%)
+[Signal Logger] 7d | XLC_1769713752531: ❌ -3.86%
+[SignalDB] Recorded 7d checkpoint for MSFT_1769719145142: WRONG (-7.04%)
+[Signal Logger] 7d | MSFT_1769719145142: ❌ -7.04%
+[SignalDB] Recorded 7d checkpoint for GM_1769783767867: WRONG (-6.59%)
+[Signal Logger] 7d | GM_1769783767867: ❌ -6.59%
+[SignalDB] Recorded 7d checkpoint for AAPL_1769787065926: CORRECT (2.13%)
+[Signal Logger] 7d | AAPL_1769787065926: ✅ +2.13%
+[SignalDB] Recorded 7d checkpoint for GOOG_1769797249980: WRONG (-9.73%)
+[Signal Logger] 7d | GOOG_1769797249980: ❌ -9.73%
+[SignalDB] Recorded 7d checkpoint for PLTR_1769800872744: WRONG (-11.49%)
+[Signal Logger] 7d | PLTR_1769800872744: ❌ -11.49%
+[SignalDB] Recorded 7d checkpoint for XLC_1770042961787: WRONG (-4.28%)
+[Signal Logger] 7d | XLC_1770042961787: ❌ -4.28%
+[SignalDB] Recorded 7d checkpoint for QQQ_1770043854086: WRONG (-3.81%)
+[Signal Logger] 7d | QQQ_1770043854086: ❌ -3.81%
+[SignalDB] Recorded 7d checkpoint for TSLA_1770044441421: WRONG (-1.92%)
+[Signal Logger] 7d | TSLA_1770044441421: ❌ -1.92%
+[SignalDB] Recorded 7d checkpoint for NVDA_1770045070637: WRONG (-2.86%)
+[Signal Logger] 7d | NVDA_1770045070637: ❌ -2.86%
+[SignalDB] Recorded 7d checkpoint for MSFT_1770046250085: WRONG (-6.75%)
+[Signal Logger] 7d | MSFT_1770046250085: ❌ -6.75%
+[SignalDB] Recorded 7d checkpoint for AAPL_1770047766937: WRONG (-1.38%)
+[Signal Logger] 7d | AAPL_1770047766937: ❌ -1.38%
+[SignalDB] Recorded 7d checkpoint for META_1770056099596: WRONG (-9.80%)
+[Signal Logger] 7d | META_1770056099596: ❌ -9.80%
+[SignalDB] Recorded 7d checkpoint for PLTR_1770061804435: WRONG (-11.87%)
+[Signal Logger] 7d | PLTR_1770061804435: ❌ -11.87%
+[SignalDB] Recorded 7d checkpoint for SPY_1770132312539: WRONG (-1.41%)
+[Signal Logger] 7d | SPY_1770132312539: ❌ -1.41%
+[SignalDB] Recorded 7d checkpoint for PFE_1770132931488: CORRECT (7.27%)
+[Signal Logger] 7d | PFE_1770132931488: ✅ +7.27%
+[SignalDB] Recorded 7d checkpoint for IBIT_1770134428196: WRONG (-12.77%)
+[Signal Logger] 7d | IBIT_1770134428196: ❌ -12.77%
+[SignalDB] Recorded 7d checkpoint for HOOD_1770142601452: WRONG (-11.48%)
+[Signal Logger] 7d | HOOD_1770142601452: ❌ -11.48%
+[SignalDB] Recorded 7d checkpoint for SOFI_1770228163613: WRONG (-3.42%)
+[Signal Logger] 7d | SOFI_1770228163613: ❌ -3.42%
+[SignalDB] Recorded 7d checkpoint for ORCL_1770302066825: CORRECT (8.65%)
+[Signal Logger] 7d | ORCL_1770302066825: ✅ +8.65%
+[SignalDB] Recorded 7d checkpoint for UBER_1770302637891: WRONG (-6.47%)
+[Signal Logger] 7d | UBER_1770302637891: ❌ -6.47%
+[SignalDB] Recorded 7d checkpoint for BSX_1770303863526: CORRECT (1.80%)
+[Signal Logger] 7d | BSX_1770303863526: ✅ +1.80%
+[SignalDB] Recorded 7d checkpoint for INTC_1770304762598: WRONG (-3.58%)
+[Signal Logger] 7d | INTC_1770304762598: ❌ -3.58%
+[SignalDB] Recorded 7d checkpoint for PYPL_1770315254495: WRONG (3.08%)
+[Signal Logger] 7d | PYPL_1770315254495: ❌ +3.08%
+[SignalDB] Recorded 7d checkpoint for PLTR_1770321832422: WRONG (0.10%)
+[Signal Logger] 7d | PLTR_1770321832422: ❌ +0.10%
+[SignalDB] Recorded 7d checkpoint for SMCI_1770388438262: WRONG (-4.12%)
+[Signal Logger] 7d | SMCI_1770388438262: ❌ -4.12%
+[SignalDB] Recorded 7d checkpoint for QCOM_1770388706587: CORRECT (4.44%)
+[Signal Logger] 7d | QCOM_1770388706587: ✅ +4.44%
+[SignalDB] Recorded 7d checkpoint for MSTR_1770392675573: CORRECT (3.65%)
+[Signal Logger] 7d | MSTR_1770392675573: ✅ +3.65%
+[SignalDB] Recorded 7d checkpoint for HOOD_1770404562695: WRONG (-8.01%)
+[Signal Logger] 7d | HOOD_1770404562695: ❌ -8.01%
+[SignalDB] Recorded 7d checkpoint for PYPL_1770647576150: CORRECT (2.93%)
+[Signal Logger] 7d | PYPL_1770647576150: ✅ +2.93%
+[SignalDB] Recorded 7d checkpoint for QCOM_1770650273838: WRONG (3.07%)
+[Signal Logger] 7d | QCOM_1770650273838: ❌ +3.07%
+[SignalDB] Recorded 7d checkpoint for GOOGL_1770652696350: WRONG (-6.54%)
+[Signal Logger] 7d | GOOGL_1770652696350: ❌ -6.54%
+[SignalDB] Recorded 7d checkpoint for BSX_1770658372518: CORRECT (1.88%)
+[Signal Logger] 7d | BSX_1770658372518: ✅ +1.88%
+[SignalDB] Recorded 7d checkpoint for AMZN_1770669159099: WRONG (-4.24%)
+[Signal Logger] 7d | AMZN_1770669159099: ❌ -4.24%
+[SignalDB] Recorded 7d checkpoint for UBER_1770734144532: WRONG (-6.40%)
+[Signal Logger] 7d | UBER_1770734144532: ❌ -6.40%
+[SignalDB] Closed signal IBIT_1770820897973 with outcome: WIN
+[SignalDB] Closed signal MAT_1770831181444 with outcome: WIN
+[SignalDB] Closed signal GOOG_1770842823307 with outcome: LOSS
+[SignalDB] Closed signal EEM_1770913078261 with outcome: BREAKEVEN
+[SignalDB] Closed signal QCOM_1770913085486 with outcome: WIN
+[SignalDB] Closed signal GOOGL_1770913729571 with outcome: LOSS
+[SignalDB] Closed signal QQQ_1770913732865 with outcome: BREAKEVEN
+[SignalDB] Closed signal SPY_1770915828543 with outcome: BREAKEVEN
+[SignalDB] Closed signal MSFT_1770915833891 with outcome: BREAKEVEN
+[SignalDB] Closed signal MARA_1770993467960 with outcome: WIN
+[SignalDB] Closed signal MU_1770993762395 with outcome: WIN
+[SignalDB] Closed signal COIN_1770994138885 with outcome: WIN
+[SignalDB] Closed signal PLTR_1770994139765 with outcome: BREAKEVEN
+[SignalDB] Closed signal IWM_1770994140106 with outcome: BREAKEVEN
+[SignalDB] Closed signal IREN_1770994402268 with outcome: WIN
+[SignalDB] Closed signal INTC_1770994680725 with outcome: BREAKEVEN
+[SignalDB] Closed signal TSLA_1770995053900 with outcome: WIN
+[SignalDB] Closed signal NVDA_1770995062415 with outcome: BREAKEVEN
+[SignalDB] Closed signal AAPL_1770996009587 with outcome: BREAKEVEN
+[SignalDB] Closed signal AMD_1770998088634 with outcome: WIN
+[SignalDB] Closed signal BAX_1771000005874 with outcome: BREAKEVEN
+[SignalDB] Closed signal MSTR_1771008377866 with outcome: LOSS
+[SignalDB] Closed signal HOOD_1771012318138 with outcome: BREAKEVEN
+[SignalDB] Closed 23 stale signals (72h time stop)
+[Signal Logger] Closed 23 stale signal(s) (72h time stop)
+
+============================================================
+[2026-02-17T14:39:08.442Z] Running Bloodhound scan...
+============================================================
+[Context] VIX: 21.25 (elevated) | SPY: bearish
+[Internals] TICK: -94, A/D: 33, Vol Ratio: undefined
+[RS] Read 20 rankings from DB (snapshot 4313m ago)
+[RS] Rankings loaded (20 assets), no regime data
+[MA-Bounce] Pre-fetched history for 8/8 validated symbols
+[Watchlist] DB: 9 static, 1 dynamic
+[Discovery] 9 reserved + 4 dynamic = 13 total
+[Discovery] Found 13 symbols to scan
+[Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+[Bias] Intraday: NEUTRAL | Swing: BULLISH
+[Top Discoveries]
+  1. MSFT (score: 100, watchlist)
+  2. META (score: 100, watchlist)
+  3. AAPL (score: 100, watchlist)
+  4. AMD (score: 100, watchlist)
+  5. IBIT (score: 100, watchlist)
+  6. TSLA (score: 100, watchlist)
+  7. NVDA (score: 100, watchlist)
+  8. QQQ (score: 100, watchlist)
+
+[VELOCITY ALERTS]
+  🚀 XLU: +64 pts (0→64) 🔴
+
+[History] Updating scanner history for 13 symbols...
+[History] Updated 13 symbols in database.
+
+[Results] Analyzed 13 symbols:
+  ✅ MSFT: 65/100 🟢 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI oversold (24.9)
+  ✅ IBIT: 65/100 🟢 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI oversold (28.2)
+  ✅ XLU: 64/100 🔴 - VELOCITY +64 pts, ⭐ PRIME SETUP: Wall + Extended RSI
+  ✅ NVDA: 43/100 🟢 - At put wall support ($185), At VWAP ($183.61)
+  ✅ EEM: 37/100 🔴 - At call wall resistance ($61), At VWAP ($60.82)
+  ⬜ META: 30/100 🟢 - At put wall support ($640), ℹ️ Confluence zone (2 levels)
+  ⬜ MARA: 30/100 🟢 - 🚀 BREAKOUT above call wall ($7.5) +2.8%, Above gamma flip ($3.17)
+  ⬜ QQQ: 16/100 📍 - 📍 PINNED between walls ($600-$603), At VWAP ($602.42)
+  ⬜ SPY: 16/100 🔴 - At call wall resistance ($685), At VWAP ($682.55)
+  ⬜ TSLA: 15/100 🔴 - 💥 BREAKDOWN below put wall ($420) -1.8%, ℹ️ Elevated call $410 02/18 (4.4x, $4.0M)
+  ⬜ INTC: 12/100 🔴 - RSI bounce in downtrend (60.0), Heavy call bias (4.07 C/P)
+  ⬜ AAPL: 7/100 ⚪ - ℹ️ Elevated call $260 02/18 (2.9x, $2.2M), ℹ️ $20M net bullish premium
+  ⬜ AMD: 7/100 ⚪ - VIX elevated (21.3), ℹ️ Bearish MA bounce (SMA 10/30)
+
+[Tiers] HIGH_CONVICTION: 1 | TRADEABLE: 0 | WATCH: 5 | FILTERED: 7
+[HIGH CONVICTION]
+  🔥 EEM: 37/100 🔴 [Counter-trend (swing: BULLISH), Bearish direction (0% historical win rate)]
+[WATCH LIST]
+  👀 MSFT: 65/100 
+  👀 IBIT: 65/100 
+  👀 XLU: 64/100 
+  👀 NVDA: 43/100 (score 43)
+  👀 META: 30/100 (score 30)
+
+[Alerts] Sending 1 HIGH CONVICTION alert(s)...
+[Telegram] Sent alert
+[SignalDB] Inserted signal EEM_1771339211903 @ $60.83
+[Signal Logger] Logged EEM_1771339211903 @ $60.83 (bearish, score 37)
+[Watchlist] Added EEM (source: signal_tracking)
+[SignalDB] Inserted 13 bloodhound results for scan 656
+[Bloodhound] Wrote 13 results to database (scan_id: 656)
+
+[Bloodhound] Scan complete (63s). Next scan in 5 minutes.
+[Signal Logger] Price cache built with 13 symbols
+[Signal Logger] Updated prices for 2 signal(s) (2 cached, 0 API)
+
+============================================================
+[2026-02-17T14:44:08.442Z] Running Bloodhound scan...
+============================================================
+[Context] VIX: 21.36 (elevated) | SPY: bearish
+[Internals] TICK: -35, A/D: -93, Vol Ratio: 1.93
+[RS] Read 20 rankings from DB (snapshot 4319m ago)
+[RS] Rankings loaded (20 assets), no regime data
+[MA-Bounce] Pre-fetched history for 8/8 validated symbols
+[Watchlist] DB: 9 static, 2 dynamic
+[Discovery] 9 reserved + 4 dynamic = 13 total
+[Discovery] Found 13 symbols to scan
+[Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+[Bias] Intraday: NEUTRAL | Swing: BULLISH
+[Top Discoveries]
+  1. MSFT (score: 100, watchlist)
+  2. META (score: 100, watchlist)
+  3. AAPL (score: 100, watchlist)
+  4. AMD (score: 100, watchlist)
+  5. IBIT (score: 100, watchlist)
+  6. TSLA (score: 100, watchlist)
+  7. NVDA (score: 100, watchlist)
+  8. QQQ (score: 100, watchlist)
+
+[VELOCITY ALERTS]
+  🚀 XLU: +64 pts (0→64) 🔴
+
+[History] Updating scanner history for 13 symbols...
+[History] Updated 13 symbols in database.
+
+[Results] Analyzed 13 symbols:
+  ✅ MSFT: 65/100 🟢 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI oversold (24.9)
+  ✅ IBIT: 65/100 🟢 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI oversold (28.2)
+  ✅ XLU: 64/100 🔴 - VELOCITY +64 pts, ⭐ PRIME SETUP: Wall + Extended RSI
+  ⬜ EEM: 31/100 🔴 - At call wall resistance ($61), At VWAP ($60.82)
+  ⬜ META: 30/100 🟢 - At put wall support ($640), ⚠️ PUT wall dormant (stale OI)
+  ⬜ QQQ: 22/100 📍 - 📍 PINNED between walls ($600-$603), ℹ️ Confluence zone (4 levels)
+  ⬜ NVDA: 19/100 🔴 - 💥 BREAKDOWN below put wall ($185) -1.7%, Below gamma flip ($195.39)
+  ⬜ MARA: 19/100 🔴 - At call wall resistance ($7.5), ℹ️ Confluence zone (3 levels)
+  ⬜ TSLA: 18/100 🟢 - ℹ️ Options flow detected (not at wall — informational), 🔥 Unusual CALL $410 02/18 (5.4x, $3.7M)
+  ⬜ SPY: 16/100 📍 - 📍 PINNED between walls ($675-$685), At VWAP ($682.55)
+  ⬜ INTC: 12/100 🔴 - RSI bounce in downtrend (60.0), Heavy call bias (3.98 C/P)
+  ⬜ AAPL: 7/100 ⚪ - ℹ️ Elevated call $260 02/18 (3.5x, $2.9M), ℹ️ $28M net bullish premium
+  ⬜ AMD: 7/100 ⚪ - VIX elevated (21.4), ℹ️ Bearish MA bounce (SMA 10/30)
+
+[Tiers] HIGH_CONVICTION: 0 | TRADEABLE: 0 | WATCH: 6 | FILTERED: 7
+[WATCH LIST]
+  👀 MSFT: 65/100 
+  👀 IBIT: 65/100 
+  👀 XLU: 64/100 
+  👀 EEM: 31/100 (score 31)
+  👀 META: 30/100 (score 30)
+
+[Alerts] No high-conviction opportunities (0 tradeable, 6 on watch)
+[SignalDB] Inserted 13 bloodhound results for scan 657
+[Bloodhound] Wrote 13 results to database (scan_id: 657)
+
+[Bloodhound] Scan complete (73s). Next scan in 5 minutes.
+[Signal Logger] Price cache built with 13 symbols
+[Signal Logger] Updated prices for 2 signal(s) (2 cached, 0 API)
+
+============================================================
+[2026-02-17T14:49:08.444Z] Running Bloodhound scan...
+============================================================
+[Context] VIX: 21.64 (elevated) | SPY: bearish
+[Internals] TICK: 25, A/D: -140, Vol Ratio: 1.78
+[RS] Read 20 rankings from DB (snapshot 4323m ago)
+[RS] Rankings loaded (20 assets), no regime data
+[MA-Bounce] Pre-fetched history for 8/8 validated symbols
+[Watchlist] DB: 9 static, 2 dynamic
+[Discovery] 9 reserved + 4 dynamic = 13 total
+[Discovery] Found 13 symbols to scan
+[Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+[Bias] Intraday: NEUTRAL | Swing: BULLISH
+[Top Discoveries]
+  1. MSFT (score: 100, watchlist)
+  2. META (score: 100, watchlist)
+  3. AAPL (score: 100, watchlist)
+  4. AMD (score: 100, watchlist)
+  5. IBIT (score: 100, watchlist)
+  6. TSLA (score: 100, watchlist)
+  7. NVDA (score: 100, watchlist)
+  8. QQQ (score: 100, watchlist)
+
+[VELOCITY ALERTS]
+  🚀 XLU: +64 pts (0→64) 🔴
+
+[History] Updating scanner history for 13 symbols...
+[History] Updated 13 symbols in database.
+
+[Results] Analyzed 13 symbols:
+  ✅ MSFT: 65/100 🟢 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI oversold (24.9)
+  ✅ IBIT: 65/100 🟢 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI oversold (28.2)
+  ✅ XLU: 64/100 🔴 - VELOCITY +64 pts, ⭐ PRIME SETUP: Wall + Extended RSI
+  ✅ NVDA: 38/100 🟢 - At put wall support ($180), ⚠️ PUT wall dormant (stale OI)
+  ⬜ EEM: 34/100 🟢 - 🚀 BREAKOUT above call wall ($60) +1.0%, Above gamma flip ($56.43)
+  ⬜ META: 30/100 🟢 - At put wall support ($640), ⚠️ PUT wall dormant (stale OI)
+  ⬜ MARA: 30/100 🟢 - 🚀 BREAKOUT above call wall ($7.5) +1.1%, Above gamma flip ($7.26)
+  ⬜ QQQ: 22/100 📍 - 📍 PINNED between walls ($600-$603), ℹ️ Confluence zone (4 levels)
+  ⬜ TSLA: 18/100 🟢 - ℹ️ Options flow detected (not at wall — informational), 🔥 Unusual CALL $410 02/18 (6.6x, $4.2M)
+  ⬜ INTC: 12/100 🔴 - RSI bounce in downtrend (60.0), Heavy call bias (2.99 C/P)
+  ⬜ SPY: 11/100 📍 - 📍 PINNED between walls ($675-$685), ℹ️ Confluence zone (2 levels)
+  ⬜ AAPL: 7/100 ⚪ - ℹ️ Elevated call $260 02/18 (4.0x, $3.2M), ℹ️ $24M net bullish premium
+  ⬜ AMD: 7/100 ⚪ - VIX elevated (21.6), ℹ️ Bearish MA bounce (SMA 10/30)
+
+[Tiers] HIGH_CONVICTION: 0 | TRADEABLE: 0 | WATCH: 8 | FILTERED: 5
+[WATCH LIST]
+  👀 MSFT: 65/100 
+  👀 IBIT: 65/100 
+  👀 XLU: 64/100 
+  👀 NVDA: 38/100 (score 38)
+  👀 EEM: 34/100 (score 34)
+
+[Alerts] No high-conviction opportunities (0 tradeable, 8 on watch)
+[SignalDB] Inserted 13 bloodhound results for scan 658
+[Bloodhound] Wrote 13 results to database (scan_id: 658)
+
+[Bloodhound] Scan complete (73s). Next scan in 5 minutes.
+[Signal Logger] Price cache built with 13 symbols
+[Signal Logger] Updated prices for 2 signal(s) (2 cached, 0 API)
+
+============================================================
+[2026-02-17T14:54:08.444Z] Running Bloodhound scan...
+============================================================
+[Context] VIX: 22.41 (elevated) | SPY: bearish
+[Internals] TICK: -292, A/D: -356, Vol Ratio: 1.60
+[RS] Read 20 rankings from DB (snapshot 4329m ago)
+[RS] Rankings loaded (20 assets), no regime data
+[MA-Bounce] Pre-fetched history for 8/8 validated symbols
+[Watchlist] DB: 9 static, 2 dynamic
+[Discovery] 9 reserved + 4 dynamic = 13 total
+[Discovery] Found 13 symbols to scan
+[Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+[Bias] Intraday: NEUTRAL | Swing: BULLISH
+[Top Discoveries]
+  1. MSFT (score: 100, watchlist)
+  2. META (score: 100, watchlist)
+  3. AAPL (score: 100, watchlist)
+  4. AMD (score: 100, watchlist)
+  5. IBIT (score: 100, watchlist)
+  6. TSLA (score: 100, watchlist)
+  7. NVDA (score: 100, watchlist)
+  8. QQQ (score: 100, watchlist)
+[Backoff] ⚠️ ACTIVATED - 3 slow responses (>5000ms)
+[Backoff]    Switching to batched mode: 5 symbols, 300ms delay
+[Backoff] 📊 Active (slow: 3, fast: 0)
+[Backoff] 📊 Active (slow: 3, fast: 0)
+[Backoff] 📊 Active (slow: 5, fast: 0)
+
+[VELOCITY ALERTS]
+  🚀 XLU: +64 pts (0→64) 🔴
+
+[History] Updating scanner history for 13 symbols...
+[History] Updated 13 symbols in database.
+
+[Results] Analyzed 13 symbols:
+  ✅ MSFT: 65/100 🟢 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI oversold (24.9)
+  ✅ XLU: 64/100 🔴 - VELOCITY +64 pts, ⭐ PRIME SETUP: Wall + Extended RSI
+  ✅ NVDA: 49/100 🟢 - At put wall support ($180), ✅ PUT wall ENGAGED (2.5x vol/OI — institutional positioning)
+  ✅ TSLA: 41/100 🟢 - At put wall support ($400), ✅ PUT wall ENGAGED (4.6x vol/OI — institutional positioning)
+  ⬜ IBIT: 33/100 🟢 - RSI oversold (28.2), Dip buy setup (SPY bearish)
+  ⬜ EEM: 26/100 🔴 - At call wall resistance ($60), ℹ️ Confluence zone (3 levels)
+  ⬜ QQQ: 25/100 🟢 - At put wall support ($600), ✅ PUT wall ENGAGED (3.6x vol/OI — institutional positioning)
+  ⬜ SPY: 25/100 🟢 - At put wall support ($675), ℹ️ Confluence zone (2 levels)
+  ⬜ MARA: 19/100 🔴 - At call wall resistance ($7.5), ⚠️ CALL wall dormant (stale OI)
+  ⬜ META: 15/100 🔴 - 💥 BREAKDOWN below put wall ($640) -1.2%, ℹ️ Options flow detected (not at wall — informational)
+  ⬜ INTC: 12/100 🔴 - RSI bounce in downtrend (60.0), Heavy call bias (2.25 C/P)
+  ⬜ AAPL: 7/100 ⚪ - ℹ️ Elevated call $260 02/18 (4.3x, $3.5M), ℹ️ $30M net bullish premium
+  ⬜ AMD: 7/100 ⚪ - ℹ️ $12M net bearish premium, VIX elevated (22.4)
+
+[Tiers] HIGH_CONVICTION: 0 | TRADEABLE: 0 | WATCH: 8 | FILTERED: 5
+[WATCH LIST]
+  👀 MSFT: 65/100 
+  👀 XLU: 64/100 
+  👀 NVDA: 49/100 (score 49)
+  👀 TSLA: 41/100 (score 41)
+  👀 IBIT: 33/100 (score 33)
+
+[Alerts] No high-conviction opportunities (0 tradeable, 8 on watch)
+[SignalDB] Inserted 13 bloodhound results for scan 659
+[Bloodhound] Wrote 13 results to database (scan_id: 659)
+
+[Bloodhound] Scan complete (126s). [BACKOFF ACTIVE: batch 5, delay 300ms] Next scan in 5 minutes.
+[Signal Logger] Price cache built with 13 symbols
+[Signal Logger] Updated prices for 2 signal(s) (2 cached, 0 API)
+
+============================================================
+[2026-02-17T14:59:08.446Z] Running Bloodhound scan...
+============================================================
+[Backoff] 📊 Active (slow: 5, fast: 0)
+[Context] VIX: 22.57 (elevated) | SPY: bearish
+[Internals] TICK: -5, A/D: -413, Vol Ratio: 1.49
+[RS] Read 20 rankings from DB (snapshot 4333m ago)
+[RS] Rankings loaded (20 assets), no regime data
+[MA-Bounce] Pre-fetched history for 8/8 validated symbols
+[Watchlist] DB: 9 static, 2 dynamic
+[Discovery] 9 reserved + 4 dynamic = 13 total
+[Discovery] Found 13 symbols to scan
+[Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+[Bias] Intraday: NEUTRAL | Swing: BULLISH
+[Top Discoveries]
+  1. MSFT (score: 100, watchlist)
+  2. META (score: 100, watchlist)
+  3. AAPL (score: 100, watchlist)
+  4. AMD (score: 100, watchlist)
+  5. IBIT (score: 100, watchlist)
+  6. TSLA (score: 100, watchlist)
+  7. NVDA (score: 100, watchlist)
+  8. QQQ (score: 100, watchlist)
+[Backoff] 📊 Active (slow: 5, fast: 6)
+[Backoff] ✅ RECOVERED - 10 fast responses, resuming parallel mode
