@@ -70,3 +70,88 @@ Commands:
   Manual run: node eod-gap-tracker.js --now
   PM2 logs:   pm2 logs eod-tracker
 
+[16:15:00 ET] [EOD Tracker] Scheduled run triggered
+
+============================================================
+   EOD GAP TRACKER - SCHEDULED RUN
+============================================================
+Time: 2026-02-18T21:15:00.041Z
+Options API: http://192.168.10.60:8000
+============================================================
+
+[16:15:00 ET] [EOD Tracker] Starting EOD gap tracking...
+[16:15:06 ET] [EOD Tracker] Found 6 gaps to process
+[16:15:13 ET] [EOD Tracker] AMD: Aggregated 3900 RTH candles — O:251.55 H:252.65 L:190.72 C:203.045
+[16:15:13 ET] [EOD Tracker]   AMD: FILLED | LOSS | EOD: +3.0%
+[16:15:13 ET] [EOD Tracker] Received SIGINT. Shutting down...
+============================================================
+   EOD GAP TRACKER
+   Scheduled daily at 4:15 PM ET
+============================================================
+Current time: 04:15:13 PM ET
+Options API: http://192.168.10.60:8000
+============================================================
+
+[16:15:13 ET] [EOD Tracker] Scheduler started. Waiting for 4:15 PM ET...
+
+Commands:
+  Manual run: node eod-gap-tracker.js --now
+  PM2 logs:   pm2 logs eod-tracker
+
+[16:30:07 ET] [EOD Tracker] Backup run triggered - found gaps still needing EOD data
+
+============================================================
+   EOD GAP TRACKER - SCHEDULED RUN
+============================================================
+Time: 2026-02-18T21:30:07.936Z
+Options API: http://192.168.10.60:8000
+============================================================
+
+[16:30:07 ET] [EOD Tracker] Starting EOD gap tracking...
+[16:30:15 ET] [EOD Tracker] Found 5 gaps to process
+[16:30:19 ET] [EOD Tracker] MRNA: Aggregated 3898 RTH candles — O:42.65 H:45.5 L:36.66 C:43.93
+[16:30:19 ET] [EOD Tracker]   MRNA: FILLED | LOSS | EOD: -7.6%
+[16:30:24 ET] [EOD Tracker] NVDA: Aggregated 3900 RTH candles — O:186.23 H:193.66 L:171.03 C:185.0299
+[16:30:24 ET] [EOD Tracker]   NVDA: FILLED | LOSS | EOD: -2.2%
+[16:30:27 ET] [EOD Tracker] PANW: Aggregated 3900 RTH candles — O:174.12 H:174.55 L:151.71 C:163.709
+[16:30:27 ET] [EOD Tracker]   PANW: FILLED | LOSS | EOD: +10.0%
+[16:30:32 ET] [EOD Tracker] PLTR: Aggregated 3900 RTH candles — O:165 H:165.08 L:126.23 C:133.06
+[16:30:32 ET] [EOD Tracker]   PLTR: FILLED | LOSS | EOD: -3.1%
+[16:30:37 ET] [EOD Tracker] SNDK: Aggregated 3900 RTH candles — O:695 H:725 L:540.14 C:590.36
+[16:30:37 ET] [EOD Tracker]   SNDK: FILLED | LOSS | EOD: +5.0%
+[16:30:37 ET] [EOD Tracker] Updating stats for 5 tickers...
+[16:30:37 ET] [EOD Tracker] Done. Processed 5 gaps, updated 5
+
+==================================================
+TODAY'S GAP SUMMARY
+==================================================
+
+Total Gaps: 6
+Filled: 6 (100%)
+
+By Tier:
+  WATCH: 1/1 filled (100%)
+  TRADEABLE: 3/3 filled (100%)
+  HIGH_CONVICTION: 2/2 filled (100%)
+
+By Direction:
+  Gap Down: 3/3 filled (100%)
+  Gap Up: 3/3 filled (100%)
+==================================================
+
+[Telegram] Sent alert
+[16:30:43 ET] [EOD Tracker] Received SIGINT. Shutting down...
+============================================================
+   EOD GAP TRACKER
+   Scheduled daily at 4:15 PM ET
+============================================================
+Current time: 04:30:44 PM ET
+Options API: http://192.168.10.60:8000
+============================================================
+
+[16:30:44 ET] [EOD Tracker] Scheduler started. Waiting for 4:15 PM ET...
+
+Commands:
+  Manual run: node eod-gap-tracker.js --now
+  PM2 logs:   pm2 logs eod-tracker
+
