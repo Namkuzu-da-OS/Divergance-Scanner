@@ -324,11 +324,70 @@ function getLatestOpportunityScan() {
     };
 }
 
+/**
+ * Get recent high-scoring symbols from opportunity scanner for Bloodhound discovery.
+ * Returns one row per symbol with their max score, best tier, and discovery sources.
+ * @param {number} hours - Lookback window (default 24)
+ * @returns {Array<{symbol: string, maxScore: number, tier: string, direction: string, sources: string[]}>}
+ */
+function getRecentHighScoreSymbols(hours = 24) {
+    try {
+        const rows = getDb().prepare(`
+            SELECT symbol,
+                   MAX(opportunity_score) as max_score,
+                   -- Pick tier from the row with the highest score
+                   (SELECT o2.tier FROM opportunities o2
+                    WHERE o2.symbol = o.symbol
+                      AND o2.timestamp > datetime('now', '-' || ? || ' hours')
+                      AND o2.tier IN ('HIGH_CONVICTION', 'TRADEABLE')
+                    ORDER BY o2.opportunity_score DESC LIMIT 1) as best_tier,
+                   -- Pick direction from the row with the highest score
+                   (SELECT o3.direction FROM opportunities o3
+                    WHERE o3.symbol = o.symbol
+                      AND o3.timestamp > datetime('now', '-' || ? || ' hours')
+                      AND o3.tier IN ('HIGH_CONVICTION', 'TRADEABLE')
+                    ORDER BY o3.opportunity_score DESC LIMIT 1) as direction,
+                   -- Aggregate discovery sources
+                   GROUP_CONCAT(DISTINCT o.discovery_sources) as all_sources
+            FROM opportunities o
+            WHERE o.timestamp > datetime('now', '-' || ? || ' hours')
+              AND o.tier IN ('HIGH_CONVICTION', 'TRADEABLE')
+            GROUP BY o.symbol
+            ORDER BY max_score DESC
+        `).all(hours, hours, hours);
+
+        return rows.map(r => ({
+            symbol: r.symbol,
+            maxScore: r.max_score,
+            tier: r.best_tier,
+            direction: r.direction,
+            sources: parseSources(r.all_sources)
+        }));
+    } catch (err) {
+        console.error(`[OpportunityDB] getRecentHighScoreSymbols error: ${err.message}`);
+        return [];
+    }
+}
+
+/** Parse concatenated JSON source arrays into a flat deduplicated array */
+function parseSources(allSources) {
+    if (!allSources) return [];
+    const set = new Set();
+    for (const chunk of allSources.split(',')) {
+        try {
+            const arr = JSON.parse(chunk);
+            if (Array.isArray(arr)) arr.forEach(s => set.add(s));
+        } catch { /* skip malformed */ }
+    }
+    return Array.from(set);
+}
+
 module.exports = {
     getDb,
     saveScanResults,
     getRecentScans,
     getTierStats,
     getTopSymbols,
-    getLatestOpportunityScan
+    getLatestOpportunityScan,
+    getRecentHighScoreSymbols
 };

@@ -23,6 +23,9 @@ const { sendTelegram, escapeHtml } = require('./telegram');
 // MA bounce detection (backtest-validated per-ticker configs)
 const maBounce = require('./ma-bounce');
 
+// Opportunity scanner DB — feed discovered symbols into Bloodhound
+const opportunityDb = require('./opportunity-db');
+
 // Load config
 const CONFIG = require('./config-loader');
 
@@ -578,9 +581,9 @@ async function discoverSymbols() {
 
             // Score boost for extremes
             let boost = 0;
-            if (pos52wk > 95) boost += 25; // Near 52-week high
-            if (pos52wk < 10) boost += 25; // Near 52-week low
-            if (volRatio > 1.5) boost += 20; // High relative volume
+            if (pos52wk > 85) boost += 25; // Near 52-week high (widened from 95)
+            if (pos52wk < 20) boost += 25; // Near 52-week low (widened from 10)
+            if (volRatio > 1.3) boost += 20; // High relative volume (widened from 1.5)
             if (volRatio > 2.0) boost += 10; // Extra boost for volume spike
 
             if (boost > 0) {
@@ -621,6 +624,39 @@ async function discoverSymbols() {
         }
     }
 
+    // --- Opportunity scanner: pipe high-scoring discoveries into dynamic pool ---
+    let opportunityCount = 0;
+    try {
+        const oppSymbols = opportunityDb.getRecentHighScoreSymbols(24);
+        for (const opp of oppSymbols) {
+            const ticker = mapSymbol(opp.symbol) || opp.symbol;
+            if (staticSet.has(ticker)) continue; // Already has reserved slot
+
+            // Score boost based on opportunity tier
+            let boost = 0;
+            if (opp.tier === 'HIGH_CONVICTION' && opp.maxScore >= 70) {
+                boost = 35;
+            } else if (opp.tier === 'TRADEABLE' || (opp.tier === 'HIGH_CONVICTION' && opp.maxScore < 70)) {
+                boost = 25;
+            }
+
+            if (boost > 0) {
+                const existing = dynamicPool.get(ticker) || { score: 0, sources: [] };
+                existing.score += boost;
+                if (!existing.sources.includes('opportunity_scanner')) {
+                    existing.sources.push('opportunity_scanner');
+                }
+                dynamicPool.set(ticker, existing);
+                opportunityCount++;
+            }
+        }
+        if (opportunityCount > 0) {
+            console.log(`[Discovery] Opportunity scanner contributed ${opportunityCount} symbols`);
+        }
+    } catch (err) {
+        console.error(`[Discovery] Opportunity scanner feed error (non-fatal): ${err.message}`);
+    }
+
     // --- Filter non-tradeable from dynamic pool ---
     for (const symbol of dynamicPool.keys()) {
         if (NON_TRADEABLE.has(symbol)) {
@@ -644,7 +680,16 @@ async function discoverSymbols() {
     result._context = { themes, intradayBias, swingBias };
 
     const dynamicCount = sortedDynamic.length;
-    console.log(`[Discovery] ${staticSymbols.length} reserved + ${dynamicCount} dynamic = ${result.length} total`);
+    // Source breakdown for diagnostics
+    const sourceCounts = {};
+    for (const [, data] of sortedDynamic) {
+        for (const src of (data.sources || [])) {
+            const key = src.startsWith('watchlist_') ? 'watchlist' : src;
+            sourceCounts[key] = (sourceCounts[key] || 0) + 1;
+        }
+    }
+    const breakdown = Object.entries(sourceCounts).map(([k, v]) => `${k}: ${v}`).join(', ');
+    console.log(`[Discovery] ${result.length} symbols: ${staticSymbols.length} static + ${dynamicCount} dynamic (${breakdown || 'none'})`);
 
     return result;
 }
