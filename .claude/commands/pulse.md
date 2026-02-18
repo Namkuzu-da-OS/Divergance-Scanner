@@ -79,6 +79,16 @@ ROTATION REGIME:
 ---
 
 Be precise with numbers. Do not round excessively. Include ALL fields listed above.
+
+**IMPORTANT — Schwab Quote API field names:**
+- Price: `lastPrice`
+- Change $: `netChange`
+- Change %: `netPercentChange` (NOT `netPercentChangeInDouble` — that field is often 0)
+- Day high/low: `highPrice`, `lowPrice`
+- Previous close: `closePrice`
+- Volume: `totalVolume`
+Use these exact field names when extracting quote data.
+
 If /api/internals/latest returns empty or has no timestamp, note that the internals scanner may not be running and fall back to individual quote calls:
 - http://192.168.10.60:8000/api/quotes/$VIX
 - http://192.168.10.60:8000/api/quotes/$TICK
