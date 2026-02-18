@@ -1,9 +1,12 @@
 Quick market internals check. Run anytime during the session for a real-time read on market conditions.
 
-## STEP 0: Establish Current Time (ALWAYS FIRST)
+## STEP 0: Establish Current Time + Pull Alerts Directly (ALWAYS FIRST)
 
-Run `TZ='America/New_York' date '+%Y-%m-%d %H:%M:%S %Z'` to get the current Eastern Time.
-Use this timestamp in your report. NEVER infer time from API timestamps (often UTC) or prior checkpoint files.
+Run these in parallel:
+1. `TZ='America/New_York' date '+%Y-%m-%d %H:%M:%S %Z'` — current Eastern Time for report header
+2. `curl -s "http://localhost:8080/api/alerts?days=1&limit=10"` — pull alerts DIRECTLY (do NOT delegate to subagent)
+
+Use the time in your report. Present alerts in Section 4. NEVER infer time from API timestamps (often UTC) or prior checkpoint files.
 
 ## DATA PULL (Single Subagent — Keep Main Context Clean)
 
@@ -27,12 +30,12 @@ Task tool with subagent_type=Explore:
 **4. Market Context:**
 - http://192.168.10.60:8000/api/market/context
 
-**5. Recent Alerts:**
-- http://localhost:8080/api/alerts?days=1&limit=5
-
-**6. Rotation Regime:**
+**5. Rotation Regime:**
 - http://localhost:8080/api/rotation/regime
-(If this returns a 502 or timeout, just note 'Divergence scanner unavailable' and skip this section)
+
+(If rotation regime returns a 502 or timeout, just note 'Divergence scanner unavailable' and skip that section)
+
+**PACING: Call localhost endpoints first (they're fast local calls), then Options API endpoints (192.168.10.60:8000) one at a time, never in parallel. The Options API is shared across all scanners and will timeout if overloaded.**
 
 Return the data in this EXACT format:
 
@@ -41,7 +44,7 @@ MARKET INTERNALS:
 - VIX: [vix] (change: [vix_change] / [vix_change_pct]%) | Open: [vix_open] High: [vix_high] Low: [vix_low]
 - TICK: [tick] (High: [tick_high] Low: [tick_low])
 - TRIN: [trin]
-- ADVN: [advn]
+- A/D Spread: [ad_spread] (ADVN: [advn] / DECN: [decn])
 - Up Volume: [uvol] | Down Volume: [dvol] | Ratio: [vol_ratio]:1
 - Internals Timestamp: [timestamp]
 
@@ -72,9 +75,6 @@ MARKET CONTEXT:
 - VIX Regime: [regime]
 - Risk Appetite: [appetite]
 - Position Size Modifier: [modifier]x
-
-RECENT ALERTS (last 24h):
-[List any alerts, or 'None' if empty]
 
 ROTATION REGIME:
 - Phase: [phase] (confidence: [confidence])
@@ -117,7 +117,7 @@ After receiving the subagent data, present the Market Pulse using this framework
 | $VIX | [value] | [interpret] |
 | $TICK | [value] | [interpret] |
 | $TRIN | [value] | [interpret] |
-| ADVN | [value] | [interpret] |
+| A/D Spread | [value] | [interpret] |
 | Vol Ratio | [UVOL:DVOL] | [interpret] |
 
 **Interpretation Guide (use these thresholds):**
