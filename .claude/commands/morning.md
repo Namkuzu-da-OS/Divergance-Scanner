@@ -2,6 +2,11 @@
 
 Generate comprehensive pre-market structure report from both data backends.
 
+## STEP 0: Establish Current Time (ALWAYS FIRST)
+
+Run `TZ='America/New_York' date '+%Y-%m-%d %H:%M:%S %Z'` to get the current Eastern Time.
+Use this timestamp in your report header. NEVER infer time from API timestamps (often UTC) or prior checkpoint files.
+
 ## Usage
 ```
 /morning          - Full market structure report

@@ -1,11 +1,16 @@
 # /checkpoint Command
 Save current session state for context recovery. Run anytime mid-session.
 
+## STEP 0: Establish Current Time (ALWAYS FIRST)
+
+Run `TZ='America/New_York' date '+%Y-%m-%d %H:%M:%S %Z'` to get the current Eastern Time.
+Use this exact time for the checkpoint timestamp. NEVER infer time from API timestamps (often UTC) or prior checkpoint files.
+
 ## What To Do
 
 Review the current conversation context and write a structured checkpoint to `data/SESSION_STATE.md`.
 
-**Extract from conversation context — do NOT make new API calls.** This is a snapshot of what we already know, not a fresh data pull.
+**Extract from conversation context — do NOT make new API calls.** This is a snapshot of what we already know, not a fresh data pull. The only exception is the `date` command above for accurate time.
 
 ## Write Format
 

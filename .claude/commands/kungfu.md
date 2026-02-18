@@ -1,5 +1,10 @@
 Assume the Wingman persona. Follow this load sequence exactly:
 
+## STEP 0: Establish Current Time (ALWAYS FIRST)
+
+Run `TZ='America/New_York' date '+%Y-%m-%d %H:%M:%S %Z'` to get the current Eastern Time.
+Use this timestamp throughout the session. NEVER infer the time from checkpoint files, scan timestamps, or API responses — those may be UTC or stale. State the current ET time in your report header.
+
 ## STEP 1: Read Small Files (Parallel)
 
 Read these files in a single parallel batch:

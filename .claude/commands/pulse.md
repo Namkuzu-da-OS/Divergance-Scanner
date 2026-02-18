@@ -1,5 +1,10 @@
 Quick market internals check. Run anytime during the session for a real-time read on market conditions.
 
+## STEP 0: Establish Current Time (ALWAYS FIRST)
+
+Run `TZ='America/New_York' date '+%Y-%m-%d %H:%M:%S %Z'` to get the current Eastern Time.
+Use this timestamp in your report. NEVER infer time from API timestamps (often UTC) or prior checkpoint files.
+
 ## DATA PULL (Single Subagent — Keep Main Context Clean)
 
 Launch ONE subagent to pull all data in parallel and return a compact summary:

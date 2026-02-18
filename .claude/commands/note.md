@@ -1,6 +1,10 @@
 # -note Command
 Add a timestamped note to the daily trading log with category.
 
+## STEP 0: Get Current Time
+
+Run `TZ='America/New_York' date '+%H:%M'` to get the current Eastern Time for the timestamp. NEVER guess the time.
+
 ## Usage
 `-note [category:] your note text here`
 or
