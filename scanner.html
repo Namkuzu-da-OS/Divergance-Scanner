@@ -962,11 +962,11 @@ Auto-refreshes every 30 seconds.
 
         function deriveRegime(vix) {
             if (!vix || vix <= 0) return 'unknown';
-            if (vix > 40) return 'extreme';
-            if (vix > 30) return 'high';
+            if (vix > 40) return 'capitulation';
+            if (vix > 30) return 'fear';
             if (vix > 20) return 'elevated';
             if (vix > 12) return 'normal';
-            return 'low';
+            return 'complacent';
         }
 
         function updateVixBanner(vix, regime) {
@@ -980,20 +980,20 @@ Auto-refreshes every 30 seconds.
             let advice;
             const regimeUpper = (regime || 'low').toUpperCase();
 
-            if (regime === 'low') {
-                advice = 'Standard sizing OK';
+            if (regime === 'complacent') {
+                advice = 'Spike probable — tighten trailing stops';
                 banner.className = 'vix-banner low';
             } else if (regime === 'normal') {
-                advice = 'Normal market conditions';
+                advice = 'Standard conditions';
                 banner.className = 'vix-banner normal';
             } else if (regime === 'elevated') {
-                advice = 'Widen stops 50% OR reduce size';
+                advice = 'Watch for setups forming';
                 banner.className = 'vix-banner elevated';
-            } else if (regime === 'high') {
-                advice = 'Reduce size 50%, expect large moves';
+            } else if (regime === 'fear') {
+                advice = 'Quality entries emerging';
                 banner.className = 'vix-banner high';
-            } else if (regime === 'extreme') {
-                advice = 'DANGER - Consider sitting out';
+            } else if (regime === 'capitulation') {
+                advice = 'Scale in — historically near bottoms';
                 banner.className = 'vix-banner extreme';
             } else {
                 advice = 'Waiting for data...';

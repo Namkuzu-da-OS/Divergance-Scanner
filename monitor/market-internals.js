@@ -172,12 +172,31 @@ async function runScan() {
     const decn = get('$DECN', 'lastPrice');
     const adSpread = (advn != null && decn != null) ? Math.round(advn - decn) : null;
 
+    // Schwab returns 0 for $TICK highPrice/lowPrice — compute from our own readings
+    const currentTick = get('$TICK', 'lastPrice');
+    let tickHigh = currentTick;
+    let tickLow = currentTick;
+    try {
+        const today = getETDateString();
+        const row = signalDb.getDb().prepare(
+            `SELECT MAX(tick) as max_tick, MIN(tick) as min_tick FROM market_internals WHERE date = ? AND tick IS NOT NULL`
+        ).get(today);
+        if (row) {
+            tickHigh = (row.max_tick != null && currentTick != null)
+                ? Math.max(row.max_tick, currentTick) : (row.max_tick ?? currentTick);
+            tickLow = (row.min_tick != null && currentTick != null)
+                ? Math.min(row.min_tick, currentTick) : (row.min_tick ?? currentTick);
+        }
+    } catch (e) {
+        logError(`Failed to query tick high/low: ${e.message}`);
+    }
+
     const snapshot = {
         timestamp: new Date().toISOString(),
         date: getETDateString(),
-        tick: get('$TICK', 'lastPrice'),
-        tick_high: get('$TICK', 'highPrice'),
-        tick_low: get('$TICK', 'lowPrice'),
+        tick: currentTick,
+        tick_high: tickHigh,
+        tick_low: tickLow,
         trin: get('$TRIN', 'lastPrice'),
         advn: advn,
         decn: decn,

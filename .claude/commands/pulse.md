@@ -23,14 +23,18 @@ Task tool with subagent_type=Explore:
 - http://192.168.10.60:8000/api/technicals/SPY
 - http://192.168.10.60:8000/api/technicals/QQQ
 
-**3. SPY + QQQ Gamma Levels:**
+**3. SPY + QQQ Quotes (for price/change — technicals does NOT have these):**
+- http://192.168.10.60:8000/api/quotes/SPY
+- http://192.168.10.60:8000/api/quotes/QQQ
+
+**4. SPY + QQQ Gamma Levels:**
 - http://192.168.10.60:8000/api/levels/SPY
 - http://192.168.10.60:8000/api/levels/QQQ
 
-**4. Market Context:**
+**5. Market Context:**
 - http://192.168.10.60:8000/api/market/context
 
-**5. Rotation Regime:**
+**6. Rotation Regime:**
 - http://localhost:8080/api/rotation/regime
 
 (If rotation regime returns a 502 or timeout, just note 'Divergence scanner unavailable' and skip that section)
@@ -54,25 +58,25 @@ INDICES:
 - DJI: [dji] (change: [dji_change] / [dji_change_pct]%)
 
 SPY:
-- Price: [last] | Change: [netChange] ([pct]%)
-- RSI: [value] | Trend: [trend] | BB Position: [value]
-- MAs: 5 SMA [val], 20 SMA [val], 50 SMA [val], 200 SMA [val]
+- Price: [quote.lastPrice] | Change: [quote.netChange] ([quote.netPercentChange]%)
+- RSI: [technicals.rsi] | Trend: [technicals.trend] | BB Position: [technicals.bb_position]
+- MAs: 20 SMA [technicals.sma_20], 50 SMA [technicals.sma_50], 200 SMA [levels.sma_200]
 - Gamma: Call Wall [price] | Put Wall [price] | Max Pain [price]
 - VWAP: [price] | Bands: [lower1] - [upper1]
 - Gamma Flip: [price] ([above/below] price)
 - Position: [describe where price is relative to walls, VWAP, and key MAs]
 
 QQQ:
-- Price: [last] | Change: [netChange] ([pct]%)
-- RSI: [value] | Trend: [trend] | BB Position: [value]
-- MAs: 5 SMA [val], 20 SMA [val], 50 SMA [val], 200 SMA [val]
+- Price: [quote.lastPrice] | Change: [quote.netChange] ([quote.netPercentChange]%)
+- RSI: [technicals.rsi] | Trend: [technicals.trend] | BB Position: [technicals.bb_position]
+- MAs: 20 SMA [technicals.sma_20], 50 SMA [technicals.sma_50], 200 SMA [levels.sma_200]
 - Gamma: Call Wall [price] | Put Wall [price] | Max Pain [price]
 - VWAP: [price] | Bands: [lower1] - [upper1]
 - Gamma Flip: [price] ([above/below] price)
 - Position: [describe where price is relative to walls, VWAP, and key MAs]
 
 MARKET CONTEXT:
-- VIX Regime: [regime]
+- VIX Regime: [vix_regime]
 - Risk Appetite: [appetite]
 - Position Size Modifier: [modifier]x
 
@@ -114,7 +118,7 @@ After receiving the subagent data, present the Market Pulse using this framework
 
 | Indicator | Value | Read |
 |-----------|-------|------|
-| $VIX | [value] | [interpret] |
+| $VIX | [value] ([change]%, high: [high], low: [low]) | [interpret regime + direction] |
 | $TICK | [value] | [interpret] |
 | $TRIN | [value] | [interpret] |
 | A/D Spread | [value] | [interpret] |
@@ -140,6 +144,20 @@ Volume Ratio ($UVOL / $DVOL):
 - 2:1 to 3:1: Moderate buying
 - 1:1 to 2:1: Slight edge to buyers
 - < 1:1: Sellers in control
+
+$VIX:
+- < 12: Complacent (spike probable — tighten trailing stops)
+- 12-20: Normal (standard conditions)
+- 20-30: Elevated (watch for setups forming)
+- 30-40: Fear (quality entries emerging)
+- > 40: Capitulation (scale in — historically near bottoms)
+
+A/D Spread (ADVN - DECN):
+- > +1000: Extreme bullish breadth
+- +400 to +1000: Bullish
+- -400 to +400: Neutral / narrow
+- -1000 to -400: Bearish
+- < -1000: Extreme bearish (potential capitulation)
 
 ### Section 2: INDEX POSITIONING
 
