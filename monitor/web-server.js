@@ -298,6 +298,26 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // API: Gap fade analysis — measures shortable opportunity on gap ups
+    if (req.method === 'GET' && urlPath === '/api/gaps/fade-analysis') {
+        try {
+            const signalDb = require('./signal-db');
+            const url = new URL(req.url, `http://${req.headers.host}`);
+            const days = url.searchParams.get('days');
+
+            const analysis = signalDb.getGapFadeAnalysis({
+                days: days ? parseInt(days) : null
+            });
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(analysis));
+        } catch (e) {
+            console.error('[Web Server] Error loading gap fade analysis:', e.message);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
     // API: Gap ticker history
     if (req.method === 'GET' && urlPath.startsWith('/api/gaps/ticker/')) {
         try {

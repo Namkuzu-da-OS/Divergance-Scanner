@@ -123,55 +123,69 @@ async function fetchQuote(symbol) {
 
 /**
  * Fetch daily bar (OHLC) from Options API
+ * Aggregates 1-minute candles over RTH (9:30 AM - 4:00 PM ET) to get true daily OHLC
  */
 async function fetchDailyBar(symbol) {
     try {
-        // Try to get today's OHLC from history endpoint
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 15000);
         const response = await fetch(`${OPTIONS_API}/api/history/${symbol}?range=1d`, { signal: controller.signal });
         clearTimeout(timeout);
         if (!response.ok) {
-            // Fallback to quote
-            return await fetchQuoteAsDailyBar(symbol);
+            log(`${symbol}: History API returned ${response.status}`);
+            return null;
         }
 
         const data = await response.json();
 
-        // Get the most recent bar (API returns 'candles' not 'bars')
-        if (data.candles && data.candles.length > 0) {
-            const bar = data.candles[data.candles.length - 1];
-            return {
-                open: bar.open,
-                high: bar.high,
-                low: bar.low,
-                close: bar.close,
-                volume: bar.volume
-            };
+        if (!data.candles || data.candles.length === 0) {
+            log(`${symbol}: No candles returned from history API`);
+            return null;
         }
 
-        // Fallback to quote data
-        return await fetchQuoteAsDailyBar(symbol);
+        // Filter to RTH candles only (9:30 AM - 4:00 PM ET)
+        const rthCandles = data.candles.filter(c => {
+            const etStr = new Date(c.datetime).toLocaleString('en-US', { timeZone: 'America/New_York' });
+            const et = new Date(etStr);
+            const hour = et.getHours();
+            const min = et.getMinutes();
+            const totalMin = hour * 60 + min;
+            // RTH: 9:30 (570) through 15:59 (959) — candle at 16:00 is after-hours
+            return totalMin >= 570 && totalMin < 960;
+        });
+
+        if (rthCandles.length === 0) {
+            log(`${symbol}: No RTH candles found (total candles: ${data.candles.length})`);
+            return null;
+        }
+
+        // Aggregate RTH candles into single daily bar
+        const rthOpen = rthCandles[0].open;
+        const rthClose = rthCandles[rthCandles.length - 1].close;
+        let rthHigh = -Infinity;
+        let rthLow = Infinity;
+        let rthVolume = 0;
+
+        for (const c of rthCandles) {
+            if (c.high > rthHigh) rthHigh = c.high;
+            if (c.low < rthLow) rthLow = c.low;
+            rthVolume += c.volume || 0;
+        }
+
+        log(`${symbol}: Aggregated ${rthCandles.length} RTH candles — O:${rthOpen} H:${rthHigh} L:${rthLow} C:${rthClose}`);
+
+        return {
+            open: rthOpen,
+            high: rthHigh,
+            low: rthLow,
+            close: rthClose,
+            volume: rthVolume,
+            rth_open: rthOpen
+        };
     } catch (e) {
         log(`Failed to fetch daily bar for ${symbol}: ${e.message}`);
         return null;
     }
-}
-
-async function fetchQuoteAsDailyBar(symbol) {
-    const data = await fetchQuote(symbol);
-    // API returns {symbol, quote: {openPrice, highPrice, lowPrice, lastPrice, ...}}
-    if (data && data.quote) {
-        const q = data.quote;
-        return {
-            open: q.openPrice,
-            high: q.highPrice,
-            low: q.lowPrice,
-            close: q.lastPrice || q.closePrice,
-            volume: q.totalVolume || q.volume
-        };
-    }
-    return null;
 }
 
 // ============================================
@@ -217,7 +231,8 @@ async function processGaps() {
             close: bar.close,
             high: bar.high,
             low: bar.low,
-            prevClose: gap.prev_close
+            prevClose: gap.prev_close,
+            rthOpen: bar.rth_open || null
         });
 
         if (result) {

@@ -587,7 +587,8 @@ function migratePremarketMovers() {
         { name: 'fill_time', type: 'TEXT' },
         { name: 'eod_change_pct', type: 'REAL' },
         { name: 'outcome', type: 'TEXT' },
-        { name: 'eod_updated_at', type: 'TEXT' }
+        { name: 'eod_updated_at', type: 'TEXT' },
+        { name: 'rth_open', type: 'REAL' }
     ];
 
     for (const col of columns) {
@@ -1983,7 +1984,7 @@ function getTodaySessionMovers() {
  * Update EOD data for a gap (called by eod-gap-tracker.js)
  */
 function updateGapEOD(moverId, eodData) {
-    const { close, high, low, prevClose } = eodData;
+    const { close, high, low, prevClose, rthOpen } = eodData;
     const now = new Date().toISOString();
 
     // Get the original gap data
@@ -2030,9 +2031,10 @@ function updateGapEOD(moverId, eodData) {
             fill_time = ?,
             eod_change_pct = ?,
             outcome = ?,
-            eod_updated_at = ?
+            eod_updated_at = ?,
+            rth_open = ?
         WHERE id = ?
-    `).run(close, high, low, gapFilled, fillTime, eodChangePct, outcome, now, moverId);
+    `).run(close, high, low, gapFilled, fillTime, eodChangePct, outcome, now, rthOpen || null, moverId);
 
     return { gapFilled, outcome, eodChangePct };
 }
@@ -2160,6 +2162,117 @@ function getGapFillRates(options = {}) {
         by_size: bySize,
         by_catalyst: byCatalyst,
         by_direction: byDirection
+    };
+}
+
+/**
+ * Gap fade analysis — measures shortable opportunity on gap ups
+ * Only includes rows with rth_open (new data going forward)
+ */
+function getGapFadeAnalysis(options = {}) {
+    const { days = null } = options;
+
+    const dateFilter = days ? `AND date(ps.timestamp) > date('now', '-' || ? || ' days')` : '';
+    const dateParams = days ? [days] : [];
+
+    // Overall fade stats for gap ups with rth_open data
+    const overall = getDb().prepare(`
+        SELECT
+            COUNT(*) as total,
+            ROUND(AVG((rth_open - prev_close) / prev_close * 100), 2) as avg_actual_open_gap_pct,
+            ROUND(AVG((premarket_price - rth_open) / premarket_price * 100), 2) as avg_pm_fade_pct,
+            ROUND(AVG((eod_close - rth_open) / rth_open * 100), 2) as avg_open_to_close_pct,
+            ROUND(AVG((intraday_low - rth_open) / rth_open * 100), 2) as avg_open_to_low_pct,
+            ROUND(AVG((eod_close - intraday_high) / intraday_high * 100), 2) as avg_high_to_close_pct,
+            ROUND(AVG(CASE WHEN eod_close < rth_open THEN 100.0 ELSE 0 END), 1) as fade_win_rate,
+            ROUND(MIN((intraday_low - rth_open) / rth_open * 100), 2) as best_fade_pct,
+            ROUND(MAX((intraday_high - rth_open) / rth_open * 100), 2) as worst_adverse_pct
+        FROM premarket_movers pm
+        JOIN premarket_scans ps ON pm.scan_id = ps.id
+        WHERE pm.gap_pct > 0
+        AND pm.rth_open IS NOT NULL
+        AND pm.eod_close IS NOT NULL
+        ${dateFilter}
+    `).get(...dateParams);
+
+    // By gap size tier (HUGE 5%+, LARGE 3-5%, MODERATE 2-3%)
+    const byTier = getDb().prepare(`
+        SELECT
+            CASE
+                WHEN gap_pct >= 5 THEN 'HUGE (5%+)'
+                WHEN gap_pct >= 3 THEN 'LARGE (3-5%)'
+                WHEN gap_pct >= 2 THEN 'MODERATE (2-3%)'
+                ELSE 'SMALL (<2%)'
+            END as gap_tier,
+            COUNT(*) as total,
+            ROUND(AVG((rth_open - prev_close) / prev_close * 100), 2) as avg_actual_open_gap_pct,
+            ROUND(AVG((premarket_price - rth_open) / premarket_price * 100), 2) as avg_pm_fade_pct,
+            ROUND(AVG((eod_close - rth_open) / rth_open * 100), 2) as avg_open_to_close_pct,
+            ROUND(AVG((intraday_low - rth_open) / rth_open * 100), 2) as avg_open_to_low_pct,
+            ROUND(AVG(CASE WHEN eod_close < rth_open THEN 100.0 ELSE 0 END), 1) as fade_win_rate
+        FROM premarket_movers pm
+        JOIN premarket_scans ps ON pm.scan_id = ps.id
+        WHERE pm.gap_pct > 0
+        AND pm.rth_open IS NOT NULL
+        AND pm.eod_close IS NOT NULL
+        ${dateFilter}
+        GROUP BY gap_tier
+        ORDER BY avg_open_to_close_pct ASC
+    `).all(...dateParams);
+
+    // Per-ticker repeat offender stats
+    const byTicker = getDb().prepare(`
+        SELECT
+            pm.symbol,
+            COUNT(*) as total,
+            ROUND(AVG(gap_pct), 2) as avg_gap_pct,
+            ROUND(AVG((eod_close - rth_open) / rth_open * 100), 2) as avg_open_to_close_pct,
+            ROUND(AVG((intraday_low - rth_open) / rth_open * 100), 2) as avg_open_to_low_pct,
+            ROUND(AVG(CASE WHEN eod_close < rth_open THEN 100.0 ELSE 0 END), 1) as fade_win_rate
+        FROM premarket_movers pm
+        JOIN premarket_scans ps ON pm.scan_id = ps.id
+        WHERE pm.gap_pct > 0
+        AND pm.rth_open IS NOT NULL
+        AND pm.eod_close IS NOT NULL
+        ${dateFilter}
+        GROUP BY pm.symbol
+        HAVING COUNT(*) >= 2
+        ORDER BY fade_win_rate DESC, total DESC
+    `).all(...dateParams);
+
+    // Individual gap details (most recent first, limited)
+    const details = getDb().prepare(`
+        SELECT
+            pm.symbol,
+            date(ps.timestamp) as date,
+            ROUND(gap_pct, 2) as gap_pct,
+            ROUND(prev_close, 2) as prev_close,
+            ROUND(premarket_price, 2) as premarket_price,
+            ROUND(rth_open, 2) as rth_open,
+            ROUND(intraday_high, 2) as intraday_high,
+            ROUND(intraday_low, 2) as intraday_low,
+            ROUND(eod_close, 2) as eod_close,
+            ROUND((rth_open - prev_close) / prev_close * 100, 2) as actual_open_gap_pct,
+            ROUND((premarket_price - rth_open) / premarket_price * 100, 2) as pm_fade_pct,
+            ROUND((eod_close - rth_open) / rth_open * 100, 2) as open_to_close_pct,
+            ROUND((intraday_low - rth_open) / rth_open * 100, 2) as open_to_low_pct,
+            CASE WHEN eod_close < rth_open THEN 'FADE' ELSE 'HOLD' END as result
+        FROM premarket_movers pm
+        JOIN premarket_scans ps ON pm.scan_id = ps.id
+        WHERE pm.gap_pct > 0
+        AND pm.rth_open IS NOT NULL
+        AND pm.eod_close IS NOT NULL
+        ${dateFilter}
+        ORDER BY ps.timestamp DESC
+        LIMIT 50
+    `).all(...dateParams);
+
+    return {
+        days: days || 'all_time',
+        overall,
+        by_tier: byTier,
+        by_ticker: byTicker,
+        details
     };
 }
 
@@ -3995,6 +4108,7 @@ module.exports = {
     updateGapEOD,
     getGapsNeedingEOD,
     getGapFillRates,
+    getGapFadeAnalysis,
     getTickerGapHistory,
     getRepeatOffenders,
     getTodayGapsWithHistory,
