@@ -491,6 +491,9 @@ function initSchema() {
 
     // Migration: Add MA bounce column to bloodhound_results table
     migrateBloodhoundMABounce();
+
+    // Migration: Add divergence-BB column to bloodhound_results table
+    migrateBloodhoundDivergenceBB();
 }
 
 /**
@@ -716,6 +719,15 @@ function migrateBloodhoundMABounce() {
     try {
         db.exec(`ALTER TABLE bloodhound_results ADD COLUMN ma_bounce_json TEXT`);
         console.log('[SignalDB] Added column ma_bounce_json to bloodhound_results');
+    } catch (e) {
+        // Column already exists, ignore
+    }
+}
+
+function migrateBloodhoundDivergenceBB() {
+    try {
+        db.exec(`ALTER TABLE bloodhound_results ADD COLUMN divergence_bb_json TEXT`);
+        console.log('[SignalDB] Added column divergence_bb_json to bloodhound_results');
     } catch (e) {
         // Column already exists, ignore
     }
@@ -2867,8 +2879,8 @@ function insertBloodhoundResults(scanId, results) {
             is_watchlist, sources_json,
             history_label, consecutive_days, history_trend, reasoning_json,
             sector_rs_percentile, sector_etf,
-            ma_bounce_json
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ma_bounce_json, divergence_bb_json
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     const insertMany = getDb().transaction((items) => {
@@ -2907,7 +2919,8 @@ function insertBloodhoundResults(scanId, results) {
                 JSON.stringify(r.reasoning || []),
                 r.sectorRsPercentile ?? null,
                 r.sectorEtf ?? null,
-                r.maBounceJson ?? null
+                r.maBounceJson ?? null,
+                r.divergenceBbJson ?? null
             );
         }
     });
@@ -3007,7 +3020,8 @@ function getLatestBloodhoundScan() {
                 percentile: r.sector_rs_percentile,
                 sectorEtf: r.sector_etf
             } : null,
-            maBounce: r.ma_bounce_json ? JSON.parse(r.ma_bounce_json) : null
+            maBounce: r.ma_bounce_json ? JSON.parse(r.ma_bounce_json) : null,
+            divergenceBb: r.divergence_bb_json ? JSON.parse(r.divergence_bb_json) : null
         }))
     };
 }

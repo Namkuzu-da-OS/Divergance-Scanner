@@ -23,6 +23,9 @@ const { sendTelegram, escapeHtml } = require('./telegram');
 // MA bounce detection (backtest-validated per-ticker configs)
 const maBounce = require('./ma-bounce');
 
+// Divergence + Bollinger Band detection (backtest-validated per-ticker configs)
+const divergenceBb = require('./divergence-bb');
+
 // Opportunity scanner DB — feed discovered symbols into Bloodhound
 const opportunityDb = require('./opportunity-db');
 
@@ -911,7 +914,7 @@ function getSymbolRsPercentile(symbol, rsData) {
 // SYMBOL ANALYSIS
 // ============================================
 
-async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache) {
+async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHistoryCache) {
     // Sequential API calls to avoid overwhelming the Options API
     const levels = await fetchJSON(`${APIS.options}/api/levels/${symbol}`, 15000);
     if (!levels) return null; // Can't analyze without levels
@@ -1455,6 +1458,25 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache) {
         }
     }
 
+    // --- STANDARD FACTOR: Divergence + BB Detection (backtest-validated, +8 to +14 pts) ---
+    let divBbResult = null;
+    const divBbCandles = divBbHistoryCache?.get(symbol);
+    if (divBbCandles) {
+        divBbResult = divergenceBb.detectDivergenceBB(symbol, divBbCandles, rsi);
+    }
+
+    if (divBbResult?.detected) {
+        const dirAligns = (divBbResult.direction === 'bullish' && direction !== 'bearish') ||
+                          (divBbResult.direction === 'bearish' && direction !== 'bullish');
+
+        if (divBbResult.scorePoints > 0 && dirAligns) {
+            scores.standard += divBbResult.scorePoints;
+            signals.push(`✅ ${divBbResult.annotation}`);
+        } else {
+            signals.push(divBbResult.annotation);
+        }
+    }
+
     // --- HISTORY STATUS SCORING (data-driven: STREAK 73.7% win, NEW 66.7%) ---
     if (historyStatus?.label === 'STREAK') {
         scores.standard += 5;
@@ -1731,7 +1753,9 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache) {
         // History status (pre-computed for tier caps and display)
         history_status: historyStatus,
         // MA bounce detection
-        maBounce: bounceResult
+        maBounce: bounceResult,
+        // Divergence + BB detection
+        divergenceBb: divBbResult
     };
 }
 
@@ -2301,6 +2325,26 @@ async function runScan() {
     }
     console.log(`[MA-Bounce] Pre-fetched history for ${bounceFetchCount}/${bounceSymbols.length} validated symbols`);
 
+    // 1.9. Pre-fetch divergence-BB history for configured symbols (reuses same cache)
+    const divBbHistoryCache = new Map();
+    const divBbSymbols = Object.keys(divergenceBb.DIVERGENCE_BB_CONFIG);
+    let divBbFetchCount = 0;
+    for (const sym of divBbSymbols) {
+        // Reuse from bounce cache if already fetched
+        if (bounceHistoryCache.has(sym)) {
+            divBbHistoryCache.set(sym, bounceHistoryCache.get(sym));
+            divBbFetchCount++;
+        } else {
+            const history = await maBounce.fetchHistory(sym);
+            if (history?.candles) {
+                divBbHistoryCache.set(sym, history.candles);
+                divBbFetchCount++;
+            }
+            await sleep100(200);
+        }
+    }
+    console.log(`[Div-BB] Pre-fetched history for ${divBbFetchCount}/${divBbSymbols.length} configured symbols`);
+
     // 2. Discover symbols from all sources
     const symbols = await discoverSymbols();
     const discoveryContext = symbols._context || {};
@@ -2340,13 +2384,13 @@ async function runScan() {
             await sleep(paceDelay);
         }
 
-        let analysis = await analyzeSymbol(symbolData.symbol, symbolData, bounceHistoryCache);
+        let analysis = await analyzeSymbol(symbolData.symbol, symbolData, bounceHistoryCache, divBbHistoryCache);
 
         // Retry once for static watchlist symbols that failed
         if (!analysis && symbolData.sources?.includes('watchlist')) {
             console.warn(`[Bloodhound] ${symbolData.symbol} failed (watchlist), retrying in 2s...`);
             await sleep(2000);
-            analysis = await analyzeSymbol(symbolData.symbol, symbolData, bounceHistoryCache);
+            analysis = await analyzeSymbol(symbolData.symbol, symbolData, bounceHistoryCache, divBbHistoryCache);
         }
 
         if (analysis) {
@@ -2693,7 +2737,8 @@ async function runScan() {
             history_status: a.history_status,  // Pre-computed in analyzeSymbol()
             sectorRsPercentile: a.sectorRs?.percentile ?? null,
             sectorEtf: a.sectorRs?.sectorEtf ?? null,
-            maBounceJson: a.maBounce ? JSON.stringify(a.maBounce) : null
+            maBounceJson: a.maBounce ? JSON.stringify(a.maBounce) : null,
+            divergenceBbJson: a.divergenceBb ? JSON.stringify(a.divergenceBb) : null
         }));
 
         signalDb.insertBloodhoundResults(scanId, resultsForDb);
