@@ -1319,17 +1319,14 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
         else if (direction === 'pinned') {
             signals.push(`Market: SPY ${spyTrend}, VIX ${vix.toFixed(1)}`);
         }
-        // DATA-DRIVEN SPY TREND SCORING (223 signals):
-        // Bearish SPY + bullish signal = 100% WR (dip buying)
-        // Neutral SPY = 67.2% WR (solid baseline)
-        // Bullish SPY + bullish signal = 42.9% WR (chasing)
+        // Dip buy: 22.2% WR at 4h (n=9), 75% at 24h (n=4). Promising at 24h but sample too small.
+        // Annotation only until n=20+ at 24h confirms.
         else if (direction === 'bullish' && spyTrend === 'bearish') {
-            scores.standard += 8;
-            signals.push(`Dip buy setup (SPY ${spyTrend})`);
+            signals.push(`ℹ️ Dip buy setup (SPY ${spyTrend})`);
         }
+        // Chasing: 0 signals in DB (penalty prevented logging). Annotation only until proven.
         else if (direction === 'bullish' && spyTrend === 'bullish') {
-            scores.standard -= 8;
-            signals.push(`⚠️ Chasing (aligned SPY ${spyTrend})`);
+            signals.push(`ℹ️ Chasing (aligned SPY ${spyTrend})`);
         }
         else if (direction !== 'neutral' && spyTrend && direction !== spyTrend) {
             // No penalty — counter-trend signals have 54.7% WR vs 46.7% with-trend.
