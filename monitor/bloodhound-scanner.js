@@ -42,7 +42,7 @@ const SETTINGS = {
     minConfluenceScore: 35,          // Minimum score to alert (0-100 scale, data-driven)
     maxSymbols: 50,                  // Max symbols to scan per cycle
     alertCooldownMs: 30 * 60 * 1000, // 30 min cooldown per symbol
-    ignoreMarketHours: false,        // Set true to bypass market hours check
+    ignoreMarketHours: false,        // Set true for off-hours testing
     // Signal tracking settings
     velocityThreshold: 15,           // Points jump to trigger velocity alert (adjusted for new scale)
     autoTrackMinScore: 50,           // Minimum score to auto-track for outcomes
@@ -370,7 +370,7 @@ function updateScannerHistory(analyses, marketContext) {
                 volume_ratio: analysis.technicals?.volumeRatio,
                 volume_avg_20d: analysis.technicals?.volumeAvg,
                 peak_direction: analysis.direction,
-                peak_signals: analysis.signals?.slice(0, 5) || [],
+                peak_signals: analysis.signals || [],
                 time_in_scanner_mins: timeInScannerMins,
                 above_20ema: analysis.technicals?.sma20 ? (analysis.price > analysis.technicals.sma20 ? 1 : 0) : null,
                 above_50sma: analysis.technicals?.sma50 ? (analysis.price > analysis.technicals.sma50 ? 1 : 0) : null,
@@ -934,10 +934,10 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
 
     // ============================================
     // DATA-DRIVEN CONFLUENCE SCORING (0-100)
-    // Based on backtest of 201 signals:
-    // - AT_WALL + EXTENDED_RSI = 89.5% win rate
-    // - VOLUME_SPIKE (2x+) = 71.4% WR (1.5-2x removed at 20% WR)
-    // - VIX_ELEVATED = 66.7% win rate
+    // Updated Feb 2026 audit (517 observations, R²=0.009 on old formula)
+    // Combo-first architecture: standalone factors mostly annotation-only,
+    // validated 2-factor combos get score bonuses.
+    // See data/AUDIT_FINDINGS.md for full methodology.
     // ============================================
 
     const scores = {
@@ -953,20 +953,33 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
     let atWallCondition = false;
     let extendedRsiCondition = false;
 
+    // Track conditions for audit-validated combo bonuses (Feb 2026, 517 obs)
+    let isOversold = false;
+    let isOverbought = false;
+    let hasUpperBB = false;
+    let hasLowerBB = false;
+    let wallIsDormant = false;
+    let hasElevatedVolume = false;
+    let hasHeavyPuts = false;
+    let hasConfluenceZone = false;
+
     // --- BASE CONDITION: EXTENDED RSI (15 pts) ---
     const rsi = technicals.rsi || 50;
     const trend = technicals.trend || 'neutral';
     const bbPosition = technicals.bb_position ?? 0.5;
 
-    // Check for extended RSI (oversold/overbought) - 89.5% win rate when combined with wall
+    // Extended RSI: Overbought standalone = 85.7% 5d WR (n=7). Oversold standalone = 26.3% (n=38).
+    // Oversold only scores via AT_WALL combo (absorbed into combo bonus below).
     if (rsi <= SETTINGS.RSI_OVERSOLD) {
-        scores.base += 15;
+        // No standalone score — 26.3% 5d WR. Score only via AT_WALL + EXTENDED_RSI combo.
         extendedRsiCondition = true;
+        isOversold = true;
         signals.push(`RSI oversold (${rsi.toFixed(1)})`);
         direction = 'bullish';
     } else if (rsi >= SETTINGS.RSI_OVERBOUGHT) {
-        scores.base += 15;
+        scores.base += 15;  // KEEP — 85.7% 5d WR (n=7), best standalone factor
         extendedRsiCondition = true;
+        isOverbought = true;
         signals.push(`RSI overbought (${rsi.toFixed(1)})`);
         direction = 'bearish';
     } else if (rsi <= 40 && trend === 'uptrend') {
@@ -978,14 +991,16 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
         direction = 'bearish';
     }
 
-    // --- STANDARD FACTOR: Bollinger Bands (5 pts) ---
+    // --- BOLLINGER BANDS (audit: lower BB 33.9% WR = no edge; upper BB 56.3% WR = +23% edge) ---
     if (bbPosition <= 0.1) {
-        scores.standard += 5;
+        // No standalone score — 33.9% 5d WR (n=59), at baseline. Scores only via combos.
+        hasLowerBB = true;
         signals.push('At lower Bollinger Band');
         if (direction === 'neutral') direction = 'bullish';
     } else if (bbPosition >= 0.9) {
-        // No score — upper BB has 37.5% WR (3W/5L). Annotation only.
-        signals.push('ℹ️ At upper Bollinger Band');
+        scores.standard += 5;  // 56.3% 5d WR (n=16), +23% edge. Appears in top combos.
+        hasUpperBB = true;
+        signals.push('At upper Bollinger Band');
         if (direction === 'neutral') direction = 'bearish';
     }
 
@@ -1012,9 +1027,7 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
     const belowPutWall = distToPutWall !== null && distToPutWall < -wallThresholdPct; // Price below put wall (beyond AT_WALL zone)
 
     if (isPinned) {
-        // Pinned between walls - both at support and resistance
-        scores.base += 15;
-        atWallCondition = true;
+        // No score — PINNED has 20.8% 5d WR (n=24). Was 100% in 106 signals (survivorship bias).
         signals.push(`📍 PINNED between walls ($${putWall}-$${callWall})`);
         direction = 'pinned';
     } else if (aboveCallWall) {
@@ -1051,7 +1064,10 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
 
     // === COMBO BONUS: AT_WALL + EXTENDED_RSI (89.5% historical win rate) ===
     if (atWallCondition && extendedRsiCondition) {
-        scores.base += 20;
+        // Oversold RSI has 0 standalone score, so combo absorbs it (+35 = old 15+20).
+        // Overbought RSI already has +15 standalone, so combo adds +20.
+        const comboBonus = isOversold ? 35 : 20;
+        scores.base += comboBonus;
         signals.unshift('⭐ PRIME SETUP: Wall + Extended RSI');
     }
 
@@ -1066,7 +1082,8 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
             Math.abs(z.distance_pct) <= 0.5 && z.count >= 2
         );
         if (nearbyZone) {
-            // No score — confluence zone has 51.6% WR (no edge). Annotation only.
+            // No standalone score — but CONFLUENCE_ZONE + UPPER_BB = 70% 5d WR (n=10).
+            hasConfluenceZone = true;
             signals.push(`ℹ️ Confluence zone (${nearbyZone.count} levels)`);
         }
     }
@@ -1087,29 +1104,28 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
                 optionsAnalysis, wallPrice, wallType, wallExpiration, totalChainVolume
             );
 
-            // Wall activity scoring — research-backed (see SCORING_OVERHAUL.md)
-            // ENGAGED (2-5x vol/OI): 68.8% WR — institutional positioning stabilizes wall
-            // ACTIVE (5x+ vol/OI): 0% WR — hedging cascade risk overwhelms wall
-            // DORMANT (low activity): 0% WR — stale OI, wall is paper
+            // Wall activity (audit: ENGAGED 34.5% WR = no edge; ACTIVE keep -8; DORMANT in top combos)
             if (wallActivity.status === 'ENGAGED') {
-                scores.highEdge += 8;
-                signals.push(`✅ ${wallType.toUpperCase()} wall ENGAGED (${wallActivity.volOiRatio.toFixed(1)}x vol/OI — institutional positioning)`);
+                // No score — 34.5% 5d WR (n=29), no edge. Annotation only.
+                signals.push(`${wallType.toUpperCase()} wall ENGAGED (${wallActivity.volOiRatio.toFixed(1)}x vol/OI)`);
             } else if (wallActivity.status === 'ACTIVE') {
-                scores.standard -= 8;
-                signals.push(`⚠️ ${wallType.toUpperCase()} wall ACTIVE (${wallActivity.volOiRatio.toFixed(1)}x vol/OI — cascade risk, 0% WR on 12 signals)`);
+                scores.standard -= 8;  // KEEP penalty — cascade risk
+                signals.push(`⚠️ ${wallType.toUpperCase()} wall ACTIVE (${wallActivity.volOiRatio.toFixed(1)}x vol/OI — cascade risk)`);
             } else if (wallActivity.status === 'DORMANT') {
-                scores.standard -= 3;
-                signals.push(`⚠️ ${wallType.toUpperCase()} wall dormant (stale OI)`);
+                // No penalty — WALL_DORMANT appears in 5 of top 13 winning combos.
+                wallIsDormant = true;
+                signals.push(`${wallType.toUpperCase()} wall dormant`);
             }
             // UNKNOWN: No action (illiquid symbol)
         }
     }
 
-    // --- HIGH-EDGE FACTOR: VOLUME SPIKE (71.4% WR at 2x+; 1.5-2x removed at 20% WR) ---
+    // --- VOLUME (audit: VOLUME_SPIKE 12.0% 5d WR n=25 — worst standalone factor) ---
     const volRatio = discoveryData?.volRatio || technicals.volume_ratio || 1;
 
     if (volRatio >= 2) {
-        scores.highEdge += 20;
+        // No standalone score — 12.0% 5d WR (n=25). Scores only via combos (AT_PUT_WALL + ELEVATED_VOLUME = 80% 3d).
+        hasElevatedVolume = true;
         signals.push(`Volume spike (${volRatio.toFixed(1)}x avg)`);
     } else if (volRatio >= SETTINGS.VOLUME_ELEVATED) {
         // No score — 1.5-2x elevated volume has 20% WR (3W/12L). Annotation for trader visibility only.
@@ -1180,7 +1196,8 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
             if (maxSigCallVolOI > maxSigPutVolOI) {
                 const exp = sigTopCall.expiration?.slice(5).replace('-', '/') || '';
                 const prem = ((sigTopCall.premium || 0) / 1000000).toFixed(1);
-                signals.push(`🔥 Unusual CALL $${sigTopCall.strike} ${exp} (${maxSigCallVolOI.toFixed(1)}x, $${prem}M)`);
+                scores.standard -= 5;  // Unusual CALL = 27.9% 5d WR (n=61), anti-signal
+                signals.push(`🔥 Unusual CALL $${sigTopCall.strike} ${exp} (${maxSigCallVolOI.toFixed(1)}x, $${prem}M) [-5]`);
                 if (direction === 'neutral') direction = 'bullish';
 
                 // Capture structured option data for signal tracking
@@ -1277,10 +1294,12 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
             signals.push(`ℹ️ $${(Math.abs(netPremium) / 1000000).toFixed(0)}M net ${premDir} premium`);
         }
 
-        // Call/Put ratio extremes
+        // Call/Put ratio extremes (audit: HEAVY_CALLS 31.4% WR = anti-signal; HEAVY_PUTS 50% = edge)
         if (cpRatio >= 2) {
-            signals.push(`Heavy call bias (${cpRatio.toFixed(2)} C/P)`);
+            scores.standard -= 3;  // Heavy calls = 31.4% 5d WR (n=51)
+            signals.push(`Heavy call bias (${cpRatio.toFixed(2)} C/P) [-3]`);
         } else if (cpRatio <= 0.5) {
+            hasHeavyPuts = true;  // Heavy puts at put wall = 89% 3d WR combo
             signals.push(`Heavy put bias (${cpRatio.toFixed(2)} C/P)`);
         }
     }
@@ -1291,6 +1310,42 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
     if (wallActivity?.status === 'ENGAGED' && hasOtmPutHedge) {
         scores.highEdge += 12;
         signals.unshift('⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR)');
+    }
+
+    // === AUDIT-VALIDATED COMBO BONUSES (Feb 2026, 517 observations) ===
+    // These combos showed 70%+ WR at 3d/5d horizon with n>=5.
+    // Only ONE combo fires per signal (best match, no stacking).
+    let comboFired = false;
+
+    // AT_PUT_WALL + HEAVY_PUTS: 89% 3d (n=9), 80% 5d (n=5)
+    if (!comboFired && atPutWall && hasHeavyPuts) {
+        scores.standard += 10;
+        signals.unshift('⭐ COMBO: Put wall + Heavy puts (89% 3d WR)');
+        comboFired = true;
+    }
+    // UPPER_BB + WALL_DORMANT: 89% 3d (n=9)
+    if (!comboFired && hasUpperBB && wallIsDormant) {
+        scores.standard += 8;
+        signals.unshift('⭐ COMBO: Upper BB + Dormant wall (89% 3d WR)');
+        comboFired = true;
+    }
+    // RSI_OVERBOUGHT + WALL_DORMANT: 83% 3d (n=12)
+    if (!comboFired && isOverbought && wallIsDormant) {
+        scores.standard += 8;
+        signals.unshift('⭐ COMBO: RSI overbought + Dormant wall (83% 3d WR)');
+        comboFired = true;
+    }
+    // AT_PUT_WALL + ELEVATED_VOLUME: 80% 3d (n=15) — best sample size
+    if (!comboFired && atPutWall && hasElevatedVolume) {
+        scores.standard += 8;
+        signals.unshift('⭐ COMBO: Put wall + Volume spike (80% 3d WR)');
+        comboFired = true;
+    }
+    // CONFLUENCE_ZONE + UPPER_BB: 70% 5d (n=10)
+    if (!comboFired && hasConfluenceZone && hasUpperBB) {
+        scores.standard += 8;
+        signals.unshift('⭐ COMBO: Confluence zone + Upper BB (70% 5d WR)');
+        comboFired = true;
     }
 
     // --- ANNOTATION: Discovery source (no score — unproven, Feb 2026 factor analysis) ---
@@ -1459,9 +1514,9 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
         }
     }
 
-    // --- HISTORY STATUS SCORING (data-driven: STREAK 73.7% win, NEW 66.7%) ---
+    // --- HISTORY STATUS (audit: STREAK no 5d data; NEW no 5d data; DAY_2 and RETURNED = bad) ---
     if (historyStatus?.label === 'STREAK') {
-        scores.standard += 5;
+        // No score — no 5d data in audit. Annotation only.
         signals.push(`📈 Streak (${historyStatus.consecutive_days} consecutive days)`);
     } else if (historyStatus?.label === 'NEW') {
         scores.standard += 3;
@@ -1505,23 +1560,37 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
     }
 
     // ============================================
-    // FINAL SCORE (0-100 scale, data-driven)
-    // Base: AT_WALL + EXTENDED_RSI + combo (0-50)
-    // HighEdge: Volume + VIX + smart flow combo (0-47)
-    // Standard: BB(lower only), SPY trend, history (±16)
-    // Removed from scoring (2026-02-17 audit):
-    //   - Net premium $10M+ (29% WR) → annotation
-    //   - Upper BB (37.5% WR) → annotation
-    //   - Confluence zone (51.6% WR) → annotation
-    //   - Against SPY penalty (54.7% WR = good) → removed
-    // Added: ENGAGED wall + OTM PUT hedge combo (+12, 100% WR)
-    // Demoted to annotation-only (2026-02-19 factor analysis):
-    //   - Breakout/breakdown (unproven), gamma flip (unproven)
-    //   - VWAP (unproven), AI Outlook (unproven), TF alignment (unproven)
-    //   - Sector RS (unproven), internals (unproven)
-    //   - RSI pullback/bounce (unproven)
-    // Tier gates added: SPY/QQQ→WATCH, bearish/neutral→WATCH, prime HC→55+
-    // VIX regime boost (TRADEABLE→HC promotion) removed (16.7% WR)
+    // FINAL SCORE (0-100 scale, combo-first architecture)
+    // Updated Feb 2026 audit (517 obs, R²=0.009 on old formula)
+    //
+    // Base: AT_WALL(+15) + EXTENDED_RSI combo (+20/+35) = 0-50
+    // HighEdge: VIX(+10/+15) + smart flow combo(+12) = 0-27
+    // Standard: Upper BB(+5), combos(+8/+10), penalties, history = ±25
+    //
+    // REMOVED from scoring (audit-invalidated):
+    //   - VOLUME_SPIKE (+20→0): 12.0% 5d WR (n=25)
+    //   - WALL_ENGAGED (+8→0): 34.5% WR (n=29)
+    //   - PINNED (+15→0): 20.8% WR (n=24), survivorship bias
+    //   - LOWER_BB (+5→0): 33.9% WR (n=59), at baseline
+    //   - RSI_OVERSOLD standalone (+15→0): 26.3% WR (n=38)
+    //   - STREAK (+5→0): no 5d data
+    //   - WALL_DORMANT penalty (-3→0): appears in winning combos
+    //
+    // ADDED (audit-validated combos):
+    //   - AT_PUT_WALL + HEAVY_PUTS (+10): 89% 3d, 80% 5d
+    //   - UPPER_BB + WALL_DORMANT (+8): 89% 3d
+    //   - RSI_OVERBOUGHT + WALL_DORMANT (+8): 83% 3d
+    //   - AT_PUT_WALL + ELEVATED_VOLUME (+8): 80% 3d
+    //   - CONFLUENCE_ZONE + UPPER_BB (+8): 70% 5d
+    //
+    // PENALIZED (anti-signals):
+    //   - UNUSUAL_CALL (-5): 27.9% WR (n=61)
+    //   - HEAVY_CALLS (-3): 31.4% WR (n=51)
+    //   - Afternoon signals (2-4PM ET): capped at WATCH
+    //   - Pinned direction: capped at WATCH (20% WR)
+    //
+    // KEPT: RSI_OVERBOUGHT (+15, 85.7% WR), Upper BB (+5, 56.3% WR),
+    //   VIX (+10/+15), Wall ACTIVE (-8), Smart Flow (+12, 100% WR)
     // ============================================
 
     // Raw score uncapped — preserves differentiation at the top.
@@ -1626,9 +1695,9 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
         tier = 'WATCH';
         action = 'WATCH_LEVEL';
     }
-    // TRADEABLE: Pinned with good score (breakout setup)
+    // WATCH: Pinned with good score (audit: PINNED 20.8% 5d WR — watch only, not tradeable)
     else if (zone === 'PINNED' && totalScore >= SETTINGS.TIER_TRADEABLE) {
-        tier = 'TRADEABLE';
+        tier = 'WATCH';
         action = 'WATCH_BREAKOUT';
     }
 
@@ -1652,9 +1721,10 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
         tier = 'WATCH';
         tradeable = false;
     }
-    // Pinned: capped at TRADEABLE (can't reach HC)
-    if (direction === 'pinned' && tier === 'HIGH_CONVICTION') {
-        tier = 'TRADEABLE';
+    // Pinned direction: capped at WATCH (audit: 20.0% 5d WR n=40)
+    if (direction === 'pinned' && (tier === 'HIGH_CONVICTION' || tier === 'TRADEABLE')) {
+        tier = 'WATCH';
+        tradeable = false;
     }
     // SPY/QQQ: capped at WATCH (Feb 2026 factor analysis)
     // SPY 17% WR, QQQ 29% WR — self-referential confluence (already has -8 penalty, but needs tier cap too)
@@ -1672,6 +1742,14 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
         tradeable = false;
         signals.push(`⚠️ ${direction} direction capped at WATCH (0% HC WR)`);
     }
+    // Afternoon dead zone: 21.2% 5d WR (n=52) — cap at WATCH (2-4 PM ET)
+    const now = new Date();
+    const etHour = new Date(now.toLocaleString('en-US', { timeZone: 'America/New_York' })).getHours();
+    if (etHour >= 14 && etHour < 16 && (tier === 'HIGH_CONVICTION' || tier === 'TRADEABLE')) {
+        tier = 'WATCH';
+        tradeable = false;
+        signals.push(`⚠️ Afternoon window (${etHour}:xx ET) — capped at WATCH (21% WR)`);
+    }
 
     // Calculate distances for output
     const distances = {
@@ -1687,14 +1765,14 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
     // STRATEGY TRIGGERS (Pattern Detection)
     // ============================================
 
-    // Strategy #1: Smart Money Dip Buy
-    // RSI oversold + unusual CALL activity + at put wall support = smart money buying the dip
+    // AUDIT WARNING: Call flow + oversold + put wall = TRAP (0-20% 5d WR)
+    // "Smart Money Dip Buy" was invalidated — unusual call flow at support predicts further downside.
     const hasRsiOversold = signals.some(s => s.includes('RSI oversold'));
     const hasUnusualCall = signals.some(s => s.includes('Unusual CALL'));
     const hasAtPutWall = signals.some(s => s.includes('put wall support'));
 
     if (hasRsiOversold && hasUnusualCall && hasAtPutWall) {
-        signals.unshift('🎯 TRIGGER: Smart Money Dip Buy');
+        signals.unshift('⚠️ TRAP PATTERN: Call flow at oversold support (20% WR — dip keeps dipping)');
     }
 
     return {
@@ -2570,6 +2648,14 @@ async function runScan() {
         }
     }
 
+    // Log WATCH signals for baseline analysis (no alerts, no checkpoints — just factor capture)
+    if (watchList.length > 0) {
+        console.log(`\n[Signal Logger] Logging ${watchList.length} WATCH signal(s) for baseline analysis...`);
+        for (const analysis of watchList) {
+            await signalLogger.logSignal(buildSignalLogData(analysis));
+        }
+    }
+
     // 7. Write results to file (format compatible with scanner.html)
     const output = {
         timestamp: new Date().toISOString(),
@@ -2737,8 +2823,8 @@ async function runScan() {
 
         signalDb.insertBloodhoundResults(scanId, resultsForDb);
 
-        // Cleanup old scans (keep 30 days for internals backtesting)
-        signalDb.cleanupOldBloodhoundScans(30);
+        // Cleanup old scans (keep 365 days for audit/backtest data)
+        signalDb.cleanupOldBloodhoundScans(365);
 
         console.log(`[Bloodhound] Wrote ${analyses.length} results to database (scan_id: ${scanId})`);
     } catch (e) {
