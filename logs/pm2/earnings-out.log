@@ -1754,3 +1754,132 @@ SCAN RESULTS:
 
 [Done] Scan complete (28s). Next in 30 min.
 ============================================================
+
+============================================================
+[2026-02-19T17:17:05.594Z] EARNINGS SCAN
+============================================================
+[Scan] Found 3 PREM candidates (5-10 days out)
+  Analyzing HD...
+  Analyzing NVDA...
+  Analyzing CRM...
+[SignalDB] Inserted earnings scan: 3 results, scanId=227
+[Scan] Saved 3 earnings results to DB (scanId=227)
+
+----------------------------------------
+SCAN RESULTS:
+  Total analyzed: 3
+  HIGH_CONVICTION: 0
+  TRADEABLE: 0
+  Alerts sent: 0
+
+[Done] Scan complete (24s). Next in 30 min.
+============================================================
+============================================================
+       EARNINGS SEASON SCANNER
+       Strategy: PREM (Pre-Earnings Momentum)
+============================================================
+Options API: http://192.168.10.60:8000
+Intel API: http://192.168.10.60:3000
+Telegram: Configured
+Scan Interval: 30 minutes
+PREM Window: 5-10 days
+============================================================
+
+Running initial scan...
+
+
+============================================================
+[2026-02-19T17:29:27.943Z] EARNINGS SCAN
+============================================================
+[Control] Listening on http://0.0.0.0:8082 (accessible from network)
+
+  Endpoints:
+    GET  /status            - System status
+    GET  /results           - Latest scan results
+    GET  /calendar          - Earnings calendar
+    POST /pause             - Pause scanner
+    POST /resume            - Resume scanner
+    POST /scan              - Trigger immediate scan
+    POST /refresh-calendar  - Refresh earnings calendar
+    POST /test-alert        - Send test Telegram alert
+[Scan] Found 3 PREM candidates (5-10 days out)
+  Analyzing HD...
+============================================================
+       EARNINGS SEASON SCANNER
+       Strategy: PREM (Pre-Earnings Momentum)
+============================================================
+Options API: http://192.168.10.60:8000
+Intel API: http://192.168.10.60:3000
+Telegram: Configured
+Scan Interval: 30 minutes
+PREM Window: 5-10 days
+============================================================
+
+Running initial scan...
+
+
+============================================================
+[2026-02-19T17:29:36.382Z] EARNINGS SCAN
+============================================================
+[Control] Listening on http://0.0.0.0:8082 (accessible from network)
+
+  Endpoints:
+    GET  /status            - System status
+    GET  /results           - Latest scan results
+    GET  /calendar          - Earnings calendar
+    POST /pause             - Pause scanner
+    POST /resume            - Resume scanner
+    POST /scan              - Trigger immediate scan
+    POST /refresh-calendar  - Refresh earnings calendar
+    POST /test-alert        - Send test Telegram alert
+[Scan] Found 3 PREM candidates (5-10 days out)
+  Analyzing HD...
+  Analyzing NVDA...
+  Analyzing CRM...
+============================================================
+       EARNINGS SEASON SCANNER
+       Strategy: PREM (Pre-Earnings Momentum)
+============================================================
+Options API: http://192.168.10.60:8000
+Intel API: http://192.168.10.60:3000
+Telegram: Configured
+Scan Interval: 30 minutes
+PREM Window: 5-10 days
+============================================================
+[Stagger] Waiting 180s before first scan...
+[Control] Listening on http://0.0.0.0:8082 (accessible from network)
+
+  Endpoints:
+    GET  /status            - System status
+    GET  /results           - Latest scan results
+    GET  /calendar          - Earnings calendar
+    POST /pause             - Pause scanner
+    POST /resume            - Resume scanner
+    POST /scan              - Trigger immediate scan
+    POST /refresh-calendar  - Refresh earnings calendar
+    POST /test-alert        - Send test Telegram alert
+
+Running initial scan...
+
+
+============================================================
+[2026-02-19T17:33:02.475Z] EARNINGS SCAN
+============================================================
+[Scan] Found 3 PREM candidates (5-10 days out)
+  Analyzing HD...
+  Analyzing NVDA...
+  Analyzing CRM...
+[SignalDB] Inserted earnings scan: 3 results, scanId=228
+[Scan] Saved 3 earnings results to DB (scanId=228)
+
+----------------------------------------
+SCAN RESULTS:
+  Total analyzed: 3
+  HIGH_CONVICTION: 0
+  TRADEABLE: 0
+  Alerts sent: 0
+
+[Done] Scan complete (12s). Next in 30 min.
+============================================================
+
+Earnings Scanner running. Press Ctrl+C to stop.

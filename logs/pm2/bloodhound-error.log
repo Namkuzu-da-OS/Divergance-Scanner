@@ -129,3 +129,12 @@
 [API] Failed: http://192.168.10.61:32212/api/rotation/regime — This operation was aborted (5002ms)
 [API] Failed: http://192.168.10.60:8000/api/levels/MSFT — This operation was aborted (15001ms)
 [Bloodhound] MSFT failed (watchlist), retrying in 2s...
+[API] Failed: http://192.168.10.61:32212/api/rotation/regime — This operation was aborted (5005ms)
+[API] HTTP 404: http://192.168.10.60:8000/api/options/XLF/analysis
+[API] HTTP 404: http://192.168.10.60:8000/api/levels/XLK
+[Bloodhound] DROPPED: XLK — API returned no data
+[API] HTTP 404: http://192.168.10.60:8000/api/levels/F
+[Bloodhound] DROPPED: F — API returned no data
+[API] Failed: http://192.168.10.61:32212/api/rotation/regime — This operation was aborted (5002ms)
+[API] Failed: http://192.168.10.61:32212/api/rotation/regime — This operation was aborted (5002ms)
+[API] Failed: http://192.168.10.60:8000/api/quotes/AAPL — This operation was aborted (15002ms)
