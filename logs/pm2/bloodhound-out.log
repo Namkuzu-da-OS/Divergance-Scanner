@@ -16014,3 +16014,205 @@ Commands: node bloodhound-scanner.js [pause|resume|status]
 
 [2026-02-19T06:55:22.433Z] 🌙 Market CLOSED - scanner idle
    Next market open: Today 9:30 AM ET (6:30 AM PST)
+
+[2026-02-19T07:00:22.434Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+
+[2026-02-19T07:05:22.435Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+
+[2026-02-19T07:10:22.437Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+
+[2026-02-19T07:15:22.438Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+
+[2026-02-19T07:20:22.438Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+
+[2026-02-19T07:25:22.439Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+============================================================
+       BLOODHOUND SCANNER
+       Autonomous Opportunity Detection
+============================================================
+Intel API: http://192.168.10.60:3000
+Options API: http://192.168.10.60:8000
+Min Confluence Score: 35/100 (data-driven)
+Scan Interval: 300s
+============================================================
+
+[2026-02-19T07:27:32.440Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+[Control] HTTP control server on http://0.0.0.0:8081 (accessible from network)
+         GET  /status  - Check scanner status
+         POST /pause   - Pause scanner
+         POST /resume  - Resume scanner
+
+Bloodhound running. Press Ctrl+C to stop.
+Commands: node bloodhound-scanner.js [pause|resume|status]
+
+[2026-02-19T07:32:32.450Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+
+[2026-02-19T07:37:32.451Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+
+[2026-02-19T07:42:32.451Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+
+[2026-02-19T07:47:32.452Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+============================================================
+       BLOODHOUND SCANNER
+       Autonomous Opportunity Detection
+============================================================
+Intel API: http://192.168.10.60:3000
+Options API: http://192.168.10.60:8000
+Min Confluence Score: 35/100 (data-driven)
+Scan Interval: 300s
+============================================================
+
+[2026-02-19T07:48:12.573Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+[Control] HTTP control server on http://0.0.0.0:8081 (accessible from network)
+         GET  /status  - Check scanner status
+         POST /pause   - Pause scanner
+         POST /resume  - Resume scanner
+
+Bloodhound running. Press Ctrl+C to stop.
+Commands: node bloodhound-scanner.js [pause|resume|status]
+[Control] Manual scan triggered via web interface
+
+[2026-02-19T07:48:23.430Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+
+[2026-02-19T07:53:12.594Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+============================================================
+       BLOODHOUND SCANNER
+       Autonomous Opportunity Detection
+============================================================
+Intel API: http://192.168.10.60:3000
+Options API: http://192.168.10.60:8000
+Min Confluence Score: 35/100 (data-driven)
+Scan Interval: 300s
+============================================================
+
+============================================================
+[2026-02-19T07:57:04.187Z] Running Bloodhound scan...
+============================================================
+[Control] HTTP control server on http://0.0.0.0:8081 (accessible from network)
+         GET  /status  - Check scanner status
+         POST /pause   - Pause scanner
+         POST /resume  - Resume scanner
+[Context] VIX: 19.62 (normal) | SPY: bearish
+[Internals] TICK: -16, A/D: 345, Vol Ratio: 2.21
+[RS] Read 28 rankings from DB (snapshot 12m ago)
+[RS] Rotation regime: mid_cycle | 28 assets ranked
+[MA-Bounce] Pre-fetched history for 8/8 validated symbols
+[Div-BB] Pre-fetched history for 9/9 configured symbols
+[Watchlist] DB: 9 static, 15 dynamic
+[Discovery] Opportunity scanner contributed 18 symbols
+[Discovery] 32 symbols: 9 static + 23 dynamic (watchlist: 15, market_data: 5, opportunity_scanner: 18, sector_leader: 1)
+[Discovery] Found 32 symbols to scan
+[Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+[Bias] Intraday: NEUTRAL | Swing: BULLISH
+[Top Discoveries]
+  1. MSFT (score: 100, watchlist)
+  2. META (score: 100, watchlist)
+  3. AAPL (score: 100, watchlist)
+  4. AMD (score: 100, watchlist)
+  5. IBIT (score: 100, watchlist)
+  6. TSLA (score: 100, watchlist)
+  7. NVDA (score: 100, watchlist)
+  8. QQQ (score: 100, watchlist)
+
+[VELOCITY ALERTS]
+  🚀 MRNA: +15 pts (0→15) 🔴
+  🚀 XLY: +63 pts (0→63) 🟢
+
+[History] Updating scanner history for 32 symbols...
+[History] Updated 32 symbols in database.
+
+[Results] Analyzed 32 symbols:
+  ✅ XLY: 63/100 🟢 - VELOCITY +63 pts, ⭐ COMBO: Put wall + Heavy puts (89% 3d WR)
+  ✅ XLE: 53/100 🔴 - ⭐ COMBO: RSI overbought + Dormant wall (83% 3d WR), ⭐ PRIME SETUP: Wall + Extended RSI
+  ✅ AMZN: 50/100 🟢 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI oversold (16.8)
+  ⬜ NVDA: 18/100 🟢 - At put wall support ($187.5), ℹ️ Confluence zone (3 levels)
+  ⬜ XLK: 18/100 🟢 - At put wall support ($140), ℹ️ At VWAP ($141.01)
+  ⬜ MARA: 18/100 🔴 - At call wall resistance ($7.5), ℹ️ Confluence zone (3 levels)
+  ⬜ XLI: 18/100 🟢 - RSI overbought (80.2), 🚀 BREAKOUT above call wall ($172) +1.7%
+  ⬜ MRNA: 15/100 🔴 - VELOCITY +15 pts, At call wall resistance ($47)
+  ⬜ TSLA: 3/100 📍 - 📍 PINNED between walls ($410-$412.5), ℹ️ Confluence zone (4 levels)
+  ⬜ EEM: 3/100 📍 - 📍 PINNED between walls ($61-$61), ℹ️ At VWAP ($61.24)
+  ⬜ SNDK: 3/100 📍 - 📍 PINNED between walls ($600-$600), ℹ️ Confluence zone (5 levels)
+  ⬜ PLTR: 3/100 📍 - 📍 PINNED between walls ($135-$135), ℹ️ Confluence zone (4 levels)
+  ⬜ ETHA: 3/100 🔴 - RSI oversold (21.1), 💥 BREAKDOWN below put wall ($15) -2.5%
+  ⬜ XLV: 3/100 ⚪ - ℹ️ Confluence zone (4 levels), ℹ️ Above-avg sector RS (XLV, 50th pctl)
+  ⬜ INTC: 3/100 🟢 - 🚀 BREAKOUT above call wall ($45) +1.0%, ℹ️ Dip buy setup (SPY bearish)
+  ⬜ XLF: 3/100 📍 - 📍 PINNED between walls ($53-$53), ℹ️ At VWAP ($52.62)
+  ⬜ GM: 3/100 🟢 - 🚀 BREAKOUT above call wall ($82.5) +1.4%, ℹ️ Above gamma flip ($75.31)
+  ⬜ WMT: 3/100 🔴 - ℹ️ At VWAP ($126.84), ℹ️ Options flow detected (not at wall — informational)
+  ⬜ F: 3/100 ⚪ - 🆕 New discovery
+  ⬜ RIOT: 3/100 ⚪ - ℹ️ Confluence zone (2 levels), ℹ️ Elevated call $18 02/27 (4.0x, $0.3M)
+  ⬜ MSFT: 0/100 📍 - RSI oversold (19.2), 📍 PINNED between walls ($400-$400)
+  ⬜ META: 0/100 📍 - 📍 PINNED between walls ($642.5-$642.5), ℹ️ Confluence zone (3 levels)
+  ⬜ AAPL: 0/100 📍 - 📍 PINNED between walls ($265-$265), ℹ️ At VWAP ($264.49)
+  ⬜ AMD: 0/100 🟢 - RSI oversold (28.3), ℹ️ At VWAP ($199.77)
+  ⬜ IBIT: 0/100 📍 - RSI oversold (23.9), 📍 PINNED between walls ($37.5-$37.5)
+  ⬜ QQQ: 0/100 📍 - 📍 PINNED between walls ($605-$606), ℹ️ At VWAP ($606.17)
+  ⬜ SPY: 0/100 📍 - 📍 PINNED between walls ($686-$687), ℹ️ At VWAP ($686.48)
+  ⬜ CLSK: 0/100 🟢 - RSI oversold (28.6), 🚀 BREAKOUT above call wall ($9) +2.9%
+  ⬜ IWM: 0/100 📍 - 📍 PINNED between walls ($264-$264), ℹ️ Confluence zone (3 levels)
+  ⬜ GOOGL: 0/100 📍 - RSI oversold (19.8), At lower Bollinger Band
+  ⬜ PANW: 0/100 🟢 - RSI oversold (25.7), At lower Bollinger Band
+  ⬜ MU: 0/100 🟢 - 🚀 BREAKOUT above call wall ($410) +2.6%, ℹ️ Above gamma flip ($399.31)
+
+[Tiers] HIGH_CONVICTION: 1 | TRADEABLE: 0 | WATCH: 2 | FILTERED: 29
+[HIGH CONVICTION]
+  🔥 XLY: 63/100 🟢
+[WATCH LIST]
+  👀 XLE: 53/100 (score 53)
+  👀 AMZN: 50/100 (score 50)
+
+[Alerts] Sending 1 HIGH CONVICTION alert(s)...
+[Telegram] Sent alert
+[Signal Logger] XLY conditions changed on existing signal:
+  Score: 74 → 63 (-11)
+
+[Signal Logger] Logging 2 WATCH signal(s) for baseline analysis...
+[Signal Logger] Option entry: .XLE260918C62.5 mark=$1.75 delta=0.277
+[SignalDB] Inserted signal XLE_1771487939274 @ $54.78 | Option: .XLE260918C62.5
+[Signal Logger] Logged XLE_1771487939274 @ $54.78 (bearish, score 53) | Option: .XLE260918C62.5 $1.75
+[Watchlist] Added XLE (source: signal_tracking)
+[Signal Logger] AMZN conditions changed on existing signal:
+  Score: 99 → 50 (-49)
+[SignalDB] Inserted 32 bloodhound results for scan 802
+[Bloodhound] Wrote 32 results to database (scan_id: 802)
+
+[Bloodhound] Scan complete (116s). Next scan in 5 minutes.
+[Signal Logger] Price cache built with 32 symbols
+[Signal Logger] Updated prices for 14 signal(s), 3 option(s) (14 cached, 0 API)
+
+Bloodhound running. Press Ctrl+C to stop.
+Commands: node bloodhound-scanner.js [pause|resume|status]
+============================================================
+       BLOODHOUND SCANNER
+       Autonomous Opportunity Detection
+============================================================
+Intel API: http://192.168.10.60:3000
+Options API: http://192.168.10.60:8000
+Min Confluence Score: 35/100 (data-driven)
+Scan Interval: 300s
+============================================================
+
+[2026-02-19T07:59:04.490Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+[Control] HTTP control server on http://0.0.0.0:8081 (accessible from network)
+         GET  /status  - Check scanner status
+         POST /pause   - Pause scanner
+         POST /resume  - Resume scanner
+
+Bloodhound running. Press Ctrl+C to stop.
+Commands: node bloodhound-scanner.js [pause|resume|status]
