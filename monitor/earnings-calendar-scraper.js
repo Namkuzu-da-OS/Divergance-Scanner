@@ -2,7 +2,7 @@
  * Earnings Calendar Fetcher
  *
  * Fetches earnings dates from our existing Options API (/api/calendar/{symbol})
- * and builds earnings-calendar.json for the scanner.
+ * and stores them in SQLite (earnings_calendar table) for the scanner.
  *
  * Usage:
  *   node earnings-calendar-scraper.js              # Fetch for all watchlist + major stocks
@@ -10,13 +10,9 @@
  */
 
 const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
 
 // Config
 const config = require('./config-loader');
-const DATA_DIR = path.join(__dirname, '..', 'data');
-const OUTPUT_FILE = path.join(DATA_DIR, 'earnings-calendar.json');
 const signalDb = require('./signal-db');
 
 const OPTIONS_API = config.apis.options;
@@ -164,7 +160,15 @@ async function main() {
     // Sort by days to earnings (closest first)
     enriched.sort((a, b) => a.days_to_earnings - b.days_to_earnings);
 
-    // Build output
+    // Clean old entries, then upsert fresh data into SQLite
+    // No merge logic needed — INSERT OR REPLACE only touches symbols we fetched.
+    // Symbols that timed out keep their existing DB rows naturally.
+    signalDb.clearOldEarnings();
+    signalDb.upsertEarningsCalendar(enriched);
+
+    console.log(`\n✅ Saved ${enriched.length} earnings to SQLite`);
+
+    // Build output object for return value (same shape as before)
     const output = {
         last_updated: new Date().toISOString(),
         total_count: enriched.length,
@@ -177,45 +181,6 @@ async function main() {
         },
         earnings: enriched
     };
-
-    // Load existing data and MERGE (don't lose data from timeouts)
-    let existingData = { earnings: [] };
-    try {
-        if (fs.existsSync(OUTPUT_FILE)) {
-            existingData = JSON.parse(fs.readFileSync(OUTPUT_FILE, 'utf8'));
-        }
-    } catch (e) {
-        console.log('  No existing calendar data to merge');
-    }
-
-    // Merge: keep existing symbols that we didn't fetch successfully this time
-    const newSymbols = new Set(enriched.map(e => e.symbol));
-    const keptFromExisting = (existingData.earnings || []).filter(e => !newSymbols.has(e.symbol));
-
-    // Combine and re-enrich (to update days_to_earnings)
-    const merged = [...enriched, ...keptFromExisting];
-    const mergedEnriched = enrichEarningsData(merged);
-    mergedEnriched.sort((a, b) => a.days_to_earnings - b.days_to_earnings);
-
-    // Update output with merged data
-    output.total_count = mergedEnriched.length;
-    output.summary = {
-        prem_candidates: mergedEnriched.filter(e => e.prem_window).length,
-        pead_candidates: mergedEnriched.filter(e => e.pead_window).length,
-        reporting_today: mergedEnriched.filter(e => e.status === 'today').length,
-        imminent: mergedEnriched.filter(e => e.imminent).length,
-        this_week: mergedEnriched.filter(e => e.status === 'this_week').length,
-    };
-    output.earnings = mergedEnriched;
-
-    // Save merged data
-    fs.writeFileSync(OUTPUT_FILE, JSON.stringify(output, null, 2));
-
-    if (keptFromExisting.length > 0) {
-        console.log(`\n✅ Saved ${mergedEnriched.length} earnings (${enriched.length} fresh + ${keptFromExisting.length} kept from cache)`);
-    } else {
-        console.log(`\n✅ Saved ${mergedEnriched.length} earnings to ${OUTPUT_FILE}`);
-    }
 
     // Summary output
     console.log('\n' + '='.repeat(60));

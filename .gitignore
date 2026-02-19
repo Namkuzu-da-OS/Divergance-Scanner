@@ -57,6 +57,9 @@ data/history/
 # Archived data files
 data/archive/
 
+# Migrated to SQLite (earnings_calendar table in wingman.db)
+data/earnings-calendar.json
+
 # Data files (local-only, customize as needed)
 # Uncomment if you want to exclude data files:
 # data/daily_log.md

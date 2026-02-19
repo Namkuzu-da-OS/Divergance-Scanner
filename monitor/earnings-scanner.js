@@ -43,7 +43,6 @@ async function sendTelegram(message) {
 
 // Data files
 const DATA_DIR = path.join(__dirname, '..', 'data');
-const CALENDAR_FILE = path.join(DATA_DIR, 'earnings-calendar.json');
 
 const PAUSE_FILE = path.join(DATA_DIR, '.earnings_paused');
 
@@ -176,15 +175,16 @@ function canAlert(symbol) {
 // =============================================================================
 
 /**
- * Load earnings calendar from file
+ * Load earnings calendar from SQLite
+ * Returns the same shape as the old JSON file: { last_updated, total_count, summary, earnings }
  */
 function loadCalendar() {
     try {
-        if (!fs.existsSync(CALENDAR_FILE)) {
-            console.log('[Calendar] No calendar file found. Run earnings-calendar-scraper.js first.');
+        const data = signalDb.getEarningsCalendar();
+        if (!data) {
+            console.log('[Calendar] No calendar data in DB. Run earnings-calendar-scraper.js first.');
             return null;
         }
-        const data = JSON.parse(fs.readFileSync(CALENDAR_FILE, 'utf8'));
         return data;
     } catch (e) {
         console.error('[Calendar] Error loading:', e.message);
@@ -375,17 +375,18 @@ async function calculatePremScore(symbol, earningsData) {
  */
 async function refreshCalendarIfNeeded() {
     try {
-        // No calendar file at all — must refresh
-        if (!fs.existsSync(CALENDAR_FILE)) {
-            console.log('[Calendar] No calendar file found. Auto-refreshing...');
+        const meta = signalDb.getEarningsCalendarMeta();
+
+        // No calendar data at all — must refresh
+        if (!meta.last_updated) {
+            console.log('[Calendar] No calendar data in DB. Auto-refreshing...');
             const { main: refreshCalendar } = require('./earnings-calendar-scraper');
             await refreshCalendar();
             return true;
         }
 
         // Check last_updated timestamp
-        const data = JSON.parse(fs.readFileSync(CALENDAR_FILE, 'utf8'));
-        const lastUpdated = new Date(data.last_updated);
+        const lastUpdated = new Date(meta.last_updated);
         const now = new Date();
 
         // Refresh if calendar is from a different calendar day (ET timezone)
@@ -758,10 +759,10 @@ function startControlServer() {
         // GET /calendar
         if (req.method === 'GET' && url === '/calendar') {
             try {
-                if (fs.existsSync(CALENDAR_FILE)) {
-                    const data = fs.readFileSync(CALENDAR_FILE, 'utf8');
+                const data = signalDb.getEarningsCalendar();
+                if (data) {
                     res.writeHead(200);
-                    res.end(data);
+                    res.end(JSON.stringify(data));
                 } else {
                     res.writeHead(404);
                     res.end(JSON.stringify({ error: 'No calendar data. Run refresh first.' }));

@@ -376,6 +376,29 @@ function initSchema() {
         CREATE INDEX IF NOT EXISTS idx_earnings_results_symbol ON earnings_results(symbol);
     `);
 
+    // Earnings calendar table (replaces earnings-calendar.json)
+    // This is the INPUT data (upcoming earnings dates + enrichment flags).
+    // Distinct from earnings_scans/earnings_results which are SCAN OUTPUT (scored PREM candidates).
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS earnings_calendar (
+            symbol TEXT NOT NULL,
+            earnings_date TEXT NOT NULL,
+            days_to_earnings INTEGER,
+            earnings_time TEXT,
+            warning_level TEXT DEFAULT 'none',
+            prem_window INTEGER DEFAULT 0,
+            pead_window INTEGER DEFAULT 0,
+            blackout_warning INTEGER DEFAULT 0,
+            imminent INTEGER DEFAULT 0,
+            status TEXT,
+            updated_at TEXT NOT NULL,
+            PRIMARY KEY (symbol, earnings_date)
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_earnings_cal_date ON earnings_calendar(earnings_date);
+        CREATE INDEX IF NOT EXISTS idx_earnings_cal_days ON earnings_calendar(days_to_earnings);
+    `);
+
     // Positions table (replaces positions.json)
     db.exec(`
         CREATE TABLE IF NOT EXISTS positions (
@@ -3313,6 +3336,120 @@ function getLatestEarningsScan() {
     };
 }
 
+// ============================================
+// EARNINGS CALENDAR FUNCTIONS (replaces earnings-calendar.json)
+// ============================================
+
+/**
+ * Upsert earnings calendar entries (batch insert/replace in a transaction)
+ * Each entry: { symbol, earnings_date, days_to_earnings, earnings_time, warning_level,
+ *               prem_window, pead_window, blackout_warning, imminent, status }
+ */
+function upsertEarningsCalendar(entries) {
+    const d = getDb();
+    const stmt = d.prepare(`
+        INSERT OR REPLACE INTO earnings_calendar (
+            symbol, earnings_date, days_to_earnings, earnings_time,
+            warning_level, prem_window, pead_window,
+            blackout_warning, imminent, status, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    const now = new Date().toISOString();
+    const tx = d.transaction((rows) => {
+        for (const e of rows) {
+            stmt.run(
+                e.symbol,
+                e.earnings_date,
+                e.days_to_earnings,
+                e.earnings_time || 'unknown',
+                e.warning_level || 'none',
+                e.prem_window ? 1 : 0,
+                e.pead_window ? 1 : 0,
+                e.blackout_warning ? 1 : 0,
+                e.imminent ? 1 : 0,
+                e.status || null,
+                now
+            );
+        }
+    });
+
+    tx(entries);
+    console.log(`[SignalDB] Upserted ${entries.length} earnings calendar entries`);
+}
+
+/**
+ * Get earnings calendar in the same shape as the old JSON file.
+ * Returns: { last_updated, total_count, summary: {...}, earnings: [...] }
+ * Downstream code (getPremCandidates, control API) needs zero changes.
+ */
+function getEarningsCalendar() {
+    const rows = getDb().prepare(`
+        SELECT * FROM earnings_calendar ORDER BY days_to_earnings ASC
+    `).all();
+
+    if (rows.length === 0) return null;
+
+    // Get the most recent updated_at as last_updated
+    const meta = getDb().prepare(`
+        SELECT MAX(updated_at) as last_updated FROM earnings_calendar
+    `).get();
+
+    // Map DB rows back to the same shape as enriched JSON entries
+    const earnings = rows.map(r => ({
+        symbol: r.symbol,
+        earnings_date: r.earnings_date,
+        days_to_earnings: r.days_to_earnings,
+        earnings_time: r.earnings_time,
+        warning_level: r.warning_level,
+        prem_window: r.prem_window === 1,
+        pead_window: r.pead_window === 1,
+        blackout_warning: r.blackout_warning === 1,
+        imminent: r.imminent === 1,
+        status: r.status
+    }));
+
+    return {
+        last_updated: meta.last_updated,
+        total_count: earnings.length,
+        summary: {
+            prem_candidates: earnings.filter(e => e.prem_window).length,
+            pead_candidates: earnings.filter(e => e.pead_window).length,
+            reporting_today: earnings.filter(e => e.status === 'today').length,
+            imminent: earnings.filter(e => e.imminent).length,
+            this_week: earnings.filter(e => e.status === 'this_week').length,
+        },
+        earnings
+    };
+}
+
+/**
+ * Get just the last_updated timestamp (for staleness checks).
+ * Avoids loading the full calendar just to check freshness.
+ */
+function getEarningsCalendarMeta() {
+    const row = getDb().prepare(`
+        SELECT MAX(updated_at) as last_updated FROM earnings_calendar
+    `).get();
+
+    return { last_updated: row?.last_updated || null };
+}
+
+/**
+ * Remove old earnings entries (before today's date in ET).
+ * Called at the start of each scraper run to prune stale data.
+ */
+function clearOldEarnings() {
+    const today = getETDate();
+    const result = getDb().prepare(`
+        DELETE FROM earnings_calendar WHERE earnings_date < ?
+    `).run(today);
+
+    if (result.changes > 0) {
+        console.log(`[SignalDB] Cleared ${result.changes} old earnings calendar entries (before ${today})`);
+    }
+}
+
 // ==================== POSITIONS FUNCTIONS ====================
 
 /**
@@ -4160,6 +4297,11 @@ module.exports = {
     insertEarningsScan,
     insertEarningsResult,
     getLatestEarningsScan,
+    // Earnings calendar functions (replaces earnings-calendar.json)
+    upsertEarningsCalendar,
+    getEarningsCalendar,
+    getEarningsCalendarMeta,
+    clearOldEarnings,
     // Positions functions (replaces positions.json)
     getOpenPositions,
     addPosition,
