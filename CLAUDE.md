@@ -125,6 +125,50 @@ All scanners share Options API at `192.168.10.60:8000`. **Never use Promise.all*
 - 15s timeout for Options API requests
 - Violations cause timeouts, null data, slow responses across all consumers
 
+### API Cache (`monitor/api-cache.js`)
+Cross-process shared cache via SQLite (`api_cache` table in `wingman.db`). All PM2 scanners read/write the same cache — when Bloodhound fetches technicals for NVDA, Opportunity gets it free.
+
+**TTL Rules:**
+| Endpoint Pattern | TTL | Constant |
+|------------------|-----|----------|
+| `/api/technicals/*` | 15 min | `TTL.TECHNICALS` |
+| `/api/flow/*` | 15 min | `TTL.FLOW` |
+| `/api/options/*/analysis` | 10 min | `TTL.ANALYSIS` |
+| `/api/options/*/iv` | 10 min | `TTL.IV` |
+| `/api/market/context` | 5 min | `TTL.CONTEXT` |
+| `/api/calendar/*` | 24 hours | `TTL.CALENDAR` |
+| `/api/levels/*` | **NEVER** | Real-time gamma walls |
+| `/api/quotes/*` | **NEVER** | Real-time prices |
+
+**Usage:** `apiCache.wrap(url, apiCache.TTL.TECHNICALS, () => fetchJSON(url), 'bloodhound')`
+**Monitoring:** `curl localhost:8080/api/cache/stats` → `{ total, fresh, stale }`
+
+### API Gateway (`monitor/api-gateway.js`)
+Central HTTP proxy on port 8086. All scanner API calls route through here via `api-client.js`.
+
+| Route Prefix | Upstream Target | Max Concurrent | Circuit Breaker |
+|-------------|----------------|----------------|-----------------|
+| `/schwab/*` | `192.168.10.60:8000` | 250 | 5 failures/60s, 30s cooldown |
+| `/divergence/*` | `192.168.10.61:32212` | 5 | 3 failures/60s, 60s cooldown |
+| `/intel/*` | `192.168.10.60:3000` | 20 | 5 failures/60s, 30s cooldown |
+
+**Circuit states:** CLOSED (normal) → OPEN (reject with 503) → HALF_OPEN (probe 1 request)
+**Queue:** When at max concurrency, requests queue (FIFO). Max 100 queued, 30s timeout.
+**Monitoring:** `curl localhost:8086/status` → per-upstream in-flight, queue depth, circuit state, total stats
+**Fallback:** If gateway is down (ECONNREFUSED), `api-client.js` falls back to direct API calls.
+
+### Scan Staggering
+Scanners start at staggered intervals via `SCAN_OFFSET_MS` env var in `ecosystem.config.js` to keep concurrent Schwab API calls under 300 (the rate limit threshold).
+
+| Scanner | Offset | Rationale |
+|---------|--------|-----------|
+| Bloodhound | 0s | Fires first, populates cache for others |
+| Premarket | 60s | Only 6-9:30 AM, light overlap |
+| Opportunity | 90s | Reads warm cache from Bloodhound |
+| Earnings | 180s | Everything cached, near-zero Schwab load |
+
+**Important:** After changing `ecosystem.config.js` env vars, you must `pm2 delete <name> && pm2 start ecosystem.config.js` — `pm2 restart --update-env` does NOT re-read ecosystem env vars.
+
 ### Port Map (HARDCODED)
 
 | Port | Service | File/Location |
@@ -137,6 +181,7 @@ All scanners share Options API at `192.168.10.60:8000`. **Never use Promise.all*
 | 8083 | Opportunity | `monitor/opportunity-scanner.js` |
 | 8084 | Pre-Market | `monitor/premarket-scanner.js` |
 | 8085 | Internals | `monitor/market-internals.js` |
+| 8086 | API Gateway | `monitor/api-gateway.js` — central proxy for all upstream APIs |
 | 32212 | Divergence Scanner | External (192.168.10.61) — RS rankings, rotation |
 
 ### Dashboard URLs (all at localhost:8080)
@@ -165,6 +210,7 @@ morning.html (default), zone-scanner.html, premarket.html, earnings-scanner.html
 | `/api/opportunities/latest` | Latest opportunity scan |
 | `/api/morning-briefing` | Aggregated morning data |
 | `/api/positions` | Open positions (GET/POST/PATCH close) |
+| `/api/cache/stats` | API cache stats (total, fresh, stale entries) |
 | `/proxy/analytics/*` | Forwards to Options API |
 | `/proxy/divergence/*` | Forwards to divergence scanner |
 
@@ -175,7 +221,7 @@ morning.html (default), zone-scanner.html, premarket.html, earnings-scanner.html
 ### Key Data Files
 | File | Purpose |
 |------|---------|
-| `data/wingman.db` | SQLite — scans, signals, checkpoints, premarket, watchlist, positions |
+| `data/wingman.db` | SQLite — scans, signals, checkpoints, premarket, watchlist, positions, api_cache |
 | `data/MARKET_INTEL.md` | Living market intelligence — regime, rotation, watchlist, session recaps |
 | `data/SESSION_STATE.md` | Intra-session checkpoint (written by `/checkpoint`, read by `/kungfu`) |
 | `data/daily_log.md` | Today's journal |
@@ -195,10 +241,13 @@ morning.html (default), zone-scanner.html, premarket.html, earnings-scanner.html
 ## Starting All Scanners
 
 ```bash
-pm2 start ecosystem.config.js    # Start all 6 services
+pm2 start ecosystem.config.js    # Start all 8 services (gateway + 7 scanners with stagger offsets)
 pm2 list                          # Show processes
-pm2 logs [name]                   # View logs (bloodhound, opportunity, earnings, premarket, webserver, eod-tracker)
-pm2 restart all                   # Restart everything
+pm2 logs [name]                   # View logs (gateway, bloodhound, opportunity, earnings, premarket, webserver, eod-tracker, internals)
+pm2 restart all                   # Restart everything (keeps existing env vars)
+# If ecosystem.config.js env vars changed:
+pm2 delete gateway bloodhound opportunity earnings premarket webserver eod-tracker internals
+pm2 start ecosystem.config.js    # Re-reads env vars from config
 ```
 
 ---

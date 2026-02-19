@@ -10,9 +10,9 @@
  */
 
 const http = require('http');
-const axios = require('axios');
 const signalDb = require('./signal-db');
 const appConfig = require('./config-loader');
+const apiClient = require('./api-client');
 
 // ============================================
 // CONFIGURATION
@@ -112,10 +112,8 @@ function sleep(ms) {
  */
 async function fetchQuote(symbol) {
     try {
-        const resp = await axios.get(`${CONFIG.OPTIONS_API}/api/quotes/${encodeURIComponent(symbol)}`, {
-            timeout: 10000
-        });
-        return resp.data;
+        const data = await apiClient.fetchJSON(`${CONFIG.OPTIONS_API}/api/quotes/${encodeURIComponent(symbol)}`, 10000);
+        return data;
     } catch (e) {
         logError(`Failed to fetch ${symbol}: ${e.message}`);
         return null;

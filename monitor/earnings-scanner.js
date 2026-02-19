@@ -22,6 +22,7 @@ const path = require('path');
 const signalDb = require('./signal-db');
 const { sendTelegram: sendTelegramBase, escapeHtml } = require('./telegram');
 const apiCache = require('./api-cache');
+const apiClient = require('./api-client');
 
 // Load config
 const CONFIG = require('./config-loader');
@@ -101,21 +102,10 @@ const RATE_LIMIT = {
 };
 
 /**
- * Safe JSON fetch with timeout and rate limiting
+ * Safe JSON fetch with timeout — routes through API Gateway
  */
 async function fetchJSON(url, timeout = 15000) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-    try {
-        const response = await fetch(url, { signal: controller.signal });
-        clearTimeout(timeoutId);
-        if (!response.ok) return null;
-        return await response.json();
-    } catch (e) {
-        clearTimeout(timeoutId);
-        return null;
-    }
+    return apiClient.fetchJSON(url, timeout);
 }
 
 // escapeHtml and sendTelegram imported from ./telegram.js (wrapped with earnings config above)

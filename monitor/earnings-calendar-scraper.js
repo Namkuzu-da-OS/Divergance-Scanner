@@ -9,11 +9,10 @@
  *   node earnings-calendar-scraper.js --symbol AAPL  # Single symbol lookup
  */
 
-const axios = require('axios');
-
 // Config
 const config = require('./config-loader');
 const signalDb = require('./signal-db');
+const apiClient = require('./api-client');
 
 const OPTIONS_API = config.apis.options;
 
@@ -42,25 +41,20 @@ const MAJOR_STOCKS = [
  */
 async function fetchEarningsForSymbol(symbol) {
     try {
-        const response = await axios.get(`${OPTIONS_API}/api/calendar/${symbol}`, {
-            timeout: 10000
-        });
+        const data = await apiClient.fetchJSON(`${OPTIONS_API}/api/calendar/${symbol}`, 10000);
 
-        if (response.data && response.data.has_earnings) {
+        if (data && data.has_earnings) {
             return {
-                symbol: response.data.symbol,
-                earnings_date: response.data.next_earnings,
-                days_to_earnings: response.data.days_to_earnings,
-                earnings_time: response.data.earnings_time || 'unknown',
-                warning_level: response.data.warning_level || 'none',
+                symbol: data.symbol,
+                earnings_date: data.next_earnings,
+                days_to_earnings: data.days_to_earnings,
+                earnings_time: data.earnings_time || 'unknown',
+                warning_level: data.warning_level || 'none',
             };
         }
         return null;
     } catch (error) {
-        // Don't spam errors for missing data
-        if (error.response?.status !== 404) {
-            console.error(`  Error fetching ${symbol}:`, error.message);
-        }
+        console.error(`  Error fetching ${symbol}:`, error.message);
         return null;
     }
 }

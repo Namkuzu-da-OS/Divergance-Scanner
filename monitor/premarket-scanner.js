@@ -11,11 +11,11 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const axios = require('axios');
 const signalDb = require('./signal-db');
 const appConfig = require('./config-loader');
 const { sendTelegram } = require('./telegram');
 const apiCache = require('./api-cache');
+const apiClient = require('./api-client');
 
 // ============================================
 // CONFIGURATION
@@ -299,8 +299,9 @@ function resetAlertedToday() {
  * Helper for HTTP GET requests
  */
 async function httpGet(url) {
-    const response = await axios.get(url, { timeout: 10000 });
-    return response.data;
+    const data = await apiClient.fetchJSON(url, 10000);
+    if (data === null) throw new Error(`Failed to fetch: ${url}`);
+    return data;
 }
 
 /**
@@ -439,11 +440,10 @@ async function fetchMarketData() {
         // Fetch sequentially with inter-call delay (API pacing)
         for (const symbol of symbols) {
             try {
-                const quoteResponse = await axios.get(
-                    `${CONFIG.OPTIONS_API}/api/quotes/${symbol}`,
-                    { timeout: 3000 }
+                const quoteData = await apiClient.fetchJSON(
+                    `${CONFIG.OPTIONS_API}/api/quotes/${symbol}`, 3000
                 );
-                const quote = quoteResponse.data?.quote;
+                const quote = quoteData?.quote;
                 if (quote) {
                     // Find discovery info for this symbol
                     const discoveryInfo = discoveredSymbols.find(d => d.symbol === symbol);
@@ -469,11 +469,10 @@ async function fetchMarketData() {
 
         // Add VIX separately (from Intel API - VIX is an index, not available via quotes)
         try {
-            const vixResponse = await axios.get(
-                `${CONFIG.INTEL_API}/api/latest/VIX`,
-                { timeout: 3000 }
+            const vixResponse = await apiClient.fetchJSON(
+                `${CONFIG.INTEL_API}/api/latest/VIX`, 3000
             );
-            const vixData = vixResponse.data?.data;
+            const vixData = vixResponse?.data;
             if (vixData) {
                 marketData['VIX'] = {
                     price: parseFloat(vixData.current_price),
@@ -483,13 +482,12 @@ async function fetchMarketData() {
         } catch (e) {
             // VIX may not be available - try market context as fallback
             try {
-                const contextResponse = await axios.get(
-                    `${CONFIG.OPTIONS_API}/api/market/context`,
-                    { timeout: 3000 }
+                const contextData = await apiClient.fetchJSON(
+                    `${CONFIG.OPTIONS_API}/api/market/context`, 3000
                 );
-                if (contextResponse.data?.vix) {
+                if (contextData?.vix) {
                     marketData['VIX'] = {
-                        price: contextResponse.data.vix,
+                        price: contextData.vix,
                         previousClose: null  // Not available from context
                     };
                 }
@@ -509,36 +507,22 @@ async function fetchMarketData() {
  * Fetch quote data for a symbol
  */
 async function fetchQuote(symbol) {
-    try {
-        const response = await axios.get(`${CONFIG.OPTIONS_API}/api/quotes/${symbol}`, { timeout: 5000 });
-        return response.data;
-    } catch (e) {
-        return null;
-    }
+    return apiClient.fetchJSON(`${CONFIG.OPTIONS_API}/api/quotes/${symbol}`, 5000);
 }
 
 /**
  * Fetch technicals for a symbol
  */
 async function fetchTechnicals(symbol) {
-    try {
-        const response = await axios.get(`${CONFIG.OPTIONS_API}/api/technicals/${symbol}`, { timeout: 5000 });
-        return response.data;
-    } catch (e) {
-        return null;
-    }
+    return apiClient.fetchJSON(`${CONFIG.OPTIONS_API}/api/technicals/${symbol}`, 5000);
 }
 
 /**
  * Fetch earnings calendar
  */
 async function fetchEarningsCalendar() {
-    try {
-        const response = await axios.get(`${CONFIG.OPTIONS_API}/api/calendar/earnings`, { timeout: 10000 });
-        return response.data;
-    } catch (e) {
-        return [];
-    }
+    const data = await apiClient.fetchJSON(`${CONFIG.OPTIONS_API}/api/calendar/earnings`, 10000);
+    return data || [];
 }
 
 /**
@@ -548,9 +532,8 @@ async function fetchEarningsCalendar() {
 async function checkEarningsToday(symbol) {
     try {
         const url = `${CONFIG.OPTIONS_API}/api/calendar/${symbol}`;
-        const data = await apiCache.wrap(url, apiCache.TTL.CALENDAR, async () => {
-            const response = await axios.get(url, { timeout: 5000 });
-            return response.data;
+        const data = await apiCache.wrap(url, apiCache.TTL.CALENDAR, () => {
+            return apiClient.fetchJSON(url, 5000);
         }, 'premarket');
         if (!data) return { hasEarnings: false };
         // Check if earnings are today (days_to_earnings === 0) or tomorrow before open

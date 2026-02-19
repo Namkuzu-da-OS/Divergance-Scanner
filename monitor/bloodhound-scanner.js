@@ -32,6 +32,9 @@ const opportunityDb = require('./opportunity-db');
 // Shared API cache — reduces redundant Schwab calls across all PM2 processes
 const apiCache = require('./api-cache');
 
+// Shared API client — routes through gateway for concurrency/circuit breaking
+const apiClient = require('./api-client');
+
 // Load config
 const CONFIG = require('./config-loader');
 
@@ -400,38 +403,25 @@ function computeHistoryStatus(symbol) {
 // ============================================
 
 async function fetchJSON(url, timeout = 10000, trackBackoff = false) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
     const startTime = Date.now();
+    const data = await apiClient.fetchJSON(url, timeout);
+    const responseTime = Date.now() - startTime;
 
-    try {
-        const response = await fetch(url, { signal: controller.signal });
-        clearTimeout(timeoutId);
-        const responseTime = Date.now() - startTime;
-
-        // Track response time for backoff on heavy endpoints
+    if (data === null) {
+        console.error(`[API] Failed: ${url} (${responseTime}ms)`);
+        // Timeout/error counts as slow response for backoff
         if (trackBackoff || url.includes('/api/levels/')) {
-            updateBackoffState(responseTime, url);
+            updateBackoffState(responseTime + 5000, url);
         }
-
-        if (!response.ok) {
-            console.error(`[API] HTTP ${response.status}: ${url}`);
-            return null;
-        }
-        return await response.json();
-    } catch (e) {
-        clearTimeout(timeoutId);
-        const responseTime = Date.now() - startTime;
-
-        console.error(`[API] Failed: ${url} — ${e.message} (${responseTime}ms)`);
-
-        // Timeout/error counts as slow response
-        if (trackBackoff || url.includes('/api/levels/')) {
-            updateBackoffState(responseTime + 5000, url); // Treat errors as 5s+ response
-        }
-
         return null;
     }
+
+    // Track response time for backoff on heavy endpoints
+    if (trackBackoff || url.includes('/api/levels/')) {
+        updateBackoffState(responseTime, url);
+    }
+
+    return data;
 }
 
 // escapeHtml and sendTelegram imported from ./telegram.js

@@ -12,10 +12,10 @@
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
-const https = require('https');
 const opportunityDb = require('./opportunity-db');
 const { sendTelegram } = require('./telegram');
 const apiCache = require('./api-cache');
+const apiClient = require('./api-client');
 
 // Load config
 const CONFIG = require('./config-loader');
@@ -311,29 +311,10 @@ function clearDailyTracking() {
 // HTTP HELPERS
 // ============================================
 
-function httpGet(url, timeoutMs = 15000) {
-    return new Promise((resolve, reject) => {
-        const startTime = Date.now();
-        const protocol = url.startsWith('https') ? https : http;
-
-        const req = protocol.get(url, { timeout: timeoutMs }, (res) => {
-            let data = '';
-            res.on('data', chunk => data += chunk);
-            res.on('end', () => {
-                try {
-                    resolve(JSON.parse(data));
-                } catch (e) {
-                    reject(new Error(`JSON parse error: ${e.message}`));
-                }
-            });
-        });
-
-        req.on('error', reject);
-        req.on('timeout', () => {
-            req.destroy();
-            reject(new Error('Request timeout'));
-        });
-    });
+async function httpGet(url, timeoutMs = 15000) {
+    const data = await apiClient.fetchJSON(url, timeoutMs);
+    if (data === null) throw new Error(`Failed to fetch: ${url}`);
+    return data;
 }
 
 // ============================================
