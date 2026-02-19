@@ -1971,3 +1971,72 @@ SCAN RESULTS:
 ============================================================
 
 Earnings Scanner running. Press Ctrl+C to stop.
+
+============================================================
+[2026-02-19T19:25:13.793Z] EARNINGS SCAN
+============================================================
+[Scan] Found 4 PREM candidates (5-10 days out)
+  Analyzing HD...
+  Analyzing NVDA...
+  Analyzing CRM...
+  Analyzing MARA...
+[SignalDB] Inserted earnings scan: 4 results, scanId=232
+[Scan] Saved 4 earnings results to DB (scanId=232)
+
+----------------------------------------
+SCAN RESULTS:
+  Total analyzed: 4
+  HIGH_CONVICTION: 0
+  TRADEABLE: 0
+  Alerts sent: 0
+
+[Done] Scan complete (38s). Next in 30 min.
+============================================================
+============================================================
+       EARNINGS SEASON SCANNER
+       Strategy: PREM (Pre-Earnings Momentum)
+============================================================
+Options API: http://192.168.10.60:8000
+Intel API: http://192.168.10.60:3000
+Telegram: Configured
+Scan Interval: 30 minutes
+PREM Window: 5-10 days
+============================================================
+[Stagger] Waiting 180s before first scan...
+[Control] Listening on http://0.0.0.0:8082 (accessible from network)
+
+  Endpoints:
+    GET  /status            - System status
+    GET  /results           - Latest scan results
+    GET  /calendar          - Earnings calendar
+    POST /pause             - Pause scanner
+    POST /resume            - Resume scanner
+    POST /scan              - Trigger immediate scan
+    POST /refresh-calendar  - Refresh earnings calendar
+    POST /test-alert        - Send test Telegram alert
+
+Running initial scan...
+
+
+============================================================
+[2026-02-19T19:51:32.372Z] EARNINGS SCAN
+============================================================
+[Scan] Found 4 PREM candidates (5-10 days out)
+  Analyzing HD...
+  Analyzing NVDA...
+  Analyzing CRM...
+  Analyzing MARA...
+[SignalDB] Inserted earnings scan: 4 results, scanId=233
+[Scan] Saved 4 earnings results to DB (scanId=233)
+
+----------------------------------------
+SCAN RESULTS:
+  Total analyzed: 4
+  HIGH_CONVICTION: 0
+  TRADEABLE: 0
+  Alerts sent: 0
+
+[Done] Scan complete (31s). Next in 30 min.
+============================================================
+
+Earnings Scanner running. Press Ctrl+C to stop.
