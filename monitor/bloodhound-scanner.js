@@ -970,12 +970,11 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
         signals.push(`RSI overbought (${rsi.toFixed(1)})`);
         direction = 'bearish';
     } else if (rsi <= 40 && trend === 'uptrend') {
-        scores.standard += 5;
-        signals.push(`RSI pullback in uptrend (${rsi.toFixed(1)})`);
+        // No score — RSI pullback/bounce unproven. Annotation only (Feb 2026 factor analysis).
+        signals.push(`ℹ️ RSI pullback in uptrend (${rsi.toFixed(1)})`);
         direction = 'bullish';
     } else if (rsi >= 60 && trend === 'downtrend') {
-        scores.standard += 5;
-        signals.push(`RSI bounce in downtrend (${rsi.toFixed(1)})`);
+        signals.push(`ℹ️ RSI bounce in downtrend (${rsi.toFixed(1)})`);
         direction = 'bearish';
     }
 
@@ -1019,24 +1018,20 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
         signals.push(`📍 PINNED between walls ($${putWall}-$${callWall})`);
         direction = 'pinned';
     } else if (aboveCallWall) {
-        // Breakout above call wall - already moved, less actionable
-        scores.standard += 8;
+        // No score — breakout/breakdown unproven. Annotation only (Feb 2026 factor analysis).
         const distAbove = Math.abs(distToCallWall).toFixed(1);
         signals.push(`🚀 BREAKOUT above call wall ($${callWall}) +${distAbove}%`);
         direction = 'bullish';
         if (gammaFlip && price > gammaFlip) {
-            scores.standard += 4;
-            signals.push(`Above gamma flip ($${gammaFlip.toFixed(2)})`);
+            signals.push(`ℹ️ Above gamma flip ($${gammaFlip.toFixed(2)})`);
         }
     } else if (belowPutWall) {
-        // Breakdown below put wall - already moved, less actionable
-        scores.standard += 8;
+        // No score — breakout/breakdown unproven. Annotation only (Feb 2026 factor analysis).
         const distBelow = Math.abs(distToPutWall).toFixed(1);
         signals.push(`💥 BREAKDOWN below put wall ($${putWall}) -${distBelow}%`);
         direction = 'bearish';
         if (gammaFlip && price < gammaFlip) {
-            scores.standard += 4;
-            signals.push(`Below gamma flip ($${gammaFlip.toFixed(2)})`);
+            signals.push(`ℹ️ Below gamma flip ($${gammaFlip.toFixed(2)})`);
         }
     } else {
         // AT WALL - This is the key condition (89.5% win rate when combined with extended RSI)
@@ -1060,10 +1055,9 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
         signals.unshift('⭐ PRIME SETUP: Wall + Extended RSI');
     }
 
-    // --- STANDARD FACTORS: VWAP, Confluence ---
+    // --- ANNOTATION: VWAP (no score — unproven, Feb 2026 factor analysis) ---
     if (distToVwap !== null && Math.abs(distToVwap) <= 0.3) {
-        scores.standard += 5;
-        signals.push(`At VWAP ($${vwap})`);
+        signals.push(`ℹ️ At VWAP ($${vwap})`);
     }
 
     // Confluence zones from API
@@ -1299,12 +1293,10 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
         signals.unshift('⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR)');
     }
 
-    // --- STANDARD FACTOR: Discovery source bonus ---
+    // --- ANNOTATION: Discovery source (no score — unproven, Feb 2026 factor analysis) ---
     if (discoveryData) {
-        // Bonus for AI outlook mentions
         if (discoveryData.sources?.includes('ai_outlook')) {
-            scores.standard += 5;
-            signals.push(`📌 AI Outlook highlight`);
+            signals.push(`ℹ️ AI Outlook highlight`);
         }
     }
 
@@ -1354,7 +1346,7 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
             signals.push(`VIX elevated (${vix.toFixed(1)})`);
         }
 
-        // --- STANDARD FACTOR: Multi-timeframe alignment ---
+        // --- ANNOTATION: Multi-timeframe alignment (no score — unproven, Feb 2026 factor analysis) ---
         if (marketContext.intradayBias && marketContext.swingBias) {
             const swingBias = marketContext.swingBias.toLowerCase();
             const intradayBias = marketContext.intradayBias.toLowerCase();
@@ -1364,34 +1356,27 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
             const tfAligned = swingBias === intradayBias;
 
             if (setupAligned && tfAligned) {
-                scores.standard += 5;
-                signals.push(`✅ TF aligned: both ${marketContext.swingBias}`);
+                signals.push(`ℹ️ TF aligned: both ${marketContext.swingBias}`);
             } else if (setupAligned && !tfAligned) {
-                scores.standard += 3;
-                signals.push(`Swing ${marketContext.swingBias}, intraday ${marketContext.intradayBias}`);
+                signals.push(`ℹ️ Swing ${marketContext.swingBias}, intraday ${marketContext.intradayBias}`);
             }
-            // Don't penalize counter-trend as heavily - data shows it can work
         }
     }
 
-    // --- STANDARD FACTOR: Sector Relative Strength (±8 pts) ---
+    // --- ANNOTATION: Sector Relative Strength (no score — unproven, Feb 2026 factor analysis) ---
     let symbolRsData = null;
     if (rsContext) {
         symbolRsData = getSymbolRsPercentile(symbol, rsContext);
         if (symbolRsData) {
             const pct = symbolRsData.percentile;
             if (pct >= 75) {
-                scores.standard += 8;
-                signals.push(`Strong sector RS (${symbolRsData.sectorEtf} top quartile)`);
+                signals.push(`ℹ️ Strong sector RS (${symbolRsData.sectorEtf} top quartile, ${pct.toFixed(0)}th pctl)`);
             } else if (pct >= 50) {
-                scores.standard += 4;
-                signals.push(`Above-avg sector RS (${symbolRsData.sectorEtf})`);
+                signals.push(`ℹ️ Above-avg sector RS (${symbolRsData.sectorEtf}, ${pct.toFixed(0)}th pctl)`);
             } else if (pct >= 25) {
-                scores.standard -= 3;
-                signals.push(`Weak sector RS (${symbolRsData.sectorEtf})`);
+                signals.push(`ℹ️ Weak sector RS (${symbolRsData.sectorEtf}, ${pct.toFixed(0)}th pctl)`);
             } else {
-                scores.standard -= 5;
-                signals.push(`⚠️ Sector headwind (${symbolRsData.sectorEtf} bottom quartile)`);
+                signals.push(`ℹ️ Sector headwind (${symbolRsData.sectorEtf} bottom quartile, ${pct.toFixed(0)}th pctl)`);
             }
         }
     }
@@ -1510,18 +1495,15 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
         if (volRatio > 1.5) bullishCount++;
         else if (volRatio < 0.67) bearishCount++;
 
+        // No score — internals unproven. Annotation only (Feb 2026 factor analysis).
         if (direction === 'bullish' && bullishCount >= 2) {
-            scores.standard += 5;
-            signals.push(`Internals confirm bullish (${bullishCount}/3)`);
+            signals.push(`ℹ️ Internals confirm bullish (${bullishCount}/3)`);
         } else if (direction === 'bearish' && bearishCount >= 2) {
-            scores.standard += 5;
-            signals.push(`Internals confirm bearish (${bearishCount}/3)`);
+            signals.push(`ℹ️ Internals confirm bearish (${bearishCount}/3)`);
         } else if (direction === 'bullish' && bearishCount >= 2) {
-            scores.standard -= 3;
-            signals.push(`⚠️ Internals oppose bullish (${bearishCount}/3 bearish)`);
+            signals.push(`ℹ️ Internals oppose bullish (${bearishCount}/3 bearish)`);
         } else if (direction === 'bearish' && bullishCount >= 2) {
-            scores.standard -= 3;
-            signals.push(`⚠️ Internals oppose bearish (${bullishCount}/3 bullish)`);
+            signals.push(`ℹ️ Internals oppose bearish (${bullishCount}/3 bullish)`);
         }
     }
 
@@ -1529,14 +1511,20 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
     // FINAL SCORE (0-100 scale, data-driven)
     // Base: AT_WALL + EXTENDED_RSI + combo (0-50)
     // HighEdge: Volume + VIX + smart flow combo (0-47)
-    // Standard: BB(lower only), trend, RS, history, internals (±30)
+    // Standard: BB(lower only), SPY trend, history (±16)
     // Removed from scoring (2026-02-17 audit):
     //   - Net premium $10M+ (29% WR) → annotation
     //   - Upper BB (37.5% WR) → annotation
     //   - Confluence zone (51.6% WR) → annotation
     //   - Against SPY penalty (54.7% WR = good) → removed
     // Added: ENGAGED wall + OTM PUT hedge combo (+12, 100% WR)
-    // Strengthened: Wall ACTIVE penalty (-3 → -8, 0% WR)
+    // Demoted to annotation-only (2026-02-19 factor analysis):
+    //   - Breakout/breakdown (unproven), gamma flip (unproven)
+    //   - VWAP (unproven), AI Outlook (unproven), TF alignment (unproven)
+    //   - Sector RS (unproven), internals (unproven)
+    //   - RSI pullback/bounce (unproven)
+    // Tier gates added: SPY/QQQ→WATCH, bearish/neutral→WATCH, prime HC→55+
+    // VIX regime boost (TRADEABLE→HC promotion) removed (16.7% WR)
     // ============================================
 
     // Raw score uncapped — preserves differentiation at the top.
@@ -1611,9 +1599,9 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
     const badZones = ['EXTENDED_HIGH', 'HIGH_MOMENTUM'];
     const notBadZone = !badZones.includes(zone);
 
-    // HIGH_CONVICTION: Prime setup (AT_WALL + EXTENDED_RSI) with good score
-    // OR very high score (65+) with action
-    if (isPrimeSetup && totalScore >= 40 && notBadZone) {
+    // HIGH_CONVICTION: Prime setup (AT_WALL + EXTENDED_RSI) with strong score
+    // Data: prime signals 40-54 have 33% WR → threshold raised to 55
+    if (isPrimeSetup && totalScore >= 55 && notBadZone) {
         tradeable = true;
         tier = 'HIGH_CONVICTION';
     }
@@ -1651,13 +1639,10 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
     // DATA-DRIVEN TIER ADJUSTMENTS (223 signals)
     // ============================================
 
-    // VIX REGIME BOOST: Elevated VIX = 92.9% WR (vs 57.6% normal)
-    // Promote TRADEABLE → HIGH_CONVICTION during elevated/fear VIX
-    const vixForBoost = marketContext?.vix || 0;
-    if (vixForBoost >= SETTINGS.VIX_ELEVATED && tier === 'TRADEABLE' && notBadZone) {
-        tier = 'HIGH_CONVICTION';
-        signals.push(`🔥 VIX regime boost (elevated VIX → HC)`);
-    }
+    // VIX REGIME BOOST: REMOVED (Feb 2026 factor analysis)
+    // Original claim: 92.9% WR. Fresh analysis: 16.7% WR (n=6).
+    // The signals that needed the boost to reach HC lacked natural confluence.
+    // VIX elevated/fear SCORING still applies (+10/+15 highEdge) — only tier promotion removed.
 
     // TIER CAPS (data-driven)
     // RETURNED: 31% WR → capped at WATCH
@@ -1674,10 +1659,22 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
     if (direction === 'pinned' && tier === 'HIGH_CONVICTION') {
         tier = 'TRADEABLE';
     }
-    // Bearish/neutral: removed cap (was based on n=3 sample). System needs to collect
-    // short-side data to validate tier thresholds. Counter-trend signals show 75% WR
-    // when bearish SPY + bullish signal, so short-side can outperform.
-    // Bearish signals still require same confluence (wall + RSI + score) to qualify.
+    // SPY/QQQ: capped at WATCH (Feb 2026 factor analysis)
+    // SPY 17% WR, QQQ 29% WR — self-referential confluence (already has -8 penalty, but needs tier cap too)
+    if ((symbol === 'SPY' || symbol === 'QQQ') && (tier === 'HIGH_CONVICTION' || tier === 'TRADEABLE')) {
+        tier = 'WATCH';
+        tradeable = false;
+        signals.push(`Index ETF capped at WATCH (${symbol} ${symbol === 'SPY' ? '17' : '29'}% HC WR)`);
+    }
+    // Bearish/neutral direction: capped at WATCH (Feb 2026 factor analysis)
+    // Bearish: 0% WR (n=4), Neutral: 0% WR (n=1) — insufficient evidence for tradeable tiers.
+    // Note: counter-trend BULLISH signals during bearish SPY are different (dip buy = high WR).
+    // This cap only affects signals where the SIGNAL ITSELF is bearish/neutral direction.
+    if ((direction === 'bearish' || direction === 'neutral') && (tier === 'HIGH_CONVICTION' || tier === 'TRADEABLE')) {
+        tier = 'WATCH';
+        tradeable = false;
+        signals.push(`⚠️ ${direction} direction capped at WATCH (0% HC WR)`);
+    }
 
     // Calculate distances for output
     const distances = {
