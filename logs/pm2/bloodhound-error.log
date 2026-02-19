@@ -104,3 +104,7 @@
 [Bloodhound] DROPPED: XLY — API returned no data
 [API] Failed: http://192.168.10.60:8000/api/levels/MSFT — fetch failed (9ms)
 [Bloodhound] MSFT failed (watchlist), retrying in 2s...
+[API] Failed: http://192.168.10.60:8000/api/levels/SPY — This operation was aborted (15004ms)
+[Bloodhound] SPY failed (watchlist), retrying in 2s...
+[API] Failed: http://192.168.10.60:8000/api/levels/F — This operation was aborted (15004ms)
+[Bloodhound] DROPPED: F — API returned no data

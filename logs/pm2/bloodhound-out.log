@@ -16432,3 +16432,609 @@ Commands: node bloodhound-scanner.js [pause|resume|status]
 
 [2026-02-19T13:59:04.540Z] 🌙 Market CLOSED - scanner idle
    Next market open: Today 9:30 AM ET (6:30 AM PST)
+
+[2026-02-19T14:04:04.541Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+
+[2026-02-19T14:09:04.541Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+
+[2026-02-19T14:14:04.542Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+
+[2026-02-19T14:19:04.543Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+
+[2026-02-19T14:24:04.544Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+
+[2026-02-19T14:29:04.544Z] 🌙 Market CLOSED - scanner idle
+   Next market open: Today 9:30 AM ET (6:30 AM PST)
+
+============================================================
+[2026-02-19T14:34:04.544Z] Running Bloodhound scan...
+============================================================
+[Context] VIX: 20.53 (elevated) | SPY: bearish
+[Internals] TICK: -60, A/D: -677, Vol Ratio: 1.28
+[RS] Read 28 rankings from DB (snapshot 3m ago)
+[RS] Rotation regime: mid_cycle | 28 assets ranked
+[MA-Bounce] Pre-fetched history for 8/8 validated symbols
+[Div-BB] Pre-fetched history for 9/9 configured symbols
+[Watchlist] DB: 9 static, 18 dynamic
+[Discovery] Opportunity scanner contributed 18 symbols
+[Discovery] 32 symbols: 9 static + 23 dynamic (watchlist: 18, market_data: 4, opportunity_scanner: 18, sector_leader: 1)
+[Discovery] Found 32 symbols to scan
+[Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+[Bias] Intraday: NEUTRAL | Swing: BULLISH
+[Top Discoveries]
+  1. MSFT (score: 100, watchlist)
+  2. META (score: 100, watchlist)
+  3. AAPL (score: 100, watchlist)
+  4. AMD (score: 100, watchlist)
+  5. IBIT (score: 100, watchlist)
+  6. TSLA (score: 100, watchlist)
+  7. NVDA (score: 100, watchlist)
+  8. QQQ (score: 100, watchlist)
+
+[VELOCITY ALERTS]
+  🚀 XLE: +19 pts (33→52) 🔴
+  🚀 PANW: +29 pts (26→55) 🟢
+  🚀 XLF: +15 pts (20→35) 🟢
+
+[History] Updating scanner history for 32 symbols...
+[History] Updated 32 symbols in database.
+
+[Results] Analyzed 32 symbols:
+  ✅ PANW: 55/100 🟢 - VELOCITY +29 pts, ⭐ PRIME SETUP: Wall + Extended RSI
+  ✅ XLE: 52/100 🔴 - VELOCITY +19 pts, ⭐ PRIME SETUP: Wall + Extended RSI
+  ✅ XLY: 52/100 🟢 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI oversold (28.3)
+  ✅ XLK: 35/100 🟢 - ⭐ COMBO: Put wall + Heavy puts (89% 3d WR), At put wall support ($140)
+  ✅ XLF: 35/100 🟢 - VELOCITY +15 pts, ⭐ COMBO: Put wall + Heavy puts (89% 3d WR)
+  ⬜ META: 25/100 🟢 - At put wall support ($640), ℹ️ Confluence zone (3 levels)
+  ⬜ NVDA: 25/100 🟢 - At put wall support ($185), ℹ️ Confluence zone (2 levels)
+  ⬜ IWM: 20/100 🟢 - At put wall support ($263), ℹ️ Confluence zone (3 levels)
+  ⬜ XLI: 20/100 🟢 - RSI overbought (80.2), 🚀 BREAKOUT above call wall ($172) +1.7%
+  ⬜ XLV: 17/100 🟢 - At put wall support ($157), ℹ️ At VWAP ($157.14)
+  ⬜ MU: 17/100 🔴 - At call wall resistance ($410), CALL wall dormant
+  ⬜ CVNA: 13/100 ⚪ - Volume spike (2.0x avg), Heavy put bias (0.20 C/P)
+  ⬜ AAPL: 10/100 📍 - 📍 PINNED between walls ($265-$265), ℹ️ Confluence zone (2 levels)
+  ⬜ AMD: 10/100 📍 - RSI oversold (28.3), 📍 PINNED between walls ($200-$200)
+  ⬜ IBIT: 10/100 🔴 - RSI oversold (23.9), 💥 BREAKDOWN below put wall ($38) -2.0%
+  ⬜ TSLA: 10/100 ⚪ - VIX elevated (20.5), ℹ️ Weak sector RS (XLY, 29th pctl)
+  ⬜ INTC: 10/100 🔴 - 💥 BREAKDOWN below put wall ($45) -1.3%, ℹ️ Below gamma flip ($49.97)
+  ⬜ MARA: 10/100 ⚪ - VIX elevated (20.5), 📈 Streak (3 consecutive days)
+  ⬜ MSFT: 7/100 📍 - RSI oversold (19.2), 📍 PINNED between walls ($400-$400)
+  ⬜ EEM: 7/100 📍 - 📍 PINNED between walls ($61-$61), ℹ️ Confluence zone (5 levels)
+  ⬜ AMZN: 7/100 🟢 - RSI oversold (16.8), ℹ️ Confluence zone (2 levels)
+  ⬜ PLTR: 5/100 🔴 - 💥 BREAKDOWN below put wall ($135) -2.2%, ℹ️ Below gamma flip ($134.81)
+  ⬜ WMT: 5/100 ⚪ - VIX elevated (20.5), ℹ️ Strong sector RS (XLP top quartile, 75th pctl)
+  ⬜ ETHA: 5/100 🟢 - RSI oversold (21.1), Heavy put bias (0.29 C/P)
+  ⬜ GM: 5/100 📍 - 📍 PINNED between walls ($82.5-$82.5), ℹ️ Confluence zone (6 levels)
+  ⬜ F: 5/100 ⚪ - VIX elevated (20.5), ⚠️ Day 2 setup — historically weak (23% WR)
+  ⬜ QQQ: 2/100 📍 - 📍 PINNED between walls ($600-$605), ℹ️ Confluence zone (5 levels)
+  ⬜ CLSK: 2/100 📍 - RSI oversold (28.6), 📍 PINNED between walls ($9-$9)
+  ⬜ SNDK: 2/100 🟢 - 🚀 BREAKOUT above call wall ($600) +1.5%, ℹ️ Above gamma flip ($572.50)
+  ⬜ GOOGL: 2/100 📍 - RSI oversold (19.8), At lower Bollinger Band
+  ⬜ MRNA: 2/100 ⚪ - Heavy call bias (7.26 C/P) [-3], VIX elevated (20.5)
+  ⬜ SPY: 0/100 📍 - 📍 PINNED between walls ($685-$690), ℹ️ Confluence zone (5 levels)
+
+[Tiers] HIGH_CONVICTION: 0 | TRADEABLE: 2 | WATCH: 7 | FILTERED: 23
+[TRADEABLE]
+  ✅ XLK: 35/100 🟢 (BUY)
+  ✅ XLF: 35/100 🟢 (BUY)
+[WATCH LIST]
+  👀 PANW: 55/100 (score 55)
+  👀 XLE: 52/100 (score 52)
+  👀 XLY: 52/100 (score 52)
+  👀 META: 25/100 (score 25)
+  👀 NVDA: 25/100 (score 25)
+
+[Alerts] No high-conviction opportunities (2 tradeable, 7 on watch)
+
+[Signal Logger] Logging 2 TRADEABLE signal(s) for validation...
+
+[Signal Logger] Logging 7 WATCH signal(s) for baseline analysis...
+[SignalDB] Inserted signal PANW_1771511781349 @ $148.94
+[Signal Logger] Logged PANW_1771511781349 @ $148.94 (bullish, score 55)
+[Watchlist] Updated PANW (source: signal_tracking)
+[Signal Logger] XLY conditions changed on existing signal:
+  Score: 74 → 52 (-22)
+[Signal Logger] META conditions changed on existing signal:
+  Score: 39 → 25 (-14)
+[SignalDB] Inserted signal NVDA_1771511781370 @ $186.85
+[Signal Logger] Logged NVDA_1771511781370 @ $186.85 (bullish, score 25)
+[Watchlist] Skipped NVDA — manual entry protected (attempted by signal_tracking)
+[Signal Logger] IWM conditions changed on existing signal:
+  Score: 40 → 20 (-20)
+  Zone: SELL_ZONE → BUY_ZONE
+  Direction: bearish → bullish
+[SignalDB] Inserted signal XLI_1771511781388 @ $174.9
+[Signal Logger] Logged XLI_1771511781388 @ $174.9 (bullish, score 20)
+[Watchlist] Added XLI (source: signal_tracking)
+[SignalDB] Inserted 32 bloodhound results for scan 803
+[Bloodhound] Wrote 32 results to database (scan_id: 803)
+
+[Bloodhound] Scan complete (137s). Next scan in 5 minutes.
+[Signal Logger] Price cache built with 32 symbols
+[SignalDB] Closed option signal AMZN_1771344394536: LOSS (peak +9%, close -100%)
+[Signal Logger] Option .AMZN260218P195 expired — closed
+[Signal Logger] Updated prices for 17 signal(s), 2 option(s) (17 cached, 0 API)
+[Signal Logger] Validating 1 signal(s) for 4h checkpoint...
+[SignalDB] Recorded 4h checkpoint for XLE_1771487939274: WRONG (1.39%)
+[Signal Logger] 4h | XLE_1771487939274: ❌ +1.39%
+
+============================================================
+[2026-02-19T14:39:04.544Z] Running Bloodhound scan...
+============================================================
+[Context] VIX: 20.78 (elevated) | SPY: bearish
+[Internals] TICK: -90, A/D: -706, Vol Ratio: 1.10
+[RS] Read 28 rankings from DB (snapshot 8m ago)
+[RS] Rotation regime: mid_cycle | 28 assets ranked
+[MA-Bounce] Pre-fetched history for 8/8 validated symbols
+[Div-BB] Pre-fetched history for 9/9 configured symbols
+[Watchlist] DB: 9 static, 19 dynamic
+[Discovery] Opportunity scanner contributed 20 symbols
+[Discovery] 34 symbols: 9 static + 25 dynamic (watchlist: 19, market_data: 4, opportunity_scanner: 20, sector_leader: 1)
+[Discovery] Found 34 symbols to scan
+[Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+[Bias] Intraday: NEUTRAL | Swing: BULLISH
+[Top Discoveries]
+  1. MSFT (score: 100, watchlist)
+  2. META (score: 100, watchlist)
+  3. AAPL (score: 100, watchlist)
+  4. AMD (score: 100, watchlist)
+  5. IBIT (score: 100, watchlist)
+  6. TSLA (score: 100, watchlist)
+  7. NVDA (score: 100, watchlist)
+  8. QQQ (score: 100, watchlist)
+
+[VELOCITY ALERTS]
+  🚀 PANW: +29 pts (26→55) 🟢
+  🚀 XLF: +15 pts (20→35) 🟢
+
+[History] Updating scanner history for 34 symbols...
+[History] Updated 34 symbols in database.
+
+[Results] Analyzed 34 symbols:
+  ✅ AMD: 57/100 🟢 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI oversold (28.3)
+  ✅ AMZN: 57/100 🟢 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI oversold (16.8)
+  ✅ PANW: 55/100 🟢 - VELOCITY +29 pts, ⭐ PRIME SETUP: Wall + Extended RSI
+  ✅ XLK: 35/100 🟢 - ⭐ COMBO: Put wall + Heavy puts (89% 3d WR), At put wall support ($140)
+  ✅ XLF: 35/100 🟢 - VELOCITY +15 pts, ⭐ COMBO: Put wall + Heavy puts (89% 3d WR)
+  ⬜ META: 25/100 🟢 - At put wall support ($640), ℹ️ At VWAP ($638.55)
+  ⬜ AAPL: 25/100 🔴 - At call wall resistance ($265), ℹ️ Confluence zone (2 levels)
+  ⬜ NVDA: 25/100 🟢 - At put wall support ($185), ℹ️ Confluence zone (2 levels)
+  ⬜ MARA: 22/100 🔴 - At call wall resistance ($7.5), CALL wall dormant
+  ⬜ IWM: 20/100 🟢 - At put wall support ($263), ℹ️ Confluence zone (3 levels)
+  ⬜ XLI: 20/100 🟢 - RSI overbought (80.2), 🚀 BREAKOUT above call wall ($172) +1.9%
+  ⬜ WMT: 20/100 🔴 - At call wall resistance ($130), CALL wall dormant
+  ⬜ MU: 20/100 🔴 - At call wall resistance ($410), ℹ️ Confluence zone (3 levels)
+  ⬜ XLE: 17/100 🟢 - RSI overbought (71.0), 🚀 BREAKOUT above call wall ($55) +1.3%
+  ⬜ XLV: 17/100 🟢 - At put wall support ($157), ℹ️ Confluence zone (5 levels)
+  ⬜ CVNA: 13/100 ⚪ - Volume spike (2.0x avg), Heavy put bias (0.37 C/P)
+  ⬜ IBIT: 10/100 🔴 - RSI oversold (23.9), 💥 BREAKDOWN below put wall ($38) -1.4%
+  ⬜ TSLA: 10/100 ⚪ - ℹ️ Elevated put $405 02/20 (2.3x, $6.2M), ℹ️ $13M net bearish premium
+  ⬜ INTC: 10/100 🔴 - 💥 BREAKDOWN below put wall ($45) -1.9%, VIX elevated (20.8)
+  ⬜ SMCI: 10/100 ⚪ - Heavy call bias (7.56 C/P) [-3], VIX elevated (20.8)
+  ⬜ OXY: 10/100 🟢 - 🚀 BREAKOUT above call wall ($50) +2.7%, ℹ️ Above gamma flip ($44.98)
+  ⬜ MSFT: 7/100 📍 - RSI oversold (19.2), 📍 PINNED between walls ($400-$400)
+  ⬜ EEM: 7/100 📍 - 📍 PINNED between walls ($61-$61), Heavy call bias (26.91 C/P) [-3]
+  ⬜ SNDK: 5/100 📍 - 📍 PINNED between walls ($600-$600), ℹ️ At VWAP ($597.77)
+  ⬜ GOOGL: 5/100 📍 - RSI oversold (19.8), At lower Bollinger Band
+  ⬜ PLTR: 5/100 🔴 - 💥 BREAKDOWN below put wall ($135) -1.4%, ℹ️ Below gamma flip ($134.49)
+  ⬜ ETHA: 5/100 🔴 - RSI oversold (21.1), 💥 BREAKDOWN below put wall ($15) -2.9%
+  ⬜ F: 5/100 ⚪ - VIX elevated (20.8), ⚠️ Day 2 setup — historically weak (23% WR)
+  ⬜ CLSK: 2/100 📍 - RSI oversold (28.6), 📍 PINNED between walls ($9-$9)
+  ⬜ MRNA: 2/100 🟢 - 🚀 BREAKOUT above call wall ($45) +1.9%, ℹ️ Above gamma flip ($38.72)
+  ⬜ XLY: 2/100 🔴 - RSI oversold (28.3), 💥 BREAKDOWN below put wall ($117) -1.1%
+  ⬜ GM: 2/100 🔴 - 💥 BREAKDOWN below put wall ($85) -3.3%, ℹ️ Confluence zone (5 levels)
+  ⬜ QQQ: 0/100 📍 - 📍 PINNED between walls ($600-$605), ℹ️ Confluence zone (4 levels)
+  ⬜ SPY: 0/100 📍 - 📍 PINNED between walls ($685-$690), ℹ️ Confluence zone (5 levels)
+
+[Tiers] HIGH_CONVICTION: 2 | TRADEABLE: 2 | WATCH: 9 | FILTERED: 21
+[HIGH CONVICTION]
+  🔥 AMD: 57/100 🟢 [Dormant wall]
+  🔥 AMZN: 57/100 🟢 [Dormant wall]
+[TRADEABLE]
+  ✅ XLK: 35/100 🟢 (BUY)
+  ✅ XLF: 35/100 🟢 (BUY)
+[WATCH LIST]
+  👀 PANW: 55/100 (score 55)
+  👀 META: 25/100 (score 25)
+  👀 AAPL: 25/100 (score 25)
+  👀 NVDA: 25/100 (score 25)
+  👀 MARA: 22/100 (score 22)
+
+[Alerts] Sending 2 HIGH CONVICTION alert(s)...
+[Telegram] Sent alert
+[SignalDB] Inserted signal AMD_1771512147636 @ $201.02
+[Signal Logger] Logged AMD_1771512147636 @ $201.02 (bullish, score 57)
+[Watchlist] Skipped AMD — manual entry protected (attempted by signal_tracking)
+[Telegram] Sent alert
+[Signal Logger] AMZN conditions changed on existing signal:
+  Score: 99 → 57 (-42)
+
+[Signal Logger] Logging 2 TRADEABLE signal(s) for validation...
+
+[Signal Logger] Logging 9 WATCH signal(s) for baseline analysis...
+[Signal Logger] META conditions changed on existing signal:
+  Score: 39 → 25 (-14)
+[SignalDB] Inserted signal AAPL_1771512148533 @ $262.73
+[Signal Logger] Logged AAPL_1771512148533 @ $262.73 (bearish, score 25)
+[Watchlist] Skipped AAPL — manual entry protected (attempted by signal_tracking)
+[SignalDB] Inserted signal MARA_1771512148544 @ $7.43
+[Signal Logger] Logged MARA_1771512148544 @ $7.43 (bearish, score 22)
+[Watchlist] Added MARA (source: signal_tracking)
+[Signal Logger] IWM conditions changed on existing signal:
+  Score: 40 → 20 (-20)
+  Zone: SELL_ZONE → BUY_ZONE
+  Direction: bearish → bullish
+[SignalDB] Inserted signal WMT_1771512148560 @ $129.18
+[Signal Logger] Logged WMT_1771512148560 @ $129.18 (bearish, score 20)
+[Watchlist] Updated WMT (source: signal_tracking)
+[SignalDB] Inserted signal MU_1771512148579 @ $409.53
+[Signal Logger] Logged MU_1771512148579 @ $409.53 (bearish, score 20)
+[Watchlist] Added MU (source: signal_tracking)
+[SignalDB] Inserted 34 bloodhound results for scan 804
+[Bloodhound] Wrote 34 results to database (scan_id: 804)
+
+[Bloodhound] Scan complete (204s). Next scan in 5 minutes.
+[Signal Logger] Price cache built with 34 symbols
+[SignalDB] Closed option signal AMZN_1771344394536: LOSS (peak +9%, close -100%)
+[Signal Logger] Option .AMZN260218P195 expired — closed
+[Signal Logger] Updated prices for 22 signal(s), 2 option(s) (22 cached, 0 API)
+[Signal Logger] Validating 7 signal(s) for 24h checkpoint...
+[SignalDB] Recorded 24h checkpoint for XLY_1771425428033: WRONG (-0.57%)
+[Signal Logger] 24h | XLY_1771425428033: ❌ -0.57%
+[SignalDB] Recorded 24h checkpoint for GOOGL_1771425429555: WRONG (-0.72%)
+[Signal Logger] 24h | GOOGL_1771425429555: ❌ -0.72%
+[SignalDB] Recorded 24h checkpoint for IBIT_1771425429872: WRONG (-1.58%)
+[Signal Logger] 24h | IBIT_1771425429872: ❌ -1.58%
+[SignalDB] Recorded 24h checkpoint for IWM_1771425430194: CORRECT (-0.61%)
+[Signal Logger] 24h | IWM_1771425430194: ✅ -0.61%
+[SignalDB] Recorded 24h checkpoint for XLV_1771425430512: WRONG (-0.12%)
+[Signal Logger] 24h | XLV_1771425430512: ❌ -0.12%
+[SignalDB] Recorded 24h checkpoint for ETHA_1771425430517: WRONG (-1.88%)
+[Signal Logger] 24h | ETHA_1771425430517: ❌ -1.88%
+[SignalDB] Recorded 24h checkpoint for MSFT_1771425430521: CORRECT (0.37%)
+[Signal Logger] 24h | MSFT_1771425430521: ✅ +0.37%
+
+============================================================
+[2026-02-19T14:44:04.545Z] Running Bloodhound scan...
+============================================================
+[Context] VIX: 20.68 (elevated) | SPY: bearish
+[Internals] TICK: -62, A/D: -680, Vol Ratio: 1.03
+[RS] Read 28 rankings from DB (snapshot 13m ago)
+[RS] Rotation regime: mid_cycle | 28 assets ranked
+[MA-Bounce] Pre-fetched history for 8/8 validated symbols
+[Div-BB] Pre-fetched history for 9/9 configured symbols
+[Watchlist] DB: 9 static, 22 dynamic
+[Discovery] Opportunity scanner contributed 21 symbols
+[Discovery] 34 symbols: 9 static + 25 dynamic (watchlist: 22, market_data: 4, opportunity_scanner: 21, sector_leader: 1)
+[Discovery] Found 34 symbols to scan
+[Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+[Bias] Intraday: NEUTRAL | Swing: BULLISH
+[Top Discoveries]
+  1. MSFT (score: 100, watchlist)
+  2. META (score: 100, watchlist)
+  3. AAPL (score: 100, watchlist)
+  4. AMD (score: 100, watchlist)
+  5. IBIT (score: 100, watchlist)
+  6. TSLA (score: 100, watchlist)
+  7. NVDA (score: 100, watchlist)
+  8. QQQ (score: 100, watchlist)
+[Backoff] ⚠️ ACTIVATED - 3 slow responses (>5000ms)
+[Backoff]    Switching to batched mode: 5 symbols, 300ms delay
+[Backoff] 📊 Active (slow: 3, fast: 0)
+[Backoff] 📊 Active (slow: 3, fast: 3)
+[Backoff] 📊 Active (slow: 3, fast: 4)
+[Backoff] 📊 Active (slow: 4, fast: 0)
+[Backoff] 📊 Active (slow: 4, fast: 3)
+[Backoff] 📊 Active (slow: 6, fast: 0)
+
+[VELOCITY ALERTS]
+  🚀 PANW: +29 pts (26→55) 🟢
+  🚀 XLF: +15 pts (20→35) 🟢
+
+[History] Updating scanner history for 33 symbols...
+[History] Updated 33 symbols in database.
+
+[Results] Analyzed 33 symbols:
+  ✅ XLY: 65/100 🟢 - ⭐ COMBO: Put wall + Heavy puts (89% 3d WR), ⭐ PRIME SETUP: Wall + Extended RSI
+  ✅ AMZN: 57/100 🟢 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI oversold (16.8)
+  ✅ PANW: 55/100 🟢 - VELOCITY +29 pts, ⭐ PRIME SETUP: Wall + Extended RSI
+  ✅ XLK: 35/100 🟢 - ⭐ COMBO: Put wall + Heavy puts (89% 3d WR), At put wall support ($140)
+  ✅ XLF: 35/100 🟢 - VELOCITY +15 pts, ⭐ COMBO: Put wall + Heavy puts (89% 3d WR)
+  ⬜ META: 25/100 🟢 - At put wall support ($640), ℹ️ Confluence zone (2 levels)
+  ⬜ NVDA: 25/100 🟢 - At put wall support ($185), PUT wall dormant
+  ⬜ WMT: 20/100 🔴 - At call wall resistance ($130), CALL wall dormant
+  ⬜ SMCI: 19/100 🔴 - At call wall resistance ($32), CALL wall dormant
+  ⬜ XLE: 17/100 🟢 - RSI overbought (71.0), 🚀 BREAKOUT above call wall ($55) +1.4%
+  ⬜ MU: 17/100 🔴 - At call wall resistance ($410), ℹ️ Confluence zone (3 levels)
+  ⬜ XLI: 17/100 🟢 - RSI overbought (80.2), 🚀 BREAKOUT above call wall ($172) +2.0%
+  ⬜ XLV: 17/100 🟢 - At put wall support ($157), ℹ️ At VWAP ($157.14)
+  ⬜ GM: 17/100 🔴 - At call wall resistance ($82.5), ℹ️ Confluence zone (5 levels)
+  ⬜ IWM: 15/100 🟢 - At put wall support ($263), ℹ️ Confluence zone (3 levels)
+  ⬜ CVNA: 13/100 🔴 - 💥 BREAKDOWN below put wall ($350) -1.3%, Volume spike (2.0x avg)
+  ⬜ AAPL: 10/100 📍 - 📍 PINNED between walls ($265-$265), ℹ️ Confluence zone (2 levels)
+  ⬜ AMD: 10/100 📍 - RSI oversold (28.3), 📍 PINNED between walls ($200-$200)
+  ⬜ IBIT: 10/100 🔴 - RSI oversold (23.9), 💥 BREAKDOWN below put wall ($38) -1.1%
+  ⬜ TSLA: 10/100 ⚪ - ℹ️ Elevated call $407.5 02/20 (3.4x, $2.4M), VIX elevated (20.7)
+  ⬜ OXY: 10/100 🟢 - 🚀 BREAKOUT above call wall ($50) +2.5%, ℹ️ Above gamma flip ($46.68)
+  ⬜ INTC: 10/100 🔴 - 💥 BREAKDOWN below put wall ($45) -2.2%, VIX elevated (20.7)
+  ⬜ MSFT: 7/100 📍 - RSI oversold (19.2), 📍 PINNED between walls ($400-$400)
+  ⬜ EEM: 7/100 📍 - 📍 PINNED between walls ($61-$61), ℹ️ Confluence zone (5 levels)
+  ⬜ MARA: 7/100 ⚪ - Heavy call bias (2.75 C/P) [-3], VIX elevated (20.7)
+  ⬜ SNDK: 5/100 🔴 - 💥 BREAKDOWN below put wall ($600) -1.2%, ℹ️ $20M net bullish premium
+  ⬜ GOOGL: 5/100 📍 - RSI oversold (19.8), At lower Bollinger Band
+  ⬜ PLTR: 5/100 🔴 - 💥 BREAKDOWN below put wall ($135) -1.4%, ℹ️ Below gamma flip ($134.39)
+  ⬜ ETHA: 5/100 🔴 - RSI oversold (21.1), 💥 BREAKDOWN below put wall ($15) -2.7%
+  ⬜ CLSK: 2/100 🔴 - RSI oversold (28.6), 💥 BREAKDOWN below put wall ($15.5) -71.1%
+  ⬜ MRNA: 2/100 🟢 - 🚀 BREAKOUT above call wall ($45) +2.0%, ℹ️ Above gamma flip ($38.72)
+  ⬜ QQQ: 0/100 📍 - 📍 PINNED between walls ($600-$605), ℹ️ Confluence zone (5 levels)
+  ⬜ SPY: 0/100 📍 - 📍 PINNED between walls ($685-$690), ℹ️ At VWAP ($686.48)
+
+[Tiers] HIGH_CONVICTION: 0 | TRADEABLE: 2 | WATCH: 5 | FILTERED: 26
+[TRADEABLE]
+  ✅ XLK: 35/100 🟢 (BUY)
+  ✅ XLF: 35/100 🟢 (BUY) [Dormant wall]
+[WATCH LIST]
+  👀 XLY: 65/100 
+  👀 PANW: 55/100 (score 55)
+  👀 META: 25/100 (score 25)
+  👀 NVDA: 25/100 (score 25)
+  👀 WMT: 20/100 (score 20)
+
+[Alerts] No high-conviction opportunities (2 tradeable, 5 on watch)
+
+[Signal Logger] Logging 2 TRADEABLE signal(s) for validation...
+
+[Signal Logger] Logging 5 WATCH signal(s) for baseline analysis...
+[Signal Logger] META conditions changed on existing signal:
+  Score: 39 → 25 (-14)
+[SignalDB] Inserted 33 bloodhound results for scan 805
+[Bloodhound] Wrote 33 results to database (scan_id: 805)
+
+[Bloodhound] Scan complete (244s). [BACKOFF ACTIVE: batch 5, delay 300ms] Next scan in 5 minutes.
+[Signal Logger] Price cache built with 33 symbols
+[SignalDB] Closed option signal AMZN_1771344394536: LOSS (peak +9%, close -100%)
+[Signal Logger] Option .AMZN260218P195 expired — closed
+[Signal Logger] Updated prices for 22 signal(s), 2 option(s) (22 cached, 0 API)
+
+============================================================
+[2026-02-19T14:49:04.547Z] Running Bloodhound scan...
+============================================================
+[Backoff] 📊 Active (slow: 6, fast: 1)
+[Context] VIX: 20.54 (elevated) | SPY: bearish
+[Internals] TICK: null, A/D: -486, Vol Ratio: 0.99
+[RS] Read 28 rankings from DB (snapshot 4m ago)
+[RS] Rotation regime: mid_cycle | 28 assets ranked
+[MA-Bounce] Pre-fetched history for 8/8 validated symbols
+[Div-BB] Pre-fetched history for 9/9 configured symbols
+[Watchlist] DB: 9 static, 23 dynamic
+[Discovery] Opportunity scanner contributed 21 symbols
+[Discovery] 34 symbols: 9 static + 25 dynamic (watchlist: 23, market_data: 4, opportunity_scanner: 21, sector_leader: 1)
+[Discovery] Found 34 symbols to scan
+[Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+[Bias] Intraday: NEUTRAL | Swing: BULLISH
+[Top Discoveries]
+  1. MSFT (score: 100, watchlist)
+  2. META (score: 100, watchlist)
+  3. AAPL (score: 100, watchlist)
+  4. AMD (score: 100, watchlist)
+  5. IBIT (score: 100, watchlist)
+  6. TSLA (score: 100, watchlist)
+  7. NVDA (score: 100, watchlist)
+  8. QQQ (score: 100, watchlist)
+[Backoff] 📊 Active (slow: 6, fast: 8)
+[Backoff] ✅ RECOVERED - 10 fast responses, resuming parallel mode
+
+[VELOCITY ALERTS]
+  🚀 PANW: +29 pts (26→55) 🟢
+  🚀 CVNA: +36 pts (0→36) 🟢
+  🚀 XLF: +15 pts (20→35) 🟢
+
+[History] Updating scanner history for 34 symbols...
+[History] Updated 34 symbols in database.
+
+[Results] Analyzed 34 symbols:
+  ✅ XLY: 65/100 🟢 - ⭐ COMBO: Put wall + Heavy puts (89% 3d WR), ⭐ PRIME SETUP: Wall + Extended RSI
+  ✅ AMZN: 57/100 🟢 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI oversold (16.8)
+  ✅ PANW: 55/100 🟢 - VELOCITY +29 pts, ⭐ PRIME SETUP: Wall + Extended RSI
+  ✅ CVNA: 36/100 🟢 - VELOCITY +36 pts, ⭐ COMBO: Put wall + Volume spike (80% 3d WR)
+  ✅ XLK: 35/100 🟢 - ⭐ COMBO: Put wall + Heavy puts (89% 3d WR), At put wall support ($140)
+  ✅ XLF: 35/100 🟢 - VELOCITY +15 pts, ⭐ COMBO: Put wall + Heavy puts (89% 3d WR)
+  ⬜ NVDA: 25/100 🟢 - At put wall support ($185), PUT wall dormant
+  ⬜ META: 22/100 🟢 - At put wall support ($640), PUT wall dormant
+  ⬜ MARA: 22/100 🔴 - At call wall resistance ($7.5), CALL wall dormant
+  ⬜ SMCI: 19/100 🔴 - At call wall resistance ($32), CALL wall dormant
+  ⬜ XLE: 17/100 🟢 - RSI overbought (71.0), 🚀 BREAKOUT above call wall ($55) +1.3%
+  ⬜ MU: 17/100 🔴 - At call wall resistance ($410), CALL wall dormant
+  ⬜ XLI: 17/100 🟢 - RSI overbought (80.2), 🚀 BREAKOUT above call wall ($172) +2.0%
+  ⬜ AAPL: 10/100 📍 - 📍 PINNED between walls ($265-$265), ℹ️ At VWAP ($264.49)
+  ⬜ AMD: 10/100 📍 - RSI oversold (28.3), 📍 PINNED between walls ($200-$200)
+  ⬜ IBIT: 10/100 🔴 - RSI oversold (23.9), 💥 BREAKDOWN below put wall ($38) -1.1%
+  ⬜ TSLA: 10/100 ⚪ - ℹ️ Elevated call $407.5 02/20 (4.7x, $3.2M), VIX elevated (20.5)
+  ⬜ OXY: 10/100 🟢 - 🚀 BREAKOUT above call wall ($50) +3.4%, ℹ️ Above gamma flip ($47.14)
+  ⬜ INTC: 10/100 🔴 - 💥 BREAKDOWN below put wall ($45) -1.8%, VIX elevated (20.5)
+  ⬜ MSFT: 7/100 📍 - RSI oversold (19.2), 📍 PINNED between walls ($400-$400)
+  ⬜ EEM: 7/100 📍 - 📍 PINNED between walls ($61-$61), Heavy call bias (30.48 C/P) [-3]
+  ⬜ GOOGL: 5/100 📍 - RSI oversold (19.8), At lower Bollinger Band
+  ⬜ PLTR: 5/100 📍 - 📍 PINNED between walls ($135-$135), ℹ️ Confluence zone (2 levels)
+  ⬜ WMT: 5/100 ⚪ - VIX elevated (20.5), ℹ️ Strong sector RS (XLP top quartile, 75th pctl)
+  ⬜ ETHA: 5/100 🔴 - RSI oversold (21.1), 💥 BREAKDOWN below put wall ($15) -2.7%
+  ⬜ F: 5/100 🔴 - 💥 BREAKDOWN below put wall ($14) -1.2%, VIX elevated (20.5)
+  ⬜ CLSK: 2/100 🟢 - RSI oversold (28.6), 🚀 BREAKOUT above call wall ($9) +1.2%
+  ⬜ SNDK: 2/100 📍 - 📍 PINNED between walls ($600-$600), ℹ️ $24M net bullish premium
+  ⬜ MRNA: 2/100 🟢 - 🚀 BREAKOUT above call wall ($45) +2.6%, ℹ️ Above gamma flip ($39.55)
+  ⬜ XLV: 2/100 🔴 - 💥 BREAKDOWN below put wall ($159) -1.6%, ℹ️ Confluence zone (4 levels)
+  ⬜ GM: 2/100 🔴 - 💥 BREAKDOWN below put wall ($85) -3.3%, ℹ️ Confluence zone (5 levels)
+  ⬜ QQQ: 0/100 📍 - 📍 PINNED between walls ($600-$605), ℹ️ Confluence zone (4 levels)
+  ⬜ SPY: 0/100 📍 - 📍 PINNED between walls ($685-$690), ℹ️ Confluence zone (5 levels)
+  ⬜ IWM: 0/100 📍 - 📍 PINNED between walls ($263-$265), ℹ️ Confluence zone (3 levels)
+
+[Tiers] HIGH_CONVICTION: 1 | TRADEABLE: 3 | WATCH: 5 | FILTERED: 25
+[HIGH CONVICTION]
+  🔥 AMZN: 57/100 🟢 [Dormant wall]
+[TRADEABLE]
+  ✅ CVNA: 36/100 🟢 (BUY) [Dormant wall]
+  ✅ XLK: 35/100 🟢 (BUY)
+  ✅ XLF: 35/100 🟢 (BUY) [Dormant wall]
+[WATCH LIST]
+  👀 XLY: 65/100 
+  👀 PANW: 55/100 (score 55)
+  👀 NVDA: 25/100 (score 25)
+  👀 META: 22/100 (score 22)
+  👀 MARA: 22/100 (score 22)
+
+[Alerts] Sending 1 HIGH CONVICTION alert(s)...
+[Telegram] Sent alert
+[Signal Logger] AMZN conditions changed on existing signal:
+  Score: 99 → 57 (-42)
+  Zone: LOW_MOMENTUM → BUY_ZONE
+
+[Signal Logger] Logging 3 TRADEABLE signal(s) for validation...
+[SignalDB] Inserted signal CVNA_1771512677630 @ $349.89
+[Signal Logger] Logged CVNA_1771512677630 @ $349.89 (bullish, score 36)
+[Watchlist] Updated CVNA (source: signal_tracking)
+
+[Signal Logger] Logging 5 WATCH signal(s) for baseline analysis...
+[Signal Logger] META conditions changed on existing signal:
+  Score: 39 → 22 (-17)
+[SignalDB] Inserted 34 bloodhound results for scan 806
+[Bloodhound] Wrote 34 results to database (scan_id: 806)
+
+[Bloodhound] Scan complete (133s). Next scan in 5 minutes.
+[Signal Logger] Price cache built with 34 symbols
+[SignalDB] Closed option signal AMZN_1771344394536: LOSS (peak +9%, close -100%)
+[Signal Logger] Option .AMZN260218P195 expired — closed
+[Signal Logger] Updated prices for 23 signal(s), 2 option(s) (23 cached, 0 API)
+
+============================================================
+[2026-02-19T14:54:04.547Z] Running Bloodhound scan...
+============================================================
+[Context] VIX: 20.31 (elevated) | SPY: bearish
+[Internals] TICK: -156, A/D: -551, Vol Ratio: 0.97
+[RS] Read 28 rankings from DB (snapshot 9m ago)
+[RS] Rotation regime: mid_cycle | 28 assets ranked
+[MA-Bounce] Pre-fetched history for 8/8 validated symbols
+[Div-BB] Pre-fetched history for 9/9 configured symbols
+[Watchlist] DB: 9 static, 23 dynamic
+[Discovery] Opportunity scanner contributed 21 symbols
+[Discovery] 34 symbols: 9 static + 25 dynamic (watchlist: 23, market_data: 4, opportunity_scanner: 21, sector_leader: 1)
+[Discovery] Found 34 symbols to scan
+[Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+[Bias] Intraday: NEUTRAL | Swing: BULLISH
+[Top Discoveries]
+  1. MSFT (score: 100, watchlist)
+  2. META (score: 100, watchlist)
+  3. AAPL (score: 100, watchlist)
+  4. AMD (score: 100, watchlist)
+  5. IBIT (score: 100, watchlist)
+  6. TSLA (score: 100, watchlist)
+  7. NVDA (score: 100, watchlist)
+  8. QQQ (score: 100, watchlist)
+
+[VELOCITY ALERTS]
+  🚀 PANW: +29 pts (26→55) 🟢
+  🚀 CVNA: +36 pts (0→36) 🟢
+  🚀 XLF: +15 pts (20→35) 🟢
+
+[History] Updating scanner history for 34 symbols...
+[History] Updated 34 symbols in database.
+
+[Results] Analyzed 34 symbols:
+  ✅ XLY: 65/100 🟢 - ⭐ COMBO: Put wall + Heavy puts (89% 3d WR), ⭐ PRIME SETUP: Wall + Extended RSI
+  ✅ AMD: 60/100 🟢 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI oversold (28.3)
+  ✅ AMZN: 57/100 🟢 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI oversold (16.8)
+  ✅ PANW: 55/100 🟢 - VELOCITY +29 pts, ⭐ PRIME SETUP: Wall + Extended RSI
+  ✅ CVNA: 36/100 🟢 - VELOCITY +36 pts, ⭐ COMBO: Put wall + Volume spike (80% 3d WR)
+  ✅ XLF: 35/100 🟢 - VELOCITY +15 pts, ⭐ COMBO: Put wall + Heavy puts (89% 3d WR)
+  ⬜ NVDA: 25/100 🟢 - At put wall support ($185), ℹ️ Confluence zone (2 levels)
+  ⬜ XLK: 25/100 🟢 - At put wall support ($140), ℹ️ Confluence zone (2 levels)
+  ⬜ META: 22/100 🟢 - At put wall support ($640), PUT wall dormant
+  ⬜ XLI: 20/100 🟢 - RSI overbought (80.2), 🚀 BREAKOUT above call wall ($172) +2.1%
+  ⬜ WMT: 20/100 🔴 - At call wall resistance ($130), CALL wall dormant
+  ⬜ GM: 20/100 🔴 - At call wall resistance ($82.5), ℹ️ Confluence zone (5 levels)
+  ⬜ SMCI: 19/100 🔴 - At call wall resistance ($32), ℹ️ Confluence zone (2 levels)
+  ⬜ XLE: 17/100 🟢 - RSI overbought (71.0), 🚀 BREAKOUT above call wall ($55) +1.1%
+  ⬜ MU: 17/100 🔴 - At call wall resistance ($410), CALL wall dormant
+  ⬜ XLV: 17/100 🟢 - At put wall support ($157), ℹ️ At VWAP ($157.14)
+  ⬜ AAPL: 10/100 📍 - 📍 PINNED between walls ($265-$265), ℹ️ At VWAP ($264.49)
+  ⬜ IBIT: 10/100 📍 - RSI oversold (23.9), 📍 PINNED between walls ($38-$38)
+  ⬜ EEM: 10/100 📍 - 📍 PINNED between walls ($61-$61), ℹ️ Confluence zone (5 levels)
+  ⬜ OXY: 10/100 🟢 - 🚀 BREAKOUT above call wall ($50) +2.1%, ℹ️ Above gamma flip ($44.77)
+  ⬜ INTC: 10/100 🔴 - 💥 BREAKDOWN below put wall ($45) -1.6%, VIX elevated (20.3)
+  ⬜ MSFT: 7/100 📍 - RSI oversold (19.2), 📍 PINNED between walls ($400-$400)
+  ⬜ MARA: 7/100 🟢 - 🚀 BREAKOUT above call wall ($7.5) +1.1%, ℹ️ Above gamma flip ($7.18)
+  ⬜ TSLA: 5/100 🟢 - ℹ️ Options flow detected (not at wall — informational), 🔥 Unusual CALL $407.5 02/20 (6.9x, $5.5M) [-5]
+  ⬜ GOOGL: 5/100 📍 - RSI oversold (19.8), At lower Bollinger Band
+  ⬜ PLTR: 5/100 📍 - 📍 PINNED between walls ($135-$135), ℹ️ Confluence zone (4 levels)
+  ⬜ ETHA: 5/100 🔴 - RSI oversold (21.1), 💥 BREAKDOWN below put wall ($15) -2.1%
+  ⬜ F: 5/100 🔴 - 💥 BREAKDOWN below put wall ($14) -1.2%, VIX elevated (20.3)
+  ⬜ CLSK: 2/100 🟢 - RSI oversold (28.6), 🚀 BREAKOUT above call wall ($9) +2.8%
+  ⬜ SNDK: 2/100 📍 - 📍 PINNED between walls ($600-$600), ℹ️ Confluence zone (5 levels)
+  ⬜ MRNA: 2/100 ⚪ - ℹ️ At VWAP ($46.54), Heavy call bias (7.99 C/P) [-3]
+  ⬜ QQQ: 0/100 📍 - 📍 PINNED between walls ($600-$605), ℹ️ Confluence zone (5 levels)
+  ⬜ SPY: 0/100 📍 - 📍 PINNED between walls ($685-$690), ℹ️ At VWAP ($686.48)
+  ⬜ IWM: 0/100 📍 - 📍 PINNED between walls ($263-$265), ℹ️ Confluence zone (3 levels)
+
+[Tiers] HIGH_CONVICTION: 0 | TRADEABLE: 2 | WATCH: 7 | FILTERED: 25
+[TRADEABLE]
+  ✅ CVNA: 36/100 🟢 (BUY) [Dormant wall]
+  ✅ XLF: 35/100 🟢 (BUY) [Dormant wall]
+[WATCH LIST]
+  👀 XLY: 65/100 
+  👀 PANW: 55/100 (score 55)
+  👀 NVDA: 25/100 (score 25)
+  👀 XLK: 25/100 (score 25)
+  👀 META: 22/100 (score 22)
+
+[Alerts] No high-conviction opportunities (2 tradeable, 7 on watch)
+
+[Signal Logger] Logging 2 TRADEABLE signal(s) for validation...
+
+[Signal Logger] Logging 7 WATCH signal(s) for baseline analysis...
+[Signal Logger] XLK conditions changed on existing signal:
+  Score: 36 → 25 (-11)
+[Signal Logger] META conditions changed on existing signal:
+  Score: 39 → 22 (-17)
+[SignalDB] Inserted signal GM_1771513017211 @ $82.57
+[Signal Logger] Logged GM_1771513017211 @ $82.57 (bearish, score 20)
+[Watchlist] Added GM (source: signal_tracking)
+[SignalDB] Inserted 34 bloodhound results for scan 807
+[Bloodhound] Wrote 34 results to database (scan_id: 807)
+
+[Bloodhound] Scan complete (173s). Next scan in 5 minutes.
+[Signal Logger] Price cache built with 34 symbols
+[SignalDB] Closed option signal AMZN_1771344394536: LOSS (peak +9%, close -100%)
+[Signal Logger] Option .AMZN260218P195 expired — closed
+[Signal Logger] Updated prices for 24 signal(s), 2 option(s) (24 cached, 0 API)
+
+============================================================
+[2026-02-19T14:59:04.547Z] Running Bloodhound scan...
+============================================================
+[Context] VIX: 20.23 (elevated) | SPY: bearish
+[Internals] TICK: -22, A/D: -309, Vol Ratio: 0.95
+[RS] Read 28 rankings from DB (snapshot 14m ago)
+[RS] Rotation regime: mid_cycle | 28 assets ranked
+[MA-Bounce] Pre-fetched history for 8/8 validated symbols
+[Div-BB] Pre-fetched history for 9/9 configured symbols
+[Watchlist] DB: 9 static, 24 dynamic
+[Discovery] Opportunity scanner contributed 21 symbols
+[Discovery] 34 symbols: 9 static + 25 dynamic (watchlist: 24, market_data: 4, opportunity_scanner: 21, sector_leader: 1)
+[Discovery] Found 34 symbols to scan
+[Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+[Bias] Intraday: NEUTRAL | Swing: BULLISH
+[Top Discoveries]
+  1. MSFT (score: 100, watchlist)
+  2. META (score: 100, watchlist)
+  3. AAPL (score: 100, watchlist)
+  4. AMD (score: 100, watchlist)
+  5. IBIT (score: 100, watchlist)
+  6. TSLA (score: 100, watchlist)
+  7. NVDA (score: 100, watchlist)
+  8. QQQ (score: 100, watchlist)
+[Backoff] ⚠️ ACTIVATED - 3 slow responses (>5000ms)
+[Backoff]    Switching to batched mode: 5 symbols, 300ms delay
+[Backoff] 📊 Active (slow: 3, fast: 0)
