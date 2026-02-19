@@ -108,3 +108,15 @@
 [Bloodhound] SPY failed (watchlist), retrying in 2s...
 [API] Failed: http://192.168.10.60:8000/api/levels/F — This operation was aborted (15004ms)
 [Bloodhound] DROPPED: F — API returned no data
+[API] Failed: http://192.168.10.61:32212/api/rotation/regime — This operation was aborted (5004ms)
+[API] Failed: http://192.168.10.60:8000/api/quotes/AMD — fetch failed (14ms)
+[API] Failed: http://192.168.10.60:8000/api/levels/IBIT — fetch failed (4ms)
+[Bloodhound] IBIT failed (watchlist), retrying in 2s...
+[API] Failed: http://192.168.10.60:8000/api/levels/IBIT — fetch failed (1ms)
+[Bloodhound] DROPPED: IBIT — API returned no data
+[API] Failed: http://192.168.10.60:8000/api/levels/TSLA — fetch failed (4ms)
+[Bloodhound] TSLA failed (watchlist), retrying in 2s...
+[API] Failed: http://192.168.10.60:8000/api/levels/TSLA — fetch failed (3ms)
+[Bloodhound] DROPPED: TSLA — API returned no data
+[API] Failed: http://192.168.10.60:8000/api/levels/NVDA — fetch failed (4ms)
+[Bloodhound] NVDA failed (watchlist), retrying in 2s...
