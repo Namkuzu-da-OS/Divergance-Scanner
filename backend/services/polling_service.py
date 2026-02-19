@@ -1,11 +1,15 @@
 """
 Polling Service
-Background task that fetches data and broadcasts updates via WebSocket
+Background task that fetches data and broadcasts updates via WebSocket.
+
+Uses a rolling fetch pattern: instead of blasting all API calls at once,
+fetches one symbol at a time spread evenly across the scan interval.
+This keeps a steady, low load on the upstream API.
 """
 import asyncio
 import logging
 import time
-from typing import Optional
+from typing import Optional, Dict, List
 import numpy as np
 
 from backend.core.config import get_settings
@@ -25,6 +29,12 @@ settings = get_settings()
 class PollingService:
     """
     Background service that polls the data server and broadcasts updates.
+
+    Rolling fetch pattern:
+      - Spreads history fetches evenly across the scan interval
+      - Interleaves quote broadcasts for WebSocket clients
+      - Computes rankings + divergences once per cycle using shared cache
+      - Never bursts — steady 1 call every ~8-10s
     """
 
     def __init__(self):
@@ -47,40 +57,111 @@ class PollingService:
             logger.info("Polling service stopped")
 
     async def _poll_loop(self):
-        """Main polling loop"""
-        quote_counter = 0
-        divergence_counter = 0
-        history_counter = 0
+        """
+        Main polling loop — spreads API calls evenly, never bursts.
+
+        Each cycle:
+          1. Fetch history for each symbol one at a time (~8s apart)
+          2. Interleave quote broadcasts during the fetch phase
+          3. After all history is fetched, grab fresh quotes
+          4. Compute rankings, divergences, rotations from cached data
+          5. If cycle finished early, idle with periodic quote updates
+        """
+        symbols = list(ALL_SYMBOLS)
+        num_symbols = len(symbols)
+
+        # Spread history fetches across 80% of the scan interval
+        fetch_window = settings.divergence_scan_interval * 0.8
+        spacing = max(fetch_window / num_symbols, 2.0)
+
+        logger.info(
+            f"Rolling fetch: {num_symbols} symbols, "
+            f"{settings.divergence_scan_interval:.0f}s cycle, "
+            f"{spacing:.1f}s between history fetches, "
+            f"quotes every {settings.quote_poll_interval:.0f}s"
+        )
+
+        last_quote_time = 0
 
         while self._running:
             try:
-                quote_counter += 1
-                divergence_counter += 1
-                history_counter += 1
+                cycle_start = time.time()
+                history_cache: Dict[str, List] = {}
 
-                # Quotes every 5 seconds
-                if quote_counter >= settings.quote_poll_interval:
-                    quote_counter = 0
-                    await self._update_quotes()
+                # --- Phase 1: Rolling history fetch ---
+                for symbol in symbols:
+                    if not self._running:
+                        break
 
-                # Rankings and divergences every 60 seconds
-                if divergence_counter >= settings.divergence_scan_interval:
-                    divergence_counter = 0
-                    await self._update_rankings()
-                    await self._update_divergences()
-                    await self._update_rotations()
-                    await self._broadcast_alerts()
+                    try:
+                        client = get_data_client()
+                        result = await client.get_price_history(
+                            symbol, period_type="month", period=6
+                        )
+                        if result:
+                            history_cache[symbol] = result.get("candles", [])
+                        else:
+                            history_cache[symbol] = []
+                    except Exception as e:
+                        logger.error(f"History fetch error ({symbol}): {e}")
+                        history_cache[symbol] = []
 
-                await asyncio.sleep(1)  # Check every second
+                    # Interleave quote broadcasts during the long fetch phase
+                    now = time.time()
+                    if now - last_quote_time >= settings.quote_poll_interval:
+                        last_quote_time = now
+                        await self._update_quotes()
+
+                    await asyncio.sleep(spacing)
+
+                if not self._running:
+                    break
+
+                # --- Phase 2: Fresh quotes for computation ---
+                client = get_data_client()
+                quotes = await client.get_quotes(symbols)
+                last_quote_time = time.time()
+
+                # Broadcast these quotes too
+                if quotes:
+                    manager = get_connection_manager()
+                    await manager.broadcast_to_channel("quotes", quotes)
+
+                # --- Phase 3: Compute rankings ---
+                await self._compute_rankings(history_cache, quotes)
+
+                # --- Phase 4: Compute divergences (reuses same history) ---
+                await self._compute_divergences(history_cache)
+
+                # --- Phase 5: Rotation + alerts (no API calls) ---
+                await self._update_rotations()
+                await self._broadcast_alerts()
+
+                elapsed = time.time() - cycle_start
+                logger.info(
+                    f"Scan cycle complete: {len(history_cache)} symbols "
+                    f"in {elapsed:.0f}s"
+                )
+
+                # --- Idle phase: wait for next cycle, keep quotes flowing ---
+                remaining = settings.divergence_scan_interval - elapsed
+                if remaining > 0:
+                    idle_end = time.time() + remaining
+                    while self._running and time.time() < idle_end:
+                        now = time.time()
+                        if now - last_quote_time >= settings.quote_poll_interval:
+                            last_quote_time = now
+                            await self._update_quotes()
+                        await asyncio.sleep(1)
 
             except asyncio.CancelledError:
                 break
             except Exception as e:
                 logger.error(f"Polling error: {e}")
-                await asyncio.sleep(5)  # Back off on error
+                await asyncio.sleep(10)
 
     async def _update_quotes(self):
-        """Fetch and broadcast quote updates"""
+        """Fetch and broadcast quote updates (single bundled API call)"""
         try:
             client = get_data_client()
             quotes = await client.get_quotes(ALL_SYMBOLS)
@@ -92,20 +173,13 @@ class PollingService:
         except Exception as e:
             logger.error(f"Error updating quotes: {e}")
 
-    async def _update_rankings(self):
-        """Fetch and broadcast RS rankings"""
+    async def _compute_rankings(self, history_cache: Dict[str, List], quotes: Dict):
+        """Compute RS rankings from pre-fetched history and quotes"""
         try:
-            client = get_data_client()
-
-            # Fetch data
-            history = await client.get_batch_history(ALL_SYMBOLS, period_type="month", period=6)
-            quotes = await client.get_quotes(ALL_SYMBOLS)
-
-            # Create rankings
             rankings = []
             for symbol in ALL_SYMBOLS:
                 info = get_symbol_info(symbol)
-                candles = history.get(symbol, [])
+                candles = history_cache.get(symbol, [])
                 quote = quotes.get(symbol)
 
                 ranking = create_ranking(
@@ -129,10 +203,10 @@ class PollingService:
                         symbol=r.symbol,
                         rs_score=r.rs_score,
                         rs_rank=r.rs_rank,
-                        performance_1d=r.performance.get('1d'),
-                        performance_5d=r.performance.get('5d'),
-                        performance_20d=r.performance.get('20d'),
-                        performance_60d=r.performance.get('60d'),
+                        performance_1d=r.perf_1d,
+                        performance_5d=r.perf_5d,
+                        performance_20d=r.perf_20d,
+                        performance_60d=r.perf_60d,
                     )
                     snapshot.save()
                 logger.info(f"Saved RS snapshots for {len(ranked)} symbols")
@@ -145,25 +219,20 @@ class PollingService:
             await manager.broadcast_to_channel("rankings", rankings_data)
 
         except Exception as e:
-            logger.error(f"Error updating rankings: {e}")
+            logger.error(f"Error computing rankings: {e}")
 
-    async def _update_divergences(self):
-        """Detect and broadcast divergences with 3-tier alert system"""
+    async def _compute_divergences(self, history_cache: Dict[str, List]):
+        """Compute divergences from pre-fetched history (no additional API calls)"""
         try:
-            client = get_data_client()
-
-            # Get all unique symbols from pairs
+            # Convert cached history to numpy arrays for divergence pairs
+            price_data = {}
             symbols_needed = set()
             for a, b in DIVERGENCE_PAIRS:
                 symbols_needed.add(a)
                 symbols_needed.add(b)
 
-            # Fetch history
-            history = await client.get_batch_history(list(symbols_needed), period_type="month", period=6)
-
-            # Convert to numpy arrays
-            price_data = {}
-            for symbol, candles in history.items():
+            for symbol in symbols_needed:
+                candles = history_cache.get(symbol, [])
                 if candles:
                     prices = np.array([c.get("close", 0) for c in candles])
                     if len(prices) > 0:
@@ -183,26 +252,22 @@ class PollingService:
             divergences_data = [d.to_dict() for d in divergences]
 
             # Track divergence events and create alerts with 3-tier severity
+            from datetime import datetime
             for div in divergences:
-                # Determine severity using 3-tier system
                 severity = determine_severity(
                     zscore=div.correlation_zscore,
                     rs_direction=div.rs_direction,
                     settings=alert_settings
                 )
 
-                # Track divergence event in database
                 existing_event = DivergenceEvent.find_active(div.symbol_a, div.symbol_b)
                 if existing_event:
-                    # Update peak values if current is stronger
                     if div.strength > (existing_event.peak_strength or 0):
                         existing_event.peak_strength = div.strength
                     if abs(div.correlation_zscore) > abs(existing_event.peak_zscore or 0):
                         existing_event.peak_zscore = div.correlation_zscore
                     existing_event.save()
                 else:
-                    # Create new divergence event
-                    from datetime import datetime
                     event = DivergenceEvent(
                         id=None,
                         symbol_a=div.symbol_a,
@@ -216,7 +281,6 @@ class PollingService:
                     )
                     event.save()
 
-                    # Only create alert for new divergences with WARNING or CRITICAL severity
                     if severity in [AlertSeverity.WARNING, AlertSeverity.CRITICAL]:
                         add_alert(
                             alert_type=AlertType.CORRELATION_BREAKDOWN if div.divergence_type.value == "correlation_breakdown" else AlertType.RS_SHIFT,
@@ -231,7 +295,7 @@ class PollingService:
             await manager.broadcast_to_channel("divergences", divergences_data)
 
         except Exception as e:
-            logger.error(f"Error updating divergences: {e}")
+            logger.error(f"Error computing divergences: {e}")
 
     async def _update_rotations(self):
         """Detect and broadcast rotation signals"""
@@ -239,17 +303,13 @@ class PollingService:
             if not self._previous_rankings:
                 return
 
-            # Filter to sectors only
             sector_rankings = [r for r in self._previous_rankings if r.get("category") == "sectors"]
 
             if not sector_rankings:
                 return
 
-            # Detect rotation signals (would need previous-previous rankings for real comparison)
-            # For now, just broadcast the sector rankings sorted by RS
             regime = determine_market_regime(sector_rankings)
 
-            # Broadcast
             manager = get_connection_manager()
             await manager.broadcast_to_channel("rotations", {
                 "regime": regime.to_dict(),

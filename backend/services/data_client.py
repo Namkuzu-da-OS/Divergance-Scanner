@@ -155,22 +155,20 @@ class DataClient:
         Returns:
             Dictionary mapping symbol -> list of candles
         """
-        tasks = [
-            self.get_price_history(symbol, period_type, period, frequency_type, frequency)
-            for symbol in symbols
-        ]
-
-        results = await asyncio.gather(*tasks, return_exceptions=True)
-
         history = {}
-        for symbol, result in zip(symbols, results):
-            if isinstance(result, Exception):
-                logger.error(f"Error fetching history for {symbol}: {result}")
+        for symbol in symbols:
+            try:
+                result = await self.get_price_history(
+                    symbol, period_type, period, frequency_type, frequency
+                )
+                if result:
+                    history[symbol] = result.get("candles", [])
+                else:
+                    history[symbol] = []
+            except Exception as e:
+                logger.error(f"Error fetching history for {symbol}: {e}")
                 history[symbol] = []
-            elif result:
-                history[symbol] = result.get("candles", [])
-            else:
-                history[symbol] = []
+            await asyncio.sleep(0.15)  # 150ms between calls — respect API pacing
 
         return history
 
