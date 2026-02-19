@@ -15,6 +15,7 @@ const http = require('http');
 const https = require('https');
 const opportunityDb = require('./opportunity-db');
 const { sendTelegram } = require('./telegram');
+const apiCache = require('./api-cache');
 
 // Load config
 const CONFIG = require('./config-loader');
@@ -380,10 +381,13 @@ async function fetchMarketContext() {
 async function fetchOptionsAnalysis(symbol) {
     try {
         // Request wider strike range to catch spread legs
-        const data = await httpGet(`${APIS.options}/api/options/${symbol}/analysis?strike_count=100`);
+        // Note: ?strike_count=100 makes this a different cache key from Bloodhound's analysis call
+        const url = `${APIS.options}/api/options/${symbol}/analysis?strike_count=100`;
+        const data = await apiCache.wrap(url, apiCache.TTL.ANALYSIS, () => httpGet(url), 'opportunity');
+        if (!data) return null;
         const analysis = data.analysis || data;
 
-        // Filter to swing trading window (exclude LEAPs)
+        // Filter to swing trading window (exclude LEAPs) — applied post-cache
         const filterByDTE = (strikes) => {
             if (!strikes) return [];
             const now = new Date();
@@ -409,7 +413,8 @@ async function fetchOptionsAnalysis(symbol) {
 
 async function fetchTechnicals(symbol) {
     try {
-        return await httpGet(`${APIS.options}/api/technicals/${symbol}`);
+        const url = `${APIS.options}/api/technicals/${symbol}`;
+        return await apiCache.wrap(url, apiCache.TTL.TECHNICALS, () => httpGet(url), 'opportunity');
     } catch (e) {
         return null;
     }
@@ -417,7 +422,7 @@ async function fetchTechnicals(symbol) {
 
 async function fetchQuote(symbol) {
     try {
-        const data = await httpGet(`${APIS.options}/api/quotes/${symbol}`);
+        const data = await httpGet(`${APIS.options}/api/quotes/${symbol}`);  // Never cached — real-time price
         return data.quote;
     } catch (e) {
         return null;
@@ -426,7 +431,8 @@ async function fetchQuote(symbol) {
 
 async function fetchIV(symbol) {
     try {
-        return await httpGet(`${APIS.options}/api/options/${symbol}/iv`);
+        const url = `${APIS.options}/api/options/${symbol}/iv`;
+        return await apiCache.wrap(url, apiCache.TTL.IV, () => httpGet(url), 'opportunity');
     } catch (e) {
         return null;
     }
@@ -434,7 +440,8 @@ async function fetchIV(symbol) {
 
 async function fetchEarnings(symbol) {
     try {
-        return await httpGet(`${APIS.options}/api/calendar/${symbol}`);
+        const url = `${APIS.options}/api/calendar/${symbol}`;
+        return await apiCache.wrap(url, apiCache.TTL.CALENDAR, () => httpGet(url), 'opportunity');
     } catch (e) {
         return null;
     }
@@ -1156,10 +1163,17 @@ if (args.includes('pause')) {
     // Start control server
     startControlServer();
 
-    // Initial scan
+    // Stagger initial scan to avoid API contention across processes
+    const scanOffset = parseInt(process.env.SCAN_OFFSET_MS || '0', 10);
+    const initialDelay = Math.max(2000, scanOffset);
+    if (scanOffset > 0) {
+        console.log(`[Opportunity] Stagger offset: ${scanOffset / 1000}s`);
+    }
+
+    // Initial scan (after stagger delay)
     setTimeout(() => {
         runScan().catch(e => console.error('[Opportunity] Scan error:', e));
-    }, 2000);
+    }, initialDelay);
 
     // Scheduled scans
     setInterval(() => {

@@ -8,6 +8,7 @@ const fs = require('fs');
 const path = require('path');
 const signalLogger = require('./signal-logger');
 const config = require('./config-loader');
+const apiCache = require('./api-cache');
 
 const PORT = 8080;
 const ROOT = path.join(__dirname, '..');
@@ -1188,6 +1189,19 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // API: Cache stats (cross-process API cache monitoring)
+    if (req.method === 'GET' && urlPath === '/api/cache/stats') {
+        try {
+            const stats = apiCache.stats();
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(stats));
+        } catch (e) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
     // Decode URL encoding first, then resolve to prevent traversal via %2e%2e etc.
     let decodedPath;
     try {
@@ -1239,6 +1253,9 @@ const server = http.createServer((req, res) => {
 server.listen(PORT, '0.0.0.0', () => {
     console.log(`[Web Server] Running on http://0.0.0.0:${PORT} (accessible from network)`);
     console.log(`[Web Server] Serving: ${ROOT}`);
+
+    // Clean expired API cache entries every 10 minutes
+    setInterval(() => apiCache.cleanup(), 10 * 60 * 1000);
 });
 
 server.on('error', (err) => {

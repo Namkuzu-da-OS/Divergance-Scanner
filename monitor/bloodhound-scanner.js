@@ -29,6 +29,9 @@ const divergenceBb = require('./divergence-bb');
 // Opportunity scanner DB — feed discovered symbols into Bloodhound
 const opportunityDb = require('./opportunity-db');
 
+// Shared API cache — reduces redundant Schwab calls across all PM2 processes
+const apiCache = require('./api-cache');
+
 // Load config
 const CONFIG = require('./config-loader');
 
@@ -87,7 +90,7 @@ const backoffState = {
     slowResponses: 0,           // Count of slow responses (>5s)
     fastResponses: 0,           // Count of fast responses (<2s)
     batchSize: 5,               // Symbols per batch when backoff active
-    batchDelayMs: 300,          // Delay between batches
+    batchDelayMs: 1000,         // Delay between batches when backoff active
     slowThresholdMs: 5000,      // Response time to trigger backoff
     recoveryThreshold: 10,      // Fast responses needed to recover
     triggerThreshold: 3,        // Slow responses to trigger backoff
@@ -704,15 +707,17 @@ async function discoverSymbols() {
 async function getMarketContext() {
     // Sequential API calls to avoid overwhelming the Options API
     const sleep100 = () => new Promise(r => setTimeout(r, 100));
-    const context = await fetchJSON(`${APIS.options}/api/market/context`, 15000);
+    const contextUrl = `${APIS.options}/api/market/context`;
+    const context = await apiCache.wrap(contextUrl, apiCache.TTL.CONTEXT, () => fetchJSON(contextUrl, 15000), 'bloodhound');
     await sleep100();
-    const spyLevels = await fetchJSON(`${APIS.options}/api/levels/SPY`, 15000);
+    const spyLevels = await fetchJSON(`${APIS.options}/api/levels/SPY`, 15000);  // Never cached — real-time gamma
     await sleep100();
-    const qqqLevels = await fetchJSON(`${APIS.options}/api/levels/QQQ`, 15000);
+    const qqqLevels = await fetchJSON(`${APIS.options}/api/levels/QQQ`, 15000);  // Never cached — real-time gamma
     await sleep100();
-    const outlook = await fetchJSON(`${APIS.intel}/api/market/outlook`);  // Multi-timeframe bias
+    const outlook = await fetchJSON(`${APIS.intel}/api/market/outlook`);  // Multi-timeframe bias (Intel API, not cached)
     await sleep100();
-    const spyIv = await fetchJSON(`${APIS.options}/api/options/SPY/iv`, 15000);  // IV rank
+    const spyIvUrl = `${APIS.options}/api/options/SPY/iv`;
+    const spyIv = await apiCache.wrap(spyIvUrl, apiCache.TTL.IV, () => fetchJSON(spyIvUrl, 15000), 'bloodhound');  // IV rank
 
     if (!context) return null;
 
@@ -916,15 +921,17 @@ function getSymbolRsPercentile(symbol, rsData) {
 
 async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHistoryCache) {
     // Sequential API calls to avoid overwhelming the Options API
-    const levels = await fetchJSON(`${APIS.options}/api/levels/${symbol}`, 15000);
+    const levels = await fetchJSON(`${APIS.options}/api/levels/${symbol}`, 15000);  // Never cached — real-time gamma
     if (!levels) return null; // Can't analyze without levels
 
     await new Promise(r => setTimeout(r, 100));
-    const technicals = await fetchJSON(`${APIS.options}/api/technicals/${symbol}`, 15000);
+    const techUrl = `${APIS.options}/api/technicals/${symbol}`;
+    const technicals = await apiCache.wrap(techUrl, apiCache.TTL.TECHNICALS, () => fetchJSON(techUrl, 15000), 'bloodhound');
     if (!technicals) return null; // Can't analyze without technicals
 
     await new Promise(r => setTimeout(r, 100));
-    const optionsAnalysis = await fetchJSON(`${APIS.options}/api/options/${symbol}/analysis`, 15000);
+    const analysisUrl = `${APIS.options}/api/options/${symbol}/analysis`;
+    const optionsAnalysis = await apiCache.wrap(analysisUrl, apiCache.TTL.ANALYSIS, () => fetchJSON(analysisUrl, 15000), 'bloodhound');
 
     const price = levels.underlying_price || technicals.current;
     if (!price) return null;
@@ -2846,7 +2853,9 @@ async function runScan() {
     }
 
     const backoffStatus = backoffState.active ? ` [BACKOFF ACTIVE: batch ${backoffState.batchSize}, delay ${backoffState.batchDelayMs}ms]` : '';
+    const cacheStats = apiCache.stats();
     console.log(`\n[Bloodhound] Scan complete (${scannerState.lastScanDuration}s).${backoffStatus} Next scan in ${SETTINGS.scanIntervalMs / 60000} minutes.`);
+    console.log(`[API Cache] ${cacheStats.fresh} fresh / ${cacheStats.total} total entries (${cacheStats.stale} stale)`);
 
     // Signal validation: update prices and check for checkpoint validations
     // Build price cache from scan results to avoid duplicate API calls
@@ -2921,6 +2930,13 @@ async function main() {
 
     // Start HTTP control server for web interface
     startControlServer();
+
+    // Stagger initial scan to avoid API contention across processes
+    const scanOffset = parseInt(process.env.SCAN_OFFSET_MS || '0', 10);
+    if (scanOffset > 0) {
+        console.log(`[Stagger] Waiting ${scanOffset / 1000}s before first scan...`);
+        await new Promise(r => setTimeout(r, scanOffset));
+    }
 
     // Initial scan
     await runScan();

@@ -6,6 +6,10 @@
  * Restart:    pm2 restart all
  * Status:     pm2 list
  * Logs:       pm2 logs
+ *
+ * SCAN_OFFSET_MS staggers scanner start times to keep concurrent
+ * Schwab API calls under 300 (the rate limit threshold).
+ * Bloodhound fires first (populates cache), others follow.
  */
 
 module.exports = {
@@ -18,7 +22,10 @@ module.exports = {
       autorestart: true,
       max_restarts: 10,
       restart_delay: 5000,
-      max_memory_restart: '512M'
+      max_memory_restart: '512M',
+      env: {
+        SCAN_OFFSET_MS: '0'       // Fires first — populates cache for others
+      }
     },
     {
       name: 'opportunity',
@@ -28,7 +35,10 @@ module.exports = {
       autorestart: true,
       max_restarts: 10,
       restart_delay: 5000,
-      max_memory_restart: '256M'
+      max_memory_restart: '256M',
+      env: {
+        SCAN_OFFSET_MS: '90000'   // 90s — Bloodhound done, reads warm cache
+      }
     },
     {
       name: 'earnings',
@@ -38,7 +48,10 @@ module.exports = {
       autorestart: true,
       max_restarts: 10,
       restart_delay: 5000,
-      max_memory_restart: '256M'
+      max_memory_restart: '256M',
+      env: {
+        SCAN_OFFSET_MS: '180000'  // 180s — everything cached, near-zero Schwab load
+      }
     },
     {
       name: 'premarket',
@@ -48,7 +61,10 @@ module.exports = {
       autorestart: true,
       max_restarts: 10,
       restart_delay: 5000,
-      max_memory_restart: '256M'
+      max_memory_restart: '256M',
+      env: {
+        SCAN_OFFSET_MS: '60000'   // 60s — only runs 6-9:30 AM, light overlap with BH
+      }
     },
     {
       name: 'webserver',

@@ -21,6 +21,7 @@ const fs = require('fs');
 const path = require('path');
 const signalDb = require('./signal-db');
 const { sendTelegram: sendTelegramBase, escapeHtml } = require('./telegram');
+const apiCache = require('./api-cache');
 
 // Load config
 const CONFIG = require('./config-loader');
@@ -232,8 +233,9 @@ async function calculatePremScore(symbol, earningsData) {
     const signals = [];
     const details = {};
 
-    // Fetch technical data (with rate limiting between API calls)
-    const technicals = await fetchJSON(`${APIS.options}/api/technicals/${symbol}`);
+    // Fetch technical data (cache-through to reduce Schwab API load)
+    const techUrl = `${APIS.options}/api/technicals/${symbol}`;
+    const technicals = await apiCache.wrap(techUrl, apiCache.TTL.TECHNICALS, () => fetchJSON(techUrl), 'earnings');
     if (!technicals) {
         return { score: 0, signals: ['No technical data'], details: {} };
     }
@@ -266,7 +268,8 @@ async function calculatePremScore(symbol, earningsData) {
     }
 
     // 2. OPTIONS FLOW SCORE (0-20 points)
-    const flow = await fetchJSON(`${APIS.options}/api/flow/${symbol}`);
+    const flowUrl = `${APIS.options}/api/flow/${symbol}`;
+    const flow = await apiCache.wrap(flowUrl, apiCache.TTL.FLOW, () => fetchJSON(flowUrl), 'earnings');
     await sleep(RATE_LIMIT.betweenApiCalls);
     if (flow) {
         details.callPremium = flow.call_premium;
@@ -292,7 +295,8 @@ async function calculatePremScore(symbol, earningsData) {
     }
 
     // 3. IV ANALYSIS (0-15 points)
-    const iv = await fetchJSON(`${APIS.options}/api/options/${symbol}/iv`);
+    const ivUrl = `${APIS.options}/api/options/${symbol}/iv`;
+    const iv = await apiCache.wrap(ivUrl, apiCache.TTL.IV, () => fetchJSON(ivUrl), 'earnings');
     await sleep(RATE_LIMIT.betweenApiCalls);
     if (iv) {
         details.ivRank = iv.iv_rank;
@@ -312,7 +316,8 @@ async function calculatePremScore(symbol, earningsData) {
     }
 
     // 4. MARKET ALIGNMENT (0-10 points)
-    const context = await fetchJSON(`${APIS.options}/api/market/context`);
+    const contextUrl = `${APIS.options}/api/market/context`;
+    const context = await apiCache.wrap(contextUrl, apiCache.TTL.CONTEXT, () => fetchJSON(contextUrl), 'earnings');
     await sleep(RATE_LIMIT.betweenApiCalls);
     if (context) {
         details.spyTrend = context.spy_trend;
@@ -814,6 +819,13 @@ async function main() {
 
     // Calendar auto-refreshes at the start of each scan if stale/missing.
     // No manual intervention needed.
+
+    // Stagger initial scan to avoid API contention across processes
+    const scanOffset = parseInt(process.env.SCAN_OFFSET_MS || '0', 10);
+    if (scanOffset > 0) {
+        console.log(`[Stagger] Waiting ${scanOffset / 1000}s before first scan...`);
+        await new Promise(r => setTimeout(r, scanOffset));
+    }
 
     // Initial scan (will auto-refresh calendar if needed)
     console.log('\nRunning initial scan...\n');

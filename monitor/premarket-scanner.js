@@ -15,6 +15,7 @@ const axios = require('axios');
 const signalDb = require('./signal-db');
 const appConfig = require('./config-loader');
 const { sendTelegram } = require('./telegram');
+const apiCache = require('./api-cache');
 
 // ============================================
 // CONFIGURATION
@@ -546,8 +547,12 @@ async function fetchEarningsCalendar() {
  */
 async function checkEarningsToday(symbol) {
     try {
-        const response = await axios.get(`${CONFIG.OPTIONS_API}/api/calendar/${symbol}`, { timeout: 5000 });
-        const data = response.data;
+        const url = `${CONFIG.OPTIONS_API}/api/calendar/${symbol}`;
+        const data = await apiCache.wrap(url, apiCache.TTL.CALENDAR, async () => {
+            const response = await axios.get(url, { timeout: 5000 });
+            return response.data;
+        }, 'premarket');
+        if (!data) return { hasEarnings: false };
         // Check if earnings are today (days_to_earnings === 0) or tomorrow before open
         if (data.has_earnings && data.days_to_earnings === 0) {
             return { hasEarnings: true, time: data.earnings_time, date: data.next_earnings };
@@ -1059,6 +1064,13 @@ async function main() {
 
     // Start control server
     startControlServer();
+
+    // Stagger initial scan to avoid API contention across processes
+    const scanOffset = parseInt(process.env.SCAN_OFFSET_MS || '0', 10);
+    if (scanOffset > 0) {
+        log(`[Stagger] Waiting ${scanOffset / 1000}s before first scan...`);
+        await new Promise(r => setTimeout(r, scanOffset));
+    }
 
     // Initial scan
     isRunning = true;
