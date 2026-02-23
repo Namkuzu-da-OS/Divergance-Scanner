@@ -1505,3 +1505,1635 @@
 2026-02-23 15:59:51 +00:00: [Signal Logger] Failed to fetch price for XLU after 3 attempts: Request failed with status code 401
 2026-02-23 15:59:55 +00:00: [Signal Logger] Failed to fetch price for SLV after 3 attempts: Request failed with status code 401
 2026-02-23 15:59:58 +00:00: [Signal Logger] Failed to fetch price for OPEN after 3 attempts: Request failed with status code 401
+2026-02-23 16:00:02 +00:00: [Signal Logger] Failed to fetch price for AMZN after 3 attempts: Request failed with status code 401
+2026-02-23 16:00:05 +00:00: [Signal Logger] Failed to fetch price for UVXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:00:09 +00:00: [Signal Logger] Failed to fetch price for XLB after 3 attempts: Request failed with status code 401
+2026-02-23 16:00:12 +00:00: [Signal Logger] Failed to fetch price for XLP after 3 attempts: Request failed with status code 401
+2026-02-23 16:00:16 +00:00: [Signal Logger] Failed to fetch price for PLTR after 3 attempts: Request failed with status code 401
+2026-02-23 16:00:20 +00:00: [Signal Logger] Failed to fetch price for XLK after 3 attempts: Request failed with status code 401
+2026-02-23 16:00:23 +00:00: [Signal Logger] Failed to fetch price for SPY after 3 attempts: Request failed with status code 401
+2026-02-23 16:00:27 +00:00: [Signal Logger] Failed to fetch price for QQQ after 3 attempts: Request failed with status code 401
+2026-02-23 16:00:31 +00:00: [Signal Logger] Failed to fetch price for GLD after 3 attempts: Request failed with status code 401
+2026-02-23 16:00:34 +00:00: [Signal Logger] Failed to fetch price for EEM after 3 attempts: Request failed with status code 401
+2026-02-23 16:00:38 +00:00: [Signal Logger] Failed to fetch price for UNG after 3 attempts: Request failed with status code 401
+2026-02-23 16:00:41 +00:00: [Signal Logger] Failed to fetch price for F after 3 attempts: Request failed with status code 401
+2026-02-23 16:00:44 +00:00: [Signal Logger] Failed to fetch price for SNDK after 3 attempts: Request failed with status code 401
+2026-02-23 16:00:48 +00:00: [Signal Logger] Failed to fetch price for USO after 3 attempts: Request failed with status code 401
+2026-02-23 16:00:51 +00:00: [Signal Logger] Failed to fetch price for XLC after 3 attempts: Request failed with status code 401
+2026-02-23 16:00:55 +00:00: [Signal Logger] Failed to fetch price for SOLZ after 3 attempts: Request failed with status code 401
+2026-02-23 16:00:58 +00:00: [Signal Logger] Failed to fetch price for NVDA after 3 attempts: Request failed with status code 401
+2026-02-23 16:01:01 +00:00: [Signal Logger] Failed to fetch price for MU after 3 attempts: Request failed with status code 401
+2026-02-23 16:01:05 +00:00: [Signal Logger] Failed to fetch price for IBIT after 3 attempts: Request failed with status code 401
+2026-02-23 16:01:08 +00:00: [Signal Logger] Failed to fetch price for ETHA after 3 attempts: Request failed with status code 401
+2026-02-23 16:01:12 +00:00: [Signal Logger] Failed to fetch price for MSFT after 3 attempts: Request failed with status code 401
+2026-02-23 16:01:15 +00:00: [Signal Logger] Failed to fetch price for OXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:01:18 +00:00: [Signal Logger] Failed to fetch price for TSLA after 3 attempts: Request failed with status code 401
+2026-02-23 16:01:22 +00:00: [Signal Logger] Failed to fetch price for VNDA after 3 attempts: Request failed with status code 401
+2026-02-23 16:01:25 +00:00: [Signal Logger] Failed to fetch price for MRNA after 3 attempts: Request failed with status code 401
+2026-02-23 16:01:29 +00:00: [Signal Logger] Failed to fetch price for IBRX after 3 attempts: Request failed with status code 401
+2026-02-23 16:01:32 +00:00: [Signal Logger] Failed to fetch price for AAPL after 3 attempts: Request failed with status code 401
+2026-02-23 16:03:34 +00:00: [API] Failed: http://192.168.10.60:8000/api/market/context (107ms)
+2026-02-23 16:03:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (185ms)
+2026-02-23 16:03:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (307ms)
+2026-02-23 16:03:35 +00:00: [API] Failed: http://192.168.10.60:3000/api/market/outlook (7ms)
+2026-02-23 16:03:36 +00:00: [API] Failed: http://192.168.10.60:8000/api/options/SPY/iv (266ms)
+2026-02-23 16:03:41 +00:00: [API] Failed: http://192.168.10.60:3000/api/market/outlook (6ms)
+2026-02-23 16:03:41 +00:00: [API] Failed: http://192.168.10.60:3000/api/latest (6ms)
+2026-02-23 16:03:42 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MSFT (221ms)
+2026-02-23 16:03:42 +00:00: [Bloodhound] MSFT failed (watchlist), retrying in 2s...
+2026-02-23 16:03:44 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MSFT (158ms)
+2026-02-23 16:03:44 +00:00: [Bloodhound] DROPPED: MSFT — API returned no data
+2026-02-23 16:03:45 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/META (115ms)
+2026-02-23 16:03:45 +00:00: [Bloodhound] META failed (watchlist), retrying in 2s...
+2026-02-23 16:03:47 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/META (136ms)
+2026-02-23 16:03:47 +00:00: [Bloodhound] DROPPED: META — API returned no data
+2026-02-23 16:03:48 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AAPL (200ms)
+2026-02-23 16:03:48 +00:00: [Bloodhound] AAPL failed (watchlist), retrying in 2s...
+2026-02-23 16:03:51 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AAPL (209ms)
+2026-02-23 16:03:51 +00:00: [Bloodhound] DROPPED: AAPL — API returned no data
+2026-02-23 16:03:52 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMD (114ms)
+2026-02-23 16:03:52 +00:00: [Bloodhound] AMD failed (watchlist), retrying in 2s...
+2026-02-23 16:03:54 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMD (119ms)
+2026-02-23 16:03:54 +00:00: [Bloodhound] DROPPED: AMD — API returned no data
+2026-02-23 16:03:55 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBIT (154ms)
+2026-02-23 16:03:55 +00:00: [Bloodhound] IBIT failed (watchlist), retrying in 2s...
+2026-02-23 16:03:57 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBIT (145ms)
+2026-02-23 16:03:57 +00:00: [Bloodhound] DROPPED: IBIT — API returned no data
+2026-02-23 16:03:58 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/TSLA (120ms)
+2026-02-23 16:03:58 +00:00: [Bloodhound] TSLA failed (watchlist), retrying in 2s...
+2026-02-23 16:04:00 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/TSLA (119ms)
+2026-02-23 16:04:00 +00:00: [Bloodhound] DROPPED: TSLA — API returned no data
+2026-02-23 16:04:02 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/NVDA (115ms)
+2026-02-23 16:04:02 +00:00: [Bloodhound] NVDA failed (watchlist), retrying in 2s...
+2026-02-23 16:04:04 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/NVDA (132ms)
+2026-02-23 16:04:04 +00:00: [Bloodhound] DROPPED: NVDA — API returned no data
+2026-02-23 16:04:05 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (218ms)
+2026-02-23 16:04:05 +00:00: [Bloodhound] QQQ failed (watchlist), retrying in 2s...
+2026-02-23 16:04:07 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (109ms)
+2026-02-23 16:04:07 +00:00: [Bloodhound] DROPPED: QQQ — API returned no data
+2026-02-23 16:04:08 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (130ms)
+2026-02-23 16:04:08 +00:00: [Bloodhound] SPY failed (watchlist), retrying in 2s...
+2026-02-23 16:04:10 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (176ms)
+2026-02-23 16:04:10 +00:00: [Bloodhound] DROPPED: SPY — API returned no data
+2026-02-23 16:04:11 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBRX (157ms)
+2026-02-23 16:04:11 +00:00: [Bloodhound] DROPPED: IBRX — API returned no data
+2026-02-23 16:04:13 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/GLD (113ms)
+2026-02-23 16:04:13 +00:00: [Bloodhound] DROPPED: GLD — API returned no data
+2026-02-23 16:04:14 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SLV (128ms)
+2026-02-23 16:04:14 +00:00: [Bloodhound] DROPPED: SLV — API returned no data
+2026-02-23 16:04:15 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SNDK (153ms)
+2026-02-23 16:04:15 +00:00: [Bloodhound] DROPPED: SNDK — API returned no data
+2026-02-23 16:04:16 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/GOOGL (113ms)
+2026-02-23 16:04:16 +00:00: [Bloodhound] DROPPED: GOOGL — API returned no data
+2026-02-23 16:04:17 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MRNA (155ms)
+2026-02-23 16:04:17 +00:00: [Bloodhound] DROPPED: MRNA — API returned no data
+2026-02-23 16:04:18 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/VNDA (105ms)
+2026-02-23 16:04:18 +00:00: [Bloodhound] DROPPED: VNDA — API returned no data
+2026-02-23 16:04:19 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/OPEN (119ms)
+2026-02-23 16:04:19 +00:00: [Bloodhound] DROPPED: OPEN — API returned no data
+2026-02-23 16:04:21 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MU (177ms)
+2026-02-23 16:04:21 +00:00: [Bloodhound] DROPPED: MU — API returned no data
+2026-02-23 16:04:22 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/OXY (141ms)
+2026-02-23 16:04:22 +00:00: [Bloodhound] DROPPED: OXY — API returned no data
+2026-02-23 16:04:23 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/PLTR (214ms)
+2026-02-23 16:04:23 +00:00: [Bloodhound] DROPPED: PLTR — API returned no data
+2026-02-23 16:04:24 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMZN (112ms)
+2026-02-23 16:04:24 +00:00: [Bloodhound] DROPPED: AMZN — API returned no data
+2026-02-23 16:04:25 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/EEM (128ms)
+2026-02-23 16:04:25 +00:00: [Bloodhound] DROPPED: EEM — API returned no data
+2026-02-23 16:04:26 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SOLZ (107ms)
+2026-02-23 16:04:26 +00:00: [Bloodhound] DROPPED: SOLZ — API returned no data
+2026-02-23 16:04:27 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLC (125ms)
+2026-02-23 16:04:27 +00:00: [Bloodhound] DROPPED: XLC — API returned no data
+2026-02-23 16:04:29 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/USO (135ms)
+2026-02-23 16:04:29 +00:00: [Bloodhound] DROPPED: USO — API returned no data
+2026-02-23 16:04:30 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/F (269ms)
+2026-02-23 16:04:30 +00:00: [Bloodhound] DROPPED: F — API returned no data
+2026-02-23 16:04:31 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/UNG (101ms)
+2026-02-23 16:04:31 +00:00: [Bloodhound] DROPPED: UNG — API returned no data
+2026-02-23 16:04:32 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLP (191ms)
+2026-02-23 16:04:32 +00:00: [Bloodhound] DROPPED: XLP — API returned no data
+2026-02-23 16:04:33 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLB (125ms)
+2026-02-23 16:04:33 +00:00: [Bloodhound] DROPPED: XLB — API returned no data
+2026-02-23 16:04:34 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/UVXY (139ms)
+2026-02-23 16:04:34 +00:00: [Bloodhound] DROPPED: UVXY — API returned no data
+2026-02-23 16:04:36 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLU (168ms)
+2026-02-23 16:04:36 +00:00: [Bloodhound] DROPPED: XLU — API returned no data
+2026-02-23 16:04:37 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SMCI (145ms)
+2026-02-23 16:04:37 +00:00: [Bloodhound] DROPPED: SMCI — API returned no data
+2026-02-23 16:04:38 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/CVNA (141ms)
+2026-02-23 16:04:38 +00:00: [Bloodhound] DROPPED: CVNA — API returned no data
+2026-02-23 16:04:39 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/ETHA (144ms)
+2026-02-23 16:04:39 +00:00: [Bloodhound] DROPPED: ETHA — API returned no data
+2026-02-23 16:04:40 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/PANW (98ms)
+2026-02-23 16:04:40 +00:00: [Bloodhound] DROPPED: PANW — API returned no data
+2026-02-23 16:04:41 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLK (129ms)
+2026-02-23 16:04:41 +00:00: [Bloodhound] DROPPED: XLK — API returned no data
+2026-02-23 16:04:42 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLF (98ms)
+2026-02-23 16:04:42 +00:00: [Bloodhound] DROPPED: XLF — API returned no data
+2026-02-23 16:04:43 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/INTC (114ms)
+2026-02-23 16:04:43 +00:00: [Bloodhound] DROPPED: INTC — API returned no data
+2026-02-23 16:04:45 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IWM (115ms)
+2026-02-23 16:04:45 +00:00: [Bloodhound] DROPPED: IWM — API returned no data
+2026-02-23 16:04:46 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/ORCL (112ms)
+2026-02-23 16:04:46 +00:00: [Bloodhound] DROPPED: ORCL — API returned no data
+2026-02-23 16:04:47 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLE (132ms)
+2026-02-23 16:04:47 +00:00: [Bloodhound] DROPPED: XLE — API returned no data
+2026-02-23 16:04:50 +00:00: [Signal Logger] Failed to fetch price for XLU after 3 attempts: Request failed with status code 401
+2026-02-23 16:04:54 +00:00: [Signal Logger] Failed to fetch price for SLV after 3 attempts: Request failed with status code 401
+2026-02-23 16:04:57 +00:00: [Signal Logger] Failed to fetch price for OPEN after 3 attempts: Request failed with status code 401
+2026-02-23 16:05:01 +00:00: [Signal Logger] Failed to fetch price for AMZN after 3 attempts: Request failed with status code 401
+2026-02-23 16:05:04 +00:00: [Signal Logger] Failed to fetch price for UVXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:05:08 +00:00: [Signal Logger] Failed to fetch price for XLB after 3 attempts: Request failed with status code 401
+2026-02-23 16:05:11 +00:00: [Signal Logger] Failed to fetch price for XLP after 3 attempts: Request failed with status code 401
+2026-02-23 16:05:15 +00:00: [Signal Logger] Failed to fetch price for PLTR after 3 attempts: Request failed with status code 401
+2026-02-23 16:05:18 +00:00: [Signal Logger] Failed to fetch price for XLK after 3 attempts: Request failed with status code 401
+2026-02-23 16:05:21 +00:00: [Signal Logger] Failed to fetch price for SPY after 3 attempts: Request failed with status code 401
+2026-02-23 16:05:25 +00:00: [Signal Logger] Failed to fetch price for QQQ after 3 attempts: Request failed with status code 401
+2026-02-23 16:05:28 +00:00: [Signal Logger] Failed to fetch price for GLD after 3 attempts: Request failed with status code 401
+2026-02-23 16:05:32 +00:00: [Signal Logger] Failed to fetch price for EEM after 3 attempts: Request failed with status code 401
+2026-02-23 16:05:35 +00:00: [Signal Logger] Failed to fetch price for UNG after 3 attempts: Request failed with status code 401
+2026-02-23 16:05:39 +00:00: [Signal Logger] Failed to fetch price for F after 3 attempts: Request failed with status code 401
+2026-02-23 16:05:42 +00:00: [Signal Logger] Failed to fetch price for SNDK after 3 attempts: Request failed with status code 401
+2026-02-23 16:05:46 +00:00: [Signal Logger] Failed to fetch price for USO after 3 attempts: Request failed with status code 401
+2026-02-23 16:05:49 +00:00: [Signal Logger] Failed to fetch price for XLC after 3 attempts: Request failed with status code 401
+2026-02-23 16:05:53 +00:00: [Signal Logger] Failed to fetch price for SOLZ after 3 attempts: Request failed with status code 401
+2026-02-23 16:05:56 +00:00: [Signal Logger] Failed to fetch price for NVDA after 3 attempts: Request failed with status code 401
+2026-02-23 16:06:00 +00:00: [Signal Logger] Failed to fetch price for MU after 3 attempts: Request failed with status code 401
+2026-02-23 16:06:03 +00:00: [Signal Logger] Failed to fetch price for IBIT after 3 attempts: Request failed with status code 401
+2026-02-23 16:06:07 +00:00: [Signal Logger] Failed to fetch price for ETHA after 3 attempts: Request failed with status code 401
+2026-02-23 16:06:10 +00:00: [Signal Logger] Failed to fetch price for MSFT after 3 attempts: Request failed with status code 401
+2026-02-23 16:06:14 +00:00: [Signal Logger] Failed to fetch price for OXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:06:17 +00:00: [Signal Logger] Failed to fetch price for TSLA after 3 attempts: Request failed with status code 401
+2026-02-23 16:06:20 +00:00: [Signal Logger] Failed to fetch price for VNDA after 3 attempts: Request failed with status code 401
+2026-02-23 16:06:24 +00:00: [Signal Logger] Failed to fetch price for MRNA after 3 attempts: Request failed with status code 401
+2026-02-23 16:06:27 +00:00: [Signal Logger] Failed to fetch price for IBRX after 3 attempts: Request failed with status code 401
+2026-02-23 16:06:31 +00:00: [Signal Logger] Failed to fetch price for AAPL after 3 attempts: Request failed with status code 401
+2026-02-23 16:08:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/market/context (378ms)
+2026-02-23 16:08:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (128ms)
+2026-02-23 16:08:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (230ms)
+2026-02-23 16:08:35 +00:00: [API] Failed: http://192.168.10.60:3000/api/market/outlook (6ms)
+2026-02-23 16:08:36 +00:00: [API] Failed: http://192.168.10.60:8000/api/options/SPY/iv (166ms)
+2026-02-23 16:08:41 +00:00: [API] Failed: http://192.168.10.60:3000/api/market/outlook (9ms)
+2026-02-23 16:08:41 +00:00: [API] Failed: http://192.168.10.60:3000/api/latest (9ms)
+2026-02-23 16:08:42 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MSFT (106ms)
+2026-02-23 16:08:42 +00:00: [Bloodhound] MSFT failed (watchlist), retrying in 2s...
+2026-02-23 16:08:44 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MSFT (163ms)
+2026-02-23 16:08:44 +00:00: [Bloodhound] DROPPED: MSFT — API returned no data
+2026-02-23 16:08:45 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/META (157ms)
+2026-02-23 16:08:45 +00:00: [Bloodhound] META failed (watchlist), retrying in 2s...
+2026-02-23 16:08:47 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/META (169ms)
+2026-02-23 16:08:47 +00:00: [Bloodhound] DROPPED: META — API returned no data
+2026-02-23 16:08:49 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AAPL (314ms)
+2026-02-23 16:08:49 +00:00: [Bloodhound] AAPL failed (watchlist), retrying in 2s...
+2026-02-23 16:08:51 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AAPL (105ms)
+2026-02-23 16:08:51 +00:00: [Bloodhound] DROPPED: AAPL — API returned no data
+2026-02-23 16:08:52 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMD (161ms)
+2026-02-23 16:08:52 +00:00: [Bloodhound] AMD failed (watchlist), retrying in 2s...
+2026-02-23 16:08:54 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMD (140ms)
+2026-02-23 16:08:54 +00:00: [Bloodhound] DROPPED: AMD — API returned no data
+2026-02-23 16:08:55 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBIT (484ms)
+2026-02-23 16:08:55 +00:00: [Bloodhound] IBIT failed (watchlist), retrying in 2s...
+2026-02-23 16:08:58 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBIT (359ms)
+2026-02-23 16:08:58 +00:00: [Bloodhound] DROPPED: IBIT — API returned no data
+2026-02-23 16:08:59 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/TSLA (148ms)
+2026-02-23 16:08:59 +00:00: [Bloodhound] TSLA failed (watchlist), retrying in 2s...
+2026-02-23 16:09:01 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/TSLA (259ms)
+2026-02-23 16:09:01 +00:00: [Bloodhound] DROPPED: TSLA — API returned no data
+2026-02-23 16:09:02 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/NVDA (123ms)
+2026-02-23 16:09:02 +00:00: [Bloodhound] NVDA failed (watchlist), retrying in 2s...
+2026-02-23 16:09:04 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/NVDA (197ms)
+2026-02-23 16:09:04 +00:00: [Bloodhound] DROPPED: NVDA — API returned no data
+2026-02-23 16:09:06 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (270ms)
+2026-02-23 16:09:06 +00:00: [Bloodhound] QQQ failed (watchlist), retrying in 2s...
+2026-02-23 16:09:08 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (283ms)
+2026-02-23 16:09:08 +00:00: [Bloodhound] DROPPED: QQQ — API returned no data
+2026-02-23 16:09:09 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (120ms)
+2026-02-23 16:09:09 +00:00: [Bloodhound] SPY failed (watchlist), retrying in 2s...
+2026-02-23 16:09:11 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (116ms)
+2026-02-23 16:09:11 +00:00: [Bloodhound] DROPPED: SPY — API returned no data
+2026-02-23 16:09:13 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBRX (252ms)
+2026-02-23 16:09:13 +00:00: [Bloodhound] DROPPED: IBRX — API returned no data
+2026-02-23 16:09:14 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/GLD (128ms)
+2026-02-23 16:09:14 +00:00: [Bloodhound] DROPPED: GLD — API returned no data
+2026-02-23 16:09:15 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SLV (133ms)
+2026-02-23 16:09:15 +00:00: [Bloodhound] DROPPED: SLV — API returned no data
+2026-02-23 16:09:16 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SNDK (166ms)
+2026-02-23 16:09:16 +00:00: [Bloodhound] DROPPED: SNDK — API returned no data
+2026-02-23 16:09:17 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/GOOGL (114ms)
+2026-02-23 16:09:17 +00:00: [Bloodhound] DROPPED: GOOGL — API returned no data
+2026-02-23 16:09:18 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MRNA (120ms)
+2026-02-23 16:09:18 +00:00: [Bloodhound] DROPPED: MRNA — API returned no data
+2026-02-23 16:09:19 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/VNDA (127ms)
+2026-02-23 16:09:19 +00:00: [Bloodhound] DROPPED: VNDA — API returned no data
+2026-02-23 16:09:21 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/OPEN (277ms)
+2026-02-23 16:09:21 +00:00: [Bloodhound] DROPPED: OPEN — API returned no data
+2026-02-23 16:09:22 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MU (109ms)
+2026-02-23 16:09:22 +00:00: [Bloodhound] DROPPED: MU — API returned no data
+2026-02-23 16:09:23 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/OXY (107ms)
+2026-02-23 16:09:23 +00:00: [Bloodhound] DROPPED: OXY — API returned no data
+2026-02-23 16:09:24 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/PLTR (152ms)
+2026-02-23 16:09:24 +00:00: [Bloodhound] DROPPED: PLTR — API returned no data
+2026-02-23 16:09:25 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMZN (119ms)
+2026-02-23 16:09:25 +00:00: [Bloodhound] DROPPED: AMZN — API returned no data
+2026-02-23 16:09:26 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/EEM (149ms)
+2026-02-23 16:09:26 +00:00: [Bloodhound] DROPPED: EEM — API returned no data
+2026-02-23 16:09:27 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SOLZ (153ms)
+2026-02-23 16:09:27 +00:00: [Bloodhound] DROPPED: SOLZ — API returned no data
+2026-02-23 16:09:29 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLC (122ms)
+2026-02-23 16:09:29 +00:00: [Bloodhound] DROPPED: XLC — API returned no data
+2026-02-23 16:09:30 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/USO (273ms)
+2026-02-23 16:09:30 +00:00: [Bloodhound] DROPPED: USO — API returned no data
+2026-02-23 16:09:31 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/F (109ms)
+2026-02-23 16:09:31 +00:00: [Bloodhound] DROPPED: F — API returned no data
+2026-02-23 16:09:32 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/UNG (110ms)
+2026-02-23 16:09:32 +00:00: [Bloodhound] DROPPED: UNG — API returned no data
+2026-02-23 16:09:33 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLP (122ms)
+2026-02-23 16:09:33 +00:00: [Bloodhound] DROPPED: XLP — API returned no data
+2026-02-23 16:09:34 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLB (103ms)
+2026-02-23 16:09:34 +00:00: [Bloodhound] DROPPED: XLB — API returned no data
+2026-02-23 16:09:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/UVXY (212ms)
+2026-02-23 16:09:35 +00:00: [Bloodhound] DROPPED: UVXY — API returned no data
+2026-02-23 16:09:37 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLU (129ms)
+2026-02-23 16:09:37 +00:00: [Bloodhound] DROPPED: XLU — API returned no data
+2026-02-23 16:09:38 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SMCI (217ms)
+2026-02-23 16:09:38 +00:00: [Bloodhound] DROPPED: SMCI — API returned no data
+2026-02-23 16:09:39 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/CVNA (129ms)
+2026-02-23 16:09:39 +00:00: [Bloodhound] DROPPED: CVNA — API returned no data
+2026-02-23 16:09:40 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/ETHA (124ms)
+2026-02-23 16:09:40 +00:00: [Bloodhound] DROPPED: ETHA — API returned no data
+2026-02-23 16:09:41 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/PANW (125ms)
+2026-02-23 16:09:41 +00:00: [Bloodhound] DROPPED: PANW — API returned no data
+2026-02-23 16:09:42 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLK (245ms)
+2026-02-23 16:09:42 +00:00: [Bloodhound] DROPPED: XLK — API returned no data
+2026-02-23 16:09:44 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLF (162ms)
+2026-02-23 16:09:44 +00:00: [Bloodhound] DROPPED: XLF — API returned no data
+2026-02-23 16:09:45 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/INTC (157ms)
+2026-02-23 16:09:45 +00:00: [Bloodhound] DROPPED: INTC — API returned no data
+2026-02-23 16:09:46 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IWM (288ms)
+2026-02-23 16:09:46 +00:00: [Bloodhound] DROPPED: IWM — API returned no data
+2026-02-23 16:09:47 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/ORCL (200ms)
+2026-02-23 16:09:47 +00:00: [Bloodhound] DROPPED: ORCL — API returned no data
+2026-02-23 16:09:48 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLE (186ms)
+2026-02-23 16:09:48 +00:00: [Bloodhound] DROPPED: XLE — API returned no data
+2026-02-23 16:09:52 +00:00: [Signal Logger] Failed to fetch price for XLU after 3 attempts: Request failed with status code 401
+2026-02-23 16:09:55 +00:00: [Signal Logger] Failed to fetch price for SLV after 3 attempts: Request failed with status code 401
+2026-02-23 16:09:59 +00:00: [Signal Logger] Failed to fetch price for OPEN after 3 attempts: Request failed with status code 401
+2026-02-23 16:10:02 +00:00: [Signal Logger] Failed to fetch price for AMZN after 3 attempts: Request failed with status code 401
+2026-02-23 16:10:06 +00:00: [Signal Logger] Failed to fetch price for UVXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:10:10 +00:00: [Signal Logger] Failed to fetch price for XLB after 3 attempts: Request failed with status code 401
+2026-02-23 16:10:13 +00:00: [Signal Logger] Failed to fetch price for XLP after 3 attempts: Request failed with status code 401
+2026-02-23 16:10:17 +00:00: [Signal Logger] Failed to fetch price for PLTR after 3 attempts: Request failed with status code 401
+2026-02-23 16:10:20 +00:00: [Signal Logger] Failed to fetch price for XLK after 3 attempts: Request failed with status code 401
+2026-02-23 16:10:24 +00:00: [Signal Logger] Failed to fetch price for SPY after 3 attempts: Request failed with status code 401
+2026-02-23 16:10:28 +00:00: [Signal Logger] Failed to fetch price for QQQ after 3 attempts: Request failed with status code 401
+2026-02-23 16:10:31 +00:00: [Signal Logger] Failed to fetch price for GLD after 3 attempts: Request failed with status code 401
+2026-02-23 16:10:35 +00:00: [Signal Logger] Failed to fetch price for EEM after 3 attempts: Request failed with status code 401
+2026-02-23 16:10:38 +00:00: [Signal Logger] Failed to fetch price for UNG after 3 attempts: Request failed with status code 401
+2026-02-23 16:10:42 +00:00: [Signal Logger] Failed to fetch price for F after 3 attempts: Request failed with status code 401
+2026-02-23 16:10:46 +00:00: [Signal Logger] Failed to fetch price for SNDK after 3 attempts: Request failed with status code 401
+2026-02-23 16:10:49 +00:00: [Signal Logger] Failed to fetch price for USO after 3 attempts: Request failed with status code 401
+2026-02-23 16:10:53 +00:00: [Signal Logger] Failed to fetch price for XLC after 3 attempts: Request failed with status code 401
+2026-02-23 16:10:57 +00:00: [Signal Logger] Failed to fetch price for SOLZ after 3 attempts: Request failed with status code 401
+2026-02-23 16:11:00 +00:00: [Signal Logger] Failed to fetch price for NVDA after 3 attempts: Request failed with status code 401
+2026-02-23 16:11:04 +00:00: [Signal Logger] Failed to fetch price for MU after 3 attempts: Request failed with status code 401
+2026-02-23 16:11:08 +00:00: [Signal Logger] Failed to fetch price for IBIT after 3 attempts: Request failed with status code 401
+2026-02-23 16:11:11 +00:00: [Signal Logger] Failed to fetch price for ETHA after 3 attempts: Request failed with status code 401
+2026-02-23 16:11:15 +00:00: [Signal Logger] Failed to fetch price for MSFT after 3 attempts: Request failed with status code 401
+2026-02-23 16:11:18 +00:00: [Signal Logger] Failed to fetch price for OXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:11:22 +00:00: [Signal Logger] Failed to fetch price for TSLA after 3 attempts: Request failed with status code 401
+2026-02-23 16:11:25 +00:00: [Signal Logger] Failed to fetch price for VNDA after 3 attempts: Request failed with status code 401
+2026-02-23 16:11:29 +00:00: [Signal Logger] Failed to fetch price for MRNA after 3 attempts: Request failed with status code 401
+2026-02-23 16:11:32 +00:00: [Signal Logger] Failed to fetch price for IBRX after 3 attempts: Request failed with status code 401
+2026-02-23 16:11:36 +00:00: [Signal Logger] Failed to fetch price for AAPL after 3 attempts: Request failed with status code 401
+2026-02-23 16:13:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/market/context (521ms)
+2026-02-23 16:13:38 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (2780ms)
+2026-02-23 16:13:38 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (622ms)
+2026-02-23 16:13:39 +00:00: [API] Failed: http://192.168.10.60:3000/api/market/outlook (6ms)
+2026-02-23 16:13:53 +00:00: [API] Failed: http://192.168.10.60:8000/api/options/SPY/iv (14626ms)
+2026-02-23 16:13:58 +00:00: [API] Failed: http://192.168.10.61:32212/api/rotation/regime (5003ms)
+2026-02-23 16:14:00 +00:00: [API] Failed: http://192.168.10.60:3000/api/market/outlook (7ms)
+2026-02-23 16:14:00 +00:00: [API] Failed: http://192.168.10.60:3000/api/latest (5ms)
+2026-02-23 16:14:04 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MSFT (4019ms)
+2026-02-23 16:14:04 +00:00: [Bloodhound] MSFT failed (watchlist), retrying in 2s...
+2026-02-23 16:14:07 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MSFT (124ms)
+2026-02-23 16:14:07 +00:00: [Bloodhound] DROPPED: MSFT — API returned no data
+2026-02-23 16:14:08 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/META (271ms)
+2026-02-23 16:14:08 +00:00: [Bloodhound] META failed (watchlist), retrying in 2s...
+2026-02-23 16:14:10 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/META (100ms)
+2026-02-23 16:14:10 +00:00: [Bloodhound] DROPPED: META — API returned no data
+2026-02-23 16:14:11 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AAPL (237ms)
+2026-02-23 16:14:11 +00:00: [Bloodhound] AAPL failed (watchlist), retrying in 2s...
+2026-02-23 16:14:13 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AAPL (160ms)
+2026-02-23 16:14:13 +00:00: [Bloodhound] DROPPED: AAPL — API returned no data
+2026-02-23 16:14:14 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMD (124ms)
+2026-02-23 16:14:14 +00:00: [Bloodhound] AMD failed (watchlist), retrying in 2s...
+2026-02-23 16:14:17 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMD (119ms)
+2026-02-23 16:14:17 +00:00: [Bloodhound] DROPPED: AMD — API returned no data
+2026-02-23 16:14:18 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBIT (116ms)
+2026-02-23 16:14:18 +00:00: [Bloodhound] IBIT failed (watchlist), retrying in 2s...
+2026-02-23 16:14:20 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBIT (128ms)
+2026-02-23 16:14:20 +00:00: [Bloodhound] DROPPED: IBIT — API returned no data
+2026-02-23 16:14:21 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/TSLA (117ms)
+2026-02-23 16:14:21 +00:00: [Bloodhound] TSLA failed (watchlist), retrying in 2s...
+2026-02-23 16:14:23 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/TSLA (117ms)
+2026-02-23 16:14:23 +00:00: [Bloodhound] DROPPED: TSLA — API returned no data
+2026-02-23 16:14:24 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/NVDA (267ms)
+2026-02-23 16:14:24 +00:00: [Bloodhound] NVDA failed (watchlist), retrying in 2s...
+2026-02-23 16:14:26 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/NVDA (190ms)
+2026-02-23 16:14:26 +00:00: [Bloodhound] DROPPED: NVDA — API returned no data
+2026-02-23 16:14:28 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (120ms)
+2026-02-23 16:14:28 +00:00: [Bloodhound] QQQ failed (watchlist), retrying in 2s...
+2026-02-23 16:14:30 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (208ms)
+2026-02-23 16:14:30 +00:00: [Bloodhound] DROPPED: QQQ — API returned no data
+2026-02-23 16:14:31 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (110ms)
+2026-02-23 16:14:31 +00:00: [Bloodhound] SPY failed (watchlist), retrying in 2s...
+2026-02-23 16:14:33 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (135ms)
+2026-02-23 16:14:33 +00:00: [Bloodhound] DROPPED: SPY — API returned no data
+2026-02-23 16:14:34 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBRX (152ms)
+2026-02-23 16:14:34 +00:00: [Bloodhound] DROPPED: IBRX — API returned no data
+2026-02-23 16:14:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/GLD (151ms)
+2026-02-23 16:14:35 +00:00: [Bloodhound] DROPPED: GLD — API returned no data
+2026-02-23 16:14:36 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SLV (150ms)
+2026-02-23 16:14:36 +00:00: [Bloodhound] DROPPED: SLV — API returned no data
+2026-02-23 16:14:38 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SNDK (251ms)
+2026-02-23 16:14:38 +00:00: [Bloodhound] DROPPED: SNDK — API returned no data
+2026-02-23 16:14:39 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/GOOGL (201ms)
+2026-02-23 16:14:39 +00:00: [Bloodhound] DROPPED: GOOGL — API returned no data
+2026-02-23 16:14:40 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MRNA (127ms)
+2026-02-23 16:14:40 +00:00: [Bloodhound] DROPPED: MRNA — API returned no data
+2026-02-23 16:14:41 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/VNDA (130ms)
+2026-02-23 16:14:41 +00:00: [Bloodhound] DROPPED: VNDA — API returned no data
+2026-02-23 16:14:42 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/OPEN (128ms)
+2026-02-23 16:14:42 +00:00: [Bloodhound] DROPPED: OPEN — API returned no data
+2026-02-23 16:14:43 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MU (110ms)
+2026-02-23 16:14:43 +00:00: [Bloodhound] DROPPED: MU — API returned no data
+2026-02-23 16:14:45 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/OXY (161ms)
+2026-02-23 16:14:45 +00:00: [Bloodhound] DROPPED: OXY — API returned no data
+2026-02-23 16:14:46 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/PLTR (138ms)
+2026-02-23 16:14:46 +00:00: [Bloodhound] DROPPED: PLTR — API returned no data
+2026-02-23 16:14:47 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMZN (148ms)
+2026-02-23 16:14:47 +00:00: [Bloodhound] DROPPED: AMZN — API returned no data
+2026-02-23 16:14:48 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/EEM (167ms)
+2026-02-23 16:14:48 +00:00: [Bloodhound] DROPPED: EEM — API returned no data
+2026-02-23 16:14:49 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SOLZ (141ms)
+2026-02-23 16:14:49 +00:00: [Bloodhound] DROPPED: SOLZ — API returned no data
+2026-02-23 16:14:50 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLC (177ms)
+2026-02-23 16:14:50 +00:00: [Bloodhound] DROPPED: XLC — API returned no data
+2026-02-23 16:14:52 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/USO (306ms)
+2026-02-23 16:14:52 +00:00: [Bloodhound] DROPPED: USO — API returned no data
+2026-02-23 16:14:53 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/F (227ms)
+2026-02-23 16:14:53 +00:00: [Bloodhound] DROPPED: F — API returned no data
+2026-02-23 16:14:54 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/UNG (115ms)
+2026-02-23 16:14:54 +00:00: [Bloodhound] DROPPED: UNG — API returned no data
+2026-02-23 16:14:55 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLP (150ms)
+2026-02-23 16:14:55 +00:00: [Bloodhound] DROPPED: XLP — API returned no data
+2026-02-23 16:14:56 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLB (109ms)
+2026-02-23 16:14:56 +00:00: [Bloodhound] DROPPED: XLB — API returned no data
+2026-02-23 16:14:58 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/UVXY (231ms)
+2026-02-23 16:14:58 +00:00: [Bloodhound] DROPPED: UVXY — API returned no data
+2026-02-23 16:14:59 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLU (101ms)
+2026-02-23 16:14:59 +00:00: [Bloodhound] DROPPED: XLU — API returned no data
+2026-02-23 16:15:00 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SMCI (129ms)
+2026-02-23 16:15:00 +00:00: [Bloodhound] DROPPED: SMCI — API returned no data
+2026-02-23 16:15:01 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/CVNA (289ms)
+2026-02-23 16:15:01 +00:00: [Bloodhound] DROPPED: CVNA — API returned no data
+2026-02-23 16:15:02 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/ETHA (146ms)
+2026-02-23 16:15:02 +00:00: [Bloodhound] DROPPED: ETHA — API returned no data
+2026-02-23 16:15:03 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/PANW (122ms)
+2026-02-23 16:15:03 +00:00: [Bloodhound] DROPPED: PANW — API returned no data
+2026-02-23 16:15:04 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLK (126ms)
+2026-02-23 16:15:04 +00:00: [Bloodhound] DROPPED: XLK — API returned no data
+2026-02-23 16:15:06 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLF (180ms)
+2026-02-23 16:15:06 +00:00: [Bloodhound] DROPPED: XLF — API returned no data
+2026-02-23 16:15:07 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/INTC (133ms)
+2026-02-23 16:15:07 +00:00: [Bloodhound] DROPPED: INTC — API returned no data
+2026-02-23 16:15:08 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IWM (221ms)
+2026-02-23 16:15:08 +00:00: [Bloodhound] DROPPED: IWM — API returned no data
+2026-02-23 16:15:09 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/ORCL (138ms)
+2026-02-23 16:15:09 +00:00: [Bloodhound] DROPPED: ORCL — API returned no data
+2026-02-23 16:15:10 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLE (128ms)
+2026-02-23 16:15:10 +00:00: [Bloodhound] DROPPED: XLE — API returned no data
+2026-02-23 16:15:14 +00:00: [Signal Logger] Failed to fetch price for XLU after 3 attempts: Request failed with status code 401
+2026-02-23 16:15:17 +00:00: [Signal Logger] Failed to fetch price for SLV after 3 attempts: Request failed with status code 401
+2026-02-23 16:15:21 +00:00: [Signal Logger] Failed to fetch price for OPEN after 3 attempts: Request failed with status code 401
+2026-02-23 16:15:24 +00:00: [Signal Logger] Failed to fetch price for AMZN after 3 attempts: Request failed with status code 401
+2026-02-23 16:15:28 +00:00: [Signal Logger] Failed to fetch price for UVXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:15:31 +00:00: [Signal Logger] Failed to fetch price for XLB after 3 attempts: Request failed with status code 401
+2026-02-23 16:15:35 +00:00: [Signal Logger] Failed to fetch price for XLP after 3 attempts: Request failed with status code 401
+2026-02-23 16:15:39 +00:00: [Signal Logger] Failed to fetch price for PLTR after 3 attempts: Request failed with status code 401
+2026-02-23 16:15:42 +00:00: [Signal Logger] Failed to fetch price for XLK after 3 attempts: Request failed with status code 401
+2026-02-23 16:15:45 +00:00: [Signal Logger] Failed to fetch price for SPY after 3 attempts: Request failed with status code 401
+2026-02-23 16:15:49 +00:00: [Signal Logger] Failed to fetch price for QQQ after 3 attempts: Request failed with status code 401
+2026-02-23 16:15:53 +00:00: [Signal Logger] Failed to fetch price for GLD after 3 attempts: Request failed with status code 401
+2026-02-23 16:15:56 +00:00: [Signal Logger] Failed to fetch price for EEM after 3 attempts: Request failed with status code 401
+2026-02-23 16:16:00 +00:00: [Signal Logger] Failed to fetch price for UNG after 3 attempts: Request failed with status code 401
+2026-02-23 16:16:03 +00:00: [Signal Logger] Failed to fetch price for F after 3 attempts: Request failed with status code 401
+2026-02-23 16:16:07 +00:00: [Signal Logger] Failed to fetch price for SNDK after 3 attempts: Request failed with status code 401
+2026-02-23 16:16:10 +00:00: [Signal Logger] Failed to fetch price for USO after 3 attempts: Request failed with status code 401
+2026-02-23 16:16:14 +00:00: [Signal Logger] Failed to fetch price for XLC after 3 attempts: Request failed with status code 401
+2026-02-23 16:16:18 +00:00: [Signal Logger] Failed to fetch price for SOLZ after 3 attempts: Request failed with status code 401
+2026-02-23 16:16:21 +00:00: [Signal Logger] Failed to fetch price for NVDA after 3 attempts: Request failed with status code 401
+2026-02-23 16:16:25 +00:00: [Signal Logger] Failed to fetch price for MU after 3 attempts: Request failed with status code 401
+2026-02-23 16:16:28 +00:00: [Signal Logger] Failed to fetch price for IBIT after 3 attempts: Request failed with status code 401
+2026-02-23 16:16:32 +00:00: [Signal Logger] Failed to fetch price for ETHA after 3 attempts: Request failed with status code 401
+2026-02-23 16:16:35 +00:00: [Signal Logger] Failed to fetch price for MSFT after 3 attempts: Request failed with status code 401
+2026-02-23 16:16:39 +00:00: [Signal Logger] Failed to fetch price for OXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:16:42 +00:00: [Signal Logger] Failed to fetch price for TSLA after 3 attempts: Request failed with status code 401
+2026-02-23 16:16:46 +00:00: [Signal Logger] Failed to fetch price for VNDA after 3 attempts: Request failed with status code 401
+2026-02-23 16:16:49 +00:00: [Signal Logger] Failed to fetch price for MRNA after 3 attempts: Request failed with status code 401
+2026-02-23 16:16:52 +00:00: [Signal Logger] Failed to fetch price for IBRX after 3 attempts: Request failed with status code 401
+2026-02-23 16:16:56 +00:00: [Signal Logger] Failed to fetch price for AAPL after 3 attempts: Request failed with status code 401
+2026-02-23 16:18:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/market/context (212ms)
+2026-02-23 16:18:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (140ms)
+2026-02-23 16:18:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (130ms)
+2026-02-23 16:18:35 +00:00: [API] Failed: http://192.168.10.60:3000/api/market/outlook (6ms)
+2026-02-23 16:18:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/options/SPY/iv (133ms)
+2026-02-23 16:18:41 +00:00: [API] Failed: http://192.168.10.60:3000/api/market/outlook (6ms)
+2026-02-23 16:18:41 +00:00: [API] Failed: http://192.168.10.60:3000/api/latest (5ms)
+2026-02-23 16:18:41 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MSFT (117ms)
+2026-02-23 16:18:41 +00:00: [Bloodhound] MSFT failed (watchlist), retrying in 2s...
+2026-02-23 16:18:43 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MSFT (113ms)
+2026-02-23 16:18:43 +00:00: [Bloodhound] DROPPED: MSFT — API returned no data
+2026-02-23 16:18:45 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/META (157ms)
+2026-02-23 16:18:45 +00:00: [Bloodhound] META failed (watchlist), retrying in 2s...
+2026-02-23 16:18:47 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/META (113ms)
+2026-02-23 16:18:47 +00:00: [Bloodhound] DROPPED: META — API returned no data
+2026-02-23 16:18:48 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AAPL (120ms)
+2026-02-23 16:18:48 +00:00: [Bloodhound] AAPL failed (watchlist), retrying in 2s...
+2026-02-23 16:18:50 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AAPL (135ms)
+2026-02-23 16:18:50 +00:00: [Bloodhound] DROPPED: AAPL — API returned no data
+2026-02-23 16:18:51 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMD (141ms)
+2026-02-23 16:18:51 +00:00: [Bloodhound] AMD failed (watchlist), retrying in 2s...
+2026-02-23 16:18:53 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMD (150ms)
+2026-02-23 16:18:53 +00:00: [Bloodhound] DROPPED: AMD — API returned no data
+2026-02-23 16:18:54 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBIT (181ms)
+2026-02-23 16:18:54 +00:00: [Bloodhound] IBIT failed (watchlist), retrying in 2s...
+2026-02-23 16:18:57 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBIT (142ms)
+2026-02-23 16:18:57 +00:00: [Bloodhound] DROPPED: IBIT — API returned no data
+2026-02-23 16:18:58 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/TSLA (179ms)
+2026-02-23 16:18:58 +00:00: [Bloodhound] TSLA failed (watchlist), retrying in 2s...
+2026-02-23 16:19:00 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/TSLA (120ms)
+2026-02-23 16:19:00 +00:00: [Bloodhound] DROPPED: TSLA — API returned no data
+2026-02-23 16:19:01 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/NVDA (110ms)
+2026-02-23 16:19:01 +00:00: [Bloodhound] NVDA failed (watchlist), retrying in 2s...
+2026-02-23 16:19:03 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/NVDA (176ms)
+2026-02-23 16:19:03 +00:00: [Bloodhound] DROPPED: NVDA — API returned no data
+2026-02-23 16:19:04 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (134ms)
+2026-02-23 16:19:04 +00:00: [Bloodhound] QQQ failed (watchlist), retrying in 2s...
+2026-02-23 16:19:06 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (101ms)
+2026-02-23 16:19:06 +00:00: [Bloodhound] DROPPED: QQQ — API returned no data
+2026-02-23 16:19:07 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (121ms)
+2026-02-23 16:19:07 +00:00: [Bloodhound] SPY failed (watchlist), retrying in 2s...
+2026-02-23 16:19:10 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (226ms)
+2026-02-23 16:19:10 +00:00: [Bloodhound] DROPPED: SPY — API returned no data
+2026-02-23 16:19:11 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBRX (189ms)
+2026-02-23 16:19:11 +00:00: [Bloodhound] DROPPED: IBRX — API returned no data
+2026-02-23 16:19:12 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/GLD (188ms)
+2026-02-23 16:19:12 +00:00: [Bloodhound] DROPPED: GLD — API returned no data
+2026-02-23 16:19:13 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SLV (107ms)
+2026-02-23 16:19:13 +00:00: [Bloodhound] DROPPED: SLV — API returned no data
+2026-02-23 16:19:14 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SNDK (143ms)
+2026-02-23 16:19:14 +00:00: [Bloodhound] DROPPED: SNDK — API returned no data
+2026-02-23 16:19:15 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/GOOGL (121ms)
+2026-02-23 16:19:15 +00:00: [Bloodhound] DROPPED: GOOGL — API returned no data
+2026-02-23 16:19:17 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MRNA (201ms)
+2026-02-23 16:19:17 +00:00: [Bloodhound] DROPPED: MRNA — API returned no data
+2026-02-23 16:19:18 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/VNDA (131ms)
+2026-02-23 16:19:18 +00:00: [Bloodhound] DROPPED: VNDA — API returned no data
+2026-02-23 16:19:19 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/OPEN (146ms)
+2026-02-23 16:19:19 +00:00: [Bloodhound] DROPPED: OPEN — API returned no data
+2026-02-23 16:19:20 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MU (149ms)
+2026-02-23 16:19:20 +00:00: [Bloodhound] DROPPED: MU — API returned no data
+2026-02-23 16:19:21 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/OXY (139ms)
+2026-02-23 16:19:21 +00:00: [Bloodhound] DROPPED: OXY — API returned no data
+2026-02-23 16:19:22 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/PLTR (125ms)
+2026-02-23 16:19:22 +00:00: [Bloodhound] DROPPED: PLTR — API returned no data
+2026-02-23 16:19:24 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMZN (214ms)
+2026-02-23 16:19:24 +00:00: [Bloodhound] DROPPED: AMZN — API returned no data
+2026-02-23 16:19:25 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/EEM (253ms)
+2026-02-23 16:19:25 +00:00: [Bloodhound] DROPPED: EEM — API returned no data
+2026-02-23 16:19:26 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SOLZ (203ms)
+2026-02-23 16:19:26 +00:00: [Bloodhound] DROPPED: SOLZ — API returned no data
+2026-02-23 16:19:27 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLC (233ms)
+2026-02-23 16:19:27 +00:00: [Bloodhound] DROPPED: XLC — API returned no data
+2026-02-23 16:19:28 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/USO (141ms)
+2026-02-23 16:19:28 +00:00: [Bloodhound] DROPPED: USO — API returned no data
+2026-02-23 16:19:29 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/F (131ms)
+2026-02-23 16:19:29 +00:00: [Bloodhound] DROPPED: F — API returned no data
+2026-02-23 16:19:31 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/UNG (168ms)
+2026-02-23 16:19:31 +00:00: [Bloodhound] DROPPED: UNG — API returned no data
+2026-02-23 16:19:32 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLP (101ms)
+2026-02-23 16:19:32 +00:00: [Bloodhound] DROPPED: XLP — API returned no data
+2026-02-23 16:19:33 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLB (145ms)
+2026-02-23 16:19:33 +00:00: [Bloodhound] DROPPED: XLB — API returned no data
+2026-02-23 16:19:34 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/UVXY (120ms)
+2026-02-23 16:19:34 +00:00: [Bloodhound] DROPPED: UVXY — API returned no data
+2026-02-23 16:19:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLU (168ms)
+2026-02-23 16:19:35 +00:00: [Bloodhound] DROPPED: XLU — API returned no data
+2026-02-23 16:19:36 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SMCI (126ms)
+2026-02-23 16:19:36 +00:00: [Bloodhound] DROPPED: SMCI — API returned no data
+2026-02-23 16:19:37 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/CVNA (145ms)
+2026-02-23 16:19:37 +00:00: [Bloodhound] DROPPED: CVNA — API returned no data
+2026-02-23 16:19:39 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/ETHA (105ms)
+2026-02-23 16:19:39 +00:00: [Bloodhound] DROPPED: ETHA — API returned no data
+2026-02-23 16:19:40 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/PANW (138ms)
+2026-02-23 16:19:40 +00:00: [Bloodhound] DROPPED: PANW — API returned no data
+2026-02-23 16:19:41 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLK (128ms)
+2026-02-23 16:19:41 +00:00: [Bloodhound] DROPPED: XLK — API returned no data
+2026-02-23 16:19:42 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLF (271ms)
+2026-02-23 16:19:42 +00:00: [Bloodhound] DROPPED: XLF — API returned no data
+2026-02-23 16:19:43 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/INTC (179ms)
+2026-02-23 16:19:43 +00:00: [Bloodhound] DROPPED: INTC — API returned no data
+2026-02-23 16:19:44 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IWM (194ms)
+2026-02-23 16:19:44 +00:00: [Bloodhound] DROPPED: IWM — API returned no data
+2026-02-23 16:19:46 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/ORCL (151ms)
+2026-02-23 16:19:46 +00:00: [Bloodhound] DROPPED: ORCL — API returned no data
+2026-02-23 16:19:47 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLE (133ms)
+2026-02-23 16:19:47 +00:00: [Bloodhound] DROPPED: XLE — API returned no data
+2026-02-23 16:19:50 +00:00: [Signal Logger] Failed to fetch price for SLV after 3 attempts: Request failed with status code 401
+2026-02-23 16:19:54 +00:00: [Signal Logger] Failed to fetch price for OPEN after 3 attempts: Request failed with status code 401
+2026-02-23 16:19:57 +00:00: [Signal Logger] Failed to fetch price for AMZN after 3 attempts: Request failed with status code 401
+2026-02-23 16:20:01 +00:00: [Signal Logger] Failed to fetch price for UVXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:20:04 +00:00: [Signal Logger] Failed to fetch price for XLB after 3 attempts: Request failed with status code 401
+2026-02-23 16:20:07 +00:00: [Signal Logger] Failed to fetch price for XLP after 3 attempts: Request failed with status code 401
+2026-02-23 16:20:11 +00:00: [Signal Logger] Failed to fetch price for PLTR after 3 attempts: Request failed with status code 401
+2026-02-23 16:20:14 +00:00: [Signal Logger] Failed to fetch price for XLK after 3 attempts: Request failed with status code 401
+2026-02-23 16:20:18 +00:00: [Signal Logger] Failed to fetch price for SPY after 3 attempts: Request failed with status code 401
+2026-02-23 16:20:21 +00:00: [Signal Logger] Failed to fetch price for QQQ after 3 attempts: Request failed with status code 401
+2026-02-23 16:20:25 +00:00: [Signal Logger] Failed to fetch price for GLD after 3 attempts: Request failed with status code 401
+2026-02-23 16:20:28 +00:00: [Signal Logger] Failed to fetch price for EEM after 3 attempts: Request failed with status code 401
+2026-02-23 16:20:31 +00:00: [Signal Logger] Failed to fetch price for UNG after 3 attempts: Request failed with status code 401
+2026-02-23 16:20:35 +00:00: [Signal Logger] Failed to fetch price for F after 3 attempts: Request failed with status code 401
+2026-02-23 16:20:38 +00:00: [Signal Logger] Failed to fetch price for SNDK after 3 attempts: Request failed with status code 401
+2026-02-23 16:20:42 +00:00: [Signal Logger] Failed to fetch price for USO after 3 attempts: Request failed with status code 401
+2026-02-23 16:20:46 +00:00: [Signal Logger] Failed to fetch price for XLC after 3 attempts: Request failed with status code 401
+2026-02-23 16:20:49 +00:00: [Signal Logger] Failed to fetch price for SOLZ after 3 attempts: Request failed with status code 401
+2026-02-23 16:20:53 +00:00: [Signal Logger] Failed to fetch price for NVDA after 3 attempts: Request failed with status code 401
+2026-02-23 16:20:57 +00:00: [Signal Logger] Failed to fetch price for MU after 3 attempts: Request failed with status code 401
+2026-02-23 16:21:00 +00:00: [Signal Logger] Failed to fetch price for IBIT after 3 attempts: Request failed with status code 401
+2026-02-23 16:21:04 +00:00: [Signal Logger] Failed to fetch price for ETHA after 3 attempts: Request failed with status code 401
+2026-02-23 16:21:08 +00:00: [Signal Logger] Failed to fetch price for MSFT after 3 attempts: Request failed with status code 401
+2026-02-23 16:21:11 +00:00: [Signal Logger] Failed to fetch price for OXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:21:15 +00:00: [Signal Logger] Failed to fetch price for TSLA after 3 attempts: Request failed with status code 401
+2026-02-23 16:21:18 +00:00: [Signal Logger] Failed to fetch price for VNDA after 3 attempts: Request failed with status code 401
+2026-02-23 16:21:22 +00:00: [Signal Logger] Failed to fetch price for MRNA after 3 attempts: Request failed with status code 401
+2026-02-23 16:21:26 +00:00: [Signal Logger] Failed to fetch price for IBRX after 3 attempts: Request failed with status code 401
+2026-02-23 16:21:29 +00:00: [Signal Logger] Failed to fetch price for AAPL after 3 attempts: Request failed with status code 401
+2026-02-23 16:23:34 +00:00: [API] Failed: http://192.168.10.60:8000/api/market/context (138ms)
+2026-02-23 16:23:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (197ms)
+2026-02-23 16:23:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (145ms)
+2026-02-23 16:23:35 +00:00: [API] Failed: http://192.168.10.60:3000/api/market/outlook (7ms)
+2026-02-23 16:23:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/options/SPY/iv (259ms)
+2026-02-23 16:23:41 +00:00: [API] Failed: http://192.168.10.60:3000/api/market/outlook (7ms)
+2026-02-23 16:23:41 +00:00: [API] Failed: http://192.168.10.60:3000/api/latest (5ms)
+2026-02-23 16:23:41 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MSFT (127ms)
+2026-02-23 16:23:41 +00:00: [Bloodhound] MSFT failed (watchlist), retrying in 2s...
+2026-02-23 16:23:43 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MSFT (101ms)
+2026-02-23 16:23:43 +00:00: [Bloodhound] DROPPED: MSFT — API returned no data
+2026-02-23 16:23:44 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/META (113ms)
+2026-02-23 16:23:44 +00:00: [Bloodhound] META failed (watchlist), retrying in 2s...
+2026-02-23 16:23:46 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/META (102ms)
+2026-02-23 16:23:46 +00:00: [Bloodhound] DROPPED: META — API returned no data
+2026-02-23 16:23:47 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AAPL (98ms)
+2026-02-23 16:23:47 +00:00: [Bloodhound] AAPL failed (watchlist), retrying in 2s...
+2026-02-23 16:23:49 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AAPL (101ms)
+2026-02-23 16:23:49 +00:00: [Bloodhound] DROPPED: AAPL — API returned no data
+2026-02-23 16:23:51 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMD (97ms)
+2026-02-23 16:23:51 +00:00: [Bloodhound] AMD failed (watchlist), retrying in 2s...
+2026-02-23 16:23:53 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMD (130ms)
+2026-02-23 16:23:53 +00:00: [Bloodhound] DROPPED: AMD — API returned no data
+2026-02-23 16:23:54 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBIT (99ms)
+2026-02-23 16:23:54 +00:00: [Bloodhound] IBIT failed (watchlist), retrying in 2s...
+2026-02-23 16:23:56 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBIT (239ms)
+2026-02-23 16:23:56 +00:00: [Bloodhound] DROPPED: IBIT — API returned no data
+2026-02-23 16:23:57 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/TSLA (170ms)
+2026-02-23 16:23:57 +00:00: [Bloodhound] TSLA failed (watchlist), retrying in 2s...
+2026-02-23 16:23:59 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/TSLA (113ms)
+2026-02-23 16:23:59 +00:00: [Bloodhound] DROPPED: TSLA — API returned no data
+2026-02-23 16:24:00 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/NVDA (114ms)
+2026-02-23 16:24:00 +00:00: [Bloodhound] NVDA failed (watchlist), retrying in 2s...
+2026-02-23 16:24:03 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/NVDA (148ms)
+2026-02-23 16:24:03 +00:00: [Bloodhound] DROPPED: NVDA — API returned no data
+2026-02-23 16:24:04 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (144ms)
+2026-02-23 16:24:04 +00:00: [Bloodhound] QQQ failed (watchlist), retrying in 2s...
+2026-02-23 16:24:06 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (124ms)
+2026-02-23 16:24:06 +00:00: [Bloodhound] DROPPED: QQQ — API returned no data
+2026-02-23 16:24:07 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (107ms)
+2026-02-23 16:24:07 +00:00: [Bloodhound] SPY failed (watchlist), retrying in 2s...
+2026-02-23 16:24:09 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (120ms)
+2026-02-23 16:24:09 +00:00: [Bloodhound] DROPPED: SPY — API returned no data
+2026-02-23 16:24:10 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBRX (234ms)
+2026-02-23 16:24:10 +00:00: [Bloodhound] DROPPED: IBRX — API returned no data
+2026-02-23 16:24:12 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/GLD (196ms)
+2026-02-23 16:24:12 +00:00: [Bloodhound] DROPPED: GLD — API returned no data
+2026-02-23 16:24:13 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SLV (138ms)
+2026-02-23 16:24:13 +00:00: [Bloodhound] DROPPED: SLV — API returned no data
+2026-02-23 16:24:14 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SNDK (128ms)
+2026-02-23 16:24:14 +00:00: [Bloodhound] DROPPED: SNDK — API returned no data
+2026-02-23 16:24:15 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/GOOGL (103ms)
+2026-02-23 16:24:15 +00:00: [Bloodhound] DROPPED: GOOGL — API returned no data
+2026-02-23 16:24:16 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MRNA (106ms)
+2026-02-23 16:24:16 +00:00: [Bloodhound] DROPPED: MRNA — API returned no data
+2026-02-23 16:24:17 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/VNDA (212ms)
+2026-02-23 16:24:17 +00:00: [Bloodhound] DROPPED: VNDA — API returned no data
+2026-02-23 16:24:18 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/OPEN (132ms)
+2026-02-23 16:24:18 +00:00: [Bloodhound] DROPPED: OPEN — API returned no data
+2026-02-23 16:24:20 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MU (184ms)
+2026-02-23 16:24:20 +00:00: [Bloodhound] DROPPED: MU — API returned no data
+2026-02-23 16:24:21 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/OXY (108ms)
+2026-02-23 16:24:21 +00:00: [Bloodhound] DROPPED: OXY — API returned no data
+2026-02-23 16:24:22 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/PLTR (128ms)
+2026-02-23 16:24:22 +00:00: [Bloodhound] DROPPED: PLTR — API returned no data
+2026-02-23 16:24:23 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMZN (116ms)
+2026-02-23 16:24:23 +00:00: [Bloodhound] DROPPED: AMZN — API returned no data
+2026-02-23 16:24:24 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/EEM (101ms)
+2026-02-23 16:24:24 +00:00: [Bloodhound] DROPPED: EEM — API returned no data
+2026-02-23 16:24:25 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SOLZ (103ms)
+2026-02-23 16:24:25 +00:00: [Bloodhound] DROPPED: SOLZ — API returned no data
+2026-02-23 16:24:26 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLC (114ms)
+2026-02-23 16:24:26 +00:00: [Bloodhound] DROPPED: XLC — API returned no data
+2026-02-23 16:24:27 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/USO (148ms)
+2026-02-23 16:24:27 +00:00: [Bloodhound] DROPPED: USO — API returned no data
+2026-02-23 16:24:28 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/F (118ms)
+2026-02-23 16:24:28 +00:00: [Bloodhound] DROPPED: F — API returned no data
+2026-02-23 16:24:30 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/UNG (99ms)
+2026-02-23 16:24:30 +00:00: [Bloodhound] DROPPED: UNG — API returned no data
+2026-02-23 16:24:31 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLP (132ms)
+2026-02-23 16:24:31 +00:00: [Bloodhound] DROPPED: XLP — API returned no data
+2026-02-23 16:24:32 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLB (113ms)
+2026-02-23 16:24:32 +00:00: [Bloodhound] DROPPED: XLB — API returned no data
+2026-02-23 16:24:33 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/UVXY (101ms)
+2026-02-23 16:24:33 +00:00: [Bloodhound] DROPPED: UVXY — API returned no data
+2026-02-23 16:24:34 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLU (133ms)
+2026-02-23 16:24:34 +00:00: [Bloodhound] DROPPED: XLU — API returned no data
+2026-02-23 16:24:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SMCI (107ms)
+2026-02-23 16:24:35 +00:00: [Bloodhound] DROPPED: SMCI — API returned no data
+2026-02-23 16:24:36 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/CVNA (124ms)
+2026-02-23 16:24:36 +00:00: [Bloodhound] DROPPED: CVNA — API returned no data
+2026-02-23 16:24:38 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/ETHA (319ms)
+2026-02-23 16:24:38 +00:00: [Bloodhound] DROPPED: ETHA — API returned no data
+2026-02-23 16:24:39 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/PANW (137ms)
+2026-02-23 16:24:39 +00:00: [Bloodhound] DROPPED: PANW — API returned no data
+2026-02-23 16:24:40 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLK (142ms)
+2026-02-23 16:24:40 +00:00: [Bloodhound] DROPPED: XLK — API returned no data
+2026-02-23 16:24:41 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLF (139ms)
+2026-02-23 16:24:41 +00:00: [Bloodhound] DROPPED: XLF — API returned no data
+2026-02-23 16:24:42 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/INTC (135ms)
+2026-02-23 16:24:42 +00:00: [Bloodhound] DROPPED: INTC — API returned no data
+2026-02-23 16:24:43 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IWM (114ms)
+2026-02-23 16:24:43 +00:00: [Bloodhound] DROPPED: IWM — API returned no data
+2026-02-23 16:24:44 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/ORCL (156ms)
+2026-02-23 16:24:44 +00:00: [Bloodhound] DROPPED: ORCL — API returned no data
+2026-02-23 16:24:46 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLE (125ms)
+2026-02-23 16:24:46 +00:00: [Bloodhound] DROPPED: XLE — API returned no data
+2026-02-23 16:24:49 +00:00: [Signal Logger] Failed to fetch price for SLV after 3 attempts: Request failed with status code 401
+2026-02-23 16:24:52 +00:00: [Signal Logger] Failed to fetch price for OPEN after 3 attempts: Request failed with status code 401
+2026-02-23 16:24:56 +00:00: [Signal Logger] Failed to fetch price for AMZN after 3 attempts: Request failed with status code 401
+2026-02-23 16:24:59 +00:00: [Signal Logger] Failed to fetch price for UVXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:25:03 +00:00: [Signal Logger] Failed to fetch price for XLB after 3 attempts: Request failed with status code 401
+2026-02-23 16:25:06 +00:00: [Signal Logger] Failed to fetch price for XLP after 3 attempts: Request failed with status code 401
+2026-02-23 16:25:09 +00:00: [Signal Logger] Failed to fetch price for PLTR after 3 attempts: Request failed with status code 401
+2026-02-23 16:25:13 +00:00: [Signal Logger] Failed to fetch price for XLK after 3 attempts: Request failed with status code 401
+2026-02-23 16:25:16 +00:00: [Signal Logger] Failed to fetch price for SPY after 3 attempts: Request failed with status code 401
+2026-02-23 16:25:20 +00:00: [Signal Logger] Failed to fetch price for QQQ after 3 attempts: Request failed with status code 401
+2026-02-23 16:25:23 +00:00: [Signal Logger] Failed to fetch price for GLD after 3 attempts: Request failed with status code 401
+2026-02-23 16:25:27 +00:00: [Signal Logger] Failed to fetch price for EEM after 3 attempts: Request failed with status code 401
+2026-02-23 16:25:30 +00:00: [Signal Logger] Failed to fetch price for UNG after 3 attempts: Request failed with status code 401
+2026-02-23 16:25:34 +00:00: [Signal Logger] Failed to fetch price for F after 3 attempts: Request failed with status code 401
+2026-02-23 16:25:37 +00:00: [Signal Logger] Failed to fetch price for SNDK after 3 attempts: Request failed with status code 401
+2026-02-23 16:25:41 +00:00: [Signal Logger] Failed to fetch price for USO after 3 attempts: Request failed with status code 401
+2026-02-23 16:25:44 +00:00: [Signal Logger] Failed to fetch price for XLC after 3 attempts: Request failed with status code 401
+2026-02-23 16:25:48 +00:00: [Signal Logger] Failed to fetch price for SOLZ after 3 attempts: Request failed with status code 401
+2026-02-23 16:25:52 +00:00: [Signal Logger] Failed to fetch price for NVDA after 3 attempts: Request failed with status code 401
+2026-02-23 16:25:55 +00:00: [Signal Logger] Failed to fetch price for MU after 3 attempts: Request failed with status code 401
+2026-02-23 16:25:59 +00:00: [Signal Logger] Failed to fetch price for IBIT after 3 attempts: Request failed with status code 401
+2026-02-23 16:26:02 +00:00: [Signal Logger] Failed to fetch price for ETHA after 3 attempts: Request failed with status code 401
+2026-02-23 16:26:06 +00:00: [Signal Logger] Failed to fetch price for MSFT after 3 attempts: Request failed with status code 401
+2026-02-23 16:26:09 +00:00: [Signal Logger] Failed to fetch price for OXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:26:13 +00:00: [Signal Logger] Failed to fetch price for TSLA after 3 attempts: Request failed with status code 401
+2026-02-23 16:26:16 +00:00: [Signal Logger] Failed to fetch price for VNDA after 3 attempts: Request failed with status code 401
+2026-02-23 16:26:19 +00:00: [Signal Logger] Failed to fetch price for MRNA after 3 attempts: Request failed with status code 401
+2026-02-23 16:26:23 +00:00: [Signal Logger] Failed to fetch price for IBRX after 3 attempts: Request failed with status code 401
+2026-02-23 16:26:26 +00:00: [Signal Logger] Failed to fetch price for AAPL after 3 attempts: Request failed with status code 401
+2026-02-23 16:28:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/market/context (210ms)
+2026-02-23 16:28:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (171ms)
+2026-02-23 16:28:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (120ms)
+2026-02-23 16:28:35 +00:00: [API] Failed: http://192.168.10.60:3000/api/market/outlook (7ms)
+2026-02-23 16:28:36 +00:00: [API] Failed: http://192.168.10.60:8000/api/options/SPY/iv (297ms)
+2026-02-23 16:28:41 +00:00: [API] Failed: http://192.168.10.60:3000/api/market/outlook (6ms)
+2026-02-23 16:28:41 +00:00: [API] Failed: http://192.168.10.60:3000/api/latest (6ms)
+2026-02-23 16:28:41 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MSFT (242ms)
+2026-02-23 16:28:41 +00:00: [Bloodhound] MSFT failed (watchlist), retrying in 2s...
+2026-02-23 16:28:43 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MSFT (246ms)
+2026-02-23 16:28:43 +00:00: [Bloodhound] DROPPED: MSFT — API returned no data
+2026-02-23 16:28:45 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/META (145ms)
+2026-02-23 16:28:45 +00:00: [Bloodhound] META failed (watchlist), retrying in 2s...
+2026-02-23 16:28:47 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/META (186ms)
+2026-02-23 16:28:47 +00:00: [Bloodhound] DROPPED: META — API returned no data
+2026-02-23 16:28:48 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AAPL (98ms)
+2026-02-23 16:28:48 +00:00: [Bloodhound] AAPL failed (watchlist), retrying in 2s...
+2026-02-23 16:28:50 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AAPL (153ms)
+2026-02-23 16:28:50 +00:00: [Bloodhound] DROPPED: AAPL — API returned no data
+2026-02-23 16:28:51 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMD (131ms)
+2026-02-23 16:28:51 +00:00: [Bloodhound] AMD failed (watchlist), retrying in 2s...
+2026-02-23 16:28:53 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMD (191ms)
+2026-02-23 16:28:53 +00:00: [Bloodhound] DROPPED: AMD — API returned no data
+2026-02-23 16:28:55 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBIT (183ms)
+2026-02-23 16:28:55 +00:00: [Bloodhound] IBIT failed (watchlist), retrying in 2s...
+2026-02-23 16:28:57 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBIT (132ms)
+2026-02-23 16:28:57 +00:00: [Bloodhound] DROPPED: IBIT — API returned no data
+2026-02-23 16:28:58 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/TSLA (186ms)
+2026-02-23 16:28:58 +00:00: [Bloodhound] TSLA failed (watchlist), retrying in 2s...
+2026-02-23 16:29:00 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/TSLA (208ms)
+2026-02-23 16:29:00 +00:00: [Bloodhound] DROPPED: TSLA — API returned no data
+2026-02-23 16:29:01 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/NVDA (144ms)
+2026-02-23 16:29:01 +00:00: [Bloodhound] NVDA failed (watchlist), retrying in 2s...
+2026-02-23 16:29:04 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/NVDA (267ms)
+2026-02-23 16:29:04 +00:00: [Bloodhound] DROPPED: NVDA — API returned no data
+2026-02-23 16:29:05 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (431ms)
+2026-02-23 16:29:05 +00:00: [Bloodhound] QQQ failed (watchlist), retrying in 2s...
+2026-02-23 16:29:07 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (116ms)
+2026-02-23 16:29:07 +00:00: [Bloodhound] DROPPED: QQQ — API returned no data
+2026-02-23 16:29:08 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (143ms)
+2026-02-23 16:29:08 +00:00: [Bloodhound] SPY failed (watchlist), retrying in 2s...
+2026-02-23 16:29:10 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (203ms)
+2026-02-23 16:29:10 +00:00: [Bloodhound] DROPPED: SPY — API returned no data
+2026-02-23 16:29:12 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBRX (267ms)
+2026-02-23 16:29:12 +00:00: [Bloodhound] DROPPED: IBRX — API returned no data
+2026-02-23 16:29:13 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/GLD (185ms)
+2026-02-23 16:29:13 +00:00: [Bloodhound] DROPPED: GLD — API returned no data
+2026-02-23 16:29:14 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SLV (124ms)
+2026-02-23 16:29:14 +00:00: [Bloodhound] DROPPED: SLV — API returned no data
+2026-02-23 16:29:15 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SNDK (180ms)
+2026-02-23 16:29:15 +00:00: [Bloodhound] DROPPED: SNDK — API returned no data
+2026-02-23 16:29:16 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/GOOGL (166ms)
+2026-02-23 16:29:16 +00:00: [Bloodhound] DROPPED: GOOGL — API returned no data
+2026-02-23 16:29:18 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MRNA (196ms)
+2026-02-23 16:29:18 +00:00: [Bloodhound] DROPPED: MRNA — API returned no data
+2026-02-23 16:29:19 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/VNDA (166ms)
+2026-02-23 16:29:19 +00:00: [Bloodhound] DROPPED: VNDA — API returned no data
+2026-02-23 16:29:20 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/OPEN (125ms)
+2026-02-23 16:29:20 +00:00: [Bloodhound] DROPPED: OPEN — API returned no data
+2026-02-23 16:29:21 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MU (151ms)
+2026-02-23 16:29:21 +00:00: [Bloodhound] DROPPED: MU — API returned no data
+2026-02-23 16:29:22 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/OXY (142ms)
+2026-02-23 16:29:22 +00:00: [Bloodhound] DROPPED: OXY — API returned no data
+2026-02-23 16:29:23 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/PLTR (126ms)
+2026-02-23 16:29:23 +00:00: [Bloodhound] DROPPED: PLTR — API returned no data
+2026-02-23 16:29:24 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMZN (119ms)
+2026-02-23 16:29:24 +00:00: [Bloodhound] DROPPED: AMZN — API returned no data
+2026-02-23 16:29:26 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/EEM (221ms)
+2026-02-23 16:29:26 +00:00: [Bloodhound] DROPPED: EEM — API returned no data
+2026-02-23 16:29:27 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SOLZ (121ms)
+2026-02-23 16:29:27 +00:00: [Bloodhound] DROPPED: SOLZ — API returned no data
+2026-02-23 16:29:28 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLC (114ms)
+2026-02-23 16:29:28 +00:00: [Bloodhound] DROPPED: XLC — API returned no data
+2026-02-23 16:29:29 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/USO (106ms)
+2026-02-23 16:29:29 +00:00: [Bloodhound] DROPPED: USO — API returned no data
+2026-02-23 16:29:30 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/F (138ms)
+2026-02-23 16:29:30 +00:00: [Bloodhound] DROPPED: F — API returned no data
+2026-02-23 16:29:31 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/UNG (131ms)
+2026-02-23 16:29:31 +00:00: [Bloodhound] DROPPED: UNG — API returned no data
+2026-02-23 16:29:32 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLP (118ms)
+2026-02-23 16:29:32 +00:00: [Bloodhound] DROPPED: XLP — API returned no data
+2026-02-23 16:29:33 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLB (112ms)
+2026-02-23 16:29:33 +00:00: [Bloodhound] DROPPED: XLB — API returned no data
+2026-02-23 16:29:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/UVXY (178ms)
+2026-02-23 16:29:35 +00:00: [Bloodhound] DROPPED: UVXY — API returned no data
+2026-02-23 16:29:36 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLU (176ms)
+2026-02-23 16:29:36 +00:00: [Bloodhound] DROPPED: XLU — API returned no data
+2026-02-23 16:29:37 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SMCI (126ms)
+2026-02-23 16:29:37 +00:00: [Bloodhound] DROPPED: SMCI — API returned no data
+2026-02-23 16:29:38 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/CVNA (112ms)
+2026-02-23 16:29:38 +00:00: [Bloodhound] DROPPED: CVNA — API returned no data
+2026-02-23 16:29:39 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/ETHA (121ms)
+2026-02-23 16:29:39 +00:00: [Bloodhound] DROPPED: ETHA — API returned no data
+2026-02-23 16:29:40 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/PANW (109ms)
+2026-02-23 16:29:40 +00:00: [Bloodhound] DROPPED: PANW — API returned no data
+2026-02-23 16:29:41 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLK (169ms)
+2026-02-23 16:29:41 +00:00: [Bloodhound] DROPPED: XLK — API returned no data
+2026-02-23 16:29:43 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLF (103ms)
+2026-02-23 16:29:43 +00:00: [Bloodhound] DROPPED: XLF — API returned no data
+2026-02-23 16:29:44 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/INTC (147ms)
+2026-02-23 16:29:44 +00:00: [Bloodhound] DROPPED: INTC — API returned no data
+2026-02-23 16:29:45 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IWM (99ms)
+2026-02-23 16:29:45 +00:00: [Bloodhound] DROPPED: IWM — API returned no data
+2026-02-23 16:29:46 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/ORCL (261ms)
+2026-02-23 16:29:46 +00:00: [Bloodhound] DROPPED: ORCL — API returned no data
+2026-02-23 16:29:47 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLE (97ms)
+2026-02-23 16:29:47 +00:00: [Bloodhound] DROPPED: XLE — API returned no data
+2026-02-23 16:29:51 +00:00: [Signal Logger] Failed to fetch price for OPEN after 3 attempts: Request failed with status code 401
+2026-02-23 16:29:54 +00:00: [Signal Logger] Failed to fetch price for AMZN after 3 attempts: Request failed with status code 401
+2026-02-23 16:29:57 +00:00: [Signal Logger] Failed to fetch price for UVXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:30:01 +00:00: [Signal Logger] Failed to fetch price for XLB after 3 attempts: Request failed with status code 401
+2026-02-23 16:30:05 +00:00: [Signal Logger] Failed to fetch price for XLP after 3 attempts: Request failed with status code 401
+2026-02-23 16:30:08 +00:00: [Signal Logger] Failed to fetch price for PLTR after 3 attempts: Request failed with status code 401
+2026-02-23 16:30:12 +00:00: [Signal Logger] Failed to fetch price for XLK after 3 attempts: Request failed with status code 401
+2026-02-23 16:30:15 +00:00: [Signal Logger] Failed to fetch price for SPY after 3 attempts: Request failed with status code 401
+2026-02-23 16:30:18 +00:00: [Signal Logger] Failed to fetch price for QQQ after 3 attempts: Request failed with status code 401
+2026-02-23 16:30:22 +00:00: [Signal Logger] Failed to fetch price for GLD after 3 attempts: Request failed with status code 401
+2026-02-23 16:30:25 +00:00: [Signal Logger] Failed to fetch price for EEM after 3 attempts: Request failed with status code 401
+2026-02-23 16:30:29 +00:00: [Signal Logger] Failed to fetch price for UNG after 3 attempts: Request failed with status code 401
+2026-02-23 16:30:32 +00:00: [Signal Logger] Failed to fetch price for F after 3 attempts: Request failed with status code 401
+2026-02-23 16:30:36 +00:00: [Signal Logger] Failed to fetch price for SNDK after 3 attempts: Request failed with status code 401
+2026-02-23 16:30:39 +00:00: [Signal Logger] Failed to fetch price for USO after 3 attempts: Request failed with status code 401
+2026-02-23 16:30:42 +00:00: [Signal Logger] Failed to fetch price for XLC after 3 attempts: Request failed with status code 401
+2026-02-23 16:30:46 +00:00: [Signal Logger] Failed to fetch price for SOLZ after 3 attempts: Request failed with status code 401
+2026-02-23 16:30:49 +00:00: [Signal Logger] Failed to fetch price for NVDA after 3 attempts: Request failed with status code 401
+2026-02-23 16:30:52 +00:00: [Signal Logger] Failed to fetch price for MU after 3 attempts: Request failed with status code 401
+2026-02-23 16:30:56 +00:00: [Signal Logger] Failed to fetch price for IBIT after 3 attempts: Request failed with status code 401
+2026-02-23 16:30:59 +00:00: [Signal Logger] Failed to fetch price for ETHA after 3 attempts: Request failed with status code 401
+2026-02-23 16:31:03 +00:00: [Signal Logger] Failed to fetch price for MSFT after 3 attempts: Request failed with status code 401
+2026-02-23 16:31:06 +00:00: [Signal Logger] Failed to fetch price for OXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:31:10 +00:00: [Signal Logger] Failed to fetch price for TSLA after 3 attempts: Request failed with status code 401
+2026-02-23 16:31:13 +00:00: [Signal Logger] Failed to fetch price for VNDA after 3 attempts: Request failed with status code 401
+2026-02-23 16:31:16 +00:00: [Signal Logger] Failed to fetch price for MRNA after 3 attempts: Request failed with status code 401
+2026-02-23 16:31:20 +00:00: [Signal Logger] Failed to fetch price for IBRX after 3 attempts: Request failed with status code 401
+2026-02-23 16:31:23 +00:00: [Signal Logger] Failed to fetch price for AAPL after 3 attempts: Request failed with status code 401
+2026-02-23 16:33:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/market/context (247ms)
+2026-02-23 16:33:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (164ms)
+2026-02-23 16:33:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (185ms)
+2026-02-23 16:33:35 +00:00: [API] Failed: http://192.168.10.60:3000/api/market/outlook (6ms)
+2026-02-23 16:33:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/options/SPY/iv (183ms)
+2026-02-23 16:33:41 +00:00: [API] Failed: http://192.168.10.60:3000/api/market/outlook (6ms)
+2026-02-23 16:33:41 +00:00: [API] Failed: http://192.168.10.60:3000/api/latest (7ms)
+2026-02-23 16:33:41 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MSFT (128ms)
+2026-02-23 16:33:41 +00:00: [Bloodhound] MSFT failed (watchlist), retrying in 2s...
+2026-02-23 16:33:44 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MSFT (135ms)
+2026-02-23 16:33:44 +00:00: [Bloodhound] DROPPED: MSFT — API returned no data
+2026-02-23 16:33:45 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/META (137ms)
+2026-02-23 16:33:45 +00:00: [Bloodhound] META failed (watchlist), retrying in 2s...
+2026-02-23 16:33:47 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/META (129ms)
+2026-02-23 16:33:47 +00:00: [Bloodhound] DROPPED: META — API returned no data
+2026-02-23 16:33:48 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AAPL (109ms)
+2026-02-23 16:33:48 +00:00: [Bloodhound] AAPL failed (watchlist), retrying in 2s...
+2026-02-23 16:33:50 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AAPL (118ms)
+2026-02-23 16:33:50 +00:00: [Bloodhound] DROPPED: AAPL — API returned no data
+2026-02-23 16:33:51 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMD (118ms)
+2026-02-23 16:33:51 +00:00: [Bloodhound] AMD failed (watchlist), retrying in 2s...
+2026-02-23 16:33:53 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMD (247ms)
+2026-02-23 16:33:53 +00:00: [Bloodhound] DROPPED: AMD — API returned no data
+2026-02-23 16:33:54 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBIT (122ms)
+2026-02-23 16:33:54 +00:00: [Bloodhound] IBIT failed (watchlist), retrying in 2s...
+2026-02-23 16:33:57 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBIT (212ms)
+2026-02-23 16:33:57 +00:00: [Bloodhound] DROPPED: IBIT — API returned no data
+2026-02-23 16:33:58 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/TSLA (120ms)
+2026-02-23 16:33:58 +00:00: [Bloodhound] TSLA failed (watchlist), retrying in 2s...
+2026-02-23 16:34:00 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/TSLA (111ms)
+2026-02-23 16:34:00 +00:00: [Bloodhound] DROPPED: TSLA — API returned no data
+2026-02-23 16:34:01 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/NVDA (119ms)
+2026-02-23 16:34:01 +00:00: [Bloodhound] NVDA failed (watchlist), retrying in 2s...
+2026-02-23 16:34:03 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/NVDA (168ms)
+2026-02-23 16:34:03 +00:00: [Bloodhound] DROPPED: NVDA — API returned no data
+2026-02-23 16:34:04 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (151ms)
+2026-02-23 16:34:04 +00:00: [Bloodhound] QQQ failed (watchlist), retrying in 2s...
+2026-02-23 16:34:07 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (137ms)
+2026-02-23 16:34:07 +00:00: [Bloodhound] DROPPED: QQQ — API returned no data
+2026-02-23 16:34:08 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (146ms)
+2026-02-23 16:34:08 +00:00: [Bloodhound] SPY failed (watchlist), retrying in 2s...
+2026-02-23 16:34:10 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (128ms)
+2026-02-23 16:34:10 +00:00: [Bloodhound] DROPPED: SPY — API returned no data
+2026-02-23 16:34:11 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBRX (119ms)
+2026-02-23 16:34:11 +00:00: [Bloodhound] DROPPED: IBRX — API returned no data
+2026-02-23 16:34:12 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/GLD (170ms)
+2026-02-23 16:34:12 +00:00: [Bloodhound] DROPPED: GLD — API returned no data
+2026-02-23 16:34:13 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SLV (137ms)
+2026-02-23 16:34:13 +00:00: [Bloodhound] DROPPED: SLV — API returned no data
+2026-02-23 16:34:14 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SNDK (185ms)
+2026-02-23 16:34:14 +00:00: [Bloodhound] DROPPED: SNDK — API returned no data
+2026-02-23 16:34:16 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/GOOGL (116ms)
+2026-02-23 16:34:16 +00:00: [Bloodhound] DROPPED: GOOGL — API returned no data
+2026-02-23 16:34:17 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MRNA (253ms)
+2026-02-23 16:34:17 +00:00: [Bloodhound] DROPPED: MRNA — API returned no data
+2026-02-23 16:34:18 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/VNDA (165ms)
+2026-02-23 16:34:18 +00:00: [Bloodhound] DROPPED: VNDA — API returned no data
+2026-02-23 16:34:19 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/OPEN (107ms)
+2026-02-23 16:34:19 +00:00: [Bloodhound] DROPPED: OPEN — API returned no data
+2026-02-23 16:34:20 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MU (175ms)
+2026-02-23 16:34:20 +00:00: [Bloodhound] DROPPED: MU — API returned no data
+2026-02-23 16:34:21 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/OXY (144ms)
+2026-02-23 16:34:21 +00:00: [Bloodhound] DROPPED: OXY — API returned no data
+2026-02-23 16:34:22 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/PLTR (133ms)
+2026-02-23 16:34:22 +00:00: [Bloodhound] DROPPED: PLTR — API returned no data
+2026-02-23 16:34:24 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMZN (123ms)
+2026-02-23 16:34:24 +00:00: [Bloodhound] DROPPED: AMZN — API returned no data
+2026-02-23 16:34:25 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/EEM (127ms)
+2026-02-23 16:34:25 +00:00: [Bloodhound] DROPPED: EEM — API returned no data
+2026-02-23 16:34:26 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SOLZ (114ms)
+2026-02-23 16:34:26 +00:00: [Bloodhound] DROPPED: SOLZ — API returned no data
+2026-02-23 16:34:27 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLC (131ms)
+2026-02-23 16:34:27 +00:00: [Bloodhound] DROPPED: XLC — API returned no data
+2026-02-23 16:34:28 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/USO (265ms)
+2026-02-23 16:34:28 +00:00: [Bloodhound] DROPPED: USO — API returned no data
+2026-02-23 16:34:29 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/F (178ms)
+2026-02-23 16:34:29 +00:00: [Bloodhound] DROPPED: F — API returned no data
+2026-02-23 16:34:31 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/UNG (201ms)
+2026-02-23 16:34:31 +00:00: [Bloodhound] DROPPED: UNG — API returned no data
+2026-02-23 16:34:32 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLP (103ms)
+2026-02-23 16:34:32 +00:00: [Bloodhound] DROPPED: XLP — API returned no data
+2026-02-23 16:34:33 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLB (218ms)
+2026-02-23 16:34:33 +00:00: [Bloodhound] DROPPED: XLB — API returned no data
+2026-02-23 16:34:34 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/UVXY (122ms)
+2026-02-23 16:34:34 +00:00: [Bloodhound] DROPPED: UVXY — API returned no data
+2026-02-23 16:34:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLU (193ms)
+2026-02-23 16:34:35 +00:00: [Bloodhound] DROPPED: XLU — API returned no data
+2026-02-23 16:34:36 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SMCI (190ms)
+2026-02-23 16:34:36 +00:00: [Bloodhound] DROPPED: SMCI — API returned no data
+2026-02-23 16:34:38 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/CVNA (124ms)
+2026-02-23 16:34:38 +00:00: [Bloodhound] DROPPED: CVNA — API returned no data
+2026-02-23 16:34:39 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/ETHA (157ms)
+2026-02-23 16:34:39 +00:00: [Bloodhound] DROPPED: ETHA — API returned no data
+2026-02-23 16:34:40 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/PANW (146ms)
+2026-02-23 16:34:40 +00:00: [Bloodhound] DROPPED: PANW — API returned no data
+2026-02-23 16:34:41 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLK (153ms)
+2026-02-23 16:34:41 +00:00: [Bloodhound] DROPPED: XLK — API returned no data
+2026-02-23 16:34:42 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLF (146ms)
+2026-02-23 16:34:42 +00:00: [Bloodhound] DROPPED: XLF — API returned no data
+2026-02-23 16:34:43 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/INTC (171ms)
+2026-02-23 16:34:43 +00:00: [Bloodhound] DROPPED: INTC — API returned no data
+2026-02-23 16:34:44 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IWM (132ms)
+2026-02-23 16:34:44 +00:00: [Bloodhound] DROPPED: IWM — API returned no data
+2026-02-23 16:34:46 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/ORCL (174ms)
+2026-02-23 16:34:46 +00:00: [Bloodhound] DROPPED: ORCL — API returned no data
+2026-02-23 16:34:47 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLE (111ms)
+2026-02-23 16:34:47 +00:00: [Bloodhound] DROPPED: XLE — API returned no data
+2026-02-23 16:34:50 +00:00: [Signal Logger] Failed to fetch price for OPEN after 3 attempts: Request failed with status code 401
+2026-02-23 16:34:54 +00:00: [Signal Logger] Failed to fetch price for AMZN after 3 attempts: Request failed with status code 401
+2026-02-23 16:34:57 +00:00: [Signal Logger] Failed to fetch price for UVXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:35:00 +00:00: [Signal Logger] Failed to fetch price for XLB after 3 attempts: Request failed with status code 401
+2026-02-23 16:35:04 +00:00: [Signal Logger] Failed to fetch price for XLP after 3 attempts: Request failed with status code 401
+2026-02-23 16:35:07 +00:00: [Signal Logger] Failed to fetch price for PLTR after 3 attempts: Request failed with status code 401
+2026-02-23 16:35:11 +00:00: [Signal Logger] Failed to fetch price for XLK after 3 attempts: Request failed with status code 401
+2026-02-23 16:35:14 +00:00: [Signal Logger] Failed to fetch price for SPY after 3 attempts: Request failed with status code 401
+2026-02-23 16:35:17 +00:00: [Signal Logger] Failed to fetch price for QQQ after 3 attempts: Request failed with status code 401
+2026-02-23 16:35:21 +00:00: [Signal Logger] Failed to fetch price for GLD after 3 attempts: Request failed with status code 401
+2026-02-23 16:35:24 +00:00: [Signal Logger] Failed to fetch price for EEM after 3 attempts: Request failed with status code 401
+2026-02-23 16:35:28 +00:00: [Signal Logger] Failed to fetch price for UNG after 3 attempts: Request failed with status code 401
+2026-02-23 16:35:31 +00:00: [Signal Logger] Failed to fetch price for F after 3 attempts: Request failed with status code 401
+2026-02-23 16:35:34 +00:00: [Signal Logger] Failed to fetch price for SNDK after 3 attempts: Request failed with status code 401
+2026-02-23 16:35:38 +00:00: [Signal Logger] Failed to fetch price for USO after 3 attempts: Request failed with status code 401
+2026-02-23 16:35:42 +00:00: [Signal Logger] Failed to fetch price for XLC after 3 attempts: Request failed with status code 401
+2026-02-23 16:35:45 +00:00: [Signal Logger] Failed to fetch price for SOLZ after 3 attempts: Request failed with status code 401
+2026-02-23 16:35:49 +00:00: [Signal Logger] Failed to fetch price for NVDA after 3 attempts: Request failed with status code 401
+2026-02-23 16:35:52 +00:00: [Signal Logger] Failed to fetch price for MU after 3 attempts: Request failed with status code 401
+2026-02-23 16:35:56 +00:00: [Signal Logger] Failed to fetch price for IBIT after 3 attempts: Request failed with status code 401
+2026-02-23 16:35:59 +00:00: [Signal Logger] Failed to fetch price for ETHA after 3 attempts: Request failed with status code 401
+2026-02-23 16:36:03 +00:00: [Signal Logger] Failed to fetch price for MSFT after 3 attempts: Request failed with status code 401
+2026-02-23 16:36:06 +00:00: [Signal Logger] Failed to fetch price for OXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:36:10 +00:00: [Signal Logger] Failed to fetch price for TSLA after 3 attempts: Request failed with status code 401
+2026-02-23 16:36:13 +00:00: [Signal Logger] Failed to fetch price for VNDA after 3 attempts: Request failed with status code 401
+2026-02-23 16:36:17 +00:00: [Signal Logger] Failed to fetch price for MRNA after 3 attempts: Request failed with status code 401
+2026-02-23 16:36:20 +00:00: [Signal Logger] Failed to fetch price for IBRX after 3 attempts: Request failed with status code 401
+2026-02-23 16:36:24 +00:00: [Signal Logger] Failed to fetch price for AAPL after 3 attempts: Request failed with status code 401
+2026-02-23 16:38:34 +00:00: [API] Failed: http://192.168.10.60:8000/api/market/context (160ms)
+2026-02-23 16:38:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (229ms)
+2026-02-23 16:38:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (143ms)
+2026-02-23 16:38:35 +00:00: [API] Failed: http://192.168.10.60:3000/api/market/outlook (6ms)
+2026-02-23 16:38:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/options/SPY/iv (119ms)
+2026-02-23 16:38:41 +00:00: [API] Failed: http://192.168.10.60:3000/api/market/outlook (6ms)
+2026-02-23 16:38:41 +00:00: [API] Failed: http://192.168.10.60:3000/api/latest (6ms)
+2026-02-23 16:38:41 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MSFT (167ms)
+2026-02-23 16:38:41 +00:00: [Bloodhound] MSFT failed (watchlist), retrying in 2s...
+2026-02-23 16:38:43 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MSFT (175ms)
+2026-02-23 16:38:43 +00:00: [Bloodhound] DROPPED: MSFT — API returned no data
+2026-02-23 16:38:44 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/META (146ms)
+2026-02-23 16:38:44 +00:00: [Bloodhound] META failed (watchlist), retrying in 2s...
+2026-02-23 16:38:47 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/META (274ms)
+2026-02-23 16:38:47 +00:00: [Bloodhound] DROPPED: META — API returned no data
+2026-02-23 16:38:48 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AAPL (112ms)
+2026-02-23 16:38:48 +00:00: [Bloodhound] AAPL failed (watchlist), retrying in 2s...
+2026-02-23 16:38:50 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AAPL (160ms)
+2026-02-23 16:38:50 +00:00: [Bloodhound] DROPPED: AAPL — API returned no data
+2026-02-23 16:38:51 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMD (204ms)
+2026-02-23 16:38:51 +00:00: [Bloodhound] AMD failed (watchlist), retrying in 2s...
+2026-02-23 16:38:53 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMD (128ms)
+2026-02-23 16:38:53 +00:00: [Bloodhound] DROPPED: AMD — API returned no data
+2026-02-23 16:38:54 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBIT (191ms)
+2026-02-23 16:38:54 +00:00: [Bloodhound] IBIT failed (watchlist), retrying in 2s...
+2026-02-23 16:38:57 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBIT (282ms)
+2026-02-23 16:38:57 +00:00: [Bloodhound] DROPPED: IBIT — API returned no data
+2026-02-23 16:38:58 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/TSLA (161ms)
+2026-02-23 16:38:58 +00:00: [Bloodhound] TSLA failed (watchlist), retrying in 2s...
+2026-02-23 16:39:00 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/TSLA (183ms)
+2026-02-23 16:39:00 +00:00: [Bloodhound] DROPPED: TSLA — API returned no data
+2026-02-23 16:39:01 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/NVDA (167ms)
+2026-02-23 16:39:01 +00:00: [Bloodhound] NVDA failed (watchlist), retrying in 2s...
+2026-02-23 16:39:03 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/NVDA (145ms)
+2026-02-23 16:39:03 +00:00: [Bloodhound] DROPPED: NVDA — API returned no data
+2026-02-23 16:39:05 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (236ms)
+2026-02-23 16:39:05 +00:00: [Bloodhound] QQQ failed (watchlist), retrying in 2s...
+2026-02-23 16:39:07 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (190ms)
+2026-02-23 16:39:07 +00:00: [Bloodhound] DROPPED: QQQ — API returned no data
+2026-02-23 16:39:08 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (107ms)
+2026-02-23 16:39:08 +00:00: [Bloodhound] SPY failed (watchlist), retrying in 2s...
+2026-02-23 16:39:10 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (180ms)
+2026-02-23 16:39:10 +00:00: [Bloodhound] DROPPED: SPY — API returned no data
+2026-02-23 16:39:11 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBRX (123ms)
+2026-02-23 16:39:11 +00:00: [Bloodhound] DROPPED: IBRX — API returned no data
+2026-02-23 16:39:12 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/GLD (137ms)
+2026-02-23 16:39:12 +00:00: [Bloodhound] DROPPED: GLD — API returned no data
+2026-02-23 16:39:14 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SLV (122ms)
+2026-02-23 16:39:14 +00:00: [Bloodhound] DROPPED: SLV — API returned no data
+2026-02-23 16:39:15 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SNDK (135ms)
+2026-02-23 16:39:15 +00:00: [Bloodhound] DROPPED: SNDK — API returned no data
+2026-02-23 16:39:16 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/GOOGL (125ms)
+2026-02-23 16:39:16 +00:00: [Bloodhound] DROPPED: GOOGL — API returned no data
+2026-02-23 16:39:17 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MRNA (118ms)
+2026-02-23 16:39:17 +00:00: [Bloodhound] DROPPED: MRNA — API returned no data
+2026-02-23 16:39:18 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/VNDA (158ms)
+2026-02-23 16:39:18 +00:00: [Bloodhound] DROPPED: VNDA — API returned no data
+2026-02-23 16:39:19 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/OPEN (146ms)
+2026-02-23 16:39:19 +00:00: [Bloodhound] DROPPED: OPEN — API returned no data
+2026-02-23 16:39:20 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MU (176ms)
+2026-02-23 16:39:20 +00:00: [Bloodhound] DROPPED: MU — API returned no data
+2026-02-23 16:39:22 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/OXY (133ms)
+2026-02-23 16:39:22 +00:00: [Bloodhound] DROPPED: OXY — API returned no data
+2026-02-23 16:39:23 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/PLTR (112ms)
+2026-02-23 16:39:23 +00:00: [Bloodhound] DROPPED: PLTR — API returned no data
+2026-02-23 16:39:24 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMZN (155ms)
+2026-02-23 16:39:24 +00:00: [Bloodhound] DROPPED: AMZN — API returned no data
+2026-02-23 16:39:25 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/EEM (138ms)
+2026-02-23 16:39:25 +00:00: [Bloodhound] DROPPED: EEM — API returned no data
+2026-02-23 16:39:26 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SOLZ (199ms)
+2026-02-23 16:39:26 +00:00: [Bloodhound] DROPPED: SOLZ — API returned no data
+2026-02-23 16:39:27 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLC (132ms)
+2026-02-23 16:39:27 +00:00: [Bloodhound] DROPPED: XLC — API returned no data
+2026-02-23 16:39:28 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/USO (134ms)
+2026-02-23 16:39:28 +00:00: [Bloodhound] DROPPED: USO — API returned no data
+2026-02-23 16:39:30 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/F (172ms)
+2026-02-23 16:39:30 +00:00: [Bloodhound] DROPPED: F — API returned no data
+2026-02-23 16:39:31 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/UNG (132ms)
+2026-02-23 16:39:31 +00:00: [Bloodhound] DROPPED: UNG — API returned no data
+2026-02-23 16:39:32 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLP (170ms)
+2026-02-23 16:39:32 +00:00: [Bloodhound] DROPPED: XLP — API returned no data
+2026-02-23 16:39:33 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLB (115ms)
+2026-02-23 16:39:33 +00:00: [Bloodhound] DROPPED: XLB — API returned no data
+2026-02-23 16:39:34 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/UVXY (141ms)
+2026-02-23 16:39:34 +00:00: [Bloodhound] DROPPED: UVXY — API returned no data
+2026-02-23 16:39:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLU (240ms)
+2026-02-23 16:39:35 +00:00: [Bloodhound] DROPPED: XLU — API returned no data
+2026-02-23 16:39:36 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SMCI (141ms)
+2026-02-23 16:39:36 +00:00: [Bloodhound] DROPPED: SMCI — API returned no data
+2026-02-23 16:39:38 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/CVNA (147ms)
+2026-02-23 16:39:38 +00:00: [Bloodhound] DROPPED: CVNA — API returned no data
+2026-02-23 16:39:39 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/ETHA (163ms)
+2026-02-23 16:39:39 +00:00: [Bloodhound] DROPPED: ETHA — API returned no data
+2026-02-23 16:39:40 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/PANW (123ms)
+2026-02-23 16:39:40 +00:00: [Bloodhound] DROPPED: PANW — API returned no data
+2026-02-23 16:39:41 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLK (105ms)
+2026-02-23 16:39:41 +00:00: [Bloodhound] DROPPED: XLK — API returned no data
+2026-02-23 16:39:42 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLF (112ms)
+2026-02-23 16:39:42 +00:00: [Bloodhound] DROPPED: XLF — API returned no data
+2026-02-23 16:39:43 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/INTC (152ms)
+2026-02-23 16:39:43 +00:00: [Bloodhound] DROPPED: INTC — API returned no data
+2026-02-23 16:39:44 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IWM (155ms)
+2026-02-23 16:39:44 +00:00: [Bloodhound] DROPPED: IWM — API returned no data
+2026-02-23 16:39:46 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/ORCL (258ms)
+2026-02-23 16:39:46 +00:00: [Bloodhound] DROPPED: ORCL — API returned no data
+2026-02-23 16:39:47 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLE (138ms)
+2026-02-23 16:39:47 +00:00: [Bloodhound] DROPPED: XLE — API returned no data
+2026-02-23 16:39:50 +00:00: [Signal Logger] Failed to fetch price for OPEN after 3 attempts: Request failed with status code 401
+2026-02-23 16:39:54 +00:00: [Signal Logger] Failed to fetch price for AMZN after 3 attempts: Request failed with status code 401
+2026-02-23 16:39:57 +00:00: [Signal Logger] Failed to fetch price for UVXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:40:00 +00:00: [Signal Logger] Failed to fetch price for XLB after 3 attempts: Request failed with status code 401
+2026-02-23 16:40:04 +00:00: [Signal Logger] Failed to fetch price for XLP after 3 attempts: Request failed with status code 401
+2026-02-23 16:40:07 +00:00: [Signal Logger] Failed to fetch price for PLTR after 3 attempts: Request failed with status code 401
+2026-02-23 16:40:11 +00:00: [Signal Logger] Failed to fetch price for XLK after 3 attempts: Request failed with status code 401
+2026-02-23 16:40:14 +00:00: [Signal Logger] Failed to fetch price for SPY after 3 attempts: Request failed with status code 401
+2026-02-23 16:40:18 +00:00: [Signal Logger] Failed to fetch price for QQQ after 3 attempts: Request failed with status code 401
+2026-02-23 16:40:21 +00:00: [Signal Logger] Failed to fetch price for GLD after 3 attempts: Request failed with status code 401
+2026-02-23 16:40:25 +00:00: [Signal Logger] Failed to fetch price for EEM after 3 attempts: Request failed with status code 401
+2026-02-23 16:40:28 +00:00: [Signal Logger] Failed to fetch price for UNG after 3 attempts: Request failed with status code 401
+2026-02-23 16:40:32 +00:00: [Signal Logger] Failed to fetch price for F after 3 attempts: Request failed with status code 401
+2026-02-23 16:40:35 +00:00: [Signal Logger] Failed to fetch price for SNDK after 3 attempts: Request failed with status code 401
+2026-02-23 16:40:39 +00:00: [Signal Logger] Failed to fetch price for USO after 3 attempts: Request failed with status code 401
+2026-02-23 16:40:42 +00:00: [Signal Logger] Failed to fetch price for XLC after 3 attempts: Request failed with status code 401
+2026-02-23 16:40:46 +00:00: [Signal Logger] Failed to fetch price for SOLZ after 3 attempts: Request failed with status code 401
+2026-02-23 16:40:49 +00:00: [Signal Logger] Failed to fetch price for NVDA after 3 attempts: Request failed with status code 401
+2026-02-23 16:40:53 +00:00: [Signal Logger] Failed to fetch price for MU after 3 attempts: Request failed with status code 401
+2026-02-23 16:40:56 +00:00: [Signal Logger] Failed to fetch price for IBIT after 3 attempts: Request failed with status code 401
+2026-02-23 16:40:59 +00:00: [Signal Logger] Failed to fetch price for ETHA after 3 attempts: Request failed with status code 401
+2026-02-23 16:41:03 +00:00: [Signal Logger] Failed to fetch price for MSFT after 3 attempts: Request failed with status code 401
+2026-02-23 16:41:06 +00:00: [Signal Logger] Failed to fetch price for OXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:41:10 +00:00: [Signal Logger] Failed to fetch price for TSLA after 3 attempts: Request failed with status code 401
+2026-02-23 16:41:13 +00:00: [Signal Logger] Failed to fetch price for VNDA after 3 attempts: Request failed with status code 401
+2026-02-23 16:41:17 +00:00: [Signal Logger] Failed to fetch price for MRNA after 3 attempts: Request failed with status code 401
+2026-02-23 16:41:20 +00:00: [Signal Logger] Failed to fetch price for IBRX after 3 attempts: Request failed with status code 401
+2026-02-23 16:41:23 +00:00: [Signal Logger] Failed to fetch price for AAPL after 3 attempts: Request failed with status code 401
+2026-02-23 16:43:34 +00:00: [API] Failed: http://192.168.10.60:8000/api/market/context (166ms)
+2026-02-23 16:43:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (103ms)
+2026-02-23 16:43:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (266ms)
+2026-02-23 16:43:35 +00:00: [API] Failed: http://192.168.10.60:3000/api/market/outlook (7ms)
+2026-02-23 16:43:36 +00:00: [API] Failed: http://192.168.10.60:8000/api/options/SPY/iv (292ms)
+2026-02-23 16:43:41 +00:00: [API] Failed: http://192.168.10.60:3000/api/market/outlook (6ms)
+2026-02-23 16:43:41 +00:00: [API] Failed: http://192.168.10.60:3000/api/latest (6ms)
+2026-02-23 16:43:41 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MSFT (140ms)
+2026-02-23 16:43:41 +00:00: [Bloodhound] MSFT failed (watchlist), retrying in 2s...
+2026-02-23 16:43:43 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MSFT (122ms)
+2026-02-23 16:43:43 +00:00: [Bloodhound] DROPPED: MSFT — API returned no data
+2026-02-23 16:43:44 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/META (119ms)
+2026-02-23 16:43:44 +00:00: [Bloodhound] META failed (watchlist), retrying in 2s...
+2026-02-23 16:43:47 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/META (143ms)
+2026-02-23 16:43:47 +00:00: [Bloodhound] DROPPED: META — API returned no data
+2026-02-23 16:43:48 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AAPL (118ms)
+2026-02-23 16:43:48 +00:00: [Bloodhound] AAPL failed (watchlist), retrying in 2s...
+2026-02-23 16:43:50 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AAPL (113ms)
+2026-02-23 16:43:50 +00:00: [Bloodhound] DROPPED: AAPL — API returned no data
+2026-02-23 16:43:51 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMD (108ms)
+2026-02-23 16:43:51 +00:00: [Bloodhound] AMD failed (watchlist), retrying in 2s...
+2026-02-23 16:43:53 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMD (100ms)
+2026-02-23 16:43:53 +00:00: [Bloodhound] DROPPED: AMD — API returned no data
+2026-02-23 16:43:54 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBIT (154ms)
+2026-02-23 16:43:54 +00:00: [Bloodhound] IBIT failed (watchlist), retrying in 2s...
+2026-02-23 16:43:56 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBIT (102ms)
+2026-02-23 16:43:56 +00:00: [Bloodhound] DROPPED: IBIT — API returned no data
+2026-02-23 16:43:57 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/TSLA (108ms)
+2026-02-23 16:43:57 +00:00: [Bloodhound] TSLA failed (watchlist), retrying in 2s...
+2026-02-23 16:43:59 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/TSLA (141ms)
+2026-02-23 16:43:59 +00:00: [Bloodhound] DROPPED: TSLA — API returned no data
+2026-02-23 16:44:01 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/NVDA (239ms)
+2026-02-23 16:44:01 +00:00: [Bloodhound] NVDA failed (watchlist), retrying in 2s...
+2026-02-23 16:44:03 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/NVDA (226ms)
+2026-02-23 16:44:03 +00:00: [Bloodhound] DROPPED: NVDA — API returned no data
+2026-02-23 16:44:04 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (164ms)
+2026-02-23 16:44:04 +00:00: [Bloodhound] QQQ failed (watchlist), retrying in 2s...
+2026-02-23 16:44:06 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (106ms)
+2026-02-23 16:44:06 +00:00: [Bloodhound] DROPPED: QQQ — API returned no data
+2026-02-23 16:44:07 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (174ms)
+2026-02-23 16:44:07 +00:00: [Bloodhound] SPY failed (watchlist), retrying in 2s...
+2026-02-23 16:44:10 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (203ms)
+2026-02-23 16:44:10 +00:00: [Bloodhound] DROPPED: SPY — API returned no data
+2026-02-23 16:44:11 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBRX (183ms)
+2026-02-23 16:44:11 +00:00: [Bloodhound] DROPPED: IBRX — API returned no data
+2026-02-23 16:44:12 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/GLD (249ms)
+2026-02-23 16:44:12 +00:00: [Bloodhound] DROPPED: GLD — API returned no data
+2026-02-23 16:44:13 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SLV (118ms)
+2026-02-23 16:44:13 +00:00: [Bloodhound] DROPPED: SLV — API returned no data
+2026-02-23 16:44:14 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SNDK (143ms)
+2026-02-23 16:44:14 +00:00: [Bloodhound] DROPPED: SNDK — API returned no data
+2026-02-23 16:44:15 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/GOOGL (181ms)
+2026-02-23 16:44:15 +00:00: [Bloodhound] DROPPED: GOOGL — API returned no data
+2026-02-23 16:44:17 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MRNA (134ms)
+2026-02-23 16:44:17 +00:00: [Bloodhound] DROPPED: MRNA — API returned no data
+2026-02-23 16:44:18 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/VNDA (206ms)
+2026-02-23 16:44:18 +00:00: [Bloodhound] DROPPED: VNDA — API returned no data
+2026-02-23 16:44:19 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/OPEN (107ms)
+2026-02-23 16:44:19 +00:00: [Bloodhound] DROPPED: OPEN — API returned no data
+2026-02-23 16:44:20 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MU (153ms)
+2026-02-23 16:44:20 +00:00: [Bloodhound] DROPPED: MU — API returned no data
+2026-02-23 16:44:21 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/OXY (247ms)
+2026-02-23 16:44:21 +00:00: [Bloodhound] DROPPED: OXY — API returned no data
+2026-02-23 16:44:22 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/PLTR (106ms)
+2026-02-23 16:44:22 +00:00: [Bloodhound] DROPPED: PLTR — API returned no data
+2026-02-23 16:44:24 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMZN (119ms)
+2026-02-23 16:44:24 +00:00: [Bloodhound] DROPPED: AMZN — API returned no data
+2026-02-23 16:44:25 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/EEM (187ms)
+2026-02-23 16:44:25 +00:00: [Bloodhound] DROPPED: EEM — API returned no data
+2026-02-23 16:44:26 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SOLZ (133ms)
+2026-02-23 16:44:26 +00:00: [Bloodhound] DROPPED: SOLZ — API returned no data
+2026-02-23 16:44:27 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLC (136ms)
+2026-02-23 16:44:27 +00:00: [Bloodhound] DROPPED: XLC — API returned no data
+2026-02-23 16:44:28 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/USO (165ms)
+2026-02-23 16:44:28 +00:00: [Bloodhound] DROPPED: USO — API returned no data
+2026-02-23 16:44:29 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/F (136ms)
+2026-02-23 16:44:29 +00:00: [Bloodhound] DROPPED: F — API returned no data
+2026-02-23 16:44:30 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/UNG (122ms)
+2026-02-23 16:44:30 +00:00: [Bloodhound] DROPPED: UNG — API returned no data
+2026-02-23 16:44:32 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLP (180ms)
+2026-02-23 16:44:32 +00:00: [Bloodhound] DROPPED: XLP — API returned no data
+2026-02-23 16:44:33 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLB (180ms)
+2026-02-23 16:44:33 +00:00: [Bloodhound] DROPPED: XLB — API returned no data
+2026-02-23 16:44:34 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/UVXY (117ms)
+2026-02-23 16:44:34 +00:00: [Bloodhound] DROPPED: UVXY — API returned no data
+2026-02-23 16:44:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLU (276ms)
+2026-02-23 16:44:35 +00:00: [Bloodhound] DROPPED: XLU — API returned no data
+2026-02-23 16:44:36 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SMCI (193ms)
+2026-02-23 16:44:36 +00:00: [Bloodhound] DROPPED: SMCI — API returned no data
+2026-02-23 16:44:37 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/CVNA (125ms)
+2026-02-23 16:44:37 +00:00: [Bloodhound] DROPPED: CVNA — API returned no data
+2026-02-23 16:44:39 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/ETHA (216ms)
+2026-02-23 16:44:39 +00:00: [Bloodhound] DROPPED: ETHA — API returned no data
+2026-02-23 16:44:40 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/PANW (172ms)
+2026-02-23 16:44:40 +00:00: [Bloodhound] DROPPED: PANW — API returned no data
+2026-02-23 16:44:41 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLK (132ms)
+2026-02-23 16:44:41 +00:00: [Bloodhound] DROPPED: XLK — API returned no data
+2026-02-23 16:44:42 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLF (135ms)
+2026-02-23 16:44:42 +00:00: [Bloodhound] DROPPED: XLF — API returned no data
+2026-02-23 16:44:43 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/INTC (116ms)
+2026-02-23 16:44:43 +00:00: [Bloodhound] DROPPED: INTC — API returned no data
+2026-02-23 16:44:45 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IWM (310ms)
+2026-02-23 16:44:45 +00:00: [Bloodhound] DROPPED: IWM — API returned no data
+2026-02-23 16:44:46 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/ORCL (106ms)
+2026-02-23 16:44:46 +00:00: [Bloodhound] DROPPED: ORCL — API returned no data
+2026-02-23 16:44:47 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLE (122ms)
+2026-02-23 16:44:47 +00:00: [Bloodhound] DROPPED: XLE — API returned no data
+2026-02-23 16:44:50 +00:00: [Signal Logger] Failed to fetch price for OPEN after 3 attempts: Request failed with status code 401
+2026-02-23 16:44:54 +00:00: [Signal Logger] Failed to fetch price for AMZN after 3 attempts: Request failed with status code 401
+2026-02-23 16:44:57 +00:00: [Signal Logger] Failed to fetch price for UVXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:45:00 +00:00: [Signal Logger] Failed to fetch price for XLB after 3 attempts: Request failed with status code 401
+2026-02-23 16:45:04 +00:00: [Signal Logger] Failed to fetch price for XLP after 3 attempts: Request failed with status code 401
+2026-02-23 16:45:07 +00:00: [Signal Logger] Failed to fetch price for PLTR after 3 attempts: Request failed with status code 401
+2026-02-23 16:45:11 +00:00: [Signal Logger] Failed to fetch price for XLK after 3 attempts: Request failed with status code 401
+2026-02-23 16:45:14 +00:00: [Signal Logger] Failed to fetch price for SPY after 3 attempts: Request failed with status code 401
+2026-02-23 16:45:17 +00:00: [Signal Logger] Failed to fetch price for QQQ after 3 attempts: Request failed with status code 401
+2026-02-23 16:45:21 +00:00: [Signal Logger] Failed to fetch price for GLD after 3 attempts: Request failed with status code 401
+2026-02-23 16:45:24 +00:00: [Signal Logger] Failed to fetch price for EEM after 3 attempts: Request failed with status code 401
+2026-02-23 16:45:28 +00:00: [Signal Logger] Failed to fetch price for UNG after 3 attempts: Request failed with status code 401
+2026-02-23 16:45:31 +00:00: [Signal Logger] Failed to fetch price for F after 3 attempts: Request failed with status code 401
+2026-02-23 16:45:35 +00:00: [Signal Logger] Failed to fetch price for SNDK after 3 attempts: Request failed with status code 401
+2026-02-23 16:45:38 +00:00: [Signal Logger] Failed to fetch price for USO after 3 attempts: Request failed with status code 401
+2026-02-23 16:45:42 +00:00: [Signal Logger] Failed to fetch price for XLC after 3 attempts: Request failed with status code 401
+2026-02-23 16:45:45 +00:00: [Signal Logger] Failed to fetch price for SOLZ after 3 attempts: Request failed with status code 401
+2026-02-23 16:45:49 +00:00: [Signal Logger] Failed to fetch price for NVDA after 3 attempts: Request failed with status code 401
+2026-02-23 16:45:53 +00:00: [Signal Logger] Failed to fetch price for MU after 3 attempts: Request failed with status code 401
+2026-02-23 16:45:56 +00:00: [Signal Logger] Failed to fetch price for IBIT after 3 attempts: Request failed with status code 401
+2026-02-23 16:46:00 +00:00: [Signal Logger] Failed to fetch price for ETHA after 3 attempts: Request failed with status code 401
+2026-02-23 16:46:03 +00:00: [Signal Logger] Failed to fetch price for MSFT after 3 attempts: Request failed with status code 401
+2026-02-23 16:46:06 +00:00: [Signal Logger] Failed to fetch price for OXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:46:10 +00:00: [Signal Logger] Failed to fetch price for TSLA after 3 attempts: Request failed with status code 401
+2026-02-23 16:46:14 +00:00: [Signal Logger] Failed to fetch price for VNDA after 3 attempts: Request failed with status code 401
+2026-02-23 16:46:17 +00:00: [Signal Logger] Failed to fetch price for MRNA after 3 attempts: Request failed with status code 401
+2026-02-23 16:46:21 +00:00: [Signal Logger] Failed to fetch price for IBRX after 3 attempts: Request failed with status code 401
+2026-02-23 16:46:25 +00:00: [Signal Logger] Failed to fetch price for AAPL after 3 attempts: Request failed with status code 401
+2026-02-23 16:48:34 +00:00: [API] Failed: http://192.168.10.60:8000/api/market/context (144ms)
+2026-02-23 16:48:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (180ms)
+2026-02-23 16:48:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (140ms)
+2026-02-23 16:48:35 +00:00: [API] Failed: http://192.168.10.60:3000/api/market/outlook (6ms)
+2026-02-23 16:48:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/options/SPY/iv (135ms)
+2026-02-23 16:48:41 +00:00: [API] Failed: http://192.168.10.60:3000/api/market/outlook (11ms)
+2026-02-23 16:48:41 +00:00: [API] Failed: http://192.168.10.60:3000/api/latest (5ms)
+2026-02-23 16:48:42 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MSFT (143ms)
+2026-02-23 16:48:42 +00:00: [Bloodhound] MSFT failed (watchlist), retrying in 2s...
+2026-02-23 16:48:44 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MSFT (128ms)
+2026-02-23 16:48:44 +00:00: [Bloodhound] DROPPED: MSFT — API returned no data
+2026-02-23 16:48:45 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/META (369ms)
+2026-02-23 16:48:45 +00:00: [Bloodhound] META failed (watchlist), retrying in 2s...
+2026-02-23 16:48:47 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/META (148ms)
+2026-02-23 16:48:47 +00:00: [Bloodhound] DROPPED: META — API returned no data
+2026-02-23 16:48:48 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AAPL (154ms)
+2026-02-23 16:48:48 +00:00: [Bloodhound] AAPL failed (watchlist), retrying in 2s...
+2026-02-23 16:48:51 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AAPL (345ms)
+2026-02-23 16:48:51 +00:00: [Bloodhound] DROPPED: AAPL — API returned no data
+2026-02-23 16:48:53 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMD (1494ms)
+2026-02-23 16:48:53 +00:00: [Bloodhound] AMD failed (watchlist), retrying in 2s...
+2026-02-23 16:48:56 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMD (708ms)
+2026-02-23 16:48:56 +00:00: [Bloodhound] DROPPED: AMD — API returned no data
+2026-02-23 16:48:57 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBIT (188ms)
+2026-02-23 16:48:57 +00:00: [Bloodhound] IBIT failed (watchlist), retrying in 2s...
+2026-02-23 16:48:59 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBIT (155ms)
+2026-02-23 16:48:59 +00:00: [Bloodhound] DROPPED: IBIT — API returned no data
+2026-02-23 16:49:00 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/TSLA (118ms)
+2026-02-23 16:49:00 +00:00: [Bloodhound] TSLA failed (watchlist), retrying in 2s...
+2026-02-23 16:49:02 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/TSLA (110ms)
+2026-02-23 16:49:02 +00:00: [Bloodhound] DROPPED: TSLA — API returned no data
+2026-02-23 16:49:04 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/NVDA (102ms)
+2026-02-23 16:49:04 +00:00: [Bloodhound] NVDA failed (watchlist), retrying in 2s...
+2026-02-23 16:49:06 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/NVDA (114ms)
+2026-02-23 16:49:06 +00:00: [Bloodhound] DROPPED: NVDA — API returned no data
+2026-02-23 16:49:07 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (108ms)
+2026-02-23 16:49:07 +00:00: [Bloodhound] QQQ failed (watchlist), retrying in 2s...
+2026-02-23 16:49:09 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (161ms)
+2026-02-23 16:49:09 +00:00: [Bloodhound] DROPPED: QQQ — API returned no data
+2026-02-23 16:49:10 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (217ms)
+2026-02-23 16:49:10 +00:00: [Bloodhound] SPY failed (watchlist), retrying in 2s...
+2026-02-23 16:49:12 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (100ms)
+2026-02-23 16:49:12 +00:00: [Bloodhound] DROPPED: SPY — API returned no data
+2026-02-23 16:49:13 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBRX (156ms)
+2026-02-23 16:49:13 +00:00: [Bloodhound] DROPPED: IBRX — API returned no data
+2026-02-23 16:49:15 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/GLD (107ms)
+2026-02-23 16:49:15 +00:00: [Bloodhound] DROPPED: GLD — API returned no data
+2026-02-23 16:49:16 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SLV (129ms)
+2026-02-23 16:49:16 +00:00: [Bloodhound] DROPPED: SLV — API returned no data
+2026-02-23 16:49:17 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SNDK (185ms)
+2026-02-23 16:49:17 +00:00: [Bloodhound] DROPPED: SNDK — API returned no data
+2026-02-23 16:49:18 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/GOOGL (191ms)
+2026-02-23 16:49:18 +00:00: [Bloodhound] DROPPED: GOOGL — API returned no data
+2026-02-23 16:49:19 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MRNA (107ms)
+2026-02-23 16:49:19 +00:00: [Bloodhound] DROPPED: MRNA — API returned no data
+2026-02-23 16:49:20 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/VNDA (165ms)
+2026-02-23 16:49:20 +00:00: [Bloodhound] DROPPED: VNDA — API returned no data
+2026-02-23 16:49:21 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/OPEN (123ms)
+2026-02-23 16:49:21 +00:00: [Bloodhound] DROPPED: OPEN — API returned no data
+2026-02-23 16:49:23 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MU (130ms)
+2026-02-23 16:49:23 +00:00: [Bloodhound] DROPPED: MU — API returned no data
+2026-02-23 16:49:24 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/OXY (136ms)
+2026-02-23 16:49:24 +00:00: [Bloodhound] DROPPED: OXY — API returned no data
+2026-02-23 16:49:25 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/PLTR (160ms)
+2026-02-23 16:49:25 +00:00: [Bloodhound] DROPPED: PLTR — API returned no data
+2026-02-23 16:49:26 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMZN (156ms)
+2026-02-23 16:49:26 +00:00: [Bloodhound] DROPPED: AMZN — API returned no data
+2026-02-23 16:49:27 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/EEM (121ms)
+2026-02-23 16:49:27 +00:00: [Bloodhound] DROPPED: EEM — API returned no data
+2026-02-23 16:49:28 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SOLZ (177ms)
+2026-02-23 16:49:28 +00:00: [Bloodhound] DROPPED: SOLZ — API returned no data
+2026-02-23 16:49:29 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLC (134ms)
+2026-02-23 16:49:29 +00:00: [Bloodhound] DROPPED: XLC — API returned no data
+2026-02-23 16:49:31 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/USO (102ms)
+2026-02-23 16:49:31 +00:00: [Bloodhound] DROPPED: USO — API returned no data
+2026-02-23 16:49:32 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/F (118ms)
+2026-02-23 16:49:32 +00:00: [Bloodhound] DROPPED: F — API returned no data
+2026-02-23 16:49:33 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/UNG (101ms)
+2026-02-23 16:49:33 +00:00: [Bloodhound] DROPPED: UNG — API returned no data
+2026-02-23 16:49:34 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLP (146ms)
+2026-02-23 16:49:34 +00:00: [Bloodhound] DROPPED: XLP — API returned no data
+2026-02-23 16:49:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLB (142ms)
+2026-02-23 16:49:35 +00:00: [Bloodhound] DROPPED: XLB — API returned no data
+2026-02-23 16:49:36 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/UVXY (342ms)
+2026-02-23 16:49:36 +00:00: [Bloodhound] DROPPED: UVXY — API returned no data
+2026-02-23 16:49:38 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLU (126ms)
+2026-02-23 16:49:38 +00:00: [Bloodhound] DROPPED: XLU — API returned no data
+2026-02-23 16:49:39 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SMCI (238ms)
+2026-02-23 16:49:39 +00:00: [Bloodhound] DROPPED: SMCI — API returned no data
+2026-02-23 16:49:40 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/CVNA (129ms)
+2026-02-23 16:49:40 +00:00: [Bloodhound] DROPPED: CVNA — API returned no data
+2026-02-23 16:49:41 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/ETHA (111ms)
+2026-02-23 16:49:41 +00:00: [Bloodhound] DROPPED: ETHA — API returned no data
+2026-02-23 16:49:42 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/PANW (165ms)
+2026-02-23 16:49:42 +00:00: [Bloodhound] DROPPED: PANW — API returned no data
+2026-02-23 16:49:43 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLK (117ms)
+2026-02-23 16:49:43 +00:00: [Bloodhound] DROPPED: XLK — API returned no data
+2026-02-23 16:49:44 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLF (119ms)
+2026-02-23 16:49:44 +00:00: [Bloodhound] DROPPED: XLF — API returned no data
+2026-02-23 16:49:46 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/INTC (140ms)
+2026-02-23 16:49:46 +00:00: [Bloodhound] DROPPED: INTC — API returned no data
+2026-02-23 16:49:47 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IWM (139ms)
+2026-02-23 16:49:47 +00:00: [Bloodhound] DROPPED: IWM — API returned no data
+2026-02-23 16:49:48 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/ORCL (101ms)
+2026-02-23 16:49:48 +00:00: [Bloodhound] DROPPED: ORCL — API returned no data
+2026-02-23 16:49:49 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLE (122ms)
+2026-02-23 16:49:49 +00:00: [Bloodhound] DROPPED: XLE — API returned no data
+2026-02-23 16:49:52 +00:00: [Signal Logger] Failed to fetch price for OPEN after 3 attempts: Request failed with status code 401
+2026-02-23 16:49:56 +00:00: [Signal Logger] Failed to fetch price for AMZN after 3 attempts: Request failed with status code 401
+2026-02-23 16:49:59 +00:00: [Signal Logger] Failed to fetch price for UVXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:50:03 +00:00: [Signal Logger] Failed to fetch price for XLB after 3 attempts: Request failed with status code 401
+2026-02-23 16:50:06 +00:00: [Signal Logger] Failed to fetch price for XLP after 3 attempts: Request failed with status code 401
+2026-02-23 16:50:09 +00:00: [Signal Logger] Failed to fetch price for PLTR after 3 attempts: Request failed with status code 401
+2026-02-23 16:50:13 +00:00: [Signal Logger] Failed to fetch price for XLK after 3 attempts: Request failed with status code 401
+2026-02-23 16:50:16 +00:00: [Signal Logger] Failed to fetch price for SPY after 3 attempts: Request failed with status code 401
+2026-02-23 16:50:20 +00:00: [Signal Logger] Failed to fetch price for QQQ after 3 attempts: Request failed with status code 401
+2026-02-23 16:50:23 +00:00: [Signal Logger] Failed to fetch price for GLD after 3 attempts: Request failed with status code 401
+2026-02-23 16:50:26 +00:00: [Signal Logger] Failed to fetch price for EEM after 3 attempts: Request failed with status code 401
+2026-02-23 16:50:30 +00:00: [Signal Logger] Failed to fetch price for UNG after 3 attempts: Request failed with status code 401
+2026-02-23 16:50:33 +00:00: [Signal Logger] Failed to fetch price for F after 3 attempts: Request failed with status code 401
+2026-02-23 16:50:37 +00:00: [Signal Logger] Failed to fetch price for SNDK after 3 attempts: Request failed with status code 401
+2026-02-23 16:50:40 +00:00: [Signal Logger] Failed to fetch price for USO after 3 attempts: Request failed with status code 401
+2026-02-23 16:50:43 +00:00: [Signal Logger] Failed to fetch price for XLC after 3 attempts: Request failed with status code 401
+2026-02-23 16:50:47 +00:00: [Signal Logger] Failed to fetch price for SOLZ after 3 attempts: Request failed with status code 401
+2026-02-23 16:50:50 +00:00: [Signal Logger] Failed to fetch price for NVDA after 3 attempts: Request failed with status code 401
+2026-02-23 16:50:54 +00:00: [Signal Logger] Failed to fetch price for MU after 3 attempts: Request failed with status code 401
+2026-02-23 16:50:57 +00:00: [Signal Logger] Failed to fetch price for IBIT after 3 attempts: Request failed with status code 401
+2026-02-23 16:51:01 +00:00: [Signal Logger] Failed to fetch price for ETHA after 3 attempts: Request failed with status code 401
+2026-02-23 16:51:04 +00:00: [Signal Logger] Failed to fetch price for MSFT after 3 attempts: Request failed with status code 401
+2026-02-23 16:51:07 +00:00: [Signal Logger] Failed to fetch price for OXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:51:11 +00:00: [Signal Logger] Failed to fetch price for TSLA after 3 attempts: Request failed with status code 401
+2026-02-23 16:51:14 +00:00: [Signal Logger] Failed to fetch price for VNDA after 3 attempts: Request failed with status code 401
+2026-02-23 16:51:18 +00:00: [Signal Logger] Failed to fetch price for MRNA after 3 attempts: Request failed with status code 401
+2026-02-23 16:51:21 +00:00: [Signal Logger] Failed to fetch price for IBRX after 3 attempts: Request failed with status code 401
+2026-02-23 16:51:25 +00:00: [Signal Logger] Failed to fetch price for AAPL after 3 attempts: Request failed with status code 401
+2026-02-23 16:53:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/market/context (299ms)
+2026-02-23 16:53:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (190ms)
+2026-02-23 16:53:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (115ms)
+2026-02-23 16:53:35 +00:00: [API] Failed: http://192.168.10.60:3000/api/market/outlook (7ms)
+2026-02-23 16:53:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/options/SPY/iv (168ms)
+2026-02-23 16:53:41 +00:00: [API] Failed: http://192.168.10.60:3000/api/market/outlook (6ms)
+2026-02-23 16:53:41 +00:00: [API] Failed: http://192.168.10.60:3000/api/latest (5ms)
+2026-02-23 16:53:41 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MSFT (120ms)
+2026-02-23 16:53:41 +00:00: [Bloodhound] MSFT failed (watchlist), retrying in 2s...
+2026-02-23 16:53:43 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MSFT (149ms)
+2026-02-23 16:53:43 +00:00: [Bloodhound] DROPPED: MSFT — API returned no data
+2026-02-23 16:53:44 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/META (184ms)
+2026-02-23 16:53:44 +00:00: [Bloodhound] META failed (watchlist), retrying in 2s...
+2026-02-23 16:53:47 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/META (122ms)
+2026-02-23 16:53:47 +00:00: [Bloodhound] DROPPED: META — API returned no data
+2026-02-23 16:53:48 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AAPL (174ms)
+2026-02-23 16:53:48 +00:00: [Bloodhound] AAPL failed (watchlist), retrying in 2s...
+2026-02-23 16:53:50 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AAPL (117ms)
+2026-02-23 16:53:50 +00:00: [Bloodhound] DROPPED: AAPL — API returned no data
+2026-02-23 16:53:51 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMD (114ms)
+2026-02-23 16:53:51 +00:00: [Bloodhound] AMD failed (watchlist), retrying in 2s...
+2026-02-23 16:53:53 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMD (118ms)
+2026-02-23 16:53:53 +00:00: [Bloodhound] DROPPED: AMD — API returned no data
+2026-02-23 16:53:54 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBIT (236ms)
+2026-02-23 16:53:54 +00:00: [Bloodhound] IBIT failed (watchlist), retrying in 2s...
+2026-02-23 16:53:57 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBIT (173ms)
+2026-02-23 16:53:57 +00:00: [Bloodhound] DROPPED: IBIT — API returned no data
+2026-02-23 16:53:58 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/TSLA (127ms)
+2026-02-23 16:53:58 +00:00: [Bloodhound] TSLA failed (watchlist), retrying in 2s...
+2026-02-23 16:54:00 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/TSLA (218ms)
+2026-02-23 16:54:00 +00:00: [Bloodhound] DROPPED: TSLA — API returned no data
+2026-02-23 16:54:01 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/NVDA (128ms)
+2026-02-23 16:54:01 +00:00: [Bloodhound] NVDA failed (watchlist), retrying in 2s...
+2026-02-23 16:54:03 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/NVDA (165ms)
+2026-02-23 16:54:03 +00:00: [Bloodhound] DROPPED: NVDA — API returned no data
+2026-02-23 16:54:04 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (306ms)
+2026-02-23 16:54:04 +00:00: [Bloodhound] QQQ failed (watchlist), retrying in 2s...
+2026-02-23 16:54:07 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (130ms)
+2026-02-23 16:54:07 +00:00: [Bloodhound] DROPPED: QQQ — API returned no data
+2026-02-23 16:54:08 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (144ms)
+2026-02-23 16:54:08 +00:00: [Bloodhound] SPY failed (watchlist), retrying in 2s...
+2026-02-23 16:54:10 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (147ms)
+2026-02-23 16:54:10 +00:00: [Bloodhound] DROPPED: SPY — API returned no data
+2026-02-23 16:54:11 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBRX (141ms)
+2026-02-23 16:54:11 +00:00: [Bloodhound] DROPPED: IBRX — API returned no data
+2026-02-23 16:54:12 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/GLD (127ms)
+2026-02-23 16:54:12 +00:00: [Bloodhound] DROPPED: GLD — API returned no data
+2026-02-23 16:54:13 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SLV (185ms)
+2026-02-23 16:54:13 +00:00: [Bloodhound] DROPPED: SLV — API returned no data
+2026-02-23 16:54:14 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SNDK (102ms)
+2026-02-23 16:54:14 +00:00: [Bloodhound] DROPPED: SNDK — API returned no data
+2026-02-23 16:54:16 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/GOOGL (141ms)
+2026-02-23 16:54:16 +00:00: [Bloodhound] DROPPED: GOOGL — API returned no data
+2026-02-23 16:54:17 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MRNA (177ms)
+2026-02-23 16:54:17 +00:00: [Bloodhound] DROPPED: MRNA — API returned no data
+2026-02-23 16:54:18 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/VNDA (175ms)
+2026-02-23 16:54:18 +00:00: [Bloodhound] DROPPED: VNDA — API returned no data
+2026-02-23 16:54:19 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/OPEN (113ms)
+2026-02-23 16:54:19 +00:00: [Bloodhound] DROPPED: OPEN — API returned no data
+2026-02-23 16:54:20 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MU (151ms)
+2026-02-23 16:54:20 +00:00: [Bloodhound] DROPPED: MU — API returned no data
+2026-02-23 16:54:21 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/OXY (159ms)
+2026-02-23 16:54:21 +00:00: [Bloodhound] DROPPED: OXY — API returned no data
+2026-02-23 16:54:22 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/PLTR (105ms)
+2026-02-23 16:54:22 +00:00: [Bloodhound] DROPPED: PLTR — API returned no data
+2026-02-23 16:54:24 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMZN (172ms)
+2026-02-23 16:54:24 +00:00: [Bloodhound] DROPPED: AMZN — API returned no data
+2026-02-23 16:54:25 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/EEM (131ms)
+2026-02-23 16:54:25 +00:00: [Bloodhound] DROPPED: EEM — API returned no data
+2026-02-23 16:54:26 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SOLZ (101ms)
+2026-02-23 16:54:26 +00:00: [Bloodhound] DROPPED: SOLZ — API returned no data
+2026-02-23 16:54:27 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLC (128ms)
+2026-02-23 16:54:27 +00:00: [Bloodhound] DROPPED: XLC — API returned no data
+2026-02-23 16:54:28 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/USO (106ms)
+2026-02-23 16:54:28 +00:00: [Bloodhound] DROPPED: USO — API returned no data
+2026-02-23 16:54:29 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/F (136ms)
+2026-02-23 16:54:29 +00:00: [Bloodhound] DROPPED: F — API returned no data
+2026-02-23 16:54:30 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/UNG (193ms)
+2026-02-23 16:54:30 +00:00: [Bloodhound] DROPPED: UNG — API returned no data
+2026-02-23 16:54:32 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLP (129ms)
+2026-02-23 16:54:32 +00:00: [Bloodhound] DROPPED: XLP — API returned no data
+2026-02-23 16:54:33 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLB (109ms)
+2026-02-23 16:54:33 +00:00: [Bloodhound] DROPPED: XLB — API returned no data
+2026-02-23 16:54:34 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/UVXY (145ms)
+2026-02-23 16:54:34 +00:00: [Bloodhound] DROPPED: UVXY — API returned no data
+2026-02-23 16:54:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLU (182ms)
+2026-02-23 16:54:35 +00:00: [Bloodhound] DROPPED: XLU — API returned no data
+2026-02-23 16:54:36 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SMCI (99ms)
+2026-02-23 16:54:36 +00:00: [Bloodhound] DROPPED: SMCI — API returned no data
+2026-02-23 16:54:37 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/CVNA (152ms)
+2026-02-23 16:54:37 +00:00: [Bloodhound] DROPPED: CVNA — API returned no data
+2026-02-23 16:54:38 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/ETHA (105ms)
+2026-02-23 16:54:38 +00:00: [Bloodhound] DROPPED: ETHA — API returned no data
+2026-02-23 16:54:40 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/PANW (173ms)
+2026-02-23 16:54:40 +00:00: [Bloodhound] DROPPED: PANW — API returned no data
+2026-02-23 16:54:41 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLK (117ms)
+2026-02-23 16:54:41 +00:00: [Bloodhound] DROPPED: XLK — API returned no data
+2026-02-23 16:54:42 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLF (115ms)
+2026-02-23 16:54:42 +00:00: [Bloodhound] DROPPED: XLF — API returned no data
+2026-02-23 16:54:43 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/INTC (122ms)
+2026-02-23 16:54:43 +00:00: [Bloodhound] DROPPED: INTC — API returned no data
+2026-02-23 16:54:44 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IWM (144ms)
+2026-02-23 16:54:44 +00:00: [Bloodhound] DROPPED: IWM — API returned no data
+2026-02-23 16:54:45 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/ORCL (101ms)
+2026-02-23 16:54:45 +00:00: [Bloodhound] DROPPED: ORCL — API returned no data
+2026-02-23 16:54:46 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLE (152ms)
+2026-02-23 16:54:46 +00:00: [Bloodhound] DROPPED: XLE — API returned no data
+2026-02-23 16:54:50 +00:00: [Signal Logger] Failed to fetch price for OPEN after 3 attempts: Request failed with status code 401
+2026-02-23 16:54:53 +00:00: [Signal Logger] Failed to fetch price for AMZN after 3 attempts: Request failed with status code 401
+2026-02-23 16:54:57 +00:00: [Signal Logger] Failed to fetch price for UVXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:55:00 +00:00: [Signal Logger] Failed to fetch price for XLB after 3 attempts: Request failed with status code 401
+2026-02-23 16:55:03 +00:00: [Signal Logger] Failed to fetch price for XLP after 3 attempts: Request failed with status code 401
+2026-02-23 16:55:07 +00:00: [Signal Logger] Failed to fetch price for PLTR after 3 attempts: Request failed with status code 401
+2026-02-23 16:55:10 +00:00: [Signal Logger] Failed to fetch price for XLK after 3 attempts: Request failed with status code 401
+2026-02-23 16:55:14 +00:00: [Signal Logger] Failed to fetch price for SPY after 3 attempts: Request failed with status code 401
+2026-02-23 16:55:17 +00:00: [Signal Logger] Failed to fetch price for QQQ after 3 attempts: Request failed with status code 401
+2026-02-23 16:55:21 +00:00: [Signal Logger] Failed to fetch price for GLD after 3 attempts: Request failed with status code 401
+2026-02-23 16:55:24 +00:00: [Signal Logger] Failed to fetch price for EEM after 3 attempts: Request failed with status code 401
+2026-02-23 16:55:27 +00:00: [Signal Logger] Failed to fetch price for UNG after 3 attempts: Request failed with status code 401
+2026-02-23 16:55:31 +00:00: [Signal Logger] Failed to fetch price for F after 3 attempts: Request failed with status code 401
+2026-02-23 16:55:34 +00:00: [Signal Logger] Failed to fetch price for SNDK after 3 attempts: Request failed with status code 401
+2026-02-23 16:55:38 +00:00: [Signal Logger] Failed to fetch price for USO after 3 attempts: Request failed with status code 401
+2026-02-23 16:55:42 +00:00: [Signal Logger] Failed to fetch price for XLC after 3 attempts: Request failed with status code 401
+2026-02-23 16:55:45 +00:00: [Signal Logger] Failed to fetch price for SOLZ after 3 attempts: Request failed with status code 401
+2026-02-23 16:55:48 +00:00: [Signal Logger] Failed to fetch price for NVDA after 3 attempts: Request failed with status code 401
+2026-02-23 16:55:52 +00:00: [Signal Logger] Failed to fetch price for MU after 3 attempts: Request failed with status code 401
+2026-02-23 16:55:56 +00:00: [Signal Logger] Failed to fetch price for IBIT after 3 attempts: Request failed with status code 401
+2026-02-23 16:55:59 +00:00: [Signal Logger] Failed to fetch price for ETHA after 3 attempts: Request failed with status code 401
+2026-02-23 16:56:03 +00:00: [Signal Logger] Failed to fetch price for MSFT after 3 attempts: Request failed with status code 401
+2026-02-23 16:56:06 +00:00: [Signal Logger] Failed to fetch price for OXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:56:09 +00:00: [Signal Logger] Failed to fetch price for TSLA after 3 attempts: Request failed with status code 401
+2026-02-23 16:56:13 +00:00: [Signal Logger] Failed to fetch price for VNDA after 3 attempts: Request failed with status code 401
+2026-02-23 16:56:16 +00:00: [Signal Logger] Failed to fetch price for MRNA after 3 attempts: Request failed with status code 401
+2026-02-23 16:56:20 +00:00: [Signal Logger] Failed to fetch price for IBRX after 3 attempts: Request failed with status code 401
+2026-02-23 16:56:23 +00:00: [Signal Logger] Failed to fetch price for AAPL after 3 attempts: Request failed with status code 401
+2026-02-23 16:58:34 +00:00: [API] Failed: http://192.168.10.60:8000/api/market/context (106ms)
+2026-02-23 16:58:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (171ms)
+2026-02-23 16:58:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (104ms)
+2026-02-23 16:58:35 +00:00: [API] Failed: http://192.168.10.60:3000/api/market/outlook (6ms)
+2026-02-23 16:58:35 +00:00: [API] Failed: http://192.168.10.60:8000/api/options/SPY/iv (170ms)
+2026-02-23 16:58:41 +00:00: [API] Failed: http://192.168.10.60:3000/api/market/outlook (6ms)
+2026-02-23 16:58:41 +00:00: [API] Failed: http://192.168.10.60:3000/api/latest (5ms)
+2026-02-23 16:58:41 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MSFT (192ms)
+2026-02-23 16:58:41 +00:00: [Bloodhound] MSFT failed (watchlist), retrying in 2s...
+2026-02-23 16:58:43 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MSFT (124ms)
+2026-02-23 16:58:43 +00:00: [Bloodhound] DROPPED: MSFT — API returned no data
+2026-02-23 16:58:44 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/META (125ms)
+2026-02-23 16:58:44 +00:00: [Bloodhound] META failed (watchlist), retrying in 2s...
+2026-02-23 16:58:46 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/META (120ms)
+2026-02-23 16:58:46 +00:00: [Bloodhound] DROPPED: META — API returned no data
+2026-02-23 16:58:48 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AAPL (166ms)
+2026-02-23 16:58:48 +00:00: [Bloodhound] AAPL failed (watchlist), retrying in 2s...
+2026-02-23 16:58:50 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AAPL (159ms)
+2026-02-23 16:58:50 +00:00: [Bloodhound] DROPPED: AAPL — API returned no data
+2026-02-23 16:58:51 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMD (186ms)
+2026-02-23 16:58:51 +00:00: [Bloodhound] AMD failed (watchlist), retrying in 2s...
+2026-02-23 16:58:53 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMD (113ms)
+2026-02-23 16:58:53 +00:00: [Bloodhound] DROPPED: AMD — API returned no data
+2026-02-23 16:58:54 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBIT (173ms)
+2026-02-23 16:58:54 +00:00: [Bloodhound] IBIT failed (watchlist), retrying in 2s...
+2026-02-23 16:58:56 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBIT (145ms)
+2026-02-23 16:58:56 +00:00: [Bloodhound] DROPPED: IBIT — API returned no data
+2026-02-23 16:58:57 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/TSLA (130ms)
+2026-02-23 16:58:57 +00:00: [Bloodhound] TSLA failed (watchlist), retrying in 2s...
+2026-02-23 16:59:00 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/TSLA (173ms)
+2026-02-23 16:59:00 +00:00: [Bloodhound] DROPPED: TSLA — API returned no data
+2026-02-23 16:59:01 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/NVDA (113ms)
+2026-02-23 16:59:01 +00:00: [Bloodhound] NVDA failed (watchlist), retrying in 2s...
+2026-02-23 16:59:03 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/NVDA (275ms)
+2026-02-23 16:59:03 +00:00: [Bloodhound] DROPPED: NVDA — API returned no data
+2026-02-23 16:59:04 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (115ms)
+2026-02-23 16:59:04 +00:00: [Bloodhound] QQQ failed (watchlist), retrying in 2s...
+2026-02-23 16:59:06 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/QQQ (118ms)
+2026-02-23 16:59:06 +00:00: [Bloodhound] DROPPED: QQQ — API returned no data
+2026-02-23 16:59:07 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (251ms)
+2026-02-23 16:59:07 +00:00: [Bloodhound] SPY failed (watchlist), retrying in 2s...
+2026-02-23 16:59:10 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SPY (138ms)
+2026-02-23 16:59:10 +00:00: [Bloodhound] DROPPED: SPY — API returned no data
+2026-02-23 16:59:11 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IBRX (109ms)
+2026-02-23 16:59:11 +00:00: [Bloodhound] DROPPED: IBRX — API returned no data
+2026-02-23 16:59:12 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/GLD (254ms)
+2026-02-23 16:59:12 +00:00: [Bloodhound] DROPPED: GLD — API returned no data
+2026-02-23 16:59:13 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SLV (109ms)
+2026-02-23 16:59:13 +00:00: [Bloodhound] DROPPED: SLV — API returned no data
+2026-02-23 16:59:14 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SNDK (114ms)
+2026-02-23 16:59:14 +00:00: [Bloodhound] DROPPED: SNDK — API returned no data
+2026-02-23 16:59:15 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/GOOGL (107ms)
+2026-02-23 16:59:15 +00:00: [Bloodhound] DROPPED: GOOGL — API returned no data
+2026-02-23 16:59:16 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MRNA (132ms)
+2026-02-23 16:59:16 +00:00: [Bloodhound] DROPPED: MRNA — API returned no data
+2026-02-23 16:59:18 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/VNDA (142ms)
+2026-02-23 16:59:18 +00:00: [Bloodhound] DROPPED: VNDA — API returned no data
+2026-02-23 16:59:19 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/OPEN (189ms)
+2026-02-23 16:59:19 +00:00: [Bloodhound] DROPPED: OPEN — API returned no data
+2026-02-23 16:59:20 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/MU (102ms)
+2026-02-23 16:59:20 +00:00: [Bloodhound] DROPPED: MU — API returned no data
+2026-02-23 16:59:21 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/OXY (155ms)
+2026-02-23 16:59:21 +00:00: [Bloodhound] DROPPED: OXY — API returned no data
+2026-02-23 16:59:22 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/PLTR (116ms)
+2026-02-23 16:59:22 +00:00: [Bloodhound] DROPPED: PLTR — API returned no data
+2026-02-23 16:59:23 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/AMZN (125ms)
+2026-02-23 16:59:23 +00:00: [Bloodhound] DROPPED: AMZN — API returned no data
+2026-02-23 16:59:24 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/EEM (133ms)
+2026-02-23 16:59:24 +00:00: [Bloodhound] DROPPED: EEM — API returned no data
+2026-02-23 16:59:26 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SOLZ (124ms)
+2026-02-23 16:59:26 +00:00: [Bloodhound] DROPPED: SOLZ — API returned no data
+2026-02-23 16:59:27 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLC (104ms)
+2026-02-23 16:59:27 +00:00: [Bloodhound] DROPPED: XLC — API returned no data
+2026-02-23 16:59:28 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/USO (136ms)
+2026-02-23 16:59:28 +00:00: [Bloodhound] DROPPED: USO — API returned no data
+2026-02-23 16:59:29 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/F (102ms)
+2026-02-23 16:59:29 +00:00: [Bloodhound] DROPPED: F — API returned no data
+2026-02-23 16:59:30 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/UNG (135ms)
+2026-02-23 16:59:30 +00:00: [Bloodhound] DROPPED: UNG — API returned no data
+2026-02-23 16:59:31 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLP (108ms)
+2026-02-23 16:59:31 +00:00: [Bloodhound] DROPPED: XLP — API returned no data
+2026-02-23 16:59:32 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLB (98ms)
+2026-02-23 16:59:32 +00:00: [Bloodhound] DROPPED: XLB — API returned no data
+2026-02-23 16:59:33 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/UVXY (120ms)
+2026-02-23 16:59:33 +00:00: [Bloodhound] DROPPED: UVXY — API returned no data
+2026-02-23 16:59:34 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLU (123ms)
+2026-02-23 16:59:34 +00:00: [Bloodhound] DROPPED: XLU — API returned no data
+2026-02-23 16:59:36 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/SMCI (177ms)
+2026-02-23 16:59:36 +00:00: [Bloodhound] DROPPED: SMCI — API returned no data
+2026-02-23 16:59:37 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/CVNA (165ms)
+2026-02-23 16:59:37 +00:00: [Bloodhound] DROPPED: CVNA — API returned no data
+2026-02-23 16:59:38 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/ETHA (237ms)
+2026-02-23 16:59:38 +00:00: [Bloodhound] DROPPED: ETHA — API returned no data
+2026-02-23 16:59:39 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/PANW (133ms)
+2026-02-23 16:59:39 +00:00: [Bloodhound] DROPPED: PANW — API returned no data
+2026-02-23 16:59:40 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLK (117ms)
+2026-02-23 16:59:40 +00:00: [Bloodhound] DROPPED: XLK — API returned no data
+2026-02-23 16:59:41 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLF (123ms)
+2026-02-23 16:59:41 +00:00: [Bloodhound] DROPPED: XLF — API returned no data
+2026-02-23 16:59:43 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/INTC (122ms)
+2026-02-23 16:59:43 +00:00: [Bloodhound] DROPPED: INTC — API returned no data
+2026-02-23 16:59:44 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/IWM (125ms)
+2026-02-23 16:59:44 +00:00: [Bloodhound] DROPPED: IWM — API returned no data
+2026-02-23 16:59:45 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/ORCL (106ms)
+2026-02-23 16:59:45 +00:00: [Bloodhound] DROPPED: ORCL — API returned no data
+2026-02-23 16:59:46 +00:00: [API] Failed: http://192.168.10.60:8000/api/levels/XLE (162ms)
+2026-02-23 16:59:46 +00:00: [Bloodhound] DROPPED: XLE — API returned no data
+2026-02-23 16:59:49 +00:00: [Signal Logger] Failed to fetch price for OPEN after 3 attempts: Request failed with status code 401
+2026-02-23 16:59:53 +00:00: [Signal Logger] Failed to fetch price for AMZN after 3 attempts: Request failed with status code 401
+2026-02-23 16:59:56 +00:00: [Signal Logger] Failed to fetch price for UVXY after 3 attempts: Request failed with status code 401
+2026-02-23 16:59:59 +00:00: [Signal Logger] Failed to fetch price for XLB after 3 attempts: Request failed with status code 401
