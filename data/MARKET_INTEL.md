@@ -200,7 +200,7 @@
 | **GLD** | LONG | $480.09 (+2.45% Mon). Pulling back -0.96% premarket Tue. GDX #1 RS. Safe haven thesis intact. **Pullback entry forming** — watch for support at $470-475. |
 | **PANW** | LONG | RSI dropped to **25** (from 29 Mon). Cyber sector in capitulation (ZS RSI 19, CRWD RSI 28). XLK headwind. Extreme oversold — watch for bounce setup but don't catch falling knife alone. |
 | **GOOGL** | LONG | WFC upgrade to OW $387. Tech selloff likely hit this. XLK headwind. Watch for Tier 2 promotion if tech stabilizes. |
-| **MARA** | LONG | Earnings Feb 26 before open. S-6 applies. HIGH_CONVICTION flow ($4.5M bullish, C/P 4.84x). BTC -4.9% to $63K = headwind. Evaluate post-earnings. |
+| **MARA** | LONG | Earnings Feb 26 before open. S-6 applies. HC flow ($4.5M bullish, C/P 4.84x). BTC -4.9% to $63K, Master WU targets **$52,650 mid-March.** Major headwind — **downgraded conviction.** |
 | **AMD** | LONG | +9.6% premarket on Meta $100B AI chip deal (160M shares, 6GW). Massive catalyst. Watch for multi-day re-rating vs fade. Do NOT chase gap — wait for confirmation. |
 | **ZS** | WATCH | RSI **19** — extreme oversold, 46% below SMA200. Earnings Feb 26 (Thu). Binary event. Capitulation-level reading. S-6 blocks until post-earnings. |
 | **XLE** | LONG | Leading sector (RS ~93rd %ile). Needs pullback from extended zone. Iran talks Thu may be catalyst. |
@@ -381,17 +381,41 @@ VIX Elevated (21.01), SPY closed $683 (above put wall $682), QQQ held $600 for t
 - NOT catching falling knives in cyber (ZS, PANW, CRWD) without bounce confirmation.
 - NOT ignoring credit stress. HYG/TLT at -3.2 is a real warning.
 
-### Today's Key Data (Feb 24)
-- **CB Consumer Confidence 3:00 PM** — consensus 87.4. Miss below 85 = bearish. Beat = constructive.
-- **Waller speaks 2:15 PM** — most market-moving Fed speaker today. Watch for rate-cut signals.
-- **Richmond Mfg Index 3:00 PM** — consensus -8.
-- **AMD +9.6% sustainability** — does the Meta $100B deal create multi-day re-rating or fade?
+### Today's Key Data (Feb 24) — CORRECTED TIMES (briefing was UTC mislabeled as ET)
+- **Bostic speaks 9:00 AM ET**
+- **Waller speaks 9:15 AM ET** — most market-moving Fed speaker. Watch for rate-cut signals.
+- **Cook speaks 9:30 AM ET**
+- **CB Consumer Confidence 10:00 AM ET** — consensus 87.4. Miss below 85 = bearish. Beat = constructive.
+- **Richmond Mfg Index 10:00 AM ET** — consensus -8.
+- **Trump State of the Union TONIGHT** — adds overnight risk stacking on NVDA earnings Wed.
+- **AMD now +15%** (up from +9.6%). $1.3M whale call load day before news. Meta $100B deal.
 - **IBM -13% contagion** — does AI disruption spread to ORCL, ACN, legacy software? Bearish for software/IGV.
-- **BTC $60K floor test** — institutional accumulation floor. Break below = liquidation cascade.
+- **BTC heading lower** — Master WU targets $52,650 mid-March bottom. Bearish for MARA.
 - **10Y yield at 4.029%** — rate-cut repricing accelerating. Treasury yields fell fastest rate in 5 months.
 
+### Twitter Technicals Levels (Feb 24 Pre-Open)
+**SPY/SPX:**
+- GammaEdge: Bulls need SPY above **$681**. Put dominated open = moves accentuated both ways.
+- Trade With Insight: SPX **6820** buyer defense, breach → 6800 fast. Above **6871** → targets 6900.
+- Mancini: ES range **6925-6849**, 6849 paying. Need 6857 reclaim for 6867/6888. **6822** support.
+- Inside weekly candle: **7,008 to 6,735** — will resolve forcefully one direction.
+
+**QQQ:**
+- Redler: **$604.50** key level — failed to hold Mon, watching if rejects or early strength holds.
+- GammaEdge: Bulls need QQQ above **$601**.
+
+**IGV:**
+- Redler: **$76.42 active pivot.** "Don't catch falling knives." Confirms our $75-76 entry zone.
+
+**JPM:**
+- Redler: On 200-day. **$295** huge level, **$324** sell area, **$305** nearby.
+- GammaEdge: Put dominated, **$290** downside opportunity.
+
+**NVDA:**
+- Rock Trading Group: Sold $193, re-entered $189, expects slap-down ahead of Wed earnings.
+
 ### Macro Calendar (CONFIRMED)
-- **Feb 24 (Tue):** NVDA S-6 active. CEG earnings (pre-open). CB Consumer Confidence 3 PM (consensus 87.4). Richmond Mfg Index 3 PM (consensus -8). Waller speaks 2:15 PM. 6 FOMC speakers total. WDAY earnings Tue night.
+- **Feb 24 (Tue):** NVDA S-6 active. CEG earnings (pre-open). Bostic 9 AM, Waller 9:15 AM, Cook 9:30 AM. **CB Consumer Confidence 10 AM** (consensus 87.4). Richmond Mfg 10 AM. WDAY earnings Tue night. **Trump State of the Union tonight.**
 - **Feb 25 (Wed night):** **NVDA/CRM/SNOW earnings after close.** THE event of the week. $650B hyperscaler capex narrative.
 - **Feb 26 (Thu AM):** MARA earnings before open. ZS/RKLB/VST/MP earnings.
 - **Feb 26 (Thu):** US-Iran talks in Geneva. ADSK/CRWV/DELL/INTU earnings.
