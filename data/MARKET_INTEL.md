@@ -180,21 +180,29 @@
 2. GTC moved/cancelled → exit immediately, pattern invalidated
 3. Macro selloff continues (tariffs, credit stress) → overwhelms seasonal pattern
 4. Pattern crowding → 2018+ optimization already accounts for front-running
+5. **FOMC + Triple Witch overlap (Mar 17-20)** — FOMC meeting Mar 17-18 (first 2026 dot plot; CME: 60% hold / 38% cut), Triple Witch OpEx Mar 20. Our Mar 19 exit sits between FOMC decision and OpEx gamma reshuffling. Consider early exit Mar 17 (pre-FOMC) if T1 target already hit. This adds macro volatility to the exit window.
+
+**Bullish Catalyst (Feb 24 briefing):** AMD +9.6% on Meta's $100B AI chip deal (160M shares, 6GW commitment). This validates the $650B hyperscaler capex cycle thesis heading into NVDA earnings. AMD's deal is additive to NVDA, not cannibalistic — total market expansion narrative.
+
+**Bearish Context (Feb 24 briefing):** IBM -13% on Anthropic COBOL AI disruption — "worst day in 26 years." AI is a two-edged sword: builds AI infra (NVDA/AMD), destroys legacy services (IBM/ORCL/ACN). Software capitulation accelerating (ZS RSI 19, PANW RSI 25, CRWD RSI 28).
 
 **Decision Points:**
 - [ ] Feb 25 post-close: Assess earnings reaction. Set target entry price for Mar 2.
-- [ ] Feb 28: Confirm GTC date. Check IV rank has dropped. Select vehicle (calls vs puts vs shares).
+- [ ] Feb 28: Confirm GTC date. Check IV rank has dropped. Select vehicle (calls vs puts vs shares). **Check FOMC schedule — if Mar 18 decision creates conflict, plan for Mar 17 early exit option.**
 - [ ] Mar 2: EXECUTE. Enter at market/limit based on opening action.
-- [ ] Mar 19: EXIT ALL. No holding through GTC reaction.
+- [ ] Mar 17: **DECISION POINT** — if T1 hit (+6%), consider exiting before FOMC Mar 18. If not yet at target, hold through with tight trailing stop.
+- [ ] Mar 19: HARD EXIT if still holding. No exceptions.
 
 ### Tier 3: Watch List
 
 | Ticker | Dir | What We're Waiting For |
 |--------|-----|----------------------|
-| **GLD** | LONG | $480.09 (+2.45%). Safe haven rip. GDX #1 RS. Gold +$92 Monday morning. BUY_ZONE per scanner. Best sector wind. Need pullback entry — extended intraday. |
-| **PANW** | LONG | RSI 29 (oversold). XLK headwind (bottom quartile RS). Needs sector turn or overwhelming individual confluence. |
-| **GOOGL** | LONG | WFC upgrade to OW $387. Likely sold off hard with tech Monday. XLK headwind. Watch for Tier 2 promotion if tech stabilizes. |
-| **MARA** | LONG | Earnings Feb 26 before open. S-6 applies. HIGH_CONVICTION flow ($4.5M bullish, C/P 4.84x). Evaluate post-earnings. |
+| **GLD** | LONG | $480.09 (+2.45% Mon). Pulling back -0.96% premarket Tue. GDX #1 RS. Safe haven thesis intact. **Pullback entry forming** — watch for support at $470-475. |
+| **PANW** | LONG | RSI dropped to **25** (from 29 Mon). Cyber sector in capitulation (ZS RSI 19, CRWD RSI 28). XLK headwind. Extreme oversold — watch for bounce setup but don't catch falling knife alone. |
+| **GOOGL** | LONG | WFC upgrade to OW $387. Tech selloff likely hit this. XLK headwind. Watch for Tier 2 promotion if tech stabilizes. |
+| **MARA** | LONG | Earnings Feb 26 before open. S-6 applies. HIGH_CONVICTION flow ($4.5M bullish, C/P 4.84x). BTC -4.9% to $63K = headwind. Evaluate post-earnings. |
+| **AMD** | LONG | +9.6% premarket on Meta $100B AI chip deal (160M shares, 6GW). Massive catalyst. Watch for multi-day re-rating vs fade. Do NOT chase gap — wait for confirmation. |
+| **ZS** | WATCH | RSI **19** — extreme oversold, 46% below SMA200. Earnings Feb 26 (Thu). Binary event. Capitulation-level reading. S-6 blocks until post-earnings. |
 | **XLE** | LONG | Leading sector (RS ~93rd %ile). Needs pullback from extended zone. Iran talks Thu may be catalyst. |
 | **OXY** | MIXED | HC SELL (63) fired Monday. But held green (+1.06%) on deeply red day. Energy sector wind strong. Sell signal vs sector strength = conflicting. Monitor. |
 | **XLF** | LONG | Broke put wall $51.50, closed $50.80 (-3.22%). BUT HC 70 bullish flow from Opp Scanner. Price/flow divergence — interesting for Tue if flow confirmed. Bottom quartile RS. |
@@ -366,18 +374,36 @@ VIX Elevated (21.01), SPY closed $683 (above put wall $682), QQQ held $600 for t
 
 ### What We're NOT Doing
 - NOT buying NVDA/CRM/SNOW before Wed night earnings. S-6 is firm.
+- NOT chasing AMD +9.6% gap. Wait for confirmation or pullback. Gap-chasing is not our game.
 - NOT fighting the selloff with aggressive longs. Internals were terrible Monday. Wait for confirmation.
 - NOT chasing PYPL after +6.22% day. Flow was right but need pullback.
 - NOT bottom-fishing broken tech (XLK, IGV) until Fib support is tested and holds.
+- NOT catching falling knives in cyber (ZS, PANW, CRWD) without bounce confirmation.
 - NOT ignoring credit stress. HYG/TLT at -3.2 is a real warning.
 
-### Macro Calendar (CONFIRMED ONLY)
-- **Feb 24 (Tue):** NVDA S-6 window opens. WDAY earnings Tue night.
-- **Feb 25 (Wed night):** **NVDA/CRM/SNOW earnings after close.** Massive tech catalyst.
-- **Feb 26 (Thu AM):** MARA earnings before open.
-- **Feb 26 (Thu):** US-Iran talks in Geneva.
-- **Feb 26 (Thu night):** ADSK/CRWV/DELL/INTU earnings.
+### Today's Key Data (Feb 24)
+- **CB Consumer Confidence 3:00 PM** — consensus 87.4. Miss below 85 = bearish. Beat = constructive.
+- **Waller speaks 2:15 PM** — most market-moving Fed speaker today. Watch for rate-cut signals.
+- **Richmond Mfg Index 3:00 PM** — consensus -8.
+- **AMD +9.6% sustainability** — does the Meta $100B deal create multi-day re-rating or fade?
+- **IBM -13% contagion** — does AI disruption spread to ORCL, ACN, legacy software? Bearish for software/IGV.
+- **BTC $60K floor test** — institutional accumulation floor. Break below = liquidation cascade.
+- **10Y yield at 4.029%** — rate-cut repricing accelerating. Treasury yields fell fastest rate in 5 months.
+
+### Macro Calendar (CONFIRMED)
+- **Feb 24 (Tue):** NVDA S-6 active. CEG earnings (pre-open). CB Consumer Confidence 3 PM (consensus 87.4). Richmond Mfg Index 3 PM (consensus -8). Waller speaks 2:15 PM. 6 FOMC speakers total. WDAY earnings Tue night.
+- **Feb 25 (Wed night):** **NVDA/CRM/SNOW earnings after close.** THE event of the week. $650B hyperscaler capex narrative.
+- **Feb 26 (Thu AM):** MARA earnings before open. ZS/RKLB/VST/MP earnings.
+- **Feb 26 (Thu):** US-Iran talks in Geneva. ADSK/CRWV/DELL/INTU earnings.
 - **Feb 27 (Fri):** PPI (confirmed BLS).
+- **Mar 2 (Mon):** **NVDA Pre-GTC entry.** T-10 before GTC.
+- **Mar 3:** CRWD earnings (RSI 28).
+- **Mar 4:** AVGO earnings (consolidating $332).
+- **Mar 6:** Artemis II launch.
+- **Mar 16:** NVIDIA GTC 2026 keynote.
+- **Mar 17-18:** **FOMC meeting** — first 2026 dot plot. CME: 60% hold / 38% cut.
+- **Mar 19:** NVDA Pre-GTC hard exit.
+- **Mar 20:** Triple Witch OpEx.
 - **Supreme Court IEEPA ruling:** Status unverified.
 
 ---
