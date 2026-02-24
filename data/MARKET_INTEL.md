@@ -116,7 +116,7 @@
 
 | Ticker | Dir | Entry Zone | Stop | T1 | T2 | R:R | Status | Notes |
 |--------|-----|-----------|------|-----|-----|-----|--------|-------|
-| **IGV** | LONG | $75-76 (61.8% Fib) | Below $74.30 (2023 high) | $80 (put wall) | $85 (call wall) | ~3:1 | **APPROACHING** — $76.91, need $75-76 | 61.8% Fib retrace from 2022 low to 2025 high. 2023 high $74.30 is the stop level. RSI 30.9. IV Rank 100. Apr 17 $83C identified at $2.33. If Fib holds = massive base. If breaks = regime change. |
+| **IGV** | LONG | $75-76 (61.8% Fib) | Below $74.30 (2023 high) | $80 (put wall) | $85 (call wall) | ~3:1 | **APPROACHING** — $76.91, need $75-76 | 61.8% Fib retrace. Redler confirms **$76.42 active pivot**. Software underperforming Nasdaq by **widest margin on record** (IGV -9% 2yr vs NDX +39%). Either extreme value or structural decline. IBM AI disruption + DeepSeek new model = risk catalysts pushing software lower. Apr 17 $83C at $2.33. |
 | **PYPL** | LONG | Pullback to $42-43 | Below $40.50 (session low) | $48 | $52 | ~3:1 | **MONITORING FOR PULLBACK** | HC 80 bullish flow ($33M net premium). +6.22% close on a -1% SPY day. Standout signal. Chased today — need pullback. Vol/OI 0.1 but premium overwhelms. |
 | **NVDA** | LONG | Post-earnings level (Feb 26-28) | 1.5x ATR trailing (~$10.30) | +6-8% from entry | +12-13% from entry (avg) | ~3:1 | **PRE-GTC TRADE — ENTRY MAR 2** | See trade plan below. 91% WR, +12.65% avg, 3.44 Sharpe. Highest conviction backtested trade. S-6 blocks until post-earnings (Feb 25 night). Enter Mar 2 for GTC run-up. |
 
@@ -197,7 +197,7 @@
 
 | Ticker | Dir | What We're Waiting For |
 |--------|-----|----------------------|
-| **GLD** | LONG | $480.09 (+2.45% Mon). Pulling back -0.96% premarket Tue. GDX #1 RS. Safe haven thesis intact. **Pullback entry forming** — watch for support at $470-475. |
+| **GLD** | LONG | $480.09 (+2.45% Mon). Pulling back premarket Tue. GDX #1 RS. **Wells Fargo gold target $6,100-$6,300** (18-22% upside from $5,175). Hedge funds short dollar. Pullback entry forming — watch $470-475. |
 | **PANW** | LONG | RSI dropped to **25** (from 29 Mon). Cyber sector in capitulation (ZS RSI 19, CRWD RSI 28). XLK headwind. Extreme oversold — watch for bounce setup but don't catch falling knife alone. |
 | **GOOGL** | LONG | WFC upgrade to OW $387. Tech selloff likely hit this. XLK headwind. Watch for Tier 2 promotion if tech stabilizes. |
 | **MARA** | LONG | Earnings Feb 26 before open. S-6 applies. HC flow ($4.5M bullish, C/P 4.84x). BTC -4.9% to $63K, Master WU targets **$52,650 mid-March.** Major headwind — **downgraded conviction.** |
@@ -382,16 +382,40 @@ VIX Elevated (21.01), SPY closed $683 (above put wall $682), QQQ held $600 for t
 - NOT ignoring credit stress. HYG/TLT at -3.2 is a real warning.
 
 ### Today's Key Data (Feb 24) — CORRECTED TIMES (briefing was UTC mislabeled as ET)
-- **Bostic speaks 9:00 AM ET**
-- **Waller speaks 9:15 AM ET** — most market-moving Fed speaker. Watch for rate-cut signals.
-- **Cook speaks 9:30 AM ET**
-- **CB Consumer Confidence 10:00 AM ET** — consensus 87.4. Miss below 85 = bearish. Beat = constructive.
+
+**Fed Speakers:**
+- Bostic 9:00 AM | **Waller 9:15 AM** | Cook 9:30 AM
+- **Goolsbee (pre-market):** Rate cuts NOT appropriate until more evidence inflation coming down. Hawkish lean.
+
+**Economic:**
+- **CB Consumer Confidence 10:00 AM ET** — consensus 87.4. Context: US adults' optimism 59.2% = **lowest EVER** (Gallup).
 - **Richmond Mfg Index 10:00 AM ET** — consensus -8.
-- **Trump State of the Union TONIGHT** — adds overnight risk stacking on NVDA earnings Wed.
-- **AMD now +15%** (up from +9.6%). $1.3M whale call load day before news. Meta $100B deal.
-- **IBM -13% contagion** — does AI disruption spread to ORCL, ACN, legacy software? Bearish for software/IGV.
-- **BTC heading lower** — Master WU targets $52,650 mid-March bottom. Bearish for MARA.
-- **10Y yield at 4.029%** — rate-cut repricing accelerating. Treasury yields fell fastest rate in 5 months.
+- **BLS revised 2025 job additions down to 181K** — 69% fewer than initial 584K estimate. Also lowered 2024 job growth ~28%. Major revision favoring rate cuts.
+- US personal savings rate averaging 4.5% in 2025. Loan delinquencies highest since 2017.
+
+**Market Events:**
+- **Trump State of the Union 9 PM ET tonight** — overnight risk stacking on NVDA earnings Wed.
+- **DeepSeek reportedly releasing new AI model** (CNBC) — risk catalyst for tech. Remember Jan selloff.
+- **Hindenburg Omen** triggered 5th time in a month. Last time = S&P +1.5% following month (not necessarily bearish).
+- **Tom Lee:** Markets tend to bottom on bad news, and we're in a wave of it.
+
+**Corporate:**
+- **AMD +11-15%** ($219-222). Meta deal $60-100B over 5 years. Custom MI450 + Venice EPYC. First 1GW ships H2 2026. 160M share warrants (~10% of AMD). $1.3M whale calls loaded day before.
+- **HD beat:** EPS $2.72 vs $2.52, rev $38.2B in line. +2.6%. 156th consecutive dividend raise. Consumer resilience.
+- **IBM -13%** — Anthropic COBOL AI disruption. Contagion risk to ORCL, ACN, legacy software.
+- **NVDA earnings Wed** — has beat expectations 15 of 17 quarters.
+- **Apple reshoring:** Mac mini production to Houston (Foxconn). 100M chips from TSMC Arizona plant.
+- **Novo Nordisk:** Cutting Ozempic/Wegovy prices up to 50% in US (NVO/LLY down).
+
+**Financial Stress:**
+- **Dimon warning:** Today's banking practices remind him of pre-2008 era.
+- Loan delinquencies highest since 2017. HYG/TLT z-score -3.2 aligns.
+- Almost all hedge fund types now short the dollar.
+- 10Y yield 4.029% — rate-cut repricing accelerating. Yields fell fastest rate in 5 months.
+
+**Crypto:** BTC below $63K (-5%), sellers dominant. -49% from ATH. ETH -63%, SOL -75%. Master WU targets $52,650 mid-March.
+
+**2026 YTD Sector Performance:** Energy +23%, Materials +16%, Staples +14%. Software is the big laggard — **IGV down 9% over 2 years while Nasdaq +39%. Widest underperformance gap on record.**
 
 ### Twitter Technicals Levels (Feb 24 Pre-Open)
 **SPY/SPX:**
@@ -415,7 +439,7 @@ VIX Elevated (21.01), SPY closed $683 (above put wall $682), QQQ held $600 for t
 - Rock Trading Group: Sold $193, re-entered $189, expects slap-down ahead of Wed earnings.
 
 ### Macro Calendar (CONFIRMED)
-- **Feb 24 (Tue):** NVDA S-6 active. CEG earnings (pre-open). Bostic 9 AM, Waller 9:15 AM, Cook 9:30 AM. **CB Consumer Confidence 10 AM** (consensus 87.4). Richmond Mfg 10 AM. WDAY earnings Tue night. **Trump State of the Union tonight.**
+- **Feb 24 (Tue):** NVDA S-6 active. CEG earnings (pre-open). Bostic 9 AM, Waller 9:15 AM, Cook 9:30 AM. **CB Consumer Confidence 10 AM** (consensus 87.4). Richmond Mfg 10 AM. WDAY earnings Tue night. **Trump State of the Union 9 PM ET.** DeepSeek new AI model reportedly imminent (risk catalyst).
 - **Feb 25 (Wed night):** **NVDA/CRM/SNOW earnings after close.** THE event of the week. $650B hyperscaler capex narrative.
 - **Feb 26 (Thu AM):** MARA earnings before open. ZS/RKLB/VST/MP earnings.
 - **Feb 26 (Thu):** US-Iran talks in Geneva. ADSK/CRWV/DELL/INTU earnings.
