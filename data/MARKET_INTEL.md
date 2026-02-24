@@ -64,6 +64,48 @@
 
 ---
 
+## EVENT-DRIVEN CALENDAR (Backtested Strategies)
+
+*Source: 22-year backtest (2003-2025), 106 events across AAPL/NVDA/GOOG. Full report: markets.bigpicsolutions.com*
+
+### Strategy Rankings
+
+| Rank | Strategy | Ticker | Entry | Exit | WR | Avg Return | Sharpe |
+|------|----------|--------|-------|------|----|------------|--------|
+| 1 | **Pre-GTC Run-Up** | NVDA | T-10 | T+3 | **91%** | +12.65% | 3.44 |
+| 2 | Pre-WWDC Accumulation | AAPL | T-10 | T+3 | 88% (2018+) | +4.17% | 2.39 |
+| 3 | Pre-Earnings Drift | NVDA | T-14 | T-1 | 74% | +6.74% | 2.64 |
+| 4 | Sept Dip to Oct Recovery | AAPL | Sep 8-18 | Oct 31 | 74% | +6.62% | 1.95 |
+| 5 | Pre-Earnings Drift | GOOG | T-14 | T-1 | 75% | +2.86% | 2.33 |
+| 6 | Pre-iPhone Run-Up | AAPL | T-25 | T-7 | 100% (2018+) | +6.17% | 1.74 |
+| 7 | Pre-Earnings Drift | AAPL | T-14 | T-1 | 66% | +1.88% | 1.36 |
+| 8 | Pre-I/O | GOOG | T-10 | T+3 | 70% | +2.61% | 1.39 |
+| AVOID | Pre-Pixel | GOOG | T-20 | T-1 | 30% | -2.52% | -1.50 |
+
+### 2026 Upcoming Events
+
+| Entry | Event | Exit | Ticker | Strategy | WR | Status |
+|-------|-------|------|--------|----------|----|--------|
+| **Mar 2** | **GTC 2026 (~Mar 16)** | **Mar 19** | **NVDA** | **Pre-GTC** | **91%** | **NEXT UP — 5 trading days** |
+| Apr 8 | Q1 Earnings (~Apr 28) | Apr 27 | GOOG | Pre-Earnings | 75% | Upcoming |
+| Apr 10 | Q2 FY26 Earnings (~Apr 30) | May 5 | AAPL | Pre-Earnings | 66% | Upcoming |
+| May 7 | Q1 FY27 Earnings (~May 27) | May 26 | NVDA | Pre-Earnings | 74% | Upcoming |
+| May 25 | WWDC 2026 (~Jun 8) | Jun 11 | AAPL | Pre-WWDC | 88% | Upcoming |
+| Jul 8 | Q2 Earnings (~Jul 28) | Jul 27 | GOOG | Pre-Earnings | 75% | Upcoming |
+| Jul 10 | Q3 FY26 Earnings (~Jul 30) | Aug 4 | AAPL | Pre-Earnings | 66% | Upcoming |
+| Aug 4 | iPhone 18 (~Sep 8) | Aug 28 | AAPL | Pre-iPhone | 100% | Upcoming |
+| Aug 6 | Q2 FY27 Earnings (~Aug 26) | Aug 25 | NVDA | Pre-Earnings | 74% | Upcoming |
+| Sep 10 | Sept Dip (post-iPhone) | Oct 30 | AAPL | Sept-Oct Recovery | 74% | Upcoming |
+
+### Key Backtest Insights
+- **"Exit before the event. Every time."** The edge is in anticipation, not reaction. Aligns with S-6.
+- **Pattern degradation since 2018** — front-running compresses the window. Optimized entries are shorter/later.
+- **Volume filter for AAPL pre-earnings:** Low-volume entry = 87% WR (+3.83%). High-volume = 43% WR (-0.26%).
+- **ATR stops cut max drawdown 50%+** without hurting win rates (1.5x for short holds, 2.0x for long holds).
+- **IV capture opportunity:** Enter when IV percentile < 30%, exit when > 70% (T-1). Captures IV expansion without earnings gap risk.
+
+---
+
 ## ACTIVE SWING WATCHLIST
 
 ### Tier 1: Highest Conviction
@@ -76,12 +118,79 @@
 |--------|-----|-----------|------|-----|-----|-----|--------|-------|
 | **IGV** | LONG | $75-76 (61.8% Fib) | Below $74.30 (2023 high) | $80 (put wall) | $85 (call wall) | ~3:1 | **APPROACHING** — $76.91, need $75-76 | 61.8% Fib retrace from 2022 low to 2025 high. 2023 high $74.30 is the stop level. RSI 30.9. IV Rank 100. Apr 17 $83C identified at $2.33. If Fib holds = massive base. If breaks = regime change. |
 | **PYPL** | LONG | Pullback to $42-43 | Below $40.50 (session low) | $48 | $52 | ~3:1 | **MONITORING FOR PULLBACK** | HC 80 bullish flow ($33M net premium). +6.22% close on a -1% SPY day. Standout signal. Chased today — need pullback. Vol/OI 0.1 but premium overwhelms. |
+| **NVDA** | LONG | Post-earnings level (Feb 26-28) | 1.5x ATR trailing (~$10.30) | +6-8% from entry | +12-13% from entry (avg) | ~3:1 | **PRE-GTC TRADE — ENTRY MAR 2** | See trade plan below. 91% WR, +12.65% avg, 3.44 Sharpe. Highest conviction backtested trade. S-6 blocks until post-earnings (Feb 25 night). Enter Mar 2 for GTC run-up. |
+
+### NVDA Pre-GTC Trade Plan (Mar 2 Entry)
+
+**Strategy:** Pre-GTC Run-Up (Rank #1 in event-driven system)
+**Backtest:** 11 trades, 91% WR, +12.65% avg return, +11.82% alpha vs SPY, 3.44 Sharpe, +249.58% total return
+**Event:** NVIDIA GTC 2026 (~Mar 16) — Jensen Huang keynote, AI product announcements
+**Note:** GTC is a conference, NOT earnings. S-6 does not apply to the GTC entry itself.
+
+**Sequencing:**
+1. ~~Feb 24-25: S-6 active (earnings Wed Feb 25 after close). DO NOT ENTER.~~
+2. Feb 26-28: Post-earnings reaction. Observe where NVDA settles. IV crush will cheapen options.
+3. **Mar 2 (Monday): ENTER.** T-10 before GTC.
+4. Mar 16: GTC keynote.
+5. **Mar 19: EXIT.** T+3 after GTC. Non-negotiable — the edge is in the run-up, not the reaction.
+
+**Current NVDA Snapshot (Feb 23 close):**
+- Price: $190.09 (AH) / $191.98 (close)
+- RSI: 56.75 (neutral — not overbought)
+- Trend: Strong uptrend, above all major MAs
+- 20 SMA: $186.41 | 50 SMA: $184.93 | 200 SMA: $173.58
+- ATR: $6.86 (3.58%)
+- Call wall: $195 | Put wall: $190 | Max pain: $187.50
+- IV Rank: 100 (will crush post-earnings — options cheaper by Mar 2)
+- Gamma regime: Positive (+$290M GEX)
+- 52-week range: $86.62 - $212.19
+
+**Post-Earnings Entry Scenarios (determines Mar 2 price):**
+
+| Earnings Outcome | Expected Price | GTC Entry Level | Notes |
+|-----------------|---------------|-----------------|-------|
+| Beat + guide up | $200-210+ | Higher entry, momentum confirmed | Reduced R:R but strong trend. Gap-and-go. |
+| Beat, sell the news | $180-185 | **IDEAL ENTRY** — buy the dip | Post-earnings dip into GTC = best setup. IV crushed = cheap options. |
+| Miss / disappoint | $170-175 (200 SMA) | High risk entry | Evaluate if GTC thesis still holds. Pattern has worked even after weak earnings. |
+
+**Vehicle Options (decide post-earnings based on IV and price):**
+
+| Vehicle | When to Use | Pros | Cons |
+|---------|------------|------|------|
+| **ATM Calls (Mar 21 exp)** | Post-IV crush, bullish | Leveraged upside, 17 DTE at entry | Theta risk if GTC disappoints |
+| **OTM Calls (Mar 21 exp)** | Strong beat, momentum | Cheaper entry, fits budget | Lower delta, needs big move |
+| **Sell OTM Put (Mar 21 exp)** | Sell-the-news dip | Get paid to enter, IV premium fat | Capital requirement, capped upside |
+| **Bull Call Spread** | High IV environment | Defined risk, IV-neutral | Capped upside |
+
+**Position Sizing:**
+- Account: $20,000 | Risk: 0.75x ($150) at VIX Elevated, or 1x ($200) if VIX normalizes post-earnings
+- ATR stop: 1.5x ATR = ~$10.30 below entry
+- Shares: Risk $150 / $10.30 stop = ~14 shares (~$2,700 at $190). Manageable.
+- Options: Size so max loss = $150-200. Select strikes/exp post-earnings when IV settles.
+
+**Stop:** 1.5x ATR trailing from entry. Per backtest, this config cuts max drawdown 50% without hurting win rate.
+
+**Targets:**
+- T1 (50%): +6% from entry (half the avg return — conservative exit)
+- T2 (remaining): +12.65% from entry (backtest average) or Mar 19 exit, whichever comes first
+- **Hard exit: Mar 19.** No exceptions. "Exit before the event reactions fade."
+
+**What Could Go Wrong:**
+1. Catastrophic earnings miss breaks uptrend → re-evaluate entire thesis
+2. GTC moved/cancelled → exit immediately, pattern invalidated
+3. Macro selloff continues (tariffs, credit stress) → overwhelms seasonal pattern
+4. Pattern crowding → 2018+ optimization already accounts for front-running
+
+**Decision Points:**
+- [ ] Feb 25 post-close: Assess earnings reaction. Set target entry price for Mar 2.
+- [ ] Feb 28: Confirm GTC date. Check IV rank has dropped. Select vehicle (calls vs puts vs shares).
+- [ ] Mar 2: EXECUTE. Enter at market/limit based on opening action.
+- [ ] Mar 19: EXIT ALL. No holding through GTC reaction.
 
 ### Tier 3: Watch List
 
 | Ticker | Dir | What We're Waiting For |
 |--------|-----|----------------------|
-| **NVDA** | LONG | **S-6 WINDOW OPENS FEB 24.** Earnings confirmed Wed Feb 25 after close. DO NOT ENTER. Was green +1.14% on a red day — strength. Evaluate post-earnings. |
 | **GLD** | LONG | $480.09 (+2.45%). Safe haven rip. GDX #1 RS. Gold +$92 Monday morning. BUY_ZONE per scanner. Best sector wind. Need pullback entry — extended intraday. |
 | **PANW** | LONG | RSI 29 (oversold). XLK headwind (bottom quartile RS). Needs sector turn or overwhelming individual confluence. |
 | **GOOGL** | LONG | WFC upgrade to OW $387. Likely sold off hard with tech Monday. XLK headwind. Watch for Tier 2 promotion if tech stabilizes. |
@@ -247,11 +356,13 @@ VIX Elevated (21.01), SPY closed $683 (above put wall $682), QQQ held $600 for t
 1. **QCOM paper position — CLOSE.** $140.51, 6.7% OTM, ~24 DTE, strong downtrend. Cut the loss.
 2. **Fresh gamma levels at open** — today's selloff reshaped everything. Verify $682/$683 SPY pin holds.
 3. **Run `/pulse` at 9:45 AM** — check if internals confirm direction before any action.
-4. **NVDA S-6 window OPEN today** — earnings Wed night. Do not enter NVDA, CRM, or SNOW.
-5. **IGV monitor** — $76.91, approaching $75-76 thesis zone. If hits, evaluate Apr 17 $83C entry.
-6. **PYPL pullback watch** — HC 80 flow ($33M) was today's standout. Wait for pullback to $42-43 for entry.
-7. **VIX Fear Capitulation monitor** — VIX 21.01, A/D -1,466. If selling continues, could approach trigger (VIX 25 + A/D -1,500).
-8. **Credit stress monitor** — HYG/TLT z-score at -3.2 (above systemic -3.0). Track for deterioration.
+4. **NVDA S-6 active** — earnings Wed night. Do not enter NVDA, CRM, or SNOW until post-earnings.
+5. **NVDA Pre-GTC prep** — observe earnings reaction Wed night. Determine post-earnings price level for Mar 2 entry. This is our #1 backtested trade (91% WR, 3.44 Sharpe).
+6. **IGV monitor** — $76.91, approaching $75-76 thesis zone. If hits, evaluate Apr 17 $83C entry.
+7. **PYPL pullback watch** — HC 80 flow ($33M) was today's standout. Wait for pullback to $42-43 for entry.
+8. **VIX Fear Capitulation monitor** — VIX 21.01, A/D -1,466. If selling continues, could approach trigger (VIX 25 + A/D -1,500).
+9. **Credit stress monitor** — HYG/TLT z-score at -3.2 (above systemic -3.0). Track for deterioration.
+10. **Post-earnings vehicle selection (Feb 28)** — Once NVDA IV crushes, compare Mar 21 calls vs put selling vs spreads for GTC trade. Budget $150-200 risk.
 
 ### What We're NOT Doing
 - NOT buying NVDA/CRM/SNOW before Wed night earnings. S-6 is firm.
