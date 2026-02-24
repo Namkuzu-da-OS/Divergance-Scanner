@@ -509,6 +509,9 @@ function initSchema() {
     // Migration: Add internals snapshot columns to signals table
     migrateSignalInternals();
 
+    // Migration: Add source column to signals table
+    migrateSignalSource();
+
     // Migration: Add sector RS columns to bloodhound_results table
     migrateBloodhoundRS();
 
@@ -719,6 +722,19 @@ function migrateSignalInternals() {
 }
 
 /**
+ * Add source column to signals table
+ * Tracks which scanner originated the signal (bloodhound, opportunity)
+ */
+function migrateSignalSource() {
+    try {
+        db.exec(`ALTER TABLE signals ADD COLUMN source TEXT DEFAULT 'bloodhound'`);
+        console.log(`[SignalDB] Added column source to signals`);
+    } catch (e) {
+        // Column already exists, ignore
+    }
+}
+
+/**
  * Add sector RS columns to bloodhound_results table
  * For divergence scanner integration (relative strength scoring)
  */
@@ -782,10 +798,10 @@ function insertSignal(signalData) {
             option_vol_oi, option_premium_flow,
             option_premium_peak, option_premium_peak_time,
             tick_at_entry, trin_at_entry, ad_spread_at_entry, vol_ratio_at_entry,
-            status
+            source, status
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
                   ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-                  ?, ?, ?, ?, 'active')
+                  ?, ?, ?, ?, ?, 'active')
     `);
 
     try {
@@ -830,7 +846,8 @@ function insertSignal(signalData) {
             signalData.tick_at_entry ?? null,
             signalData.trin_at_entry ?? null,
             signalData.ad_spread_at_entry ?? null,
-            signalData.vol_ratio_at_entry ?? null
+            signalData.vol_ratio_at_entry ?? null,
+            signalData.source || 'bloodhound'
         );
         const optInfo = signalData.option_contract ? ` | Option: ${signalData.option_contract}` : '';
         console.log(`[SignalDB] Inserted signal ${signalData.id} @ $${signalData.entry_price}${optInfo}`);

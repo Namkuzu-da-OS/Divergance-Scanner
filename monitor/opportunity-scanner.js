@@ -16,6 +16,7 @@ const opportunityDb = require('./opportunity-db');
 const { sendTelegram } = require('./telegram');
 const apiCache = require('./api-cache');
 const apiClient = require('./api-client');
+const signalLogger = require('./signal-logger');
 
 // Load config
 const CONFIG = require('./config-loader');
@@ -29,7 +30,7 @@ const SETTINGS = {
     scanIntervalMs: 5 * 60 * 1000,      // 5 minutes
     alertCooldownMs: 30 * 60 * 1000,    // 30 min cooldown per symbol
     controlPort: 8083,
-    maxSymbols: 30,                      // Max symbols per scan
+    maxSymbols: 50,                      // Max symbols per scan
     minPrice: 5,                         // Filter penny stocks
     minVolume: 500000,                   // Minimum daily volume
     marketHours: {
@@ -39,8 +40,9 @@ const SETTINGS = {
     },
 
     // Persistence-based filtering (added based on 30,539 record analysis)
-    // Key insight: 5+ scans = 98-100% accuracy vs 50-55% for <5 scans
-    MIN_PERSISTENCE_ALERT: 5,           // Minimum scans before alerting (~25 min of signal)
+    // Lowered from 5→3: 5+ was 98-100% accurate but filtered 90-95% of signals.
+    // 3 scans (~15 min) balances coverage vs accuracy.
+    MIN_PERSISTENCE_ALERT: 3,           // Minimum scans before alerting (~15 min of signal)
     HIGH_PERSISTENCE: 20,               // Considered "high" persistence (very high conviction)
     TREAT_PUT_HEAVY_AS_BULLISH: true,   // Heavy puts = institutional hedging = bullish
 
@@ -250,7 +252,7 @@ function getToday() {
 }
 
 function updatePersistence(symbol, tier, direction, price) {
-    if (tier !== 'HIGH_CONVICTION') return 0;
+    if (tier !== 'HIGH_CONVICTION' && tier !== 'TRADEABLE') return 0;
 
     const today = getToday();
     const key = `${symbol}:${today}`;
@@ -786,29 +788,26 @@ async function runScan() {
     }
 
     // PERSISTENCE-BASED ALERTING
-    // Only alert when a symbol crosses the persistence threshold
-    // This reduces alerts from ~300-500/day to ~20-50 high-quality signals
+    // Alert when a symbol crosses the persistence threshold
+    // Both HIGH_CONVICTION and TRADEABLE tiers can alert
     const highConviction = results.filter(r => r.tier === 'HIGH_CONVICTION');
+    const tradeableResults = results.filter(r => r.tier === 'TRADEABLE');
     let alertsSent = 0;
     let persistenceUpdates = [];
 
+    // HIGH_CONVICTION alerts
     for (const opp of highConviction) {
-        // Update persistence count
         const persistence = updatePersistence(opp.symbol, opp.tier, opp.direction, opp.price);
+        persistenceUpdates.push(`${opp.symbol}:${persistence}(HC)`);
 
-        persistenceUpdates.push(`${opp.symbol}:${persistence}`);
-
-        // Only alert when crossing the threshold AND not already alerted today
-        const shouldAlert = persistence === SETTINGS.MIN_PERSISTENCE_ALERT &&
+        const shouldAlertHC = persistence === SETTINGS.MIN_PERSISTENCE_ALERT &&
                            !alertedToday.has(opp.symbol);
 
-        if (shouldAlert) {
-            // Apply put_heavy reinterpretation if enabled
+        if (shouldAlertHC) {
             let effectiveDirection = opp.direction;
             let extraSignal = null;
 
             if (SETTINGS.TREAT_PUT_HEAVY_AS_BULLISH && opp.direction === 'bearish') {
-                // Check if this is put_heavy by looking at call/put ratio
                 if (opp.unusual.callPutRatio < 0.5) {
                     effectiveDirection = 'bullish';
                     extraSignal = '🛡️ Heavy put hedging (bullish - institutions protecting longs)';
@@ -816,6 +815,31 @@ async function runScan() {
             }
 
             await sendTelegramAlert(opp, marketContext, persistence, effectiveDirection, extraSignal);
+            alertedToday.add(opp.symbol);
+            alertsSent++;
+        }
+    }
+
+    // TRADEABLE alerts (same persistence gate, different header)
+    for (const opp of tradeableResults) {
+        const persistence = updatePersistence(opp.symbol, opp.tier, opp.direction, opp.price);
+        persistenceUpdates.push(`${opp.symbol}:${persistence}(T)`);
+
+        const shouldAlertT = persistence === SETTINGS.MIN_PERSISTENCE_ALERT &&
+                            !alertedToday.has(opp.symbol);
+
+        if (shouldAlertT) {
+            let effectiveDirection = opp.direction;
+            let extraSignal = null;
+
+            if (SETTINGS.TREAT_PUT_HEAVY_AS_BULLISH && opp.direction === 'bearish') {
+                if (opp.unusual.callPutRatio < 0.5) {
+                    effectiveDirection = 'bullish';
+                    extraSignal = '🛡️ Heavy put hedging (bullish - institutions protecting longs)';
+                }
+            }
+
+            await sendTelegramAlert(opp, marketContext, persistence, effectiveDirection, extraSignal, 'TRADEABLE');
             alertedToday.add(opp.symbol);
             alertsSent++;
         }
@@ -857,7 +881,7 @@ async function runScan() {
 // TELEGRAM ALERTS
 // ============================================
 
-async function sendTelegramAlert(opportunity, marketContext, persistence = null, effectiveDirection = null, extraSignal = null) {
+async function sendTelegramAlert(opportunity, marketContext, persistence = null, effectiveDirection = null, extraSignal = null, tierLabel = null) {
     // Check cooldown (still respected for manual/test alerts)
     const cooldownKey = opportunity.symbol;
     const lastAlert = alertCooldowns.get(cooldownKey);
@@ -906,10 +930,13 @@ async function sendTelegramAlert(opportunity, marketContext, persistence = null,
         signalsList = [extraSignal, ...signalsList.slice(0, 4)];
     }
 
+    const displayTier = tierLabel || opportunity.tier;
+    const headerLabel = displayTier === 'TRADEABLE' ? 'OPTIONS FLOW' : 'UNUSUAL OPTIONS';
+
     const message = `
-${directionEmoji} <b>UNUSUAL OPTIONS: ${opportunity.symbol}</b>
+${directionEmoji} <b>${headerLabel}: ${opportunity.symbol}</b>
 <code>${timeStr} PST</code>
-Score: ${opportunity.score}/100 | ${opportunity.tier}${persistenceLine}${earningsLine}
+Score: ${opportunity.score}/100 | ${displayTier}${persistenceLine}${earningsLine}
 
 💰 Price: $${opportunity.price.toFixed(2)}
 📊 Top Strike: ${topStrikeText}
@@ -926,6 +953,54 @@ ${signalsList.map(s => `• ${s}`).join('\n')}
     if (result.ok) {
         alertCooldowns.set(cooldownKey, Date.now());
         console.log(`[Opportunity] Sent Telegram alert for ${opportunity.symbol}`);
+
+        // 3A: Audit trail — log to alerts table
+        try {
+            signalDb.insertAlert({
+                type: 'OPPORTUNITY_FLOW',
+                priority: displayTier === 'HIGH_CONVICTION' ? 'HIGH' : 'MEDIUM',
+                symbol: opportunity.symbol,
+                message: `Opportunity ${displayTier}: ${opportunity.symbol} score ${opportunity.score} (${displayDirection})`,
+                details: {
+                    score: opportunity.score,
+                    tier: displayTier,
+                    direction: displayDirection,
+                    price: opportunity.price,
+                    vol_oi_ratio: topStrike?.volOiRatio,
+                    net_premium: opportunity.unusual.netPremium,
+                    call_put_ratio: opportunity.unusual.callPutRatio,
+                    persistence: persistence
+                }
+            });
+        } catch (e) {
+            console.error(`[Opportunity] Failed to insert alert for ${opportunity.symbol}:`, e.message);
+        }
+
+        // 3B: Signal tracking — log to signals table for 4h/24h/7d checkpoints
+        try {
+            const topUnusual = opportunity.unusual.topStrikes[0];
+            await signalLogger.logSignal({
+                symbol: opportunity.symbol,
+                price: opportunity.price,
+                direction: displayDirection,
+                score: opportunity.score,
+                zone: null,
+                tier: displayTier,
+                signals: opportunity.signals || [],
+                source: 'opportunity',
+                vix: marketContext.vix,
+                vix_regime: marketContext.vixRegime,
+                spy_trend: marketContext.spyTrend,
+                spy_price: marketContext.spyPrice,
+                option_type: topUnusual?.type?.toUpperCase() || null,
+                option_strike: topUnusual?.strike || null,
+                option_expiration: topUnusual?.expiration || null,
+                option_vol_oi: topUnusual?.volOiRatio || null,
+                option_premium_flow: topUnusual?.premium || null
+            });
+        } catch (e) {
+            console.error(`[Opportunity] Failed to log signal for ${opportunity.symbol}:`, e.message);
+        }
     } else {
         console.error(`[Opportunity] Failed to send Telegram alert:`, result.error);
     }

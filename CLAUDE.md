@@ -100,6 +100,13 @@ Keep main context lean. Offload heavy reads to subagents.
 
 **ALWAYS pull from our APIs before web search. Web search is SUPPLEMENTAL.**
 
+### External API (for AI integrations)
+```
+GET http://localhost:8080/api/v1/context  — Full context bundle (market intel, session state, scan, positions, alerts, flow, internals)
+GET http://localhost:8080/api/v1/health   — Service health check
+```
+Docs: `docs/API_V1.md`
+
 ### Discovery (if unsure about available endpoints)
 - Options API: `GET http://192.168.10.60:8000/api/capabilities`
 - Intel API: `GET http://192.168.10.60:3000/api/status` or `/api-docs`
@@ -185,7 +192,7 @@ Scanners start at staggered intervals via `SCAN_OFFSET_MS` env var in `ecosystem
 | 32212 | Divergence Scanner | External (192.168.10.61) — RS rankings, rotation |
 
 ### Dashboard URLs (all at localhost:8080)
-morning.html (default), zone-scanner.html, premarket.html, earnings-scanner.html, opportunity-scanner.html, analytics.html, strategies.html, dashboard.html, options-lab.html, research.html, scanner.html, backtests.html
+morning.html (default), zone-scanner.html, premarket.html, earnings-scanner.html, opportunity-scanner.html, analytics.html, strategies.html, dashboard.html, options-lab.html, research.html, scanner.html, backtests.html, levels.html
 
 ### Key Web Server API Endpoints (Port 8080)
 | Endpoint | Purpose |
@@ -276,6 +283,19 @@ Core autonomous opportunity detection system. Discovers symbols dynamically (sta
 EXTENDED_HIGH and HIGH_MOMENTUM zones never get tradeable tiers.
 Counter-trend warnings are annotations, never suppressions (counter-trend signals outperform: 55.6% vs 34.9% win rate).
 
+### Cross-Scanner Flow Confirmation (from Opportunity Scanner)
+Opportunity Scanner independently analyzes options flow (vol/OI, premium, positioning). When it flags a symbol that Bloodhound is also scanning, the cross-confirmation adds confluence score:
+
+| Opportunity Tier | Score Impact | Rationale |
+|-----------------|-------------|-----------|
+| HIGH_CONVICTION (score ≥70, vol/OI ≥5x) | +8 pts | Two independent systems agree — strong confluence |
+| TRADEABLE (score 50-69) | +5 pts | Moderate flow confirmation |
+
+- Goes to `scores.standard` (not highEdge) — confirmation, not standalone edge
+- No double-counting: Bloodhound reads live chain data, Opportunity uses different scoring methodology
+- Flow data (vol/OI ratio, net premium) shown in signal annotation: `📡 Flow confirmed by Opportunity Scanner (HC 612x $16.1M) [+8]`
+- Data path: `opportunity-db.getRecentHighScoreSymbols()` → `oppFlowMap` in discovery → `symbolData.oppFlow` → scored in `analyzeSymbol()`
+
 ### Sector RS Scoring (from divergence scanner)
 | Sector RS Percentile | Score Impact |
 |----------------------|-------------|
@@ -296,9 +316,11 @@ HIGH_CONVICTION signals logged to SQLite with checkpoints at 4h, 24h, 7d. Tracks
 
 Detects unusual options activity and smart money positioning (vol/OI ratios, premium flow, call/put imbalances). Port 8083: `/status`, `/pause`, `/resume`, `/scan`.
 
-Discovery: Core (SPY/QQQ/IWM) + watchlist + 21 ETFs (crypto, volatility, sectors, commodities) + volume leaders + movers + 52wk extremes.
-Swing filter: `strike_count=100`, `MAX_DTE=60` (excludes LEAPs).
-Output: `data/wingman.db` (opportunities table) → `/api/opportunities/latest`
+**Symbol cap:** 50 (`maxSymbols` in SETTINGS). Scan time ~30s, well within 5-min interval.
+**Discovery:** Core (SPY/QQQ/IWM) + Bloodhound watchlist + 28 ETFs (crypto, volatility, sectors, commodities) + volume leaders + movers + 52wk extremes.
+**Swing filter:** `strike_count=100`, `MAX_DTE=60` (excludes LEAPs).
+**Cross-scanner feed:** High-scoring results (HC/TRADEABLE) feed back into Bloodhound via `opportunity-db.getRecentHighScoreSymbols()` for both symbol discovery (+35/+25 discovery points) and flow confirmation scoring (+8/+5 confluence points).
+**Output:** `data/wingman.db` (opportunities table) → `/api/opportunities/latest`
 
 ---
 

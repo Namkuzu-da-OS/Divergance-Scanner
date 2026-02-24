@@ -622,6 +622,7 @@ async function discoverSymbols() {
 
     // --- Opportunity scanner: pipe high-scoring discoveries into dynamic pool ---
     let opportunityCount = 0;
+    const oppFlowMap = new Map();
     try {
         const oppSymbols = opportunityDb.getRecentHighScoreSymbols(24);
         for (const opp of oppSymbols) {
@@ -646,8 +647,21 @@ async function discoverSymbols() {
                 opportunityCount++;
             }
         }
+        // Build flow lookup for cross-scanner scoring in analyzeSymbol
+        for (const opp of oppSymbols) {
+            const ticker = mapSymbol(opp.symbol) || opp.symbol;
+            if (opp.tier === 'HIGH_CONVICTION' || opp.tier === 'TRADEABLE') {
+                oppFlowMap.set(ticker, {
+                    tier: opp.tier,
+                    score: opp.maxScore,
+                    direction: opp.direction,
+                    volOiRatio: opp.vol_oi_ratio,
+                    netPremium: opp.net_premium
+                });
+            }
+        }
         if (opportunityCount > 0) {
-            console.log(`[Discovery] Opportunity scanner contributed ${opportunityCount} symbols`);
+            console.log(`[Discovery] Opportunity scanner contributed ${opportunityCount} symbols (${oppFlowMap.size} with flow data)`);
         }
     } catch (err) {
         console.error(`[Discovery] Opportunity scanner feed error (non-fatal): ${err.message}`);
@@ -673,7 +687,7 @@ async function discoverSymbols() {
     }
 
     // Attach context to result
-    result._context = { themes, intradayBias, swingBias };
+    result._context = { themes, intradayBias, swingBias, oppFlowMap };
 
     const dynamicCount = sortedDynamic.length;
     // Source breakdown for diagnostics
@@ -1017,13 +1031,18 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
     const wallThresholdPct = SETTINGS.WALL_THRESHOLD_PCT;
     const atPutWall = distToPutWall !== null && Math.abs(distToPutWall) <= wallThresholdPct;
     const atCallWall = distToCallWall !== null && Math.abs(distToCallWall) <= wallThresholdPct;
-    const isPinned = atPutWall && atCallWall;
+    const wallSpreadPct = (callWall && putWall && price > 0)
+        ? (Math.abs(callWall - putWall) / price * 100) : null;
+    const wallsConvergent = wallSpreadPct !== null && wallSpreadPct < 0.5;
+    const isPinned = atPutWall && atCallWall && !wallsConvergent;
 
     // Check for extended scenarios (breakouts/breakdowns)
     const aboveCallWall = distToCallWall !== null && distToCallWall < -wallThresholdPct; // Price above call wall (beyond AT_WALL zone)
     const belowPutWall = distToPutWall !== null && distToPutWall < -wallThresholdPct; // Price below put wall (beyond AT_WALL zone)
 
-    if (isPinned) {
+    if (wallsConvergent && atPutWall && atCallWall) {
+        signals.push(`🧲 Convergent walls ($${putWall}/$${callWall}) — gamma magnet`);
+    } else if (isPinned) {
         // No score — PINNED has 20.8% 5d WR (n=24). Was 100% in 106 signals (survivorship bias).
         signals.push(`📍 PINNED between walls ($${putWall}-$${callWall})`);
         direction = 'pinned';
@@ -1345,6 +1364,21 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
         comboFired = true;
     }
 
+    // --- CROSS-SCANNER FLOW CONFIRMATION (Opportunity Scanner independently flagged this symbol) ---
+    const oppFlow = discoveryData?.oppFlow;
+    if (oppFlow) {
+        if (oppFlow.tier === 'HIGH_CONVICTION') {
+            scores.standard += 8;
+            const volStr = oppFlow.volOiRatio ? ` ${oppFlow.volOiRatio.toFixed(1)}x` : '';
+            const premStr = oppFlow.netPremium ? ` $${(Math.abs(oppFlow.netPremium) / 1e6).toFixed(1)}M` : '';
+            signals.push(`📡 Flow confirmed by Opportunity Scanner (HC${volStr}${premStr}) [+8]`);
+        } else if (oppFlow.tier === 'TRADEABLE') {
+            scores.standard += 5;
+            const volStr = oppFlow.volOiRatio ? ` ${oppFlow.volOiRatio.toFixed(1)}x` : '';
+            signals.push(`📡 Flow confirmed by Opportunity Scanner (T${volStr}) [+5]`);
+        }
+    }
+
     // --- ANNOTATION: Discovery source (no score — unproven, Feb 2026 factor analysis) ---
     if (discoveryData) {
         if (discoveryData.sources?.includes('ai_outlook')) {
@@ -1602,6 +1636,7 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
 
     // Track if this is a "prime setup" for tier determination
     const isPrimeSetup = atWallCondition && extendedRsiCondition;
+    const hasProvenCombo = isPrimeSetup || comboFired;
 
     // ============================================
     // ZONE CLASSIFICATION (for zone-scanner UI)
@@ -1620,6 +1655,10 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
     // Step 1: Determine BASE ZONE
     if (rsi >= SETTINGS.RSI_OVERBOUGHT) {
         zone = 'HIGH_MOMENTUM';
+        if (atCallWall) {
+            zone = 'SELL_ZONE';
+            action = 'SELL';
+        }
     } else if (rsi <= SETTINGS.RSI_OVERSOLD) {
         zone = 'LOW_MOMENTUM';
         if (atPutWall) {
@@ -1734,10 +1773,14 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
     // Bearish: 0% WR (n=4), Neutral: 0% WR (n=1) — insufficient evidence for tradeable tiers.
     // Note: counter-trend BULLISH signals during bearish SPY are different (dip buy = high WR).
     // This cap only affects signals where the SIGNAL ITSELF is bearish/neutral direction.
-    if ((direction === 'bearish' || direction === 'neutral') && (tier === 'HIGH_CONVICTION' || tier === 'TRADEABLE')) {
+    // Exception: proven combos (isPrimeSetup || comboFired) have 80-89% WR (n=9-15), overrides cap.
+    if ((direction === 'bearish' || direction === 'neutral') && (tier === 'HIGH_CONVICTION' || tier === 'TRADEABLE') && !hasProvenCombo) {
         tier = 'WATCH';
         tradeable = false;
         signals.push(`⚠️ ${direction} direction capped at WATCH (0% HC WR)`);
+    }
+    if ((direction === 'bearish' || direction === 'neutral') && (tier === 'HIGH_CONVICTION' || tier === 'TRADEABLE') && hasProvenCombo) {
+        signals.push(`ℹ️ ${direction} direction — proven combo overrides cap`);
     }
     // Afternoon dead zone: 21.2% 5d WR (n=52) — cap at WATCH (2-4 PM ET)
     const now = new Date();
@@ -1919,17 +1962,20 @@ function getAlertTier(analysis, ctx) {
     return { tier, warnings };
 }
 
-function formatAlert(analysis) {
+function formatAlert(analysis, tierLabel = 'HIGH_CONVICTION') {
     const dirEmoji = analysis.direction === 'bullish' ? '🟢' :
                      analysis.direction === 'bearish' ? '🔴' :
                      analysis.direction === 'pinned' ? '📍' : '⚪';
 
-    const scoreEmoji = analysis.totalScore >= 60 ? '🔥' :
-                       analysis.totalScore >= 50 ? '⭐' : '📊';
+    const scoreEmoji = tierLabel === 'HIGH_CONVICTION'
+        ? (analysis.totalScore >= 60 ? '🔥' : '⭐')
+        : '📊';
+
+    const headerLabel = tierLabel === 'HIGH_CONVICTION' ? 'BLOODHOUND' : 'BLOODHOUND TRADEABLE';
 
     const timeStr = formatTimePST();
 
-    let msg = `${scoreEmoji} <b>BLOODHOUND: ${escapeHtml(analysis.symbol)}</b> ${dirEmoji}\n`;
+    let msg = `${scoreEmoji} <b>${headerLabel}: ${escapeHtml(analysis.symbol)}</b> ${dirEmoji}\n`;
     msg += `<code>${timeStr} PST</code>\n\n`;
     msg += `<b>Confluence Score:</b> ${analysis.totalScore}/100\n`;
     msg += `<b>Direction:</b> ${analysis.direction.toUpperCase()}\n`;
@@ -2437,6 +2483,14 @@ async function runScan() {
         console.log(`  ${i + 1}. ${s.symbol} (score: ${s.score}, ${src})${extra}`);
     });
 
+    // Attach cross-scanner flow data to each symbol for analyzeSymbol
+    const oppFlowMap = discoveryContext.oppFlowMap || new Map();
+    for (const symbolData of symbols) {
+        if (oppFlowMap.has(symbolData.symbol)) {
+            symbolData.oppFlow = oppFlowMap.get(symbolData.symbol);
+        }
+    }
+
     // 3. Analyze each symbol and track velocity
     const analyses = [];
     const velocityAlerts = [];
@@ -2541,6 +2595,7 @@ async function runScan() {
         a.tier === 'HIGH_CONVICTION' && shouldAlert(a)
     );
     const tradeable = tieredAnalyses.filter(a => a.tier === 'TRADEABLE');
+    const tradeableAlerts = tradeable.filter(a => shouldAlert(a));
     const watchList = tieredAnalyses.filter(a => a.tier === 'WATCH');
 
     // Log tier breakdown
@@ -2587,6 +2642,7 @@ async function runScan() {
             zone: analysis.zone,
             tier: analysis.tier,
             signals: analysis.signals,
+            source: 'bloodhound',
             vix: marketContext?.vix,
             vix_regime: marketContext?.vixRegime,
             spy_trend: marketContext?.spyTrend,
@@ -2612,11 +2668,11 @@ async function runScan() {
         return logData;
     }
 
-    // Send Telegram alerts for HIGH_CONVICTION only
+    // Send Telegram alerts for HIGH_CONVICTION
     if (highConviction.length > 0) {
         console.log(`\n[Alerts] Sending ${highConviction.length} HIGH CONVICTION alert(s)...`);
         for (const analysis of highConviction) {
-            const message = formatAlert(analysis);
+            const message = formatAlert(analysis, 'HIGH_CONVICTION');
             await sendTelegram(message);
 
             // Track setup fingerprint for deduplication
@@ -2632,15 +2688,38 @@ async function runScan() {
 
             await signalLogger.logSignal(buildSignalLogData(analysis));
         }
-    } else {
-        console.log(`\n[Alerts] No high-conviction opportunities (${tradeable.length} tradeable, ${watchList.length} on watch)`);
     }
 
-    // Log TRADEABLE signals too (no Telegram alert, just DB tracking)
-    // This enables tier threshold calibration by comparing HC vs TRADEABLE outcomes
-    if (tradeable.length > 0) {
-        console.log(`\n[Signal Logger] Logging ${tradeable.length} TRADEABLE signal(s) for validation...`);
-        for (const analysis of tradeable) {
+    // Send Telegram alerts for TRADEABLE
+    if (tradeableAlerts.length > 0) {
+        console.log(`\n[Alerts] Sending ${tradeableAlerts.length} TRADEABLE alert(s)...`);
+        for (const analysis of tradeableAlerts) {
+            const message = formatAlert(analysis, 'TRADEABLE');
+            await sendTelegram(message);
+
+            const existing = setupTracker.get(analysis.symbol);
+            setupTracker.set(analysis.symbol, {
+                zone: analysis.zone,
+                direction: analysis.direction,
+                score: analysis.totalScore,
+                firstSeen: existing?.firstSeen || Date.now(),
+                lastAlerted: Date.now(),
+                alertCount: (existing?.alertCount || 0) + 1
+            });
+
+            await signalLogger.logSignal(buildSignalLogData(analysis));
+        }
+    }
+
+    if (highConviction.length === 0 && tradeableAlerts.length === 0) {
+        console.log(`\n[Alerts] No alertable opportunities (${tradeable.length} tradeable below cooldown, ${watchList.length} on watch)`);
+    }
+
+    // Log non-alerted TRADEABLE signals for DB tracking (validation/calibration)
+    const tradeableNonAlerted = tradeable.filter(a => !tradeableAlerts.includes(a));
+    if (tradeableNonAlerted.length > 0) {
+        console.log(`\n[Signal Logger] Logging ${tradeableNonAlerted.length} TRADEABLE signal(s) for validation...`);
+        for (const analysis of tradeableNonAlerted) {
             await signalLogger.logSignal(buildSignalLogData(analysis));
         }
     }

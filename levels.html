@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Levels</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: #0a0e1a;
+            color: #e5e7eb;
+            padding: 16px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+        .container { max-width: 1600px; margin: 0 auto; }
+
+        /* ---- Buttons ---- */
+        .btn {
+            padding: 8px 14px;
+            background: transparent;
+            border: 1px solid #00d4aa;
+            color: #00d4aa;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover { background: #00d4aa; color: #0a0e1a; }
+
+        /* ---- Cards ---- */
+        .card {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 8px;
+            padding: 16px;
+        }
+        .card-title {
+            font-size: 11px;
+            color: #8b92a8;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .card-value { font-size: 28px; font-weight: 700; }
+        .card-subtitle { font-size: 12px; color: #64748b; margin-top: 4px; }
+        .positive { color: #00d4aa; }
+        .negative { color: #ff6b6b; }
+        .neutral { color: #8b92a8; }
+
+        /* ---- Section ---- */
+        .section {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8b92a8;
+        }
+
+        /* ---- Symbol Input ---- */
+        .symbol-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .symbol-input {
+            background: #0f1428;
+            border: 1px solid #2a3641;
+            color: #e5e7eb;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            width: 140px;
+            text-transform: uppercase;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .symbol-input:focus { border-color: #00d4aa; }
+        .symbol-input::placeholder { color: #4a5568; text-transform: none; font-weight: 400; }
+        .underlying-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 13px;
+        }
+        .underlying-price { font-size: 20px; font-weight: 700; color: #e5e7eb; }
+
+        /* ---- Summary Cards ---- */
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        /* ---- Badge ---- */
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .badge-green { background: rgba(0, 212, 170, 0.2); color: #00d4aa; }
+        .badge-red { background: rgba(255, 107, 107, 0.2); color: #ff6b6b; }
+        .badge-yellow { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
+        .badge-blue { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+        .badge-purple { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
+        .badge-neutral { background: rgba(139, 146, 168, 0.2); color: #8b92a8; }
+
+        /* ---- Two-Column Grid ---- */
+        .grid-60-40 {
+            display: grid;
+            grid-template-columns: 3fr 2fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* ---- Confluence Zone Cards ---- */
+        .zone-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
+            gap: 16px;
+        }
+        .zone-card {
+            background: #0f1428;
+            border: 1px solid #2a3641;
+            border-left: 4px solid #8b92a8;
+            border-radius: 8px;
+            padding: 16px 18px;
+            transition: box-shadow 0.3s;
+        }
+        .zone-card.support { border-left-color: #00d4aa; }
+        .zone-card.resistance { border-left-color: #ff6b6b; }
+        .zone-card.neutral-zone { border-left-color: #ffc107; }
+        .zone-card.nearest {
+            box-shadow: 0 0 12px rgba(0, 212, 170, 0.15);
+            border-color: #3a4651;
+        }
+        .zone-card.nearest.resistance {
+            box-shadow: 0 0 12px rgba(255, 107, 107, 0.15);
+        }
+
+        .zone-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 12px;
+        }
+        .zone-price {
+            font-size: 22px;
+            font-weight: 700;
+            color: #e5e7eb;
+        }
+        .zone-role {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .zone-role.support { color: #00d4aa; }
+        .zone-role.resistance { color: #ff6b6b; }
+        .zone-role.neutral-role { color: #ffc107; }
+        .zone-distance {
+            font-size: 12px;
+            color: #64748b;
+            text-align: right;
+        }
+        .zone-distance .dir {
+            font-size: 10px;
+        }
+
+        .zone-levels {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .level-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+            background: rgba(42, 54, 65, 0.6);
+            border: 1px solid #2a3641;
+        }
+        .level-pill .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .dot-gamma { background: #3b82f6; }
+        .dot-technical { background: #e5e7eb; }
+        .dot-pivot { background: #8b92a8; }
+        .dot-flow { background: #f59e0b; }
+        .dot-confluence { background: #a855f7; }
+
+        .zone-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: #64748b;
+        }
+        .zone-meta span { margin-right: 10px; }
+
+        .strength-bar {
+            width: 100px;
+            height: 6px;
+            background: #2a3641;
+            border-radius: 3px;
+            overflow: hidden;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 6px;
+        }
+        .strength-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+        .strength-fill.high { background: #00d4aa; }
+        .strength-fill.medium { background: #ffc107; }
+        .strength-fill.low { background: #8b92a8; }
+
+        /* ---- Other Levels ---- */
+        .other-levels {
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid #2a3641;
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.8;
+        }
+        .other-levels .other-label {
+            color: #8b92a8;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+        .other-level-item {
+            display: inline;
+            white-space: nowrap;
+        }
+        .other-level-item .other-price {
+            color: #e5e7eb;
+            font-weight: 500;
+        }
+        .other-separator {
+            margin: 0 6px;
+            color: #2a3641;
+        }
+
+        /* ---- No-zones fallback ---- */
+        .no-zones {
+            text-align: center;
+            padding: 30px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        /* ---- Chart Container ---- */
+        .chart-container {
+            position: relative;
+            height: 450px;
+        }
+
+        /* ---- Flow Table ---- */
+        .flow-table { width: 100%; border-collapse: collapse; }
+        .flow-table thead th {
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 10px;
+            color: #8b92a8;
+            border-bottom: 1px solid #2a3641;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .flow-table tbody td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #1a2332;
+            font-size: 13px;
+        }
+        .flow-table tbody tr { background: #0f1428; transition: background 0.2s; }
+        .flow-table tbody tr:hover { background: #1a2332; }
+        .flow-summary {
+            display: flex;
+            gap: 20px;
+            padding: 12px;
+            background: #0f1428;
+            border-radius: 6px;
+            margin-top: 12px;
+            font-size: 12px;
+        }
+
+        /* ---- Signals List ---- */
+        .signal-item {
+            padding: 8px 12px;
+            background: #0f1428;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            font-size: 12px;
+            border-left: 3px solid #2a3641;
+        }
+
+        /* ---- Empty State ---- */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #8b92a8;
+        }
+        .empty-state h2 {
+            font-size: 24px;
+            color: #4a5568;
+            margin-bottom: 12px;
+        }
+        .empty-state p { font-size: 14px; max-width: 500px; margin: 0 auto; }
+
+        /* ---- Loading / Error ---- */
+        .loading { text-align: center; padding: 40px; color: #8b92a8; }
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #2a3641;
+            border-top-color: #00d4aa;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .error-msg { color: #ff6b6b; font-size: 13px; margin-left: 12px; }
+        .hidden { display: none; }
+
+        /* ---- Quick Pick Buttons ---- */
+        .quick-picks {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .pick-btn {
+            padding: 5px 12px;
+            background: transparent;
+            border: 1px solid #2a3641;
+            color: #8b92a8;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+        }
+        .pick-btn:hover { border-color: #00d4aa; color: #00d4aa; }
+        .pick-btn.active { background: rgba(0, 212, 170, 0.15); border-color: #00d4aa; color: #00d4aa; }
+
+        /* ---- Zone Price Range ---- */
+        .zone-range {
+            font-size: 12px;
+            color: #64748b;
+            margin-left: 4px;
+            font-weight: 400;
+        }
+
+        /* ---- Zone Map (side-by-side comparison) ---- */
+        .zone-map-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .zone-map-panel {
+            background: #151821;
+            border: 1px solid #2a3641;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .zone-map-panel .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8b92a8;
+        }
+
+        /* -- Price Ladder (Option A) -- */
+        .ladder {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            position: relative;
+        }
+        .ladder-row {
+            display: flex;
+            align-items: center;
+            padding: 7px 12px;
+            border-left: 3px solid transparent;
+            transition: background 0.15s;
+            position: relative;
+        }
+        .ladder-row:hover { background: rgba(255,255,255,0.03); }
+        .ladder-row.res { border-left-color: #ff6b6b; }
+        .ladder-row.sup { border-left-color: #00d4aa; }
+        .ladder-row.neut { border-left-color: #ffc107; }
+        .ladder-row.nearest-row { background: rgba(255,255,255,0.03); }
+        .ladder-price-col {
+            width: 90px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #e5e7eb;
+            flex-shrink: 0;
+        }
+        .ladder-role-col {
+            width: 90px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+        .ladder-role-col.res-label { color: #ff6b6b; }
+        .ladder-role-col.sup-label { color: #00d4aa; }
+        .ladder-role-col.neut-label { color: #ffc107; }
+        .ladder-meta-col {
+            font-size: 11px;
+            color: #64748b;
+            flex: 1;
+            text-align: right;
+        }
+        .ladder-dist {
+            width: 60px;
+            font-size: 11px;
+            color: #64748b;
+            text-align: right;
+            flex-shrink: 0;
+            margin-left: 8px;
+        }
+        .ladder-divider {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            margin: 4px 0;
+            gap: 10px;
+        }
+        .ladder-divider-line {
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(90deg, #ffc107, #ffc10744);
+        }
+        .ladder-divider-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffc107;
+            white-space: nowrap;
+            padding: 0 4px;
+        }
+        .ladder-empty {
+            text-align: center;
+            padding: 20px;
+            color: #4a5568;
+            font-size: 12px;
+        }
+
+        /* -- Strength Chart (Option B) -- */
+        .str-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+        .str-row {
+            display: flex;
+            align-items: center;
+            padding: 5px 0;
+            gap: 8px;
+        }
+        .str-price-label {
+            width: 80px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #e5e7eb;
+            text-align: right;
+            flex-shrink: 0;
+        }
+        .str-bar-wrap {
+            flex: 1;
+            height: 22px;
+            background: #0f1428;
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+        .str-bar {
+            height: 100%;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            padding-left: 8px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #e5e7eb;
+            white-space: nowrap;
+            transition: width 0.4s ease;
+        }
+        .str-bar.res-bar { background: rgba(255, 107, 107, 0.5); }
+        .str-bar.sup-bar { background: rgba(0, 212, 170, 0.5); }
+        .str-bar.neut-bar { background: rgba(255, 193, 7, 0.4); }
+        .str-info {
+            width: 100px;
+            font-size: 10px;
+            color: #64748b;
+            flex-shrink: 0;
+        }
+        .str-divider {
+            display: flex;
+            align-items: center;
+            padding: 6px 0;
+            margin: 2px 0;
+            gap: 8px;
+        }
+        .str-divider-line {
+            flex: 1;
+            height: 2px;
+            background: #ffc107;
+        }
+        .str-divider-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffc107;
+            white-space: nowrap;
+        }
+
+        /* ---- Responsive ---- */
+        @media (max-width: 1100px) {
+            .summary-cards { grid-template-columns: repeat(3, 1fr); }
+            .grid-60-40 { grid-template-columns: 1fr; }
+            .zone-cards { grid-template-columns: 1fr; }
+            .zone-map-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 700px) {
+            .summary-cards { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+    <link rel="stylesheet" href="css/nav.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header + Nav -->
+        <div class="header">
+            <div class="header-left">
+                <h1>LEVELS</h1>
+                <p class="header-subtitle">Options-derived level mapper</p>
+            </div>
+            <div class="header-center">
+                <nav class="nav-links">
+                    <a href="morning.html" class="nav-link">MORNING</a>
+                    <a href="zone-scanner.html" class="nav-link">ZONES</a>
+                    <a href="premarket.html" class="nav-link">GAPS</a>
+                    <a href="earnings-scanner.html" class="nav-link">EARNINGS</a>
+                    <a href="opportunity-scanner.html" class="nav-link">FLOW</a>
+                    <a href="scanner.html" class="nav-link">MARKET</a>
+                    <div class="nav-dropdown">
+                        <div class="nav-dropdown-toggle active">INSIGHTS</div>
+                        <div class="nav-dropdown-menu">
+                            <a href="analytics.html">Analytics</a>
+                            <a href="research.html">Research</a>
+                            <a href="strategies.html">Strategies</a>
+                            <a href="options-lab.html">Options Lab</a>
+                            <a href="backtests.html">Backtests</a>
+                            <a href="ticker-report.html">Ticker Report</a>
+                            <a href="levels.html" class="active">Levels</a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+            <div class="header-right">
+                <span id="statusMsg" class="error-msg hidden"></span>
+            </div>
+        </div>
+
+        <!-- Quick Pick Buttons -->
+        <div class="quick-picks">
+            <button class="pick-btn" onclick="quickLoad('SPY')">SPY</button>
+            <button class="pick-btn" onclick="quickLoad('QQQ')">QQQ</button>
+            <button class="pick-btn" onclick="quickLoad('TSLA')">TSLA</button>
+            <button class="pick-btn" onclick="quickLoad('NVDA')">NVDA</button>
+            <button class="pick-btn" onclick="quickLoad('AMD')">AMD</button>
+            <button class="pick-btn" onclick="quickLoad('AAPL')">AAPL</button>
+            <button class="pick-btn" onclick="quickLoad('META')">META</button>
+            <button class="pick-btn" onclick="quickLoad('MSFT')">MSFT</button>
+            <button class="pick-btn" onclick="quickLoad('IBIT')">IBIT</button>
+        </div>
+
+        <!-- Symbol Input Bar -->
+        <div class="symbol-bar">
+            <input type="text" id="symbolInput" class="symbol-input" placeholder="Symbol..." maxlength="10"
+                   onkeydown="if(event.key==='Enter')loadLevels()">
+            <button class="btn" onclick="loadLevels()">LOAD</button>
+            <span id="loadingSpinner" class="hidden"><span class="spinner"></span></span>
+            <div id="underlyingInfo" class="underlying-info hidden">
+                <span id="underlyingPrice" class="underlying-price"></span>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state">
+            <h2>Enter a Symbol</h2>
+            <p>Type a ticker above to see confluence zones where multiple levels align, gamma exposure, and unusual flow.</p>
+        </div>
+
+        <!-- Main Content (hidden until load) -->
+        <div id="mainContent" class="hidden">
+            <!-- Summary Cards -->
+            <div class="summary-cards" id="summaryCards">
+                <div class="card">
+                    <div class="card-title">Price</div>
+                    <div class="card-value" id="cardPrice">--</div>
+                    <div class="card-subtitle" id="cardTrend">--</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Zone</div>
+                    <div class="card-value" id="cardZone">--</div>
+                    <div class="card-subtitle" id="cardTier">--</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Gamma Regime</div>
+                    <div class="card-value" id="cardGamma">--</div>
+                    <div class="card-subtitle" id="cardFlip">--</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Net GEX</div>
+                    <div class="card-value" id="cardGex">--</div>
+                    <div class="card-subtitle" id="cardGexSub">--</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">IV Rank / RSI</div>
+                    <div class="card-value" id="cardIvRsi">--</div>
+                    <div class="card-subtitle" id="cardMomentum">--</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Expected Move</div>
+                    <div class="card-value" id="cardEM">--</div>
+                    <div class="card-subtitle" id="cardEMRange">--</div>
+                </div>
+            </div>
+
+            <!-- Zone Map (visual comparison) -->
+            <div class="zone-map-grid" id="zoneMapGrid">
+                <div class="zone-map-panel">
+                    <div class="section-title">Price Ladder</div>
+                    <div id="priceLadder"></div>
+                </div>
+                <div class="zone-map-panel">
+                    <div class="section-title">Strength Map</div>
+                    <div id="strengthMap"></div>
+                </div>
+            </div>
+
+            <!-- Confluence Zones (detail cards) -->
+            <div class="section" id="confluenceSection">
+                <div class="section-title">Confluence Zones</div>
+                <div id="confluenceZones"></div>
+                <div id="otherLevels" class="other-levels hidden"></div>
+            </div>
+
+            <!-- GEX Profile -->
+            <div class="section">
+                <div class="section-title">GEX Profile by Strike</div>
+                <div class="chart-container" style="height: 350px;">
+                    <canvas id="gexChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Bottom Two-Column Grid -->
+            <div class="grid-60-40">
+                <!-- Left: Unusual Flow -->
+                <div class="section" id="flowSection">
+                    <div class="section-title">Unusual Flow</div>
+                    <table class="flow-table" id="flowTable">
+                        <thead>
+                            <tr>
+                                <th>Strike</th>
+                                <th>Type</th>
+                                <th>Exp</th>
+                                <th>Volume</th>
+                                <th>OI</th>
+                                <th>Vol/OI</th>
+                                <th>Premium</th>
+                            </tr>
+                        </thead>
+                        <tbody id="flowBody"></tbody>
+                    </table>
+                    <div id="flowSummary" class="flow-summary hidden"></div>
+                </div>
+
+                <!-- Right: Bloodhound Signals -->
+                <div class="section" id="signalsSection">
+                    <div class="section-title">Bloodhound Signals</div>
+                    <div id="signalsContent">
+                        <div class="loading">Not in scan</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // =============================================
+    // STATE
+    // =============================================
+    let currentSymbol = '';
+    let currentPrice = 0;
+    let allLevels = [];
+    let gexChart = null;
+
+    // =============================================
+    // MAIN LOAD
+    // =============================================
+    async function loadLevels() {
+        const sym = document.getElementById('symbolInput').value.trim().toUpperCase();
+        if (!sym) return;
+        currentSymbol = sym;
+
+        // Show loading, hide empty, update quick-pick highlight
+        document.getElementById('emptyState').classList.add('hidden');
+        document.getElementById('mainContent').classList.remove('hidden');
+        document.getElementById('loadingSpinner').classList.remove('hidden');
+        document.getElementById('statusMsg').classList.add('hidden');
+        document.querySelectorAll('.pick-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.textContent === sym);
+        });
+
+        try {
+            const [levelsRes, techRes, scanRes, oppRes] = await Promise.all([
+                safeFetch(`/proxy/analytics/api/levels/${sym}`),
+                safeFetch(`/proxy/analytics/api/technicals/${sym}`),
+                safeFetch(`/api/scan/latest`),
+                safeFetch(`/api/opportunities/latest`)
+            ]);
+
+            if (!levelsRes && !techRes) {
+                showError(`No data found for ${sym}`);
+                return;
+            }
+
+            // Extract price
+            currentPrice = levelsRes?.underlying_price || techRes?.current || 0;
+
+            // Build unified levels list
+            allLevels = buildLevelsList(levelsRes, techRes, oppRes, sym);
+
+            // Render everything
+            renderSummaryCards(levelsRes, techRes, scanRes, sym);
+            renderZoneMap();
+            renderConfluenceZones();
+            renderGexChart(levelsRes);
+            renderFlowSection(oppRes, sym);
+            renderSignalsSection(scanRes, sym);
+
+            // Show price in header
+            document.getElementById('underlyingInfo').classList.remove('hidden');
+            document.getElementById('underlyingPrice').textContent = `$${currentPrice.toFixed(2)}`;
+        } catch (err) {
+            showError(`Error loading ${sym}: ${err.message}`);
+        } finally {
+            document.getElementById('loadingSpinner').classList.add('hidden');
+        }
+    }
+
+    // =============================================
+    // DATA FETCHING
+    // =============================================
+    async function safeFetch(url) {
+        try {
+            const res = await fetch(url);
+            if (!res.ok) return null;
+            return await res.json();
+        } catch { return null; }
+    }
+
+    function showError(msg) {
+        const el = document.getElementById('statusMsg');
+        el.textContent = msg;
+        el.classList.remove('hidden');
+    }
+
+    // =============================================
+    // BUILD UNIFIED LEVELS LIST
+    // =============================================
+    function buildLevelsList(levels, tech, opp, sym) {
+        const list = [];
+        const price = currentPrice;
+        if (!price) return list;
+
+        // -- Gamma levels --
+        if (levels?.levels) {
+            const L = levels.levels;
+
+            if (L.call_wall?.price) {
+                list.push({
+                    label: 'Call Wall',
+                    price: L.call_wall.price,
+                    role: 'resistance',
+                    source: 'gamma',
+                    detail: `GEX: ${fmt(L.call_wall.gex)} | OI: ${fmtK(L.call_wall.oi)} | Str: ${L.call_wall.strength || '--'}`
+                });
+            }
+            if (L.put_wall?.price) {
+                list.push({
+                    label: 'Put Wall',
+                    price: L.put_wall.price,
+                    role: 'support',
+                    source: 'gamma',
+                    detail: `GEX: ${fmt(L.put_wall.gex)} | OI: ${fmtK(L.put_wall.oi)} | Str: ${L.put_wall.strength || '--'}`
+                });
+            }
+            if (L.gamma_flip?.price) {
+                list.push({
+                    label: 'Gamma Flip',
+                    price: L.gamma_flip.price,
+                    role: L.gamma_flip.above_underlying ? 'resistance' : 'support',
+                    source: 'gamma',
+                    detail: L.gamma_flip.estimated ? 'Estimated' : 'Confirmed'
+                });
+            }
+            if (L.max_pain?.price) {
+                list.push({
+                    label: 'Max Pain',
+                    price: L.max_pain.price,
+                    role: 'neutral',
+                    source: 'gamma',
+                    detail: `Exp: ${L.max_pain.expiration || '--'} | DTE: ${L.max_pain.dte || '--'}`
+                });
+            }
+            if (L.vwap) {
+                list.push({
+                    label: 'VWAP',
+                    price: L.vwap,
+                    role: price >= L.vwap ? 'support' : 'resistance',
+                    source: 'technical',
+                    detail: ''
+                });
+            }
+            if (L.vwap_bands) {
+                const vb = L.vwap_bands;
+                if (vb.upper_1) list.push({ label: 'VWAP +1\u03c3', price: vb.upper_1, role: 'resistance', source: 'technical', detail: '' });
+                if (vb.lower_1) list.push({ label: 'VWAP -1\u03c3', price: vb.lower_1, role: 'support', source: 'technical', detail: '' });
+                if (vb.upper_2) list.push({ label: 'VWAP +2\u03c3', price: vb.upper_2, role: 'resistance', source: 'technical', detail: '' });
+                if (vb.lower_2) list.push({ label: 'VWAP -2\u03c3', price: vb.lower_2, role: 'support', source: 'technical', detail: '' });
+            }
+            if (L.expected_move) {
+                const em = L.expected_move;
+                if (em.upper) list.push({ label: 'EM Upper', price: em.upper, role: 'resistance', source: 'gamma', detail: `\u00b1${em.pct_move?.toFixed(1) || '--'}%` });
+                if (em.lower) list.push({ label: 'EM Lower', price: em.lower, role: 'support', source: 'gamma', detail: `\u00b1${em.pct_move?.toFixed(1) || '--'}%` });
+            }
+            // High OI strikes
+            if (L.high_oi_strikes?.length) {
+                for (const s of L.high_oi_strikes) {
+                    list.push({
+                        label: `High OI ${s.bias || ''}`.trim(),
+                        price: s.price,
+                        role: s.bias === 'CALL' ? 'resistance' : s.bias === 'PUT' ? 'support' : 'neutral',
+                        source: 'gamma',
+                        detail: `C: ${fmtK(s.call_oi)} | P: ${fmtK(s.put_oi)} | Tot: ${fmtK(s.total_oi)}`
+                    });
+                }
+            }
+            // Weekly pivots
+            if (L.weekly_pivots) {
+                const wp = L.weekly_pivots;
+                if (wp.pivot) list.push({ label: 'Weekly Pivot', price: wp.pivot, role: 'neutral', source: 'pivot', detail: '' });
+                if (wp.r1) list.push({ label: 'Weekly R1', price: wp.r1, role: 'resistance', source: 'pivot', detail: '' });
+                if (wp.r2) list.push({ label: 'Weekly R2', price: wp.r2, role: 'resistance', source: 'pivot', detail: '' });
+                if (wp.s1) list.push({ label: 'Weekly S1', price: wp.s1, role: 'support', source: 'pivot', detail: '' });
+                if (wp.s2) list.push({ label: 'Weekly S2', price: wp.s2, role: 'support', source: 'pivot', detail: '' });
+                if (wp.week_high) list.push({ label: 'Week High', price: wp.week_high, role: 'resistance', source: 'pivot', detail: '' });
+                if (wp.week_low) list.push({ label: 'Week Low', price: wp.week_low, role: 'support', source: 'pivot', detail: '' });
+            }
+            // Developing pivots
+            if (L.developing_pivots) {
+                const dp = L.developing_pivots;
+                if (dp.pivot) list.push({ label: 'Dev Pivot', price: dp.pivot, role: 'neutral', source: 'pivot', detail: '' });
+                if (dp.r1) list.push({ label: 'Dev R1', price: dp.r1, role: 'resistance', source: 'pivot', detail: '' });
+                if (dp.r2) list.push({ label: 'Dev R2', price: dp.r2, role: 'resistance', source: 'pivot', detail: '' });
+                if (dp.s1) list.push({ label: 'Dev S1', price: dp.s1, role: 'support', source: 'pivot', detail: '' });
+                if (dp.s2) list.push({ label: 'Dev S2', price: dp.s2, role: 'support', source: 'pivot', detail: '' });
+                if (dp.week_high) list.push({ label: 'Dev High', price: dp.week_high, role: 'resistance', source: 'pivot', detail: '' });
+                if (dp.week_low) list.push({ label: 'Dev Low', price: dp.week_low, role: 'support', source: 'pivot', detail: '' });
+            }
+            // SMA 200 from levels API
+            if (L.sma_200) {
+                list.push({ label: 'SMA 200', price: L.sma_200, role: price >= L.sma_200 ? 'support' : 'resistance', source: 'technical', detail: '' });
+            }
+        }
+
+        // -- Confluence zones from API --
+        if (levels?.confluence_zones?.length) {
+            for (const cz of levels.confluence_zones) {
+                list.push({
+                    label: `Confluence ${cz.type || ''}`.trim(),
+                    price: cz.price_avg,
+                    role: cz.type === 'SUPPORT' ? 'support' : cz.type === 'RESISTANCE' ? 'resistance' : 'neutral',
+                    source: 'confluence',
+                    detail: `${cz.count} levels | Str: ${cz.strength || '--'} | ${cz.levels?.join(', ') || ''}`
+                });
+            }
+        }
+
+        // -- Technical levels --
+        if (tech) {
+            if (tech.sma_20) list.push({ label: 'SMA 20', price: tech.sma_20, role: price >= tech.sma_20 ? 'support' : 'resistance', source: 'technical', detail: '' });
+            if (tech.sma_50) list.push({ label: 'SMA 50', price: tech.sma_50, role: price >= tech.sma_50 ? 'support' : 'resistance', source: 'technical', detail: '' });
+            // SMA 200 from technicals (skip if already added from levels API)
+            if (tech.sma_200 && !list.find(l => l.label === 'SMA 200')) {
+                list.push({ label: 'SMA 200', price: tech.sma_200, role: price >= tech.sma_200 ? 'support' : 'resistance', source: 'technical', detail: '' });
+            }
+            if (tech.bb_upper) list.push({ label: 'BB Upper', price: tech.bb_upper, role: 'resistance', source: 'technical', detail: `BB Pos: ${tech.bb_position?.toFixed(0) || '--'}%` });
+            if (tech.bb_lower) list.push({ label: 'BB Lower', price: tech.bb_lower, role: 'support', source: 'technical', detail: `BB Pos: ${tech.bb_position?.toFixed(0) || '--'}%` });
+        }
+
+        // -- Round number levels (psychological magnets) --
+        addRoundNumbers(list, price);
+
+        // -- Top GEX strikes as levels --
+        addGexWalls(list, levels, price);
+
+        // -- Fibonacci retracement levels --
+        if (levels?.levels?.weekly_pivots) {
+            const wp = levels.levels.weekly_pivots;
+            addFibLevels(list, wp.week_high, wp.week_low, price);
+        }
+
+        // -- Unusual flow strikes from Opportunity Scanner --
+        if (opp?.results) {
+            const oppMatch = opp.results.find(r => r.symbol === sym);
+            if (oppMatch?.unusual?.topStrikes?.length) {
+                const flowStrikes = new Set();
+                for (const fs of oppMatch.unusual.topStrikes) {
+                    const key = fs.strike;
+                    // Dedup against gamma levels
+                    const overlap = list.find(l => Math.abs(l.price - key) < 0.01);
+                    if (overlap) {
+                        overlap.label += ' + Flow';
+                        overlap.detail += ` | Vol: ${fmtK(fs.volume)} V/OI: ${fs.volOiRatio?.toFixed(1) || '--'}x`;
+                        continue;
+                    }
+                    if (flowStrikes.has(key)) continue;
+                    flowStrikes.add(key);
+                    list.push({
+                        label: `Flow ${fs.type || ''}`.trim(),
+                        price: key,
+                        role: fs.type === 'CALL' ? 'resistance' : fs.type === 'PUT' ? 'support' : 'neutral',
+                        source: 'flow',
+                        detail: `Vol: ${fmtK(fs.volume)} | OI: ${fmtK(fs.openInterest)} | V/OI: ${fs.volOiRatio?.toFixed(1) || '--'}x`
+                    });
+                }
+            }
+        }
+
+        // Deduplicate levels at same price AND same source (merge labels)
+        // Levels at the same price but different sources = genuine confluence — keep both
+        const deduped = [];
+        const priceSourceMap = new Map();
+        for (const l of list) {
+            const key = l.price.toFixed(2) + '|' + l.source;
+            if (priceSourceMap.has(key)) {
+                const existing = priceSourceMap.get(key);
+                if (!existing.label.includes(l.label)) {
+                    existing.label += ' / ' + l.label;
+                }
+            } else {
+                priceSourceMap.set(key, l);
+                deduped.push(l);
+            }
+        }
+
+        // Compute distance for each level
+        for (const l of deduped) {
+            l.distance = price ? Math.abs(l.price - price) / price * 100 : 0;
+            l.distanceRaw = l.price - price;
+        }
+
+        return deduped;
+    }
+
+    // =============================================
+    // ROUND NUMBER LEVELS
+    // =============================================
+    function addRoundNumbers(list, price) {
+        if (!price) return;
+
+        // Step size: $5 for pennystocks, $10 for mid-cap, $25 for high-price
+        let step;
+        if (price < 50) step = 5;
+        else if (price < 500) step = 10;
+        else step = 25;
+
+        // Generate round numbers within ±5% of price
+        const rangePct = 0.05;
+        const low = price * (1 - rangePct);
+        const high = price * (1 + rangePct);
+        const start = Math.ceil(low / step) * step;
+
+        for (let rn = start; rn <= high; rn += step) {
+            list.push({
+                label: `$${rn}`,
+                price: rn,
+                role: price >= rn ? 'support' : 'resistance',
+                source: 'pivot',
+                detail: 'Round number'
+            });
+        }
+    }
+
+    // =============================================
+    // TOP GEX STRIKES AS LEVELS
+    // =============================================
+    function addGexWalls(list, levels, price) {
+        const gexData = levels?.gex_by_strike;
+        if (!gexData || !price) return;
+
+        const strikes = Object.entries(gexData)
+            .map(([strike, data]) => ({ strike: parseFloat(strike), ...data }))
+            .filter(s => s.net_gex != null)
+            .sort((a, b) => Math.abs(b.net_gex) - Math.abs(a.net_gex));
+
+        let added = 0;
+        for (const s of strikes) {
+            if (added >= 3) break;
+            // Skip if already in list (within 0.5% of existing level)
+            const isDupe = list.some(l => Math.abs(l.price - s.strike) / price * 100 < 0.5);
+            if (isDupe) continue;
+
+            const isPositive = s.net_gex > 0;
+            list.push({
+                label: isPositive ? 'GEX Magnet' : 'GEX Wall',
+                price: s.strike,
+                role: isPositive ? 'resistance' : 'support',
+                source: 'gamma',
+                detail: `Net GEX: ${fmt(s.net_gex)}`
+            });
+            added++;
+        }
+    }
+
+    // =============================================
+    // FIBONACCI RETRACEMENT LEVELS
+    // =============================================
+    function addFibLevels(list, weekHigh, weekLow, price) {
+        if (!weekHigh || !weekLow || weekHigh <= weekLow || !price) return;
+
+        const range = weekHigh - weekLow;
+        const fibs = [
+            { pct: 0.236, label: 'Fib 23.6%' },
+            { pct: 0.382, label: 'Fib 38.2%' },
+            { pct: 0.500, label: 'Fib 50%' },
+            { pct: 0.618, label: 'Fib 61.8%' }
+        ];
+
+        for (const f of fibs) {
+            const fibPrice = weekHigh - range * f.pct;
+            list.push({
+                label: f.label,
+                price: fibPrice,
+                role: fibPrice >= price ? 'resistance' : 'support',
+                source: 'technical',
+                detail: `Week range: $${weekLow.toFixed(2)} — $${weekHigh.toFixed(2)}`
+            });
+        }
+    }
+
+    // =============================================
+    // CONFLUENCE ZONE DETECTION
+    // =============================================
+    function findConfluenceZones(levels, price) {
+        if (!levels.length || !price) return { zones: [], isolated: [] };
+
+        const PROXIMITY_PCT = 0.5; // levels within 0.5% of adjacent get grouped
+
+        // Sort by price ascending
+        const sorted = [...levels].sort((a, b) => a.price - b.price);
+
+        // Walk through and cluster adjacent levels
+        const clusters = [];
+        let current = [sorted[0]];
+
+        for (let i = 1; i < sorted.length; i++) {
+            const prev = sorted[i - 1];
+            const curr = sorted[i];
+            const gap = Math.abs(curr.price - prev.price) / prev.price * 100;
+
+            if (gap <= PROXIMITY_PCT) {
+                current.push(curr);
+            } else {
+                clusters.push(current);
+                current = [curr];
+            }
+        }
+        clusters.push(current);
+
+        // Separate multi-level zones from isolated singletons
+        const zones = [];
+        const isolated = [];
+
+        for (const cluster of clusters) {
+            if (cluster.length >= 2) {
+                // Multi-level zone
+                const avgPrice = cluster.reduce((s, l) => s + l.price, 0) / cluster.length;
+                const sources = new Set(cluster.map(l => l.source));
+                const strength = cluster.length * sources.size;
+
+                // Role: majority vote
+                const roleCounts = { support: 0, resistance: 0, neutral: 0 };
+                for (const l of cluster) roleCounts[l.role]++;
+                let role = 'neutral';
+                if (roleCounts.support > roleCounts.resistance) role = 'support';
+                else if (roleCounts.resistance > roleCounts.support) role = 'resistance';
+
+                const distancePct = Math.abs(avgPrice - price) / price * 100;
+                const direction = avgPrice >= price ? 'above' : 'below';
+
+                const minPrice = Math.min(...cluster.map(l => l.price));
+                const maxPrice = Math.max(...cluster.map(l => l.price));
+                const rangePct = (maxPrice - minPrice) / avgPrice * 100;
+
+                zones.push({
+                    avgPrice,
+                    minPrice,
+                    maxPrice,
+                    rangePct,
+                    role,
+                    strength,
+                    levelCount: cluster.length,
+                    sourceCount: sources.size,
+                    sources: [...sources],
+                    distancePct,
+                    direction,
+                    levels: cluster.sort((a, b) => {
+                        // Sort levels within zone: by source type for visual grouping
+                        const order = { gamma: 0, technical: 1, confluence: 2, pivot: 3, flow: 4 };
+                        return (order[a.source] ?? 5) - (order[b.source] ?? 5);
+                    })
+                });
+            } else {
+                isolated.push(cluster[0]);
+            }
+        }
+
+        // Sort zones by distance from price (nearest first)
+        zones.sort((a, b) => a.distancePct - b.distancePct);
+
+        // Sort isolated by distance
+        isolated.sort((a, b) => a.distance - b.distance);
+
+        return { zones, isolated };
+    }
+
+    // =============================================
+    // RENDER: ZONE MAP (Price Ladder + Strength Chart)
+    // =============================================
+    function renderZoneMap() {
+        const ladderEl = document.getElementById('priceLadder');
+        const strengthEl = document.getElementById('strengthMap');
+
+        if (!allLevels.length || !currentPrice) {
+            ladderEl.innerHTML = '<div class="ladder-empty">No levels data</div>';
+            strengthEl.innerHTML = '<div class="ladder-empty">No levels data</div>';
+            return;
+        }
+
+        const { zones } = findConfluenceZones(allLevels, currentPrice);
+        if (!zones.length) {
+            ladderEl.innerHTML = '<div class="ladder-empty">No confluence zones detected</div>';
+            strengthEl.innerHTML = '<div class="ladder-empty">No confluence zones detected</div>';
+            return;
+        }
+
+        // Split into resistance (above price) and support (below price), sorted properly
+        const resZones = zones.filter(z => z.avgPrice >= currentPrice).sort((a, b) => b.avgPrice - a.avgPrice);
+        const supZones = zones.filter(z => z.avgPrice < currentPrice).sort((a, b) => b.avgPrice - a.avgPrice);
+        const maxStrength = Math.max(...zones.map(z => z.strength));
+
+        // Find nearest zone for highlighting
+        let nearestDist = Infinity;
+        let nearestPrice = null;
+        for (const z of zones) {
+            if (z.distancePct < nearestDist) { nearestDist = z.distancePct; nearestPrice = z.avgPrice; }
+        }
+
+        // ---- Price Ladder (Option A) ----
+        let ladderHtml = '<div class="ladder">';
+
+        if (!resZones.length) {
+            ladderHtml += '<div class="ladder-row"><span style="color:#4a5568;font-size:11px">No resistance zones</span></div>';
+        }
+        for (const z of resZones) {
+            const isNearest = z.avgPrice === nearestPrice ? ' nearest-row' : '';
+            const roleClass = z.role === 'resistance' ? 'res' : z.role === 'support' ? 'sup' : 'neut';
+            const labelClass = z.role === 'resistance' ? 'res-label' : z.role === 'support' ? 'sup-label' : 'neut-label';
+            const roleText = z.role === 'resistance' ? 'RESISTANCE' : z.role === 'support' ? 'SUPPORT' : 'NEUTRAL';
+            ladderHtml += `<div class="ladder-row ${roleClass}${isNearest}">
+                <span class="ladder-price-col">$${z.avgPrice.toFixed(2)}</span>
+                <span class="ladder-role-col ${labelClass}">${roleText}</span>
+                <span class="ladder-meta-col">${z.levelCount} lvls \u00b7 ${z.sourceCount} src</span>
+                <span class="ladder-dist">${z.distancePct.toFixed(1)}%</span>
+            </div>`;
+        }
+
+        // Price divider
+        ladderHtml += `<div class="ladder-divider">
+            <div class="ladder-divider-line"></div>
+            <span class="ladder-divider-price">\u25b6 $${currentPrice.toFixed(2)}</span>
+            <div class="ladder-divider-line" style="background:linear-gradient(90deg, #ffc10744, #ffc107)"></div>
+        </div>`;
+
+        if (!supZones.length) {
+            ladderHtml += '<div class="ladder-row"><span style="color:#4a5568;font-size:11px">No support zones</span></div>';
+        }
+        for (const z of supZones) {
+            const isNearest = z.avgPrice === nearestPrice ? ' nearest-row' : '';
+            const roleClass = z.role === 'support' ? 'sup' : z.role === 'resistance' ? 'res' : 'neut';
+            const labelClass = z.role === 'support' ? 'sup-label' : z.role === 'resistance' ? 'res-label' : 'neut-label';
+            const roleText = z.role === 'support' ? 'SUPPORT' : z.role === 'resistance' ? 'RESISTANCE' : 'NEUTRAL';
+            ladderHtml += `<div class="ladder-row ${roleClass}${isNearest}">
+                <span class="ladder-price-col">$${z.avgPrice.toFixed(2)}</span>
+                <span class="ladder-role-col ${labelClass}">${roleText}</span>
+                <span class="ladder-meta-col">${z.levelCount} lvls \u00b7 ${z.sourceCount} src</span>
+                <span class="ladder-dist">${z.distancePct.toFixed(1)}%</span>
+            </div>`;
+        }
+
+        ladderHtml += '</div>';
+        ladderEl.innerHTML = ladderHtml;
+
+        // ---- Strength Map (Option B) ----
+        let strHtml = '<div class="str-chart">';
+
+        if (!resZones.length) {
+            strHtml += '<div class="str-row"><span style="color:#4a5568;font-size:11px;padding-left:88px">No resistance zones</span></div>';
+        }
+        for (const z of resZones) {
+            const pct = Math.round((z.strength / maxStrength) * 100);
+            const barClass = z.role === 'resistance' ? 'res-bar' : z.role === 'support' ? 'sup-bar' : 'neut-bar';
+            const barLabel = z.levelCount + ' lvls \u00b7 ' + z.sourceCount + ' src';
+            strHtml += `<div class="str-row">
+                <span class="str-price-label">$${z.avgPrice.toFixed(2)}</span>
+                <div class="str-bar-wrap"><div class="str-bar ${barClass}" style="width:${Math.max(pct, 8)}%">${pct >= 30 ? barLabel : ''}</div></div>
+                <span class="str-info">${pct < 30 ? barLabel : ''} ${z.distancePct.toFixed(1)}%</span>
+            </div>`;
+        }
+
+        // Price divider
+        strHtml += `<div class="str-divider">
+            <span class="str-price-label" style="color:#ffc107;font-weight:700">$${currentPrice.toFixed(2)}</span>
+            <div class="str-divider-line"></div>
+            <span class="str-divider-label">PRICE</span>
+        </div>`;
+
+        if (!supZones.length) {
+            strHtml += '<div class="str-row"><span style="color:#4a5568;font-size:11px;padding-left:88px">No support zones</span></div>';
+        }
+        for (const z of supZones) {
+            const pct = Math.round((z.strength / maxStrength) * 100);
+            const barClass = z.role === 'support' ? 'sup-bar' : z.role === 'resistance' ? 'res-bar' : 'neut-bar';
+            const barLabel = z.levelCount + ' lvls \u00b7 ' + z.sourceCount + ' src';
+            strHtml += `<div class="str-row">
+                <span class="str-price-label">$${z.avgPrice.toFixed(2)}</span>
+                <div class="str-bar-wrap"><div class="str-bar ${barClass}" style="width:${Math.max(pct, 8)}%">${pct >= 30 ? barLabel : ''}</div></div>
+                <span class="str-info">${pct < 30 ? barLabel : ''} ${z.distancePct.toFixed(1)}%</span>
+            </div>`;
+        }
+
+        strHtml += '</div>';
+        strengthEl.innerHTML = strHtml;
+    }
+
+    // =============================================
+    // RENDER: CONFLUENCE ZONES
+    // =============================================
+    function renderConfluenceZones() {
+        const container = document.getElementById('confluenceZones');
+        const otherEl = document.getElementById('otherLevels');
+
+        if (!allLevels.length) {
+            container.innerHTML = '<div class="no-zones">No levels data available</div>';
+            otherEl.classList.add('hidden');
+            return;
+        }
+
+        const { zones, isolated } = findConfluenceZones(allLevels, currentPrice);
+
+        if (!zones.length) {
+            container.innerHTML = '<div class="no-zones">No confluence zones detected — all levels are isolated</div>';
+        } else {
+            // Find max strength for normalization
+            const maxStrength = Math.max(...zones.map(z => z.strength));
+
+            container.innerHTML = '<div class="zone-cards">' + zones.map((z, i) => {
+                const roleClass = z.role === 'support' ? 'support' : z.role === 'resistance' ? 'resistance' : 'neutral-zone';
+                const roleLabel = z.role === 'support' ? 'SUPPORT' : z.role === 'resistance' ? 'RESISTANCE' : 'NEUTRAL';
+                const roleLabelClass = z.role === 'support' ? 'support' : z.role === 'resistance' ? 'resistance' : 'neutral-role';
+                const nearestClass = i === 0 ? ' nearest' : '';
+                const dirArrow = z.direction === 'above' ? '\u25b2 above' : '\u25bc below';
+                const strengthPct = Math.round((z.strength / maxStrength) * 100);
+                const strengthClass = strengthPct >= 70 ? 'high' : strengthPct >= 40 ? 'medium' : 'low';
+
+                const pills = z.levels.map(l => {
+                    const dotClass = 'dot-' + l.source;
+                    return `<span class="level-pill"><span class="dot ${dotClass}"></span>${l.label} ($${l.price.toFixed(2)})</span>`;
+                }).join('');
+
+                const rangeHtml = z.rangePct >= 0.1
+                    ? `<span class="zone-range">$${z.minPrice.toFixed(2)} — $${z.maxPrice.toFixed(2)}</span>`
+                    : '';
+
+                return `<div class="zone-card ${roleClass}${nearestClass}">
+                    <div class="zone-header">
+                        <div>
+                            <span class="zone-price">$${z.avgPrice.toFixed(2)}</span>
+                            ${rangeHtml}
+                            <span class="zone-role ${roleLabelClass}" style="margin-left:10px">${roleLabel}</span>
+                        </div>
+                        <div class="zone-distance">
+                            ${z.distancePct.toFixed(1)}%
+                            <div class="dir">${dirArrow}</div>
+                        </div>
+                    </div>
+                    <div class="zone-levels">${pills}</div>
+                    <div class="zone-footer">
+                        <div class="zone-meta">
+                            <span>${z.levelCount} levels</span>
+                            <span>${z.sourceCount} sources</span>
+                            <span>Strength: ${z.strength}</span>
+                        </div>
+                        <div>
+                            <span class="strength-bar"><span class="strength-fill ${strengthClass}" style="width:${strengthPct}%"></span></span>
+                            <span style="margin-left:4px">${strengthPct}%</span>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('') + '</div>';
+        }
+
+        // Render isolated levels as compact list
+        if (isolated.length) {
+            otherEl.classList.remove('hidden');
+            const items = isolated.map(l => {
+                const roleTag = l.role === 'support' ? 'sup' : l.role === 'resistance' ? 'res' : 'neut';
+                const sign = l.distanceRaw > 0 ? '+' : '';
+                return `<span class="other-level-item"><span class="dot ${('dot-' + l.source)}" style="display:inline-block;width:6px;height:6px;border-radius:50%;vertical-align:middle;margin-right:3px"></span>${l.label} <span class="other-price">$${l.price.toFixed(2)}</span> (${roleTag}, ${sign}${l.distance.toFixed(1)}%)</span>`;
+            });
+            otherEl.innerHTML = '<span class="other-label">Other Levels:</span>' + items.join('<span class="other-separator">\u00b7</span>');
+        } else {
+            otherEl.classList.add('hidden');
+        }
+    }
+
+    // =============================================
+    // RENDER: SUMMARY CARDS
+    // =============================================
+    function renderSummaryCards(levels, tech, scan, sym) {
+        // Price + trend
+        document.getElementById('cardPrice').textContent = `$${currentPrice.toFixed(2)}`;
+        document.getElementById('cardPrice').className = 'card-value';
+        const trend = tech?.trend || '--';
+        document.getElementById('cardTrend').textContent = trend;
+
+        // Zone from Bloodhound
+        const bhResult = scan?.results?.find(r => r.symbol === sym);
+        const zone = bhResult?.zone || '--';
+        const tier = bhResult?.sourceInfo?.tier || '--';
+        document.getElementById('cardZone').textContent = zone.replace(/_/g, ' ');
+        document.getElementById('cardZone').className = 'card-value ' + zoneColor(zone);
+        document.getElementById('cardTier').textContent = tier.replace(/_/g, ' ');
+
+        // Gamma regime
+        const ctx = levels?.context;
+        document.getElementById('cardGamma').textContent = ctx?.gamma_regime || '--';
+        document.getElementById('cardGamma').className = 'card-value ' + (ctx?.gamma_regime === 'POSITIVE' ? 'positive' : ctx?.gamma_regime === 'NEGATIVE' ? 'negative' : 'neutral');
+        const flipDist = ctx?.distance_to_flip_pct;
+        document.getElementById('cardFlip').textContent = flipDist != null ? `Flip ${flipDist.toFixed(1)}% ${ctx.position_vs_flip || ''}` : '--';
+
+        // Net GEX
+        const totalGex = ctx?.total_gex;
+        document.getElementById('cardGex').textContent = totalGex != null ? fmt(totalGex) : '--';
+        document.getElementById('cardGex').className = 'card-value ' + (totalGex > 0 ? 'positive' : totalGex < 0 ? 'negative' : 'neutral');
+        document.getElementById('cardGexSub').textContent = totalGex != null ? (totalGex > 0 ? 'Dealer long gamma' : 'Dealer short gamma') : '--';
+
+        // IV Rank / RSI
+        const ivr = ctx?.iv_rank;
+        const rsi = tech?.rsi;
+        document.getElementById('cardIvRsi').textContent = `${ivr != null ? ivr.toFixed(0) : '--'} / ${rsi != null ? rsi.toFixed(0) : '--'}`;
+        const mom = tech?.momentum_5d;
+        document.getElementById('cardMomentum').textContent = mom != null ? `5d Mom: ${mom > 0 ? '+' : ''}${mom.toFixed(1)}%` : '--';
+
+        // Expected Move
+        const em = levels?.levels?.expected_move;
+        document.getElementById('cardEM').textContent = em?.pct_move != null ? `\u00b1${em.pct_move.toFixed(1)}%` : '--';
+        document.getElementById('cardEMRange').textContent = em ? `$${em.lower?.toFixed(2) || '--'} \u2014 $${em.upper?.toFixed(2) || '--'}` : '--';
+    }
+
+    // =============================================
+    // RENDER: GEX CHART
+    // =============================================
+    function renderGexChart(levels) {
+        const canvas = document.getElementById('gexChart');
+        if (gexChart) { gexChart.destroy(); gexChart = null; }
+
+        const gexData = levels?.gex_by_strike;
+        if (!gexData || !Object.keys(gexData).length) {
+            canvas.parentElement.style.display = 'none';
+            return;
+        }
+        canvas.parentElement.style.display = '';
+
+        const strikes = Object.keys(gexData)
+            .map(s => ({ strike: parseFloat(s), ...gexData[s] }))
+            .sort((a, b) => a.strike - b.strike);
+
+        const labels = strikes.map(s => s.strike.toFixed(0));
+        const netGex = strikes.map(s => s.net_gex || 0);
+        const colors = netGex.map(v => v >= 0 ? 'rgba(0, 212, 170, 0.7)' : 'rgba(255, 107, 107, 0.7)');
+
+        gexChart = new Chart(canvas, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Net GEX ($M)',
+                    data: netGex,
+                    backgroundColor: colors,
+                    borderColor: colors.map(c => c.replace('0.7', '1')),
+                    borderWidth: 1,
+                    borderRadius: 2
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => {
+                                const s = strikes[ctx.dataIndex];
+                                return `Net: ${fmt(s.net_gex)} | Call: ${fmt(s.call_gex)} | Put: ${fmt(s.put_gex)}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: '#1a2332' },
+                        ticks: { color: '#8b92a8', font: { size: 10 } },
+                        title: { display: true, text: 'Net GEX', color: '#8b92a8', font: { size: 11 } }
+                    },
+                    y: {
+                        grid: { color: '#1a2332' },
+                        ticks: { color: '#8b92a8', font: { size: 10 } }
+                    }
+                }
+            },
+            plugins: [{
+                id: 'currentPriceLine',
+                afterDraw(chart) {
+                    if (!currentPrice) return;
+                    const yScale = chart.scales.y;
+                    const idx = labels.findIndex(l => parseFloat(l) >= currentPrice);
+                    if (idx < 0) return;
+                    const y = yScale.getPixelForValue(idx);
+                    const ctx = chart.ctx;
+                    ctx.save();
+                    ctx.strokeStyle = '#ffc107';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([6, 3]);
+                    ctx.beginPath();
+                    ctx.moveTo(chart.chartArea.left, y);
+                    ctx.lineTo(chart.chartArea.right, y);
+                    ctx.stroke();
+                    ctx.fillStyle = '#ffc107';
+                    ctx.font = '10px sans-serif';
+                    ctx.fillText(`Price: $${currentPrice.toFixed(0)}`, chart.chartArea.right - 80, y - 4);
+                    ctx.restore();
+                }
+            }]
+        });
+    }
+
+    // =============================================
+    // RENDER: FLOW SECTION
+    // =============================================
+    function renderFlowSection(opp, sym) {
+        const section = document.getElementById('flowSection');
+        const tbody = document.getElementById('flowBody');
+        const summaryEl = document.getElementById('flowSummary');
+
+        const oppMatch = opp?.results?.find(r => r.symbol === sym);
+        if (!oppMatch?.unusual?.topStrikes?.length) {
+            section.classList.add('hidden');
+            return;
+        }
+        section.classList.remove('hidden');
+
+        const strikes = oppMatch.unusual.topStrikes;
+        tbody.innerHTML = strikes.map(s => `<tr>
+            <td>$${s.strike?.toFixed(2) || '--'}</td>
+            <td><span class="badge ${s.type === 'CALL' ? 'badge-green' : 'badge-red'}">${s.type || '--'}</span></td>
+            <td>${s.expiration || '--'}</td>
+            <td>${fmtK(s.volume)}</td>
+            <td>${fmtK(s.openInterest)}</td>
+            <td class="${(s.volOiRatio || 0) >= 3 ? 'positive' : ''}">${s.volOiRatio?.toFixed(1) || '--'}x</td>
+            <td>${fmtDollar(s.premium)}</td>
+        </tr>`).join('');
+
+        // Summary
+        const u = oppMatch.unusual;
+        summaryEl.classList.remove('hidden');
+        summaryEl.innerHTML = `
+            <span>C/P Ratio: <strong>${u.callPutRatio?.toFixed(2) || '--'}</strong></span>
+            <span>Call Vol: <strong class="positive">${fmtK(u.callVolume)}</strong></span>
+            <span>Put Vol: <strong class="negative">${fmtK(u.putVolume)}</strong></span>
+            <span>Net Premium: <strong class="${(u.netPremium || 0) >= 0 ? 'positive' : 'negative'}">${fmtDollar(u.netPremium)}</strong></span>
+        `;
+    }
+
+    // =============================================
+    // RENDER: SIGNALS SECTION
+    // =============================================
+    function renderSignalsSection(scan, sym) {
+        const content = document.getElementById('signalsContent');
+        const bhResult = scan?.results?.find(r => r.symbol === sym);
+
+        if (!bhResult) {
+            content.innerHTML = '<div class="loading">Not in current scan</div>';
+            return;
+        }
+
+        const info = bhResult.sourceInfo || {};
+        const tier = info.tier || 'FILTERED';
+        const score = info.score ?? '--';
+        const signals = info.signals || [];
+        const tierBadge = tier === 'HIGH_CONVICTION' ? 'badge-green' :
+                          tier === 'TRADEABLE' ? 'badge-blue' :
+                          tier === 'WATCH' ? 'badge-yellow' : 'badge-neutral';
+
+        let html = `
+            <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px">
+                <span class="badge ${tierBadge}">${tier.replace(/_/g, ' ')}</span>
+                <span style="font-size:20px;font-weight:700">${score}</span>
+                <span style="font-size:12px;color:#64748b">/ 100</span>
+            </div>
+        `;
+
+        if (signals.length) {
+            html += signals.map(s => `<div class="signal-item">${s}</div>`).join('');
+        } else {
+            html += '<div style="color:#64748b;font-size:12px">No signal annotations</div>';
+        }
+
+        if (bhResult.history_status) {
+            html += `<div style="margin-top:8px;font-size:11px;color:#64748b">History: ${bhResult.history_status}</div>`;
+        }
+
+        content.innerHTML = html;
+    }
+
+    // =============================================
+    // FORMATTING HELPERS
+    // =============================================
+    function fmt(n) {
+        if (n == null) return '--';
+        if (Math.abs(n) >= 1e9) return (n / 1e9).toFixed(1) + 'B';
+        if (Math.abs(n) >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+        if (Math.abs(n) >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+        return n.toFixed(1);
+    }
+    function fmtK(n) {
+        if (n == null) return '--';
+        if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
+        if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
+        return String(n);
+    }
+    function fmtDollar(n) {
+        if (n == null) return '--';
+        const abs = Math.abs(n);
+        const sign = n < 0 ? '-' : '';
+        if (abs >= 1e6) return sign + '$' + (abs / 1e6).toFixed(1) + 'M';
+        if (abs >= 1e3) return sign + '$' + (abs / 1e3).toFixed(1) + 'K';
+        return sign + '$' + abs.toFixed(0);
+    }
+    function zoneColor(z) {
+        if (!z) return 'neutral';
+        if (z.includes('SUPPORT') || z.includes('AT_WALL')) return 'positive';
+        if (z.includes('RESISTANCE') || z.includes('EXTENDED_HIGH')) return 'negative';
+        return 'neutral';
+    }
+
+    // =============================================
+    // QUICK-PICK & URL PARAM
+    // =============================================
+    function quickLoad(sym) {
+        document.getElementById('symbolInput').value = sym;
+        loadLevels();
+        // Highlight active button
+        document.querySelectorAll('.pick-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.textContent === sym);
+        });
+    }
+
+    // Auto-load from URL parameter
+    const params = new URLSearchParams(window.location.search);
+    const urlSymbol = params.get('symbol');
+    if (urlSymbol) {
+        document.getElementById('symbolInput').value = urlSymbol.toUpperCase();
+        loadLevels();
+        // Highlight matching quick-pick if exists
+        document.querySelectorAll('.pick-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.textContent === urlSymbol.toUpperCase());
+        });
+    }
+    </script>
+</body>
+</html>

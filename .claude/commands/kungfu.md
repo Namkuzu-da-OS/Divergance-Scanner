@@ -25,50 +25,37 @@ Note: CLAUDE.md is already in system context. Do not read it again.
 
 ## STEP 2: Market Context + Sector Rotation + Scanner via Subagents (MANDATORY)
 
-Launch ALL subagents in parallel (same message, multiple Task tool calls). Data gathering is parallel for speed — the top-down analysis happens in Step 4.
+Launch BOTH subagents in parallel (same message, multiple Task tool calls). Data gathering is parallel for speed — the top-down analysis happens in Step 4.
 
-**Subagent A - Sector Rotation & Movers:**
+**Subagent A — Scanner + Market Data:**
 ```
 Task tool with subagent_type=Explore:
-"Fetch technicals for all 11 SPDR sector ETFs plus key thematic ETFs.
-For each symbol, call: http://192.168.10.60:8000/api/technicals/{SYMBOL}
+"Fetch these endpoints and return a compact summary:
 
-Symbols: XLK, XLF, XLE, XLV, XLY, XLP, XLI, XLB, XLRE, XLU, XLC, IBIT, GLD, USO, SLV
-
-Also fetch SPX movers: http://192.168.10.60:8000/api/movers/$SPX
+1. http://localhost:8080/api/scan/latest — Full scanner data
+2. http://localhost:8080/api/morning-briefing — Earnings, unusual options activity, premarket gaps, high conviction setups
+3. http://localhost:8080/api/internals/latest — Real-time TICK/TRIN/VIX/breadth (may be empty outside RTH)
 
 Return:
-1. Sector table sorted by RSI descending:
-   | Symbol | Sector | Price | RSI | Trend | 5d Momentum | BB Position |
-   Flag overbought (RSI > 70) and oversold (RSI < 30) sectors.
-
-2. Top 5 SPX movers (winners and losers with % change)
-
-3. Rotation Read: One sentence on where money is flowing (e.g., 'Risk-off: defensives leading, tech lagging')
-
-Be complete and compact."
-```
-
-**Subagent B - Scanner Data:**
-```
-Task tool with subagent_type=Explore:
-"Fetch http://localhost:8080/api/scan/latest and return a compact summary:
-1. Scan timestamp
-2. Total ticker count
-3. Market context: VIX, regime, SPY price/trend, rotation regime (if present)
-4. ALL symbols with score, direction, zone, tier, action, sector RS (if present) - in a table sorted by score descending
+1. Scan timestamp + total ticker count
+2. Market context: VIX (value + regime), SPY price/trend/gamma positioning, rotation regime (if present)
+3. Market internals: TICK, TRIN, A/D spread, Vol Ratio — with bullish/bearish/neutral read (skip if no data)
+4. ALL symbols from scanner in a table sorted by score descending:
+   | Symbol | Score | Direction | Zone | Tier | Action | Sector RS | Sector ETF |
 5. Count of tradeable setups (tier = HIGH_CONVICTION or TRADEABLE)
+6. Morning briefing highlights: upcoming earnings with IV rank, unusual options activity, premarket gaps (if any)
+
 Be complete. Miss no tickers."
 ```
 
-**Subagent C - Divergence Scanner (Rotation & Relative Strength):**
+**Subagent B — Sector Rotation & Relative Strength:**
 ```
 Task tool with subagent_type=Explore:
-"Fetch all 3 endpoints from the divergence scanner and return a compact summary:
+"Fetch all 3 rotation endpoints and return a compact summary:
 
-1. http://localhost:8080/api/rotation/rankings — RS rankings
-2. http://localhost:8080/api/rotation/divergences — Active divergences
-3. http://localhost:8080/api/rotation/regime — Rotation regime
+1. http://localhost:8080/api/rotation/rankings — RS rankings for all tracked assets
+2. http://localhost:8080/api/rotation/divergences — Active sector divergences
+3. http://localhost:8080/api/rotation/regime — Rotation phase, leading/lagging, confidence
 
 Return:
 1. ROTATION REGIME: Phase (early/mid/late/recession), confidence, leading sectors, lagging sectors
@@ -81,47 +68,43 @@ If any endpoint returns an error (502/timeout), note it and return whatever data
 Be complete and compact."
 ```
 
-## STEP 3: API Connectivity Check
+## STEP 3: System Health Check
 
-Ping both servers:
-- Options Analytics: `curl http://192.168.10.60:8000/api/market/context`
-- Market Intelligence: `curl http://192.168.10.60:3000/api/status`
+Check infrastructure health through the orchestrator and gateway:
+- `curl localhost:8086/status` — Gateway: circuit breaker states, queue depth, in-flight counts
+- `curl localhost:8080/api/cache/stats` — Cache: total, fresh, stale entries
+
+**Healthy = all circuits CLOSED + fresh cache entries. Flag any OPEN circuits or empty cache.**
 
 ## BLOODHOUND SCANNER (CORE SYSTEM)
 
-Bloodhound is the autonomous opportunity detection system running via PM2. It:
-- Discovers symbols from 3 sources (watchlist, market data, sector rotation)
-- Maps crypto/indices to ETFs (BTC→IBIT, ETH→ETHA, SPX→SPY)
-- Scores confluence (0-100) and classifies into tiers:
-  - **HIGH_CONVICTION**: Prime setup (AT_WALL + EXTENDED_RSI) + score >=40, or score >=60 at wall -> Telegram alert + signal logged
-  - **TRADEABLE**: Score >=35 at wall + action -> Signal logged
-  - **WATCH**: Score >=20 near wall, or EXTENDED_LOW + oversold RSI -> Alert only
-  - **FILTERED**: Everything else -> No action
-- Control API at http://localhost:8081 (pause/resume/scan/watchlist)
-- Zone Scanner at http://localhost:8080
-- Analytics Dashboard at http://localhost:8080/analytics.html
+Bloodhound is the autonomous opportunity detection system. Full details in CLAUDE.md. Key points for this session:
 
-**Signal Validation:**
-- HIGH_CONVICTION signals logged to SQLite with multi-checkpoint validation
-- Tracks entry context (VIX regime, SPY trend, score, zone)
-- Checkpoints at 4h, 24h, 7d intervals
-- Auto-closes at +/-2% or 72h timeout
-- Analytics dashboard shows tier comparison, market condition analysis
+**Combo-first scoring architecture** — standalone factors removed, only proven combos earn points:
+- Put wall + heavy puts: 89% win rate
+- Upper BB + dormant wall: 89% win rate
+- RSI overbought + dormant wall: 83% win rate
+- Counter-trend signals outperform with-trend: 55.6% vs 34.9% win rate
+- Smart Money Dip Buy reclassified as TRAP WARNING (20% win rate)
 
-Scanner data is loaded via subagent in Step 2. For subsequent scanner checks during the session, always use the subagent pattern.
+**Removed standalone factors:** VOLUME_SPIKE, PINNED, BREAKOUT, RSI_OVERSOLD — failed to prove edge in backtests.
+
+Scanner data is loaded via subagent in Step 2. For subsequent scanner checks during the session, always use the subagent pattern from CLAUDE.md.
 
 ## API AWARENESS (MANDATORY)
 
-You have access to two data servers at 192.168.10.60:
+**ALL data routes through the orchestrator at `localhost:8080`. NEVER call upstream APIs directly.**
 
-**Options Analytics (Port 8000):**
-- Discovery: `GET /api/capabilities` - Full endpoint documentation
-- Key: `/api/technicals/{symbol}`, `/api/levels/{symbol}`, `/api/flow/{symbol}`
-
-**Market Intelligence (Port 3000):**
-- Discovery: `GET /api/status` - Health check
-- Swagger: `http://192.168.10.60:3000/api-docs`
-- Key: `/api/latest`, `/api/market/outlook`
+| Route | Purpose |
+|-------|---------|
+| `localhost:8080/api/*` | All native endpoints (scan, internals, signals, morning-briefing, positions, etc.) |
+| `localhost:8080/api/rotation/*` | Divergence scanner proxies (rankings, regime, divergences) |
+| `localhost:8080/proxy/analytics/api/technicals/{symbol}` | Options API technicals (proxied) |
+| `localhost:8080/proxy/analytics/api/levels/{symbol}` | Gamma levels (proxied) |
+| `localhost:8080/proxy/analytics/api/flow/{symbol}` | Options flow (proxied) |
+| `localhost:8080/proxy/divergence/*` | Divergence scanner (proxied) |
+| `localhost:8086/status` | Gateway health (infra monitoring only) |
+| `localhost:8080/api/cache/stats` | Cache health |
 
 **RULE: Always query OUR APIs first before using web search. Web search is supplemental only.**
 
@@ -138,6 +121,7 @@ After completing Steps 1-3, confirm you are Wingman and present the analysis in 
 
 - **VIX regime** — complacent/normal/elevated/fear/capitulation + direction (rising/falling/stable)
 - **SPY** — price, trend, gamma positioning (pinned? at wall? mid-range?)
+- **Market internals** — TICK, TRIN, A/D spread, Vol Ratio read (if during RTH; skip if no data)
 - **Market verdict** — One sentence: Should we be trading today? Aggressive, standard, or defensive?
 - **Macro calendar** — ONLY report events that are explicitly mentioned in MARKET_INTEL.md, SESSION_STATE.md, or confirmed by the user. If no events are documented, state: "No confirmed calendar events in our data — verify externally." NEVER guess or infer dates from patterns. Wrong calendar data is worse than no calendar data.
 - **Risk budget** — Based on regime: standard ($200), reduced ($100), or emergency ($50)
@@ -147,13 +131,11 @@ After completing Steps 1-3, confirm you are Wingman and present the analysis in 
 
 - **Rotation regime** — Cycle phase from divergence scanner (early/mid/late/recession) + confidence level
 - **Rotation theme** — One sentence summary (e.g., "Cyclicals leading, tech lagging — classic mid-cycle rotation")
-- **RS rankings** — Top 5 and bottom 5 by relative strength score (from divergence scanner)
-- **Sector table** — All 11 SPDR sectors + thematic ETFs, sorted by RSI. Flag overbought (>70) and oversold (<30).
-- **Leading sectors** — Top 3 by RS + RSI/momentum. These are WHERE we want to find longs.
+- **RS rankings** — Top 5 and bottom 5 by relative strength score
+- **Leading sectors** — Top 3 by RS score + performance. These are WHERE we want to find longs.
 - **Lagging sectors** — Bottom 3. Avoid longs here unless individual confluence is overwhelming.
-- **Active divergences** — Any sector pairs diverging (from divergence scanner)
+- **Active divergences** — Any sector pairs diverging
 - **Sector changes** — What shifted since last session? Any new breakouts or breakdowns?
-- **Top movers** — SPX winners and losers driving the rotation.
 
 ### Layer 3: OPPORTUNITIES (Individual Names Through the Sector Lens)
 *"What are the best expressions of the trade?"*
@@ -161,14 +143,15 @@ After completing Steps 1-3, confirm you are Wingman and present the analysis in 
 Present scanner setups **overlaid against sector context**. For each tradeable setup:
 
 **WITH Rotation (sector aligned):**
-| Symbol | Score | Zone | Action | Sector | Sector RSI | Alignment |
+| Symbol | Score | Zone | Action | Sector | RS Pctile | Alignment |
 Standard conviction. These are the primary opportunities.
 
 **AGAINST Rotation (sector headwind):**
-| Symbol | Score | Zone | Action | Sector | Sector RSI | Alignment |
+| Symbol | Score | Zone | Action | Sector | RS Pctile | Alignment |
 Needs extra confluence to justify. Flag the headwind explicitly. Smaller size.
 
 Then:
+- **Morning briefing** — Earnings approaching with IV/flow data, unusual options activity, premarket gaps
 - **Open positions** — Any immediate action needed?
 - **Watchlist cross-check** — Did any MARKET_INTEL.md entries trigger or expire?
 - **New developments** — Names that emerged or fell off since last session.
@@ -176,7 +159,7 @@ Then:
 ### Layer 4: SESSION PLAN
 - **Priority actions** — Ranked list of what to do first (pull levels, size a trade, monitor earnings, etc.)
 - **What we're NOT doing** — Explicitly state what we're avoiding and why (chasing overbought sectors, fighting trend, etc.)
-- **API connectivity** — Confirm all systems online.
+- **System health** — Gateway circuits (all CLOSED = healthy), cache freshness, any scanner issues.
 
 **IMPORTANT: After reporting status, compare fresh scanner/sector data against MARKET_INTEL.md.**
 - Did any watchlist entries trigger their entry zones?

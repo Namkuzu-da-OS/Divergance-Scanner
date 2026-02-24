@@ -348,20 +348,33 @@ function getRecentHighScoreSymbols(hours = 24) {
                       AND o3.tier IN ('HIGH_CONVICTION', 'TRADEABLE')
                     ORDER BY o3.opportunity_score DESC LIMIT 1) as direction,
                    -- Aggregate discovery sources
-                   GROUP_CONCAT(DISTINCT o.discovery_sources) as all_sources
+                   GROUP_CONCAT(DISTINCT o.discovery_sources) as all_sources,
+                   -- Flow data for cross-scanner injection
+                   (SELECT o4.vol_oi_ratio FROM opportunities o4
+                    WHERE o4.symbol = o.symbol
+                      AND o4.timestamp > datetime('now', '-' || ? || ' hours')
+                      AND o4.tier IN ('HIGH_CONVICTION', 'TRADEABLE')
+                    ORDER BY o4.opportunity_score DESC LIMIT 1) as vol_oi_ratio,
+                   (SELECT o5.net_premium FROM opportunities o5
+                    WHERE o5.symbol = o.symbol
+                      AND o5.timestamp > datetime('now', '-' || ? || ' hours')
+                      AND o5.tier IN ('HIGH_CONVICTION', 'TRADEABLE')
+                    ORDER BY o5.opportunity_score DESC LIMIT 1) as net_premium
             FROM opportunities o
             WHERE o.timestamp > datetime('now', '-' || ? || ' hours')
               AND o.tier IN ('HIGH_CONVICTION', 'TRADEABLE')
             GROUP BY o.symbol
             ORDER BY max_score DESC
-        `).all(hours, hours, hours);
+        `).all(hours, hours, hours, hours, hours);
 
         return rows.map(r => ({
             symbol: r.symbol,
             maxScore: r.max_score,
             tier: r.best_tier,
             direction: r.direction,
-            sources: parseSources(r.all_sources)
+            sources: parseSources(r.all_sources),
+            vol_oi_ratio: r.vol_oi_ratio,
+            net_premium: r.net_premium
         }));
     } catch (err) {
         console.error(`[OpportunityDB] getRecentHighScoreSymbols error: ${err.message}`);

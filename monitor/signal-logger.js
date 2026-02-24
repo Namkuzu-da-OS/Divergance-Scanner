@@ -131,6 +131,7 @@ async function logSignal(alertData) {
     signal_type: alertData.signal_type,
     history_status: alertData.history_status,
     consecutive_days: alertData.consecutive_days,
+    source: alertData.source || 'bloodhound',
     // Market internals at entry
     tick_at_entry: internals?.tick ?? null,
     trin_at_entry: internals?.trin ?? null,

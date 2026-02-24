@@ -60,6 +60,12 @@ const server = http.createServer((req, res) => {
     // Strip query string from URL
     const urlPath = req.url.split('?')[0];
 
+    // V1 API — clean external endpoint for AI integrations
+    if (urlPath === '/api/v1' || urlPath.startsWith('/api/v1/')) {
+        require('./api-v1').handleRequest(req, res, urlPath);
+        return;
+    }
+
     // API: Save paper trades
     if (req.method === 'POST' && urlPath === '/api/save-paper-trades') {
         collectBody(req, res, (body) => {
