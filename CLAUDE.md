@@ -232,6 +232,7 @@ morning.html (default), zone-scanner.html, premarket.html, earnings-scanner.html
 | `data/MARKET_INTEL.md` | Living market intelligence — regime, rotation, watchlist, session recaps |
 | `data/SESSION_STATE.md` | Intra-session checkpoint (written by `/checkpoint`, read by `/kungfu`) |
 | `data/daily_log.md` | Today's journal |
+| `data/STRATEGY_CANDIDATES.md` | Researched strategies ranked for backtesting (P1/P2/P3/Rejected) |
 | `data/trades_journal.json` | Trade history |
 | `data/account_summary.json` | P&L metrics |
 
@@ -372,6 +373,21 @@ Built into Bloodhound (no separate process). Telegram alert when VIX crosses thr
 | Elevated | 20-30 | Watch for setups |
 | Fear | 30-40 | Quality entries |
 | Capitulation | > 40 | Scale in |
+
+---
+
+## Breadth Extreme Alerts
+
+Built into Bloodhound (no separate process). Telegram alert when TICK + A/D breadth hit extremes:
+
+| State | TICK | A/D | Alert |
+|-------|------|-----|-------|
+| Extreme Bearish | < -1000 | AND < -1500 | Dual extreme — capitulation zone |
+| Extreme Bullish | > +1000 | AND > +1500 | Dual extreme — exhaustion zone |
+| Strong Bearish | < -800 | OR < -1500 | Strong selling — confirm with price |
+| Strong Bullish | > +800 | OR > +1500 | Strong buying — confirm with price |
+
+Fires immediately on first reading (no hysteresis). No cooldown between alerts. Type: `BREADTH_EXTREME` in alerts DB.
 
 ---
 
