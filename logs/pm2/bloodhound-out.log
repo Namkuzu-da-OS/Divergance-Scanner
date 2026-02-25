@@ -22699,3 +22699,1748 @@
 2026-02-25 14:57:29 +00:00: [SignalDB] Closed option signal IWM_1771869674094: WIN (peak +203%, close -100%)
 2026-02-25 14:57:29 +00:00: [Signal Logger] Option .IWM260224C260 expired — closed
 2026-02-25 14:57:36 +00:00: [Signal Logger] Updated prices for 45 signal(s), 5 option(s) (45 cached, 0 API)
+2026-02-25 15:00:43 +00:00: 
+2026-02-25 15:00:43 +00:00: ============================================================
+2026-02-25 15:00:43 +00:00: [2026-02-25T15:00:43.731Z] Running Bloodhound scan...
+2026-02-25 15:00:43 +00:00: ============================================================
+2026-02-25 15:00:48 +00:00: [Context] VIX: 18.59 (normal) | SPY: bearish
+2026-02-25 15:00:48 +00:00: [Internals] TICK: -3, A/D: -223, Vol Ratio: 1.57
+2026-02-25 15:00:48 +00:00: [RS] Read 18 rankings from DB (snapshot 1935m ago)
+2026-02-25 15:00:52 +00:00: [RS] Rotation regime: mid_cycle | 18 assets ranked
+2026-02-25 15:00:54 +00:00: [MA-Bounce] Pre-fetched history for 8/8 validated symbols
+2026-02-25 15:00:54 +00:00: [Div-BB] Pre-fetched history for 9/9 configured symbols
+2026-02-25 15:00:54 +00:00: [Watchlist] DB: 10 static, 40 dynamic
+2026-02-25 15:00:54 +00:00: [Discovery] Opportunity scanner contributed 36 symbols (45 with flow data)
+2026-02-25 15:00:54 +00:00: [Discovery] 50 symbols: 10 static + 40 dynamic (watchlist: 40, sector_leader: 1, opportunity_scanner: 36, market_data: 3)
+2026-02-25 15:00:54 +00:00: [Discovery] Found 50 symbols to scan
+2026-02-25 15:00:54 +00:00: [Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+2026-02-25 15:00:54 +00:00: [Bias] Intraday: NEUTRAL | Swing: BULLISH
+2026-02-25 15:00:54 +00:00: [Top Discoveries]
+2026-02-25 15:00:54 +00:00:   1. $VIX (score: 100, watchlist)
+2026-02-25 15:00:54 +00:00:   2. MSFT (score: 100, watchlist)
+2026-02-25 15:00:54 +00:00:   3. META (score: 100, watchlist)
+2026-02-25 15:00:54 +00:00:   4. AAPL (score: 100, watchlist)
+2026-02-25 15:00:54 +00:00:   5. AMD (score: 100, watchlist)
+2026-02-25 15:00:54 +00:00:   6. IBIT (score: 100, watchlist)
+2026-02-25 15:00:54 +00:00:   7. TSLA (score: 100, watchlist)
+2026-02-25 15:00:54 +00:00:   8. NVDA (score: 100, watchlist)
+2026-02-25 15:03:10 +00:00: [Backoff] ⚠️ ACTIVATED - 3 slow responses (>5000ms)
+2026-02-25 15:03:10 +00:00: [Backoff]    Switching to batched mode: 5 symbols, 1000ms delay
+2026-02-25 15:03:10 +00:00: [Backoff] 📊 Active (slow: 3, fast: 0)
+2026-02-25 15:03:42 +00:00: [Backoff] 📊 Active (slow: 4, fast: 2)
+2026-02-25 15:04:16 +00:00: [Backoff] 📊 Active (slow: 4, fast: 3)
+2026-02-25 15:04:21 +00:00: 
+2026-02-25 15:04:21 +00:00: [History] Updating scanner history for 50 symbols...
+2026-02-25 15:04:21 +00:00: [History] Updated 50 symbols in database.
+2026-02-25 15:04:21 +00:00: 
+2026-02-25 15:04:21 +00:00: [Results] Analyzed 50 symbols:
+2026-02-25 15:04:21 +00:00:   ✅ XLU: 57/100 🔴 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI overbought (74.4)
+2026-02-25 15:04:21 +00:00:   ✅ OXY: 57/100 🔴 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI overbought (71.0)
+2026-02-25 15:04:21 +00:00:   ✅ SLV: 35/100 🔴 - ⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR), At call wall resistance ($82)
+2026-02-25 15:04:21 +00:00:   ⬜ EEM: 33/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), At upper Bollinger Band
+2026-02-25 15:04:21 +00:00:   ⬜ XLF: 33/100 🟢 - ⭐ COMBO: Put wall + Heavy puts (89% 3d WR), At lower Bollinger Band
+2026-02-25 15:04:21 +00:00:   ⬜ META: 32/100 🔴 - ⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR), At call wall resistance ($650)
+2026-02-25 15:04:21 +00:00:   ⬜ IBRX: 28/100 🟢 - RSI overbought (82.8), At upper Bollinger Band
+2026-02-25 15:04:21 +00:00:   ⬜ AAPL: 23/100 🔴 - At call wall resistance ($275), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:04:21 +00:00:   ⬜ TSLA: 23/100 🔴 - At call wall resistance ($415), ℹ️ Confluence zone (2 levels)
+2026-02-25 15:04:21 +00:00:   ⬜ XLI: 23/100 🔴 - At call wall resistance ($175), ℹ️ Confluence zone (5 levels)
+2026-02-25 15:04:21 +00:00:   ⬜ F: 21/100 🔴 - ⭐ COMBO: Confluence zone + Upper BB (70% 5d WR), At upper Bollinger Band
+2026-02-25 15:04:21 +00:00:   ⬜ IBIT: 20/100 🔴 - At call wall resistance ($38), ℹ️ Confluence zone (2 levels)
+2026-02-25 15:04:21 +00:00:   ⬜ XLP: 20/100 🔴 - RSI overbought (73.0), ℹ️ Elevated call $95 04/17 (39.4x, $0.4M)
+2026-02-25 15:04:21 +00:00:   ⬜ SNDK: 20/100 🔴 - At call wall resistance ($650), ℹ️ At VWAP ($645.16)
+2026-02-25 15:04:21 +00:00:   ⬜ XLC: 20/100 🔴 - At call wall resistance ($117), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:04:21 +00:00:   ⬜ MSFT: 15/100 🔴 - At call wall resistance ($400), ℹ️ Confluence zone (2 levels)
+2026-02-25 15:04:21 +00:00:   ⬜ GM: 15/100 🟢 - At put wall support ($81), ℹ️ At VWAP ($81.59)
+2026-02-25 15:04:21 +00:00:   ⬜ XLRE: 15/100 🟢 - At put wall support ($43), ℹ️ Confluence zone (4 levels)
+2026-02-25 15:04:21 +00:00:   ⬜ GOOGL: 12/100 🟢 - At put wall support ($310), ℹ️ Confluence zone (4 levels)
+2026-02-25 15:04:21 +00:00:   ⬜ UVXY: 12/100 🟢 - At put wall support ($37.5), Heavy call bias (3.06 C/P) [-3]
+2026-02-25 15:04:21 +00:00:   ⬜ AMD: 8/100 🟢 - 🚀 BREAKOUT above call wall ($210) +1.2%, ℹ️ At VWAP ($212.8)
+2026-02-25 15:04:21 +00:00:   ⬜ MU: 8/100 ⚪ - ℹ️ Options flow detected (not at wall — informational), 🔥 Unusual PUT $425 OTM (hedge, 10.0x, $9.0M)
+2026-02-25 15:04:21 +00:00:   ⬜ CVNA: 8/100 🟢 - 🚀 BREAKOUT above call wall ($300) +9.3%, ℹ️ Above gamma flip ($297.95)
+2026-02-25 15:04:21 +00:00:   ⬜ MRNA: 7/100 🔴 - At upper Bollinger Band, Heavy call bias (9.84 C/P) [-3]
+2026-02-25 15:04:21 +00:00:   ⬜ NVDA: 5/100 ⚪ - ℹ️ $125M net bullish premium, Heavy call bias (4.34 C/P) [-3]
+2026-02-25 15:04:21 +00:00:   ⬜ GLD: 5/100 ⚪ - 🧲 Convergent walls ($475/$475) — gamma magnet, PUT wall dormant
+2026-02-25 15:04:21 +00:00:   ⬜ AMZN: 5/100 ⚪ - 🧲 Convergent walls ($210/$210) — gamma magnet, PUT wall dormant
+2026-02-25 15:04:21 +00:00:   ⬜ T: 5/100 ⚪ - 🧲 Convergent walls ($28/$28) — gamma magnet, ℹ️ Confluence zone (3 levels)
+2026-02-25 15:04:21 +00:00:   ⬜ ORCL: 5/100 🟢 - 🚀 BREAKOUT above call wall ($150) +2.0%, Heavy call bias (2.41 C/P) [-3]
+2026-02-25 15:04:21 +00:00:   ⬜ PYPL: 5/100 ⚪ - ℹ️ Elevated volume (1.6x avg), Heavy call bias (6.80 C/P) [-3]
+2026-02-25 15:04:21 +00:00:   ⬜ OPEN: 5/100 🟢 - 🚀 BREAKOUT above call wall ($5) +2.7%, ℹ️ Above gamma flip ($4.54)
+2026-02-25 15:04:21 +00:00:   ⬜ PANW: 5/100 🟢 - RSI oversold (23.9), At lower Bollinger Band
+2026-02-25 15:04:21 +00:00:   ⬜ INTC: 5/100 ⚪ - Heavy call bias (3.51 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (HC 21.9x $13.6M) [+8]
+2026-02-25 15:04:21 +00:00:   ⬜ USO: 5/100 🔴 - 💥 BREAKDOWN below put wall ($81) -1.6%, ℹ️ Confluence zone (2 levels)
+2026-02-25 15:04:21 +00:00:   ⬜ XLK: 5/100 ⚪ - Heavy put bias (0.49 C/P), 📡 Flow confirmed by Opportunity Scanner (T 1573.0x) [+5]
+2026-02-25 15:04:21 +00:00:   ⬜ QQQ: 4/100 🔴 - At call wall resistance ($614), ⚠️ CALL wall ACTIVE (5.7x vol/OI — cascade risk)
+2026-02-25 15:04:21 +00:00:   ⬜ HPQ: 3/100 🟢 - At lower Bollinger Band, ℹ️ Dip buy setup (SPY bearish)
+2026-02-25 15:04:21 +00:00:   ⬜ UNG: 2/100 ⚪ - Heavy call bias (2.91 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 40.0x) [+5]
+2026-02-25 15:04:21 +00:00:   ⬜ XLE: 2/100 ⚪ - ℹ️ Confluence zone (2 levels), Heavy call bias (2.00 C/P) [-3]
+2026-02-25 15:04:21 +00:00:   ⬜ VNDA: 2/100 🟢 - 🚀 BREAKOUT above call wall ($8) +7.6%, ℹ️ Above gamma flip ($3.03)
+2026-02-25 15:04:21 +00:00:   ⬜ SOLZ: 2/100 ⚪ - Heavy call bias (241.75 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 58.7x) [+5]
+2026-02-25 15:04:21 +00:00:   ⬜ ETHA: 2/100 ⚪ - Heavy call bias (2.54 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 7.1x) [+5]
+2026-02-25 15:04:21 +00:00:   ⬜ PLTR: 2/100 ⚪ - ℹ️ Elevated call $132 02/27 (2.6x, $2.3M), ℹ️ $20M net bullish premium
+2026-02-25 15:04:21 +00:00:   ⬜ $VIX: 0/100 ⚪ - Heavy call bias (2.02 C/P) [-3], 🆕 New discovery
+2026-02-25 15:04:21 +00:00:   ⬜ SPY: 0/100 📍 - 📍 PINNED between walls ($687-$693), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:04:21 +00:00:   ⬜ NFLX: 0/100 🟢 - 🚀 BREAKOUT above call wall ($80) +1.9%, ℹ️ Above gamma flip ($78.20)
+2026-02-25 15:04:21 +00:00:   ⬜ VXX: 0/100 ⚪ - ℹ️ Confluence zone (3 levels), 📡 Flow confirmed by Opportunity Scanner (T 7.1x) [+5]
+2026-02-25 15:04:21 +00:00:   ⬜ XLV: 0/100 ⚪ - ℹ️ At VWAP ($158.01), ℹ️ Confluence zone (5 levels)
+2026-02-25 15:04:21 +00:00:   ⬜ BAC: 0/100 🔴 - At lower Bollinger Band, 💥 BREAKDOWN below put wall ($52) -1.7%
+2026-02-25 15:04:21 +00:00:   ⬜ IWM: 0/100 📍 - 📍 PINNED between walls ($262-$265), ℹ️ At VWAP ($262.83)
+2026-02-25 15:04:21 +00:00: 
+2026-02-25 15:04:21 +00:00: [Tiers] HIGH_CONVICTION: 0 | TRADEABLE: 0 | WATCH: 14 | FILTERED: 36
+2026-02-25 15:04:21 +00:00: [WATCH LIST]
+2026-02-25 15:04:21 +00:00:   👀 XLU: 57/100 (score 57)
+2026-02-25 15:04:21 +00:00:   👀 OXY: 57/100 (score 57)
+2026-02-25 15:04:21 +00:00:   👀 SLV: 35/100 (score 35)
+2026-02-25 15:04:21 +00:00:   👀 EEM: 33/100 (score 33)
+2026-02-25 15:04:21 +00:00:   👀 XLF: 33/100 (score 33)
+2026-02-25 15:04:21 +00:00: 
+2026-02-25 15:04:21 +00:00: [Alerts] No alertable opportunities (0 tradeable below cooldown, 14 on watch)
+2026-02-25 15:04:21 +00:00: 
+2026-02-25 15:04:21 +00:00: [Signal Logger] Logging 14 WATCH signal(s) for baseline analysis...
+2026-02-25 15:04:21 +00:00: [Signal Logger] XLU conditions changed on existing signal:
+2026-02-25 15:04:21 +00:00:   Score: 70 → 57 (-13)
+2026-02-25 15:04:21 +00:00:   Zone: BUY_ZONE → HIGH_MOMENTUM
+2026-02-25 15:04:21 +00:00: [Signal Logger] OXY conditions changed on existing signal:
+2026-02-25 15:04:21 +00:00:   Score: 27 → 57 (+30)
+2026-02-25 15:04:21 +00:00: [Signal Logger] EEM conditions changed on existing signal:
+2026-02-25 15:04:21 +00:00:   Score: 20 → 33 (+13)
+2026-02-25 15:04:21 +00:00:   Zone: MID_RANGE → SELL_ZONE
+2026-02-25 15:04:21 +00:00: [Signal Logger] XLF conditions changed on existing signal:
+2026-02-25 15:04:21 +00:00:   Score: 70 → 33 (-37)
+2026-02-25 15:04:21 +00:00:   Zone: null → BUY_ZONE
+2026-02-25 15:04:21 +00:00: [Signal Logger] META conditions changed on existing signal:
+2026-02-25 15:04:21 +00:00:   Score: 30 → 32 (+2)
+2026-02-25 15:04:21 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:04:21 +00:00:   Direction: bullish → bearish
+2026-02-25 15:04:21 +00:00: [Signal Logger] TSLA conditions changed on existing signal:
+2026-02-25 15:04:21 +00:00:   Score: 36 → 23 (-13)
+2026-02-25 15:04:21 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:04:21 +00:00:   Direction: bullish → bearish
+2026-02-25 15:04:21 +00:00: [Signal Logger] XLI conditions changed on existing signal:
+2026-02-25 15:04:21 +00:00:   Score: 73 → 23 (-50)
+2026-02-25 15:04:21 +00:00: [Signal Logger] F conditions changed on existing signal:
+2026-02-25 15:04:21 +00:00:   Score: 30 → 21 (-9)
+2026-02-25 15:04:21 +00:00:   Zone: BUY_ZONE → MID_RANGE
+2026-02-25 15:04:21 +00:00:   Direction: bullish → bearish
+2026-02-25 15:04:21 +00:00: [Signal Logger] IBIT conditions changed on existing signal:
+2026-02-25 15:04:21 +00:00:   Score: 25 → 20 (-5)
+2026-02-25 15:04:21 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:04:21 +00:00:   Direction: bullish → bearish
+2026-02-25 15:04:21 +00:00: [Signal Logger] XLP conditions changed on existing signal:
+2026-02-25 15:04:21 +00:00:   Score: 71 → 20 (-51)
+2026-02-25 15:04:21 +00:00:   Zone: SELL_ZONE → HIGH_MOMENTUM
+2026-02-25 15:04:21 +00:00: [Signal Logger] SNDK conditions changed on existing signal:
+2026-02-25 15:04:21 +00:00:   Score: 33 → 20 (-13)
+2026-02-25 15:04:21 +00:00: [Signal Logger] XLC conditions changed on existing signal:
+2026-02-25 15:04:21 +00:00:   Score: 40 → 20 (-20)
+2026-02-25 15:04:21 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:04:21 +00:00:   Direction: bullish → bearish
+2026-02-25 15:04:21 +00:00: [SignalDB] Inserted 50 bloodhound results for scan 1116
+2026-02-25 15:04:21 +00:00: [Bloodhound] Wrote 50 results to database (scan_id: 1116)
+2026-02-25 15:04:21 +00:00: 
+2026-02-25 15:04:21 +00:00: [Bloodhound] Scan complete (218s). [BACKOFF ACTIVE: batch 5, delay 1000ms] Next scan in 5 minutes.
+2026-02-25 15:04:21 +00:00: [API Cache] 207 fresh / 256 total entries (49 stale)
+2026-02-25 15:04:21 +00:00: [Signal Logger] Price cache built with 50 symbols
+2026-02-25 15:04:24 +00:00: [SignalDB] Closed option signal TSLA_1771858262430: LOSS (peak +0%, close -100%)
+2026-02-25 15:04:24 +00:00: [Signal Logger] Option .TSLA260223C405 expired — closed
+2026-02-25 15:04:27 +00:00: [SignalDB] Closed option signal AAPL_1771859135376: WIN (peak +629%, close -100%)
+2026-02-25 15:04:27 +00:00: [Signal Logger] Option .AAPL260223C267.5 expired — closed
+2026-02-25 15:04:31 +00:00: [SignalDB] Closed option signal IWM_1771869674094: WIN (peak +203%, close -100%)
+2026-02-25 15:04:31 +00:00: [Signal Logger] Option .IWM260224C260 expired — closed
+2026-02-25 15:04:39 +00:00: [Signal Logger] Updated prices for 45 signal(s), 5 option(s) (45 cached, 0 API)
+2026-02-25 15:05:43 +00:00: 
+2026-02-25 15:05:43 +00:00: ============================================================
+2026-02-25 15:05:43 +00:00: [2026-02-25T15:05:43.732Z] Running Bloodhound scan...
+2026-02-25 15:05:43 +00:00: ============================================================
+2026-02-25 15:05:45 +00:00: [Backoff] 📊 Active (slow: 4, fast: 5)
+2026-02-25 15:05:49 +00:00: [Context] VIX: 18.59 (normal) | SPY: bearish
+2026-02-25 15:05:49 +00:00: [Internals] TICK: -103, A/D: -234, Vol Ratio: 1.50
+2026-02-25 15:05:49 +00:00: [RS] Read 18 rankings from DB (snapshot 1940m ago)
+2026-02-25 15:05:53 +00:00: [RS] Rotation regime: mid_cycle | 18 assets ranked
+2026-02-25 15:05:55 +00:00: [MA-Bounce] Pre-fetched history for 8/8 validated symbols
+2026-02-25 15:05:55 +00:00: [Div-BB] Pre-fetched history for 9/9 configured symbols
+2026-02-25 15:05:55 +00:00: [Watchlist] DB: 10 static, 40 dynamic
+2026-02-25 15:05:56 +00:00: [Discovery] Opportunity scanner contributed 37 symbols (46 with flow data)
+2026-02-25 15:05:56 +00:00: [Discovery] 50 symbols: 10 static + 40 dynamic (watchlist: 40, sector_leader: 1, opportunity_scanner: 37, market_data: 3)
+2026-02-25 15:05:56 +00:00: [Discovery] Found 50 symbols to scan
+2026-02-25 15:05:56 +00:00: [Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+2026-02-25 15:05:56 +00:00: [Bias] Intraday: NEUTRAL | Swing: BULLISH
+2026-02-25 15:05:56 +00:00: [Top Discoveries]
+2026-02-25 15:05:56 +00:00:   1. $VIX (score: 100, watchlist)
+2026-02-25 15:05:56 +00:00:   2. MSFT (score: 100, watchlist)
+2026-02-25 15:05:56 +00:00:   3. META (score: 100, watchlist)
+2026-02-25 15:05:56 +00:00:   4. AAPL (score: 100, watchlist)
+2026-02-25 15:05:56 +00:00:   5. AMD (score: 100, watchlist)
+2026-02-25 15:05:56 +00:00:   6. IBIT (score: 100, watchlist)
+2026-02-25 15:05:56 +00:00:   7. TSLA (score: 100, watchlist)
+2026-02-25 15:05:56 +00:00:   8. NVDA (score: 100, watchlist)
+2026-02-25 15:06:16 +00:00: [Backoff] ✅ RECOVERED - 10 fast responses, resuming parallel mode
+2026-02-25 15:07:39 +00:00: 
+2026-02-25 15:07:39 +00:00: [History] Updating scanner history for 50 symbols...
+2026-02-25 15:07:39 +00:00: [History] Updated 50 symbols in database.
+2026-02-25 15:07:39 +00:00: 
+2026-02-25 15:07:39 +00:00: [Results] Analyzed 50 symbols:
+2026-02-25 15:07:39 +00:00:   ✅ XLU: 57/100 🔴 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI overbought (74.4)
+2026-02-25 15:07:39 +00:00:   ✅ OXY: 57/100 🔴 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI overbought (71.0)
+2026-02-25 15:07:39 +00:00:   ✅ SLV: 35/100 🔴 - ⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR), At call wall resistance ($82)
+2026-02-25 15:07:39 +00:00:   ⬜ EEM: 33/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), At upper Bollinger Band
+2026-02-25 15:07:39 +00:00:   ⬜ XLF: 33/100 🟢 - ⭐ COMBO: Put wall + Heavy puts (89% 3d WR), At lower Bollinger Band
+2026-02-25 15:07:39 +00:00:   ⬜ META: 32/100 🔴 - ⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR), At call wall resistance ($650)
+2026-02-25 15:07:39 +00:00:   ⬜ IBRX: 28/100 🟢 - RSI overbought (82.8), At upper Bollinger Band
+2026-02-25 15:07:39 +00:00:   ⬜ AAPL: 23/100 🔴 - At call wall resistance ($275), ℹ️ At VWAP ($272.54)
+2026-02-25 15:07:39 +00:00:   ⬜ TSLA: 23/100 🔴 - At call wall resistance ($415), ℹ️ Confluence zone (2 levels)
+2026-02-25 15:07:39 +00:00:   ⬜ XLI: 23/100 🔴 - At call wall resistance ($175), ℹ️ Confluence zone (5 levels)
+2026-02-25 15:07:39 +00:00:   ⬜ F: 21/100 🔴 - ⭐ COMBO: Confluence zone + Upper BB (70% 5d WR), At upper Bollinger Band
+2026-02-25 15:07:39 +00:00:   ⬜ IBIT: 20/100 🔴 - At call wall resistance ($38), ℹ️ Confluence zone (2 levels)
+2026-02-25 15:07:39 +00:00:   ⬜ AMZN: 20/100 🔴 - At call wall resistance ($210), CALL wall dormant
+2026-02-25 15:07:39 +00:00:   ⬜ XLP: 20/100 🔴 - RSI overbought (73.0), ℹ️ Elevated call $95 04/17 (39.4x, $0.4M)
+2026-02-25 15:07:39 +00:00:   ⬜ XLC: 20/100 🔴 - At call wall resistance ($117), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:07:39 +00:00:   ⬜ GM: 15/100 🟢 - At put wall support ($81), ℹ️ At VWAP ($81.59)
+2026-02-25 15:07:39 +00:00:   ⬜ XLRE: 15/100 🟢 - At put wall support ($43), ℹ️ Confluence zone (4 levels)
+2026-02-25 15:07:39 +00:00:   ⬜ GOOGL: 12/100 🟢 - At put wall support ($310), ℹ️ Confluence zone (4 levels)
+2026-02-25 15:07:39 +00:00:   ⬜ AMD: 8/100 🟢 - 🚀 BREAKOUT above call wall ($210) +1.5%, ℹ️ At VWAP ($212.8)
+2026-02-25 15:07:39 +00:00:   ⬜ MU: 8/100 ⚪ - ℹ️ Options flow detected (not at wall — informational), 🔥 Unusual PUT $425 OTM (hedge, 10.0x, $9.0M)
+2026-02-25 15:07:39 +00:00:   ⬜ CVNA: 8/100 🟢 - 🚀 BREAKOUT above call wall ($300) +9.8%, ℹ️ Above gamma flip ($297.77)
+2026-02-25 15:07:39 +00:00:   ⬜ MRNA: 7/100 🟢 - At upper Bollinger Band, 🚀 BREAKOUT above call wall ($51) +2.7%
+2026-02-25 15:07:39 +00:00:   ⬜ NVDA: 5/100 ⚪ - ℹ️ $125M net bullish premium, Heavy call bias (4.34 C/P) [-3]
+2026-02-25 15:07:39 +00:00:   ⬜ GLD: 5/100 ⚪ - 🧲 Convergent walls ($475/$475) — gamma magnet, PUT wall dormant
+2026-02-25 15:07:39 +00:00:   ⬜ T: 5/100 ⚪ - 🧲 Convergent walls ($28/$28) — gamma magnet, ℹ️ Confluence zone (3 levels)
+2026-02-25 15:07:39 +00:00:   ⬜ ORCL: 5/100 🟢 - 🚀 BREAKOUT above call wall ($150) +1.7%, Heavy call bias (2.41 C/P) [-3]
+2026-02-25 15:07:39 +00:00:   ⬜ PYPL: 5/100 ⚪ - ℹ️ Elevated volume (1.6x avg), Heavy call bias (6.80 C/P) [-3]
+2026-02-25 15:07:39 +00:00:   ⬜ OPEN: 5/100 🟢 - 🚀 BREAKOUT above call wall ($5) +2.3%, ℹ️ Above gamma flip ($0.53)
+2026-02-25 15:07:39 +00:00:   ⬜ SNDK: 5/100 ⚪ - ℹ️ $18M net bullish premium, Heavy call bias (3.34 C/P) [-3]
+2026-02-25 15:07:39 +00:00:   ⬜ PANW: 5/100 🟢 - RSI oversold (23.9), At lower Bollinger Band
+2026-02-25 15:07:39 +00:00:   ⬜ INTC: 5/100 ⚪ - Heavy call bias (3.51 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (HC 21.9x $13.6M) [+8]
+2026-02-25 15:07:39 +00:00:   ⬜ USO: 5/100 🔴 - 💥 BREAKDOWN below put wall ($81) -1.6%, ℹ️ Confluence zone (2 levels)
+2026-02-25 15:07:39 +00:00:   ⬜ XLK: 5/100 ⚪ - Heavy put bias (0.49 C/P), 📡 Flow confirmed by Opportunity Scanner (T 1573.0x) [+5]
+2026-02-25 15:07:39 +00:00:   ⬜ QQQ: 4/100 🔴 - At call wall resistance ($614), ⚠️ CALL wall ACTIVE (5.7x vol/OI — cascade risk)
+2026-02-25 15:07:39 +00:00:   ⬜ HPQ: 3/100 🟢 - At lower Bollinger Band, ℹ️ At VWAP ($18.2)
+2026-02-25 15:07:39 +00:00:   ⬜ UNG: 2/100 ⚪ - Heavy call bias (2.91 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 40.0x) [+5]
+2026-02-25 15:07:39 +00:00:   ⬜ XLE: 2/100 ⚪ - Heavy call bias (2.00 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 0.9x) [+5]
+2026-02-25 15:07:39 +00:00:   ⬜ VNDA: 2/100 🟢 - 🚀 BREAKOUT above call wall ($8) +8.5%, ℹ️ Above gamma flip ($5.62)
+2026-02-25 15:07:39 +00:00:   ⬜ SOLZ: 2/100 ⚪ - Heavy call bias (241.75 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 58.7x) [+5]
+2026-02-25 15:07:39 +00:00:   ⬜ UVXY: 2/100 🔴 - 💥 BREAKDOWN below put wall ($40) -5.5%, Heavy call bias (3.06 C/P) [-3]
+2026-02-25 15:07:39 +00:00:   ⬜ ETHA: 2/100 ⚪ - Heavy call bias (2.54 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 7.1x) [+5]
+2026-02-25 15:07:39 +00:00:   ⬜ PLTR: 2/100 ⚪ - ℹ️ Elevated call $132 02/27 (2.6x, $2.3M), ℹ️ $20M net bullish premium
+2026-02-25 15:07:39 +00:00:   ⬜ $VIX: 0/100 ⚪ - Heavy call bias (2.02 C/P) [-3], 🆕 New discovery
+2026-02-25 15:07:39 +00:00:   ⬜ MSFT: 0/100 🟢 - 🧲 Convergent walls ($400/$400) — gamma magnet, ℹ️ Confluence zone (3 levels)
+2026-02-25 15:07:39 +00:00:   ⬜ SPY: 0/100 📍 - 📍 PINNED between walls ($687-$693), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:07:39 +00:00:   ⬜ NFLX: 0/100 🟢 - 🚀 BREAKOUT above call wall ($80) +1.6%, ℹ️ Above gamma flip ($78.18)
+2026-02-25 15:07:39 +00:00:   ⬜ VXX: 0/100 ⚪ - ℹ️ Confluence zone (3 levels), 📡 Flow confirmed by Opportunity Scanner (T 7.1x) [+5]
+2026-02-25 15:07:39 +00:00:   ⬜ XLV: 0/100 ⚪ - ℹ️ At VWAP ($158.01), ℹ️ Confluence zone (5 levels)
+2026-02-25 15:07:39 +00:00:   ⬜ BAC: 0/100 🔴 - At lower Bollinger Band, 💥 BREAKDOWN below put wall ($52) -1.8%
+2026-02-25 15:07:39 +00:00:   ⬜ IWM: 0/100 📍 - 📍 PINNED between walls ($262-$265), ℹ️ At VWAP ($262.83)
+2026-02-25 15:07:39 +00:00: 
+2026-02-25 15:07:39 +00:00: [Tiers] HIGH_CONVICTION: 0 | TRADEABLE: 0 | WATCH: 14 | FILTERED: 36
+2026-02-25 15:07:39 +00:00: [WATCH LIST]
+2026-02-25 15:07:39 +00:00:   👀 XLU: 57/100 (score 57)
+2026-02-25 15:07:39 +00:00:   👀 OXY: 57/100 (score 57)
+2026-02-25 15:07:39 +00:00:   👀 SLV: 35/100 (score 35)
+2026-02-25 15:07:39 +00:00:   👀 EEM: 33/100 (score 33)
+2026-02-25 15:07:39 +00:00:   👀 XLF: 33/100 (score 33)
+2026-02-25 15:07:39 +00:00: 
+2026-02-25 15:07:39 +00:00: [Alerts] No alertable opportunities (0 tradeable below cooldown, 14 on watch)
+2026-02-25 15:07:39 +00:00: 
+2026-02-25 15:07:39 +00:00: [Signal Logger] Logging 14 WATCH signal(s) for baseline analysis...
+2026-02-25 15:07:39 +00:00: [Signal Logger] XLU conditions changed on existing signal:
+2026-02-25 15:07:39 +00:00:   Score: 70 → 57 (-13)
+2026-02-25 15:07:39 +00:00:   Zone: BUY_ZONE → HIGH_MOMENTUM
+2026-02-25 15:07:39 +00:00: [Signal Logger] OXY conditions changed on existing signal:
+2026-02-25 15:07:39 +00:00:   Score: 27 → 57 (+30)
+2026-02-25 15:07:39 +00:00: [Signal Logger] EEM conditions changed on existing signal:
+2026-02-25 15:07:39 +00:00:   Score: 20 → 33 (+13)
+2026-02-25 15:07:39 +00:00:   Zone: MID_RANGE → SELL_ZONE
+2026-02-25 15:07:39 +00:00: [Signal Logger] XLF conditions changed on existing signal:
+2026-02-25 15:07:39 +00:00:   Score: 70 → 33 (-37)
+2026-02-25 15:07:39 +00:00:   Zone: null → BUY_ZONE
+2026-02-25 15:07:39 +00:00: [Signal Logger] META conditions changed on existing signal:
+2026-02-25 15:07:39 +00:00:   Score: 30 → 32 (+2)
+2026-02-25 15:07:39 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:07:39 +00:00:   Direction: bullish → bearish
+2026-02-25 15:07:39 +00:00: [Signal Logger] TSLA conditions changed on existing signal:
+2026-02-25 15:07:39 +00:00:   Score: 36 → 23 (-13)
+2026-02-25 15:07:39 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:07:39 +00:00:   Direction: bullish → bearish
+2026-02-25 15:07:39 +00:00: [Signal Logger] XLI conditions changed on existing signal:
+2026-02-25 15:07:39 +00:00:   Score: 73 → 23 (-50)
+2026-02-25 15:07:39 +00:00: [Signal Logger] F conditions changed on existing signal:
+2026-02-25 15:07:39 +00:00:   Score: 30 → 21 (-9)
+2026-02-25 15:07:39 +00:00:   Zone: BUY_ZONE → MID_RANGE
+2026-02-25 15:07:39 +00:00:   Direction: bullish → bearish
+2026-02-25 15:07:39 +00:00: [Signal Logger] IBIT conditions changed on existing signal:
+2026-02-25 15:07:39 +00:00:   Score: 25 → 20 (-5)
+2026-02-25 15:07:39 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:07:39 +00:00:   Direction: bullish → bearish
+2026-02-25 15:07:39 +00:00: [Signal Logger] AMZN conditions changed on existing signal:
+2026-02-25 15:07:39 +00:00:   Score: 33 → 20 (-13)
+2026-02-25 15:07:39 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:07:39 +00:00:   Direction: bullish → bearish
+2026-02-25 15:07:39 +00:00: [Signal Logger] XLP conditions changed on existing signal:
+2026-02-25 15:07:39 +00:00:   Score: 71 → 20 (-51)
+2026-02-25 15:07:39 +00:00:   Zone: SELL_ZONE → HIGH_MOMENTUM
+2026-02-25 15:07:39 +00:00: [Signal Logger] XLC conditions changed on existing signal:
+2026-02-25 15:07:39 +00:00:   Score: 40 → 20 (-20)
+2026-02-25 15:07:39 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:07:39 +00:00:   Direction: bullish → bearish
+2026-02-25 15:07:39 +00:00: [SignalDB] Inserted 50 bloodhound results for scan 1117
+2026-02-25 15:07:39 +00:00: [Bloodhound] Wrote 50 results to database (scan_id: 1117)
+2026-02-25 15:07:39 +00:00: 
+2026-02-25 15:07:39 +00:00: [Bloodhound] Scan complete (116s). Next scan in 5 minutes.
+2026-02-25 15:07:39 +00:00: [API Cache] 242 fresh / 253 total entries (11 stale)
+2026-02-25 15:07:39 +00:00: [Signal Logger] Price cache built with 50 symbols
+2026-02-25 15:07:41 +00:00: [SignalDB] Closed option signal TSLA_1771858262430: LOSS (peak +0%, close -100%)
+2026-02-25 15:07:41 +00:00: [Signal Logger] Option .TSLA260223C405 expired — closed
+2026-02-25 15:07:43 +00:00: [SignalDB] Closed option signal AAPL_1771859135376: WIN (peak +629%, close -100%)
+2026-02-25 15:07:43 +00:00: [Signal Logger] Option .AAPL260223C267.5 expired — closed
+2026-02-25 15:07:46 +00:00: [SignalDB] Closed option signal IWM_1771869674094: WIN (peak +203%, close -100%)
+2026-02-25 15:07:46 +00:00: [Signal Logger] Option .IWM260224C260 expired — closed
+2026-02-25 15:07:54 +00:00: [Signal Logger] Updated prices for 45 signal(s), 5 option(s) (45 cached, 0 API)
+2026-02-25 15:10:43 +00:00: 
+2026-02-25 15:10:43 +00:00: ============================================================
+2026-02-25 15:10:43 +00:00: [2026-02-25T15:10:43.733Z] Running Bloodhound scan...
+2026-02-25 15:10:43 +00:00: ============================================================
+2026-02-25 15:10:49 +00:00: [Context] VIX: 18.74 (normal) | SPY: bearish
+2026-02-25 15:10:49 +00:00: [Internals] TICK: 99, A/D: -334, Vol Ratio: 1.46
+2026-02-25 15:10:49 +00:00: [RS] Read 18 rankings from DB (snapshot 1945m ago)
+2026-02-25 15:10:53 +00:00: [RS] Rotation regime: mid_cycle | 18 assets ranked
+2026-02-25 15:10:55 +00:00: [MA-Bounce] Pre-fetched history for 8/8 validated symbols
+2026-02-25 15:10:55 +00:00: [Div-BB] Pre-fetched history for 9/9 configured symbols
+2026-02-25 15:10:55 +00:00: [Watchlist] DB: 10 static, 40 dynamic
+2026-02-25 15:10:56 +00:00: [Discovery] Opportunity scanner contributed 37 symbols (46 with flow data)
+2026-02-25 15:10:56 +00:00: [Discovery] 50 symbols: 10 static + 40 dynamic (watchlist: 40, sector_leader: 1, opportunity_scanner: 37, market_data: 3)
+2026-02-25 15:10:56 +00:00: [Discovery] Found 50 symbols to scan
+2026-02-25 15:10:56 +00:00: [Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+2026-02-25 15:10:56 +00:00: [Bias] Intraday: NEUTRAL | Swing: BULLISH
+2026-02-25 15:10:56 +00:00: [Top Discoveries]
+2026-02-25 15:10:56 +00:00:   1. $VIX (score: 100, watchlist)
+2026-02-25 15:10:56 +00:00:   2. MSFT (score: 100, watchlist)
+2026-02-25 15:10:56 +00:00:   3. META (score: 100, watchlist)
+2026-02-25 15:10:56 +00:00:   4. AAPL (score: 100, watchlist)
+2026-02-25 15:10:56 +00:00:   5. AMD (score: 100, watchlist)
+2026-02-25 15:10:56 +00:00:   6. IBIT (score: 100, watchlist)
+2026-02-25 15:10:56 +00:00:   7. TSLA (score: 100, watchlist)
+2026-02-25 15:10:56 +00:00:   8. NVDA (score: 100, watchlist)
+2026-02-25 15:12:25 +00:00: 
+2026-02-25 15:12:25 +00:00: [History] Updating scanner history for 50 symbols...
+2026-02-25 15:12:25 +00:00: [History] Updated 50 symbols in database.
+2026-02-25 15:12:25 +00:00: 
+2026-02-25 15:12:25 +00:00: [Results] Analyzed 50 symbols:
+2026-02-25 15:12:25 +00:00:   ✅ XLU: 57/100 🔴 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI overbought (74.4)
+2026-02-25 15:12:25 +00:00:   ✅ OXY: 57/100 🔴 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI overbought (71.0)
+2026-02-25 15:12:25 +00:00:   ⬜ EEM: 33/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), At upper Bollinger Band
+2026-02-25 15:12:25 +00:00:   ⬜ XLF: 33/100 🟢 - ⭐ COMBO: Put wall + Heavy puts (89% 3d WR), At lower Bollinger Band
+2026-02-25 15:12:25 +00:00:   ⬜ META: 32/100 🔴 - ⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR), At call wall resistance ($650)
+2026-02-25 15:12:25 +00:00:   ⬜ IBRX: 28/100 🟢 - RSI overbought (82.8), At upper Bollinger Band
+2026-02-25 15:12:25 +00:00:   ⬜ XLI: 23/100 🔴 - At call wall resistance ($175), ℹ️ Confluence zone (5 levels)
+2026-02-25 15:12:25 +00:00:   ⬜ F: 21/100 🔴 - ⭐ COMBO: Confluence zone + Upper BB (70% 5d WR), At upper Bollinger Band
+2026-02-25 15:12:25 +00:00:   ⬜ IBIT: 20/100 🔴 - At call wall resistance ($38), ℹ️ Confluence zone (2 levels)
+2026-02-25 15:12:25 +00:00:   ⬜ AMZN: 20/100 🔴 - At call wall resistance ($210), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:12:25 +00:00:   ⬜ XLP: 20/100 🔴 - RSI overbought (73.0), ℹ️ Elevated call $95 04/17 (39.4x, $0.4M)
+2026-02-25 15:12:25 +00:00:   ⬜ XLC: 20/100 🔴 - At call wall resistance ($117), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:12:25 +00:00:   ⬜ MSFT: 15/100 🔴 - At call wall resistance ($400), CALL wall dormant
+2026-02-25 15:12:25 +00:00:   ⬜ XLV: 15/100 🔴 - At call wall resistance ($160), ℹ️ At VWAP ($158.01)
+2026-02-25 15:12:25 +00:00:   ⬜ GM: 15/100 🟢 - At put wall support ($81), ℹ️ At VWAP ($81.59)
+2026-02-25 15:12:25 +00:00:   ⬜ AAPL: 8/100 📍 - 📍 PINNED between walls ($270-$275), ℹ️ At VWAP ($272.54)
+2026-02-25 15:12:25 +00:00:   ⬜ AMD: 8/100 🟢 - 🚀 BREAKOUT above call wall ($210) +1.6%, ℹ️ At VWAP ($212.8)
+2026-02-25 15:12:25 +00:00:   ⬜ SLV: 8/100 🟢 - 🚀 BREAKOUT above call wall ($80) +2.2%, ℹ️ Above gamma flip ($74.60)
+2026-02-25 15:12:25 +00:00:   ⬜ MU: 8/100 ⚪ - ℹ️ Options flow detected (not at wall — informational), 🔥 Unusual PUT $425 OTM (hedge, 10.0x, $9.0M)
+2026-02-25 15:12:25 +00:00:   ⬜ CVNA: 8/100 🟢 - 🚀 BREAKOUT above call wall ($300) +9.3%, ℹ️ Above gamma flip ($297.80)
+2026-02-25 15:12:25 +00:00:   ⬜ MRNA: 7/100 🟢 - At upper Bollinger Band, 🚀 BREAKOUT above call wall ($51) +2.6%
+2026-02-25 15:12:25 +00:00:   ⬜ NVDA: 5/100 ⚪ - ℹ️ $125M net bullish premium, Heavy call bias (4.34 C/P) [-3]
+2026-02-25 15:12:25 +00:00:   ⬜ GLD: 5/100 ⚪ - 🧲 Convergent walls ($475/$475) — gamma magnet, PUT wall dormant
+2026-02-25 15:12:25 +00:00:   ⬜ T: 5/100 ⚪ - 🧲 Convergent walls ($28/$28) — gamma magnet, ℹ️ Confluence zone (3 levels)
+2026-02-25 15:12:25 +00:00:   ⬜ ORCL: 5/100 🟢 - 🚀 BREAKOUT above call wall ($150) +1.3%, Heavy call bias (2.41 C/P) [-3]
+2026-02-25 15:12:25 +00:00:   ⬜ PYPL: 5/100 ⚪ - ℹ️ Elevated volume (1.6x avg), Heavy call bias (6.80 C/P) [-3]
+2026-02-25 15:12:25 +00:00:   ⬜ OPEN: 5/100 🟢 - 🚀 BREAKOUT above call wall ($5) +1.8%, ℹ️ Above gamma flip ($0.53)
+2026-02-25 15:12:25 +00:00:   ⬜ SNDK: 5/100 ⚪ - ℹ️ $18M net bullish premium, Heavy call bias (3.34 C/P) [-3]
+2026-02-25 15:12:25 +00:00:   ⬜ PANW: 5/100 🟢 - RSI oversold (23.9), At lower Bollinger Band
+2026-02-25 15:12:25 +00:00:   ⬜ INTC: 5/100 ⚪ - Heavy call bias (3.51 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (HC 21.9x $13.6M) [+8]
+2026-02-25 15:12:25 +00:00:   ⬜ USO: 5/100 🔴 - 💥 BREAKDOWN below put wall ($81) -1.5%, ℹ️ Confluence zone (2 levels)
+2026-02-25 15:12:25 +00:00:   ⬜ XLK: 5/100 ⚪ - Heavy put bias (0.49 C/P), 📡 Flow confirmed by Opportunity Scanner (T 1573.0x) [+5]
+2026-02-25 15:12:25 +00:00:   ⬜ QQQ: 4/100 🔴 - At call wall resistance ($614), ⚠️ CALL wall ACTIVE (5.7x vol/OI — cascade risk)
+2026-02-25 15:12:25 +00:00:   ⬜ HPQ: 3/100 🟢 - At lower Bollinger Band, ℹ️ At VWAP ($18.2)
+2026-02-25 15:12:25 +00:00:   ⬜ UNG: 2/100 ⚪ - Heavy call bias (2.91 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 40.0x) [+5]
+2026-02-25 15:12:25 +00:00:   ⬜ XLE: 2/100 ⚪ - ℹ️ Confluence zone (2 levels), Heavy call bias (2.00 C/P) [-3]
+2026-02-25 15:12:25 +00:00:   ⬜ VNDA: 2/100 🟢 - 🚀 BREAKOUT above call wall ($8) +8.0%, ℹ️ Above gamma flip ($5.90)
+2026-02-25 15:12:25 +00:00:   ⬜ SOLZ: 2/100 ⚪ - Heavy call bias (241.75 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 58.7x) [+5]
+2026-02-25 15:12:25 +00:00:   ⬜ UVXY: 2/100 ⚪ - Heavy call bias (3.06 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 6.7x) [+5]
+2026-02-25 15:12:25 +00:00:   ⬜ ETHA: 2/100 ⚪ - Heavy call bias (2.54 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 7.1x) [+5]
+2026-02-25 15:12:25 +00:00:   ⬜ PLTR: 2/100 ⚪ - ℹ️ Elevated call $132 02/27 (2.6x, $2.3M), ℹ️ $20M net bullish premium
+2026-02-25 15:12:25 +00:00:   ⬜ $VIX: 0/100 ⚪ - Heavy call bias (2.02 C/P) [-3], 🆕 New discovery
+2026-02-25 15:12:25 +00:00:   ⬜ TSLA: 0/100 📍 - 📍 PINNED between walls ($410-$415), ℹ️ Confluence zone (2 levels)
+2026-02-25 15:12:25 +00:00:   ⬜ SPY: 0/100 📍 - 📍 PINNED between walls ($687-$693), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:12:25 +00:00:   ⬜ NFLX: 0/100 🟢 - 🚀 BREAKOUT above call wall ($80) +1.6%, ℹ️ Above gamma flip ($78.19)
+2026-02-25 15:12:25 +00:00:   ⬜ VXX: 0/100 ⚪ - ℹ️ Confluence zone (3 levels), 📡 Flow confirmed by Opportunity Scanner (T 7.1x) [+5]
+2026-02-25 15:12:25 +00:00:   ⬜ BAC: 0/100 🔴 - At lower Bollinger Band, 💥 BREAKDOWN below put wall ($52) -1.6%
+2026-02-25 15:12:25 +00:00:   ⬜ IWM: 0/100 📍 - 📍 PINNED between walls ($262-$265), ℹ️ At VWAP ($262.83)
+2026-02-25 15:12:25 +00:00:   ⬜ GOOGL: 0/100 📍 - 📍 PINNED between walls ($310-$315), PUT wall dormant
+2026-02-25 15:12:25 +00:00:   ⬜ XLRE: 0/100 ⚪ - ℹ️ Confluence zone (4 levels), ℹ️ Weak sector RS (XLRE, 39th pctl)
+2026-02-25 15:12:25 +00:00: 
+2026-02-25 15:12:25 +00:00: [Tiers] HIGH_CONVICTION: 0 | TRADEABLE: 0 | WATCH: 11 | FILTERED: 39
+2026-02-25 15:12:25 +00:00: [WATCH LIST]
+2026-02-25 15:12:25 +00:00:   👀 XLU: 57/100 (score 57)
+2026-02-25 15:12:25 +00:00:   👀 OXY: 57/100 (score 57)
+2026-02-25 15:12:25 +00:00:   👀 EEM: 33/100 (score 33)
+2026-02-25 15:12:25 +00:00:   👀 XLF: 33/100 (score 33)
+2026-02-25 15:12:25 +00:00:   👀 META: 32/100 (score 32)
+2026-02-25 15:12:25 +00:00: 
+2026-02-25 15:12:25 +00:00: [Alerts] No alertable opportunities (0 tradeable below cooldown, 11 on watch)
+2026-02-25 15:12:25 +00:00: 
+2026-02-25 15:12:25 +00:00: [Signal Logger] Logging 11 WATCH signal(s) for baseline analysis...
+2026-02-25 15:12:25 +00:00: [Signal Logger] XLU conditions changed on existing signal:
+2026-02-25 15:12:25 +00:00:   Score: 70 → 57 (-13)
+2026-02-25 15:12:25 +00:00:   Zone: BUY_ZONE → HIGH_MOMENTUM
+2026-02-25 15:12:25 +00:00: [Signal Logger] OXY conditions changed on existing signal:
+2026-02-25 15:12:25 +00:00:   Score: 27 → 57 (+30)
+2026-02-25 15:12:25 +00:00: [Signal Logger] EEM conditions changed on existing signal:
+2026-02-25 15:12:25 +00:00:   Score: 20 → 33 (+13)
+2026-02-25 15:12:25 +00:00:   Zone: MID_RANGE → SELL_ZONE
+2026-02-25 15:12:25 +00:00: [Signal Logger] XLF conditions changed on existing signal:
+2026-02-25 15:12:25 +00:00:   Score: 70 → 33 (-37)
+2026-02-25 15:12:25 +00:00:   Zone: null → BUY_ZONE
+2026-02-25 15:12:25 +00:00: [Signal Logger] META conditions changed on existing signal:
+2026-02-25 15:12:25 +00:00:   Score: 30 → 32 (+2)
+2026-02-25 15:12:25 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:12:25 +00:00:   Direction: bullish → bearish
+2026-02-25 15:12:25 +00:00: [Signal Logger] XLI conditions changed on existing signal:
+2026-02-25 15:12:25 +00:00:   Score: 73 → 23 (-50)
+2026-02-25 15:12:25 +00:00: [Signal Logger] F conditions changed on existing signal:
+2026-02-25 15:12:25 +00:00:   Score: 30 → 21 (-9)
+2026-02-25 15:12:25 +00:00:   Zone: BUY_ZONE → MID_RANGE
+2026-02-25 15:12:25 +00:00:   Direction: bullish → bearish
+2026-02-25 15:12:25 +00:00: [Signal Logger] IBIT conditions changed on existing signal:
+2026-02-25 15:12:25 +00:00:   Score: 25 → 20 (-5)
+2026-02-25 15:12:25 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:12:25 +00:00:   Direction: bullish → bearish
+2026-02-25 15:12:25 +00:00: [Signal Logger] AMZN conditions changed on existing signal:
+2026-02-25 15:12:25 +00:00:   Score: 33 → 20 (-13)
+2026-02-25 15:12:25 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:12:25 +00:00:   Direction: bullish → bearish
+2026-02-25 15:12:25 +00:00: [Signal Logger] XLP conditions changed on existing signal:
+2026-02-25 15:12:25 +00:00:   Score: 71 → 20 (-51)
+2026-02-25 15:12:25 +00:00:   Zone: SELL_ZONE → HIGH_MOMENTUM
+2026-02-25 15:12:25 +00:00: [Signal Logger] XLC conditions changed on existing signal:
+2026-02-25 15:12:25 +00:00:   Score: 40 → 20 (-20)
+2026-02-25 15:12:25 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:12:25 +00:00:   Direction: bullish → bearish
+2026-02-25 15:12:25 +00:00: [SignalDB] Inserted 50 bloodhound results for scan 1118
+2026-02-25 15:12:25 +00:00: [Bloodhound] Wrote 50 results to database (scan_id: 1118)
+2026-02-25 15:12:25 +00:00: 
+2026-02-25 15:12:25 +00:00: [Bloodhound] Scan complete (102s). Next scan in 5 minutes.
+2026-02-25 15:12:25 +00:00: [API Cache] 213 fresh / 253 total entries (40 stale)
+2026-02-25 15:12:25 +00:00: [Signal Logger] Price cache built with 50 symbols
+2026-02-25 15:12:28 +00:00: [SignalDB] Closed option signal TSLA_1771858262430: LOSS (peak +0%, close -100%)
+2026-02-25 15:12:28 +00:00: [Signal Logger] Option .TSLA260223C405 expired — closed
+2026-02-25 15:12:29 +00:00: [SignalDB] Closed option signal AAPL_1771859135376: WIN (peak +629%, close -100%)
+2026-02-25 15:12:29 +00:00: [Signal Logger] Option .AAPL260223C267.5 expired — closed
+2026-02-25 15:12:32 +00:00: [SignalDB] Closed option signal IWM_1771869674094: WIN (peak +203%, close -100%)
+2026-02-25 15:12:32 +00:00: [Signal Logger] Option .IWM260224C260 expired — closed
+2026-02-25 15:12:40 +00:00: [Signal Logger] Updated prices for 45 signal(s), 5 option(s) (45 cached, 0 API)
+2026-02-25 15:12:40 +00:00: [Signal Logger] Validating 1 signal(s) for 24h checkpoint...
+2026-02-25 15:12:40 +00:00: [SignalDB] Recorded 24h checkpoint for SLV_1771945822298: WRONG (3.18%)
+2026-02-25 15:12:40 +00:00: [Signal Logger] 24h | SLV_1771945822298: ❌ +3.18%
+2026-02-25 15:15:43 +00:00: 
+2026-02-25 15:15:43 +00:00: ============================================================
+2026-02-25 15:15:43 +00:00: [2026-02-25T15:15:43.732Z] Running Bloodhound scan...
+2026-02-25 15:15:43 +00:00: ============================================================
+2026-02-25 15:15:48 +00:00: [Context] VIX: 18.74 (normal) | SPY: bearish
+2026-02-25 15:15:48 +00:00: [Internals] TICK: 98, A/D: -243, Vol Ratio: 1.40
+2026-02-25 15:15:48 +00:00: [RS] Read 18 rankings from DB (snapshot 1950m ago)
+2026-02-25 15:15:53 +00:00: [RS] Rotation regime: mid_cycle | 18 assets ranked
+2026-02-25 15:15:54 +00:00: [MA-Bounce] Pre-fetched history for 8/8 validated symbols
+2026-02-25 15:15:54 +00:00: [Div-BB] Pre-fetched history for 9/9 configured symbols
+2026-02-25 15:15:55 +00:00: [Watchlist] DB: 10 static, 40 dynamic
+2026-02-25 15:15:55 +00:00: [Discovery] Opportunity scanner contributed 37 symbols (46 with flow data)
+2026-02-25 15:15:55 +00:00: [Discovery] 50 symbols: 10 static + 40 dynamic (watchlist: 40, market_data: 3, opportunity_scanner: 37, sector_leader: 1)
+2026-02-25 15:15:55 +00:00: [Discovery] Found 50 symbols to scan
+2026-02-25 15:15:55 +00:00: [Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+2026-02-25 15:15:55 +00:00: [Bias] Intraday: NEUTRAL | Swing: BULLISH
+2026-02-25 15:15:55 +00:00: [Top Discoveries]
+2026-02-25 15:15:55 +00:00:   1. $VIX (score: 100, watchlist)
+2026-02-25 15:15:55 +00:00:   2. MSFT (score: 100, watchlist)
+2026-02-25 15:15:55 +00:00:   3. META (score: 100, watchlist)
+2026-02-25 15:15:55 +00:00:   4. AAPL (score: 100, watchlist)
+2026-02-25 15:15:55 +00:00:   5. AMD (score: 100, watchlist)
+2026-02-25 15:15:55 +00:00:   6. IBIT (score: 100, watchlist)
+2026-02-25 15:15:55 +00:00:   7. TSLA (score: 100, watchlist)
+2026-02-25 15:15:55 +00:00:   8. NVDA (score: 100, watchlist)
+2026-02-25 15:19:29 +00:00: 
+2026-02-25 15:19:29 +00:00: [History] Updating scanner history for 50 symbols...
+2026-02-25 15:19:29 +00:00: [History] Updated 50 symbols in database.
+2026-02-25 15:19:29 +00:00: 
+2026-02-25 15:19:29 +00:00: [Results] Analyzed 50 symbols:
+2026-02-25 15:19:29 +00:00:   ✅ OXY: 65/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), ⭐ PRIME SETUP: Wall + Extended RSI
+2026-02-25 15:19:29 +00:00:   ✅ XLU: 57/100 🔴 - ⭐ PRIME SETUP: Wall + Extended RSI, RSI overbought (74.4)
+2026-02-25 15:19:29 +00:00:   ⬜ EEM: 33/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), At upper Bollinger Band
+2026-02-25 15:19:29 +00:00:   ⬜ XLF: 33/100 🟢 - ⭐ COMBO: Put wall + Heavy puts (89% 3d WR), At lower Bollinger Band
+2026-02-25 15:19:29 +00:00:   ⬜ MSFT: 32/100 🔴 - ⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR), At call wall resistance ($400)
+2026-02-25 15:19:29 +00:00:   ⬜ META: 32/100 🔴 - ⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR), At call wall resistance ($650)
+2026-02-25 15:19:29 +00:00:   ⬜ IBRX: 28/100 🟢 - RSI overbought (82.8), At upper Bollinger Band
+2026-02-25 15:19:29 +00:00:   ⬜ TSLA: 23/100 🔴 - At call wall resistance ($415), ℹ️ Confluence zone (2 levels)
+2026-02-25 15:19:29 +00:00:   ⬜ XLP: 23/100 🔴 - RSI overbought (73.0), ℹ️ Elevated call $95 04/17 (39.4x, $0.4M)
+2026-02-25 15:19:29 +00:00:   ⬜ F: 21/100 🔴 - ⭐ COMBO: Confluence zone + Upper BB (70% 5d WR), At upper Bollinger Band
+2026-02-25 15:19:29 +00:00:   ⬜ ORCL: 20/100 🔴 - At call wall resistance ($150), CALL wall dormant
+2026-02-25 15:19:29 +00:00:   ⬜ SNDK: 20/100 🔴 - At call wall resistance ($650), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:19:29 +00:00:   ⬜ XLC: 20/100 🔴 - At call wall resistance ($117), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:19:29 +00:00:   ⬜ XLI: 18/100 📍 - ⭐ COMBO: Put wall + Heavy puts (89% 3d WR), 📍 PINNED between walls ($173-$175)
+2026-02-25 15:19:29 +00:00:   ⬜ AMZN: 15/100 🔴 - At call wall resistance ($210), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:19:29 +00:00:   ⬜ XLV: 15/100 🔴 - At call wall resistance ($160), ℹ️ Confluence zone (5 levels)
+2026-02-25 15:19:29 +00:00:   ⬜ GM: 15/100 🟢 - At put wall support ($81), ℹ️ At VWAP ($81.59)
+2026-02-25 15:19:29 +00:00:   ⬜ GOOGL: 12/100 🟢 - At put wall support ($310), ℹ️ Confluence zone (4 levels)
+2026-02-25 15:19:29 +00:00:   ⬜ AMD: 8/100 🟢 - 🚀 BREAKOUT above call wall ($210) +1.6%, ℹ️ At VWAP ($212.8)
+2026-02-25 15:19:29 +00:00:   ⬜ GLD: 8/100 ⚪ - 🧲 Convergent walls ($475/$475) — gamma magnet, PUT wall dormant
+2026-02-25 15:19:29 +00:00:   ⬜ T: 8/100 ⚪ - 🧲 Convergent walls ($28/$28) — gamma magnet, ℹ️ Confluence zone (3 levels)
+2026-02-25 15:19:29 +00:00:   ⬜ SLV: 8/100 🟢 - 🚀 BREAKOUT above call wall ($80) +2.3%, ℹ️ Above gamma flip ($79.60)
+2026-02-25 15:19:29 +00:00:   ⬜ CVNA: 8/100 🟢 - 🚀 BREAKOUT above call wall ($300) +8.7%, ℹ️ Above gamma flip ($297.99)
+2026-02-25 15:19:29 +00:00:   ⬜ MRNA: 7/100 🔴 - At upper Bollinger Band, Heavy call bias (8.91 C/P) [-3]
+2026-02-25 15:19:29 +00:00:   ⬜ IBIT: 5/100 ⚪ - 🧲 Convergent walls ($38/$38) — gamma magnet, ℹ️ Confluence zone (3 levels)
+2026-02-25 15:19:29 +00:00:   ⬜ NVDA: 5/100 ⚪ - ℹ️ Confluence zone (2 levels), ℹ️ $174M net bullish premium
+2026-02-25 15:19:29 +00:00:   ⬜ PYPL: 5/100 ⚪ - ℹ️ Elevated volume (1.6x avg), Heavy call bias (6.21 C/P) [-3]
+2026-02-25 15:19:29 +00:00:   ⬜ OPEN: 5/100 ⚪ - 🧲 Convergent walls ($5/$5) — gamma magnet, PUT wall dormant
+2026-02-25 15:19:29 +00:00:   ⬜ MU: 5/100 ⚪ - ℹ️ Options flow detected (not at wall — informational), 🔥 Unusual PUT $425 OTM (hedge, 10.0x, $9.5M)
+2026-02-25 15:19:29 +00:00:   ⬜ PANW: 5/100 🟢 - RSI oversold (23.9), At lower Bollinger Band
+2026-02-25 15:19:29 +00:00:   ⬜ INTC: 5/100 ⚪ - Heavy call bias (2.68 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (HC 21.9x $13.6M) [+8]
+2026-02-25 15:19:29 +00:00:   ⬜ USO: 5/100 🔴 - 💥 BREAKDOWN below put wall ($81) -1.4%, ℹ️ Confluence zone (2 levels)
+2026-02-25 15:19:29 +00:00:   ⬜ XLK: 5/100 ⚪ - 📡 Flow confirmed by Opportunity Scanner (T 1573.0x) [+5], ℹ️ Sector headwind (XLK bottom quartile, -33th pctl)
+2026-02-25 15:19:29 +00:00:   ⬜ QQQ: 4/100 🔴 - At call wall resistance ($614), ⚠️ CALL wall ACTIVE (6.4x vol/OI — cascade risk)
+2026-02-25 15:19:29 +00:00:   ⬜ AAPL: 3/100 📍 - 📍 PINNED between walls ($270-$275), ℹ️ At VWAP ($272.54)
+2026-02-25 15:19:29 +00:00:   ⬜ HPQ: 3/100 🟢 - At lower Bollinger Band, ℹ️ Dip buy setup (SPY bearish)
+2026-02-25 15:19:29 +00:00:   ⬜ UNG: 2/100 ⚪ - Heavy call bias (2.37 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 40.0x) [+5]
+2026-02-25 15:19:29 +00:00:   ⬜ XLE: 2/100 ⚪ - ℹ️ Confluence zone (2 levels), Heavy call bias (2.63 C/P) [-3]
+2026-02-25 15:19:29 +00:00:   ⬜ VNDA: 2/100 🟢 - 🚀 BREAKOUT above call wall ($8) +7.5%, ℹ️ Above gamma flip ($6.04)
+2026-02-25 15:19:29 +00:00:   ⬜ SOLZ: 2/100 ⚪ - Heavy call bias (249.25 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 58.7x) [+5]
+2026-02-25 15:19:29 +00:00:   ⬜ UVXY: 2/100 ⚪ - Heavy call bias (2.37 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 6.7x) [+5]
+2026-02-25 15:19:29 +00:00:   ⬜ ETHA: 2/100 ⚪ - Heavy call bias (2.31 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 7.1x) [+5]
+2026-02-25 15:19:29 +00:00:   ⬜ PLTR: 2/100 ⚪ - ℹ️ Elevated call $132 02/27 (2.7x, $2.5M), ℹ️ $22M net bullish premium
+2026-02-25 15:19:29 +00:00:   ⬜ $VIX: 0/100 ⚪ - Heavy call bias (2.88 C/P) [-3], 🆕 New discovery
+2026-02-25 15:19:29 +00:00:   ⬜ SPY: 0/100 📍 - 📍 PINNED between walls ($687-$693), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:19:29 +00:00:   ⬜ NFLX: 0/100 🟢 - 🚀 BREAKOUT above call wall ($80) +2.0%, ℹ️ Above gamma flip ($78.19)
+2026-02-25 15:19:29 +00:00:   ⬜ VXX: 0/100 ⚪ - ℹ️ Confluence zone (3 levels), 📡 Flow confirmed by Opportunity Scanner (T 7.1x) [+5]
+2026-02-25 15:19:29 +00:00:   ⬜ BAC: 0/100 🔴 - At lower Bollinger Band, 💥 BREAKDOWN below put wall ($52) -1.5%
+2026-02-25 15:19:29 +00:00:   ⬜ IWM: 0/100 📍 - 📍 PINNED between walls ($262-$265), ℹ️ At VWAP ($262.83)
+2026-02-25 15:19:29 +00:00:   ⬜ XLRE: 0/100 ⚪ - ℹ️ Confluence zone (4 levels), ℹ️ Weak sector RS (XLRE, 39th pctl)
+2026-02-25 15:19:29 +00:00: 
+2026-02-25 15:19:29 +00:00: [Tiers] HIGH_CONVICTION: 0 | TRADEABLE: 0 | WATCH: 12 | FILTERED: 38
+2026-02-25 15:19:29 +00:00: [WATCH LIST]
+2026-02-25 15:19:29 +00:00:   👀 OXY: 65/100 
+2026-02-25 15:19:29 +00:00:   👀 XLU: 57/100 (score 57)
+2026-02-25 15:19:29 +00:00:   👀 EEM: 33/100 (score 33)
+2026-02-25 15:19:29 +00:00:   👀 XLF: 33/100 (score 33)
+2026-02-25 15:19:29 +00:00:   👀 MSFT: 32/100 (score 32)
+2026-02-25 15:19:29 +00:00: 
+2026-02-25 15:19:29 +00:00: [Alerts] No alertable opportunities (0 tradeable below cooldown, 12 on watch)
+2026-02-25 15:19:29 +00:00: 
+2026-02-25 15:19:29 +00:00: [Signal Logger] Logging 12 WATCH signal(s) for baseline analysis...
+2026-02-25 15:19:29 +00:00: [Signal Logger] OXY conditions changed on existing signal:
+2026-02-25 15:19:29 +00:00:   Score: 27 → 65 (+38)
+2026-02-25 15:19:29 +00:00: [Signal Logger] XLU conditions changed on existing signal:
+2026-02-25 15:19:29 +00:00:   Score: 70 → 57 (-13)
+2026-02-25 15:19:29 +00:00:   Zone: BUY_ZONE → HIGH_MOMENTUM
+2026-02-25 15:19:29 +00:00: [Signal Logger] EEM conditions changed on existing signal:
+2026-02-25 15:19:29 +00:00:   Score: 20 → 33 (+13)
+2026-02-25 15:19:29 +00:00:   Zone: MID_RANGE → SELL_ZONE
+2026-02-25 15:19:29 +00:00: [Signal Logger] XLF conditions changed on existing signal:
+2026-02-25 15:19:29 +00:00:   Score: 70 → 33 (-37)
+2026-02-25 15:19:29 +00:00:   Zone: null → BUY_ZONE
+2026-02-25 15:19:29 +00:00: [Signal Logger] MSFT conditions changed on existing signal:
+2026-02-25 15:19:29 +00:00:   Score: 68 → 32 (-36)
+2026-02-25 15:19:29 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:19:29 +00:00:   Direction: bullish → bearish
+2026-02-25 15:19:29 +00:00: [Signal Logger] META conditions changed on existing signal:
+2026-02-25 15:19:29 +00:00:   Score: 30 → 32 (+2)
+2026-02-25 15:19:29 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:19:29 +00:00:   Direction: bullish → bearish
+2026-02-25 15:19:29 +00:00: [Signal Logger] TSLA conditions changed on existing signal:
+2026-02-25 15:19:29 +00:00:   Score: 36 → 23 (-13)
+2026-02-25 15:19:29 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:19:29 +00:00:   Direction: bullish → bearish
+2026-02-25 15:19:29 +00:00: [Signal Logger] XLP conditions changed on existing signal:
+2026-02-25 15:19:29 +00:00:   Score: 71 → 23 (-48)
+2026-02-25 15:19:29 +00:00:   Zone: SELL_ZONE → HIGH_MOMENTUM
+2026-02-25 15:19:29 +00:00: [Signal Logger] F conditions changed on existing signal:
+2026-02-25 15:19:29 +00:00:   Score: 30 → 21 (-9)
+2026-02-25 15:19:29 +00:00:   Zone: BUY_ZONE → MID_RANGE
+2026-02-25 15:19:29 +00:00:   Direction: bullish → bearish
+2026-02-25 15:19:29 +00:00: [Signal Logger] ORCL conditions changed on existing signal:
+2026-02-25 15:19:29 +00:00:   Score: 75 → 20 (-55)
+2026-02-25 15:19:29 +00:00:   Zone: null → SELL_ZONE
+2026-02-25 15:19:29 +00:00:   Direction: neutral → bearish
+2026-02-25 15:19:29 +00:00: [Signal Logger] SNDK conditions changed on existing signal:
+2026-02-25 15:19:29 +00:00:   Score: 33 → 20 (-13)
+2026-02-25 15:19:29 +00:00: [Signal Logger] XLC conditions changed on existing signal:
+2026-02-25 15:19:29 +00:00:   Score: 40 → 20 (-20)
+2026-02-25 15:19:29 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:19:29 +00:00:   Direction: bullish → bearish
+2026-02-25 15:19:29 +00:00: [SignalDB] Inserted 50 bloodhound results for scan 1119
+2026-02-25 15:19:29 +00:00: [Bloodhound] Wrote 50 results to database (scan_id: 1119)
+2026-02-25 15:19:29 +00:00: 
+2026-02-25 15:19:29 +00:00: [Bloodhound] Scan complete (226s). Next scan in 5 minutes.
+2026-02-25 15:19:29 +00:00: [API Cache] 201 fresh / 238 total entries (37 stale)
+2026-02-25 15:19:29 +00:00: [Signal Logger] Price cache built with 50 symbols
+2026-02-25 15:19:31 +00:00: [SignalDB] Closed option signal TSLA_1771858262430: LOSS (peak +0%, close -100%)
+2026-02-25 15:19:31 +00:00: [Signal Logger] Option .TSLA260223C405 expired — closed
+2026-02-25 15:19:34 +00:00: [SignalDB] Closed option signal AAPL_1771859135376: WIN (peak +629%, close -100%)
+2026-02-25 15:19:34 +00:00: [Signal Logger] Option .AAPL260223C267.5 expired — closed
+2026-02-25 15:19:38 +00:00: [SignalDB] Closed option signal IWM_1771869674094: WIN (peak +203%, close -100%)
+2026-02-25 15:19:38 +00:00: [Signal Logger] Option .IWM260224C260 expired — closed
+2026-02-25 15:19:50 +00:00: [Signal Logger] Updated prices for 45 signal(s), 6 option(s) (45 cached, 0 API)
+2026-02-25 15:20:43 +00:00: 
+2026-02-25 15:20:43 +00:00: ============================================================
+2026-02-25 15:20:43 +00:00: [2026-02-25T15:20:43.732Z] Running Bloodhound scan...
+2026-02-25 15:20:43 +00:00: ============================================================
+2026-02-25 15:20:49 +00:00: [Context] VIX: 18.74 (normal) | SPY: bearish
+2026-02-25 15:20:49 +00:00: [Internals] TICK: -9, A/D: -212, Vol Ratio: 1.38
+2026-02-25 15:20:50 +00:00: [RS] Read 18 rankings from DB (snapshot 1955m ago)
+2026-02-25 15:20:55 +00:00: [RS] Rankings loaded (18 assets), no regime data
+2026-02-25 15:20:56 +00:00: [MA-Bounce] Pre-fetched history for 8/8 validated symbols
+2026-02-25 15:20:56 +00:00: [Div-BB] Pre-fetched history for 9/9 configured symbols
+2026-02-25 15:20:56 +00:00: [Watchlist] DB: 10 static, 40 dynamic
+2026-02-25 15:20:57 +00:00: [Discovery] Opportunity scanner contributed 37 symbols (46 with flow data)
+2026-02-25 15:20:57 +00:00: [Discovery] 50 symbols: 10 static + 40 dynamic (watchlist: 40, market_data: 3, opportunity_scanner: 37, sector_leader: 1)
+2026-02-25 15:20:57 +00:00: [Discovery] Found 50 symbols to scan
+2026-02-25 15:20:57 +00:00: [Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+2026-02-25 15:20:57 +00:00: [Bias] Intraday: NEUTRAL | Swing: BULLISH
+2026-02-25 15:20:57 +00:00: [Top Discoveries]
+2026-02-25 15:20:57 +00:00:   1. $VIX (score: 100, watchlist)
+2026-02-25 15:20:57 +00:00:   2. MSFT (score: 100, watchlist)
+2026-02-25 15:20:57 +00:00:   3. META (score: 100, watchlist)
+2026-02-25 15:20:57 +00:00:   4. AAPL (score: 100, watchlist)
+2026-02-25 15:20:57 +00:00:   5. AMD (score: 100, watchlist)
+2026-02-25 15:20:57 +00:00:   6. IBIT (score: 100, watchlist)
+2026-02-25 15:20:57 +00:00:   7. TSLA (score: 100, watchlist)
+2026-02-25 15:20:57 +00:00:   8. NVDA (score: 100, watchlist)
+2026-02-25 15:22:27 +00:00: 
+2026-02-25 15:22:27 +00:00: [History] Updating scanner history for 50 symbols...
+2026-02-25 15:22:27 +00:00: [History] Updated 50 symbols in database.
+2026-02-25 15:22:27 +00:00: 
+2026-02-25 15:22:27 +00:00: [Results] Analyzed 50 symbols:
+2026-02-25 15:22:27 +00:00:   ✅ XLU: 65/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), ⭐ PRIME SETUP: Wall + Extended RSI
+2026-02-25 15:22:27 +00:00:   ✅ OXY: 65/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), ⭐ PRIME SETUP: Wall + Extended RSI
+2026-02-25 15:22:27 +00:00:   ⬜ EEM: 33/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), At upper Bollinger Band
+2026-02-25 15:22:27 +00:00:   ⬜ XLF: 33/100 🟢 - ⭐ COMBO: Put wall + Heavy puts (89% 3d WR), At lower Bollinger Band
+2026-02-25 15:22:27 +00:00:   ⬜ MSFT: 32/100 🔴 - ⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR), At call wall resistance ($400)
+2026-02-25 15:22:27 +00:00:   ⬜ META: 32/100 🔴 - ⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR), At call wall resistance ($650)
+2026-02-25 15:22:27 +00:00:   ⬜ IBRX: 28/100 🟢 - RSI overbought (82.8), At upper Bollinger Band
+2026-02-25 15:22:27 +00:00:   ⬜ XLP: 23/100 🔴 - RSI overbought (73.0), ℹ️ Elevated call $95 04/17 (39.4x, $0.4M)
+2026-02-25 15:22:27 +00:00:   ⬜ F: 21/100 🔴 - ⭐ COMBO: Confluence zone + Upper BB (70% 5d WR), At upper Bollinger Band
+2026-02-25 15:22:27 +00:00:   ⬜ IBIT: 20/100 🔴 - At call wall resistance ($38), ℹ️ Confluence zone (2 levels)
+2026-02-25 15:22:27 +00:00:   ⬜ ORCL: 20/100 🔴 - At call wall resistance ($150), CALL wall dormant
+2026-02-25 15:22:27 +00:00:   ⬜ XLC: 20/100 🔴 - At call wall resistance ($117), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:22:27 +00:00:   ⬜ AAPL: 18/100 🔴 - At call wall resistance ($275), ℹ️ At VWAP ($272.54)
+2026-02-25 15:22:27 +00:00:   ⬜ XLI: 18/100 📍 - ⭐ COMBO: Put wall + Heavy puts (89% 3d WR), 📍 PINNED between walls ($173-$175)
+2026-02-25 15:22:27 +00:00:   ⬜ AMZN: 15/100 🔴 - At call wall resistance ($210), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:22:27 +00:00:   ⬜ XLV: 15/100 🔴 - At call wall resistance ($160), ℹ️ Confluence zone (5 levels)
+2026-02-25 15:22:27 +00:00:   ⬜ GM: 15/100 🟢 - At put wall support ($81), ℹ️ At VWAP ($81.59)
+2026-02-25 15:22:27 +00:00:   ⬜ XLRE: 15/100 🟢 - At put wall support ($43), ℹ️ Dip buy setup (SPY bearish)
+2026-02-25 15:22:27 +00:00:   ⬜ GOOGL: 12/100 🟢 - At put wall support ($310), ℹ️ Confluence zone (4 levels)
+2026-02-25 15:22:27 +00:00:   ⬜ AMD: 8/100 🟢 - 🚀 BREAKOUT above call wall ($210) +1.6%, ℹ️ At VWAP ($212.8)
+2026-02-25 15:22:27 +00:00:   ⬜ GLD: 8/100 ⚪ - 🧲 Convergent walls ($475/$475) — gamma magnet, ℹ️ Confluence zone (6 levels)
+2026-02-25 15:22:27 +00:00:   ⬜ T: 8/100 ⚪ - 🧲 Convergent walls ($28/$28) — gamma magnet, ℹ️ Confluence zone (3 levels)
+2026-02-25 15:22:27 +00:00:   ⬜ SLV: 8/100 🟢 - 🚀 BREAKOUT above call wall ($80) +2.3%, ℹ️ Above gamma flip ($79.62)
+2026-02-25 15:22:27 +00:00:   ⬜ CVNA: 8/100 🟢 - 🚀 BREAKOUT above call wall ($300) +9.0%, ℹ️ Above gamma flip ($297.96)
+2026-02-25 15:22:27 +00:00:   ⬜ MRNA: 7/100 🟢 - At upper Bollinger Band, 🚀 BREAKOUT above call wall ($51) +3.2%
+2026-02-25 15:22:27 +00:00:   ⬜ NVDA: 5/100 ⚪ - ℹ️ Confluence zone (2 levels), ℹ️ $174M net bullish premium
+2026-02-25 15:22:27 +00:00:   ⬜ PYPL: 5/100 ⚪ - ℹ️ Elevated volume (1.6x avg), Heavy call bias (6.21 C/P) [-3]
+2026-02-25 15:22:27 +00:00:   ⬜ OPEN: 5/100 ⚪ - 🧲 Convergent walls ($5/$5) — gamma magnet, PUT wall dormant
+2026-02-25 15:22:27 +00:00:   ⬜ MU: 5/100 ⚪ - ℹ️ Options flow detected (not at wall — informational), 🔥 Unusual PUT $425 OTM (hedge, 10.0x, $9.5M)
+2026-02-25 15:22:27 +00:00:   ⬜ SNDK: 5/100 ⚪ - ℹ️ $20M net bullish premium, Heavy call bias (2.82 C/P) [-3]
+2026-02-25 15:22:27 +00:00:   ⬜ PANW: 5/100 🟢 - RSI oversold (23.9), At lower Bollinger Band
+2026-02-25 15:22:27 +00:00:   ⬜ INTC: 5/100 ⚪ - Heavy call bias (2.68 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (HC 21.9x $13.6M) [+8]
+2026-02-25 15:22:27 +00:00:   ⬜ USO: 5/100 🔴 - 💥 BREAKDOWN below put wall ($81) -1.5%, ℹ️ Confluence zone (2 levels)
+2026-02-25 15:22:27 +00:00:   ⬜ XLK: 5/100 ⚪ - 📡 Flow confirmed by Opportunity Scanner (T 1573.0x) [+5], ℹ️ Sector headwind (XLK bottom quartile, -33th pctl)
+2026-02-25 15:22:27 +00:00:   ⬜ QQQ: 4/100 🔴 - At call wall resistance ($614), ⚠️ CALL wall ACTIVE (6.4x vol/OI — cascade risk)
+2026-02-25 15:22:27 +00:00:   ⬜ HPQ: 3/100 🟢 - At lower Bollinger Band, ℹ️ At VWAP ($18.2)
+2026-02-25 15:22:27 +00:00:   ⬜ UNG: 2/100 ⚪ - Heavy call bias (2.37 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 40.0x) [+5]
+2026-02-25 15:22:27 +00:00:   ⬜ XLE: 2/100 ⚪ - ℹ️ Confluence zone (2 levels), Heavy call bias (2.63 C/P) [-3]
+2026-02-25 15:22:27 +00:00:   ⬜ VNDA: 2/100 🟢 - 🚀 BREAKOUT above call wall ($8) +7.0%, ℹ️ Above gamma flip ($6.04)
+2026-02-25 15:22:27 +00:00:   ⬜ SOLZ: 2/100 ⚪ - Heavy call bias (249.25 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 58.7x) [+5]
+2026-02-25 15:22:27 +00:00:   ⬜ UVXY: 2/100 ⚪ - Heavy call bias (2.37 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 6.7x) [+5]
+2026-02-25 15:22:27 +00:00:   ⬜ ETHA: 2/100 ⚪ - Heavy call bias (2.31 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 7.1x) [+5]
+2026-02-25 15:22:27 +00:00:   ⬜ PLTR: 2/100 ⚪ - ℹ️ Elevated call $132 02/27 (2.7x, $2.5M), ℹ️ $22M net bullish premium
+2026-02-25 15:22:27 +00:00:   ⬜ $VIX: 0/100 ⚪ - Heavy call bias (2.88 C/P) [-3], 🆕 New discovery
+2026-02-25 15:22:27 +00:00:   ⬜ TSLA: 0/100 📍 - 📍 PINNED between walls ($410-$415), ℹ️ Confluence zone (2 levels)
+2026-02-25 15:22:27 +00:00:   ⬜ SPY: 0/100 📍 - 📍 PINNED between walls ($687-$693), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:22:27 +00:00:   ⬜ NFLX: 0/100 🟢 - 🚀 BREAKOUT above call wall ($80) +1.9%, ℹ️ Above gamma flip ($78.17)
+2026-02-25 15:22:27 +00:00:   ⬜ VXX: 0/100 ⚪ - ℹ️ Confluence zone (3 levels), 📡 Flow confirmed by Opportunity Scanner (T 7.1x) [+5]
+2026-02-25 15:22:27 +00:00:   ⬜ BAC: 0/100 🔴 - At lower Bollinger Band, 💥 BREAKDOWN below put wall ($52) -1.6%
+2026-02-25 15:22:27 +00:00:   ⬜ IWM: 0/100 📍 - 📍 PINNED between walls ($262-$265), ℹ️ At VWAP ($262.83)
+2026-02-25 15:22:27 +00:00: 
+2026-02-25 15:22:27 +00:00: [Tiers] HIGH_CONVICTION: 0 | TRADEABLE: 0 | WATCH: 11 | FILTERED: 39
+2026-02-25 15:22:27 +00:00: [WATCH LIST]
+2026-02-25 15:22:27 +00:00:   👀 XLU: 65/100 
+2026-02-25 15:22:27 +00:00:   👀 OXY: 65/100 
+2026-02-25 15:22:27 +00:00:   👀 EEM: 33/100 (score 33)
+2026-02-25 15:22:27 +00:00:   👀 XLF: 33/100 (score 33)
+2026-02-25 15:22:27 +00:00:   👀 MSFT: 32/100 (score 32)
+2026-02-25 15:22:27 +00:00: 
+2026-02-25 15:22:27 +00:00: [Alerts] No alertable opportunities (0 tradeable below cooldown, 11 on watch)
+2026-02-25 15:22:27 +00:00: 
+2026-02-25 15:22:27 +00:00: [Signal Logger] Logging 11 WATCH signal(s) for baseline analysis...
+2026-02-25 15:22:27 +00:00: [Signal Logger] XLU conditions changed on existing signal:
+2026-02-25 15:22:27 +00:00:   Score: 70 → 65 (-5)
+2026-02-25 15:22:27 +00:00:   Zone: BUY_ZONE → HIGH_MOMENTUM
+2026-02-25 15:22:27 +00:00: [Signal Logger] OXY conditions changed on existing signal:
+2026-02-25 15:22:27 +00:00:   Score: 27 → 65 (+38)
+2026-02-25 15:22:27 +00:00: [Signal Logger] EEM conditions changed on existing signal:
+2026-02-25 15:22:27 +00:00:   Score: 20 → 33 (+13)
+2026-02-25 15:22:27 +00:00:   Zone: MID_RANGE → SELL_ZONE
+2026-02-25 15:22:27 +00:00: [Signal Logger] XLF conditions changed on existing signal:
+2026-02-25 15:22:27 +00:00:   Score: 70 → 33 (-37)
+2026-02-25 15:22:27 +00:00:   Zone: null → BUY_ZONE
+2026-02-25 15:22:27 +00:00: [Signal Logger] MSFT conditions changed on existing signal:
+2026-02-25 15:22:27 +00:00:   Score: 68 → 32 (-36)
+2026-02-25 15:22:27 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:22:27 +00:00:   Direction: bullish → bearish
+2026-02-25 15:22:27 +00:00: [Signal Logger] META conditions changed on existing signal:
+2026-02-25 15:22:27 +00:00:   Score: 30 → 32 (+2)
+2026-02-25 15:22:27 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:22:27 +00:00:   Direction: bullish → bearish
+2026-02-25 15:22:27 +00:00: [Signal Logger] XLP conditions changed on existing signal:
+2026-02-25 15:22:27 +00:00:   Score: 71 → 23 (-48)
+2026-02-25 15:22:27 +00:00:   Zone: SELL_ZONE → HIGH_MOMENTUM
+2026-02-25 15:22:27 +00:00: [Signal Logger] F conditions changed on existing signal:
+2026-02-25 15:22:27 +00:00:   Score: 30 → 21 (-9)
+2026-02-25 15:22:27 +00:00:   Zone: BUY_ZONE → MID_RANGE
+2026-02-25 15:22:27 +00:00:   Direction: bullish → bearish
+2026-02-25 15:22:27 +00:00: [Signal Logger] IBIT conditions changed on existing signal:
+2026-02-25 15:22:27 +00:00:   Score: 25 → 20 (-5)
+2026-02-25 15:22:27 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:22:27 +00:00:   Direction: bullish → bearish
+2026-02-25 15:22:27 +00:00: [Signal Logger] ORCL conditions changed on existing signal:
+2026-02-25 15:22:27 +00:00:   Score: 75 → 20 (-55)
+2026-02-25 15:22:27 +00:00:   Zone: null → SELL_ZONE
+2026-02-25 15:22:27 +00:00:   Direction: neutral → bearish
+2026-02-25 15:22:27 +00:00: [Signal Logger] XLC conditions changed on existing signal:
+2026-02-25 15:22:27 +00:00:   Score: 40 → 20 (-20)
+2026-02-25 15:22:27 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:22:27 +00:00:   Direction: bullish → bearish
+2026-02-25 15:22:27 +00:00: [SignalDB] Inserted 50 bloodhound results for scan 1120
+2026-02-25 15:22:27 +00:00: [Bloodhound] Wrote 50 results to database (scan_id: 1120)
+2026-02-25 15:22:27 +00:00: 
+2026-02-25 15:22:27 +00:00: [Bloodhound] Scan complete (104s). Next scan in 5 minutes.
+2026-02-25 15:22:27 +00:00: [API Cache] 245 fresh / 253 total entries (8 stale)
+2026-02-25 15:22:27 +00:00: [Signal Logger] Price cache built with 50 symbols
+2026-02-25 15:22:28 +00:00: [SignalDB] Closed option signal TSLA_1771858262430: LOSS (peak +0%, close -100%)
+2026-02-25 15:22:28 +00:00: [Signal Logger] Option .TSLA260223C405 expired — closed
+2026-02-25 15:22:30 +00:00: [SignalDB] Closed option signal AAPL_1771859135376: WIN (peak +629%, close -100%)
+2026-02-25 15:22:30 +00:00: [Signal Logger] Option .AAPL260223C267.5 expired — closed
+2026-02-25 15:22:33 +00:00: [SignalDB] Closed option signal IWM_1771869674094: WIN (peak +203%, close -100%)
+2026-02-25 15:22:33 +00:00: [Signal Logger] Option .IWM260224C260 expired — closed
+2026-02-25 15:22:38 +00:00: [Signal Logger] Updated prices for 45 signal(s), 5 option(s) (45 cached, 0 API)
+2026-02-25 15:25:43 +00:00: 
+2026-02-25 15:25:43 +00:00: ============================================================
+2026-02-25 15:25:43 +00:00: [2026-02-25T15:25:43.733Z] Running Bloodhound scan...
+2026-02-25 15:25:43 +00:00: ============================================================
+2026-02-25 15:25:47 +00:00: [Context] VIX: 18.74 (normal) | SPY: bearish
+2026-02-25 15:25:47 +00:00: [Internals] TICK: -108, A/D: -239, Vol Ratio: 1.34
+2026-02-25 15:25:47 +00:00: [RS] Read 18 rankings from DB (snapshot 1960m ago)
+2026-02-25 15:25:51 +00:00: [RS] Rotation regime: mid_cycle | 18 assets ranked
+2026-02-25 15:25:53 +00:00: [MA-Bounce] Pre-fetched history for 8/8 validated symbols
+2026-02-25 15:25:53 +00:00: [Div-BB] Pre-fetched history for 9/9 configured symbols
+2026-02-25 15:25:53 +00:00: [Watchlist] DB: 10 static, 40 dynamic
+2026-02-25 15:25:53 +00:00: [Discovery] Opportunity scanner contributed 37 symbols (46 with flow data)
+2026-02-25 15:25:53 +00:00: [Discovery] 50 symbols: 10 static + 40 dynamic (watchlist: 40, market_data: 3, opportunity_scanner: 37, sector_leader: 1)
+2026-02-25 15:25:53 +00:00: [Discovery] Found 50 symbols to scan
+2026-02-25 15:25:53 +00:00: [Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+2026-02-25 15:25:53 +00:00: [Bias] Intraday: NEUTRAL | Swing: BULLISH
+2026-02-25 15:25:53 +00:00: [Top Discoveries]
+2026-02-25 15:25:53 +00:00:   1. $VIX (score: 100, watchlist)
+2026-02-25 15:25:53 +00:00:   2. MSFT (score: 100, watchlist)
+2026-02-25 15:25:53 +00:00:   3. META (score: 100, watchlist)
+2026-02-25 15:25:53 +00:00:   4. AAPL (score: 100, watchlist)
+2026-02-25 15:25:53 +00:00:   5. AMD (score: 100, watchlist)
+2026-02-25 15:25:53 +00:00:   6. IBIT (score: 100, watchlist)
+2026-02-25 15:25:53 +00:00:   7. TSLA (score: 100, watchlist)
+2026-02-25 15:25:53 +00:00:   8. NVDA (score: 100, watchlist)
+2026-02-25 15:27:42 +00:00: 
+2026-02-25 15:27:42 +00:00: [History] Updating scanner history for 50 symbols...
+2026-02-25 15:27:42 +00:00: [History] Updated 50 symbols in database.
+2026-02-25 15:27:42 +00:00: 
+2026-02-25 15:27:42 +00:00: [Results] Analyzed 50 symbols:
+2026-02-25 15:27:42 +00:00:   ✅ XLU: 65/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), ⭐ PRIME SETUP: Wall + Extended RSI
+2026-02-25 15:27:42 +00:00:   ✅ OXY: 65/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), ⭐ PRIME SETUP: Wall + Extended RSI
+2026-02-25 15:27:42 +00:00:   ⬜ EEM: 33/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), At upper Bollinger Band
+2026-02-25 15:27:42 +00:00:   ⬜ XLF: 33/100 🟢 - ⭐ COMBO: Put wall + Heavy puts (89% 3d WR), At lower Bollinger Band
+2026-02-25 15:27:42 +00:00:   ⬜ META: 32/100 🔴 - ⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR), At call wall resistance ($650)
+2026-02-25 15:27:42 +00:00:   ⬜ IBRX: 28/100 🟢 - RSI overbought (82.8), At upper Bollinger Band
+2026-02-25 15:27:42 +00:00:   ⬜ TSLA: 23/100 🔴 - At call wall resistance ($415), ℹ️ Confluence zone (2 levels)
+2026-02-25 15:27:42 +00:00:   ⬜ XLI: 23/100 🔴 - At call wall resistance ($175), ℹ️ Confluence zone (5 levels)
+2026-02-25 15:27:42 +00:00:   ⬜ XLP: 23/100 🔴 - RSI overbought (73.0), ℹ️ Elevated call $95 04/17 (39.4x, $0.4M)
+2026-02-25 15:27:42 +00:00:   ⬜ XLC: 20/100 🔴 - At call wall resistance ($117), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:27:42 +00:00:   ⬜ AAPL: 18/100 🔴 - At call wall resistance ($275), ℹ️ At VWAP ($272.54)
+2026-02-25 15:27:42 +00:00:   ⬜ XLE: 17/100 🔴 - At call wall resistance ($55), ℹ️ Confluence zone (2 levels)
+2026-02-25 15:27:42 +00:00:   ⬜ AMZN: 15/100 🔴 - At call wall resistance ($210), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:27:42 +00:00:   ⬜ GM: 15/100 🟢 - At put wall support ($81), ℹ️ At VWAP ($81.59)
+2026-02-25 15:27:42 +00:00:   ⬜ XLRE: 15/100 🟢 - At put wall support ($43), ℹ️ Dip buy setup (SPY bearish)
+2026-02-25 15:27:42 +00:00:   ⬜ F: 13/100 🔴 - At upper Bollinger Band, 📡 Flow confirmed by Opportunity Scanner (HC 22.5x $1.6M) [+8]
+2026-02-25 15:27:42 +00:00:   ⬜ AMD: 8/100 🟢 - 🚀 BREAKOUT above call wall ($210) +1.7%, ℹ️ Elevated volume (1.9x avg)
+2026-02-25 15:27:42 +00:00:   ⬜ GLD: 8/100 ⚪ - 🧲 Convergent walls ($475/$475) — gamma magnet, ℹ️ Confluence zone (6 levels)
+2026-02-25 15:27:42 +00:00:   ⬜ T: 8/100 ⚪ - 🧲 Convergent walls ($28/$28) — gamma magnet, ℹ️ Confluence zone (2 levels)
+2026-02-25 15:27:42 +00:00:   ⬜ SLV: 8/100 🟢 - 🚀 BREAKOUT above call wall ($80) +2.1%, ℹ️ Above gamma flip ($79.60)
+2026-02-25 15:27:42 +00:00:   ⬜ CVNA: 8/100 🟢 - 🚀 BREAKOUT above call wall ($300) +9.1%, ℹ️ Above gamma flip ($297.84)
+2026-02-25 15:27:42 +00:00:   ⬜ MRNA: 7/100 🔴 - At upper Bollinger Band, Heavy call bias (8.91 C/P) [-3]
+2026-02-25 15:27:42 +00:00:   ⬜ MSFT: 5/100 ⚪ - 🧲 Convergent walls ($400/$400) — gamma magnet, ℹ️ Confluence zone (3 levels)
+2026-02-25 15:27:42 +00:00:   ⬜ IBIT: 5/100 ⚪ - 🧲 Convergent walls ($38/$38) — gamma magnet, ℹ️ Confluence zone (3 levels)
+2026-02-25 15:27:42 +00:00:   ⬜ NVDA: 5/100 ⚪ - ℹ️ Confluence zone (2 levels), ℹ️ $174M net bullish premium
+2026-02-25 15:27:42 +00:00:   ⬜ ORCL: 5/100 🟢 - 🚀 BREAKOUT above call wall ($150) +1.0%, Heavy call bias (3.13 C/P) [-3]
+2026-02-25 15:27:42 +00:00:   ⬜ PYPL: 5/100 ⚪ - ℹ️ Elevated volume (1.6x avg), Heavy call bias (6.21 C/P) [-3]
+2026-02-25 15:27:42 +00:00:   ⬜ OPEN: 5/100 ⚪ - 🧲 Convergent walls ($5/$5) — gamma magnet, ℹ️ Confluence zone (4 levels)
+2026-02-25 15:27:42 +00:00:   ⬜ MU: 5/100 ⚪ - ℹ️ Options flow detected (not at wall — informational), 🔥 Unusual PUT $425 OTM (hedge, 10.0x, $9.5M)
+2026-02-25 15:27:42 +00:00:   ⬜ SNDK: 5/100 ⚪ - ℹ️ $20M net bullish premium, Heavy call bias (2.82 C/P) [-3]
+2026-02-25 15:27:42 +00:00:   ⬜ PANW: 5/100 🟢 - RSI oversold (23.9), At lower Bollinger Band
+2026-02-25 15:27:42 +00:00:   ⬜ INTC: 5/100 ⚪ - Heavy call bias (2.68 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (HC 21.9x $13.6M) [+8]
+2026-02-25 15:27:42 +00:00:   ⬜ USO: 5/100 🔴 - 💥 BREAKDOWN below put wall ($81) -1.4%, ℹ️ Confluence zone (2 levels)
+2026-02-25 15:27:42 +00:00:   ⬜ XLK: 5/100 ⚪ - 📡 Flow confirmed by Opportunity Scanner (T 1573.0x) [+5], ℹ️ Sector headwind (XLK bottom quartile, -33th pctl)
+2026-02-25 15:27:42 +00:00:   ⬜ QQQ: 4/100 🔴 - At call wall resistance ($614), ⚠️ CALL wall ACTIVE (6.4x vol/OI — cascade risk)
+2026-02-25 15:27:42 +00:00:   ⬜ HPQ: 3/100 🟢 - At lower Bollinger Band, ℹ️ At VWAP ($18.2)
+2026-02-25 15:27:42 +00:00:   ⬜ UNG: 2/100 ⚪ - Heavy call bias (2.37 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 40.0x) [+5]
+2026-02-25 15:27:42 +00:00:   ⬜ VNDA: 2/100 🟢 - 🚀 BREAKOUT above call wall ($8) +6.5%, ℹ️ Above gamma flip ($6.03)
+2026-02-25 15:27:42 +00:00:   ⬜ SOLZ: 2/100 ⚪ - Heavy call bias (249.25 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 58.7x) [+5]
+2026-02-25 15:27:42 +00:00:   ⬜ UVXY: 2/100 🔴 - 💥 BREAKDOWN below put wall ($40) -6.6%, Heavy call bias (2.37 C/P) [-3]
+2026-02-25 15:27:42 +00:00:   ⬜ ETHA: 2/100 ⚪ - Heavy call bias (2.31 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 7.1x) [+5]
+2026-02-25 15:27:42 +00:00:   ⬜ PLTR: 2/100 ⚪ - ℹ️ Elevated call $132 02/27 (2.7x, $2.5M), ℹ️ $22M net bullish premium
+2026-02-25 15:27:42 +00:00:   ⬜ $VIX: 0/100 ⚪ - Heavy call bias (2.88 C/P) [-3], 🆕 New discovery
+2026-02-25 15:27:42 +00:00:   ⬜ SPY: 0/100 📍 - 📍 PINNED between walls ($687-$693), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:27:42 +00:00:   ⬜ NFLX: 0/100 🟢 - 🚀 BREAKOUT above call wall ($80) +1.9%, ℹ️ Above gamma flip ($78.18)
+2026-02-25 15:27:42 +00:00:   ⬜ VXX: 0/100 ⚪ - 📡 Flow confirmed by Opportunity Scanner (T 7.1x) [+5], ⚠️ Day 2 setup — historically weak (23% WR)
+2026-02-25 15:27:42 +00:00:   ⬜ XLV: 0/100 ⚪ - ℹ️ At VWAP ($158.01), ℹ️ Confluence zone (5 levels)
+2026-02-25 15:27:42 +00:00:   ⬜ BAC: 0/100 🔴 - At lower Bollinger Band, 💥 BREAKDOWN below put wall ($52) -1.5%
+2026-02-25 15:27:42 +00:00:   ⬜ IWM: 0/100 📍 - 📍 PINNED between walls ($262-$265), ℹ️ At VWAP ($262.83)
+2026-02-25 15:27:42 +00:00:   ⬜ GOOGL: 0/100 📍 - 📍 PINNED between walls ($310-$315), PUT wall dormant
+2026-02-25 15:27:42 +00:00: 
+2026-02-25 15:27:42 +00:00: [Tiers] HIGH_CONVICTION: 0 | TRADEABLE: 0 | WATCH: 9 | FILTERED: 41
+2026-02-25 15:27:42 +00:00: [WATCH LIST]
+2026-02-25 15:27:42 +00:00:   👀 XLU: 65/100 
+2026-02-25 15:27:42 +00:00:   👀 OXY: 65/100 
+2026-02-25 15:27:42 +00:00:   👀 EEM: 33/100 (score 33)
+2026-02-25 15:27:42 +00:00:   👀 XLF: 33/100 (score 33)
+2026-02-25 15:27:42 +00:00:   👀 META: 32/100 (score 32)
+2026-02-25 15:27:42 +00:00: 
+2026-02-25 15:27:42 +00:00: [Alerts] No alertable opportunities (0 tradeable below cooldown, 9 on watch)
+2026-02-25 15:27:42 +00:00: 
+2026-02-25 15:27:42 +00:00: [Signal Logger] Logging 9 WATCH signal(s) for baseline analysis...
+2026-02-25 15:27:42 +00:00: [Signal Logger] XLU conditions changed on existing signal:
+2026-02-25 15:27:42 +00:00:   Score: 70 → 65 (-5)
+2026-02-25 15:27:42 +00:00:   Zone: BUY_ZONE → HIGH_MOMENTUM
+2026-02-25 15:27:42 +00:00: [Signal Logger] OXY conditions changed on existing signal:
+2026-02-25 15:27:42 +00:00:   Score: 27 → 65 (+38)
+2026-02-25 15:27:42 +00:00: [Signal Logger] EEM conditions changed on existing signal:
+2026-02-25 15:27:42 +00:00:   Score: 20 → 33 (+13)
+2026-02-25 15:27:42 +00:00:   Zone: MID_RANGE → SELL_ZONE
+2026-02-25 15:27:42 +00:00: [Signal Logger] XLF conditions changed on existing signal:
+2026-02-25 15:27:42 +00:00:   Score: 70 → 33 (-37)
+2026-02-25 15:27:42 +00:00:   Zone: null → BUY_ZONE
+2026-02-25 15:27:42 +00:00: [Signal Logger] META conditions changed on existing signal:
+2026-02-25 15:27:42 +00:00:   Score: 30 → 32 (+2)
+2026-02-25 15:27:42 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:27:42 +00:00:   Direction: bullish → bearish
+2026-02-25 15:27:42 +00:00: [Signal Logger] TSLA conditions changed on existing signal:
+2026-02-25 15:27:42 +00:00:   Score: 36 → 23 (-13)
+2026-02-25 15:27:42 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:27:42 +00:00:   Direction: bullish → bearish
+2026-02-25 15:27:42 +00:00: [Signal Logger] XLI conditions changed on existing signal:
+2026-02-25 15:27:42 +00:00:   Score: 73 → 23 (-50)
+2026-02-25 15:27:42 +00:00: [Signal Logger] XLP conditions changed on existing signal:
+2026-02-25 15:27:42 +00:00:   Score: 71 → 23 (-48)
+2026-02-25 15:27:42 +00:00:   Zone: SELL_ZONE → HIGH_MOMENTUM
+2026-02-25 15:27:42 +00:00: [Signal Logger] XLC conditions changed on existing signal:
+2026-02-25 15:27:42 +00:00:   Score: 40 → 20 (-20)
+2026-02-25 15:27:42 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:27:42 +00:00:   Direction: bullish → bearish
+2026-02-25 15:27:42 +00:00: [SignalDB] Inserted 50 bloodhound results for scan 1121
+2026-02-25 15:27:42 +00:00: [Bloodhound] Wrote 50 results to database (scan_id: 1121)
+2026-02-25 15:27:42 +00:00: 
+2026-02-25 15:27:42 +00:00: [Bloodhound] Scan complete (119s). Next scan in 5 minutes.
+2026-02-25 15:27:42 +00:00: [API Cache] 208 fresh / 253 total entries (45 stale)
+2026-02-25 15:27:42 +00:00: [Signal Logger] Price cache built with 50 symbols
+2026-02-25 15:27:44 +00:00: [SignalDB] Closed option signal TSLA_1771858262430: LOSS (peak +0%, close -100%)
+2026-02-25 15:27:44 +00:00: [Signal Logger] Option .TSLA260223C405 expired — closed
+2026-02-25 15:27:47 +00:00: [SignalDB] Closed option signal AAPL_1771859135376: WIN (peak +629%, close -100%)
+2026-02-25 15:27:47 +00:00: [Signal Logger] Option .AAPL260223C267.5 expired — closed
+2026-02-25 15:27:50 +00:00: [SignalDB] Closed option signal IWM_1771869674094: WIN (peak +203%, close -100%)
+2026-02-25 15:27:50 +00:00: [Signal Logger] Option .IWM260224C260 expired — closed
+2026-02-25 15:27:58 +00:00: [Signal Logger] Updated prices for 45 signal(s), 5 option(s) (45 cached, 0 API)
+2026-02-25 15:27:58 +00:00: [Signal Logger] Validating 2 signal(s) for 24h checkpoint...
+2026-02-25 15:27:58 +00:00: [SignalDB] Recorded 24h checkpoint for BAC_1771946718621: CORRECT (2.46%)
+2026-02-25 15:27:58 +00:00: [Signal Logger] 24h | BAC_1771946718621: ✅ +2.46%
+2026-02-25 15:27:58 +00:00: [SignalDB] Recorded 24h checkpoint for GM_1771946718681: WRONG (-0.47%)
+2026-02-25 15:27:58 +00:00: [Signal Logger] 24h | GM_1771946718681: ❌ -0.47%
+2026-02-25 15:30:43 +00:00: 
+2026-02-25 15:30:43 +00:00: ============================================================
+2026-02-25 15:30:43 +00:00: [2026-02-25T15:30:43.733Z] Running Bloodhound scan...
+2026-02-25 15:30:43 +00:00: ============================================================
+2026-02-25 15:30:51 +00:00: [Context] VIX: 18.62 (normal) | SPY: bearish
+2026-02-25 15:30:51 +00:00: [Internals] TICK: -93, A/D: -242, Vol Ratio: 1.32
+2026-02-25 15:30:51 +00:00: [RS] Read 18 rankings from DB (snapshot 1965m ago)
+2026-02-25 15:30:56 +00:00: [RS] Rotation regime: mid_cycle | 18 assets ranked
+2026-02-25 15:30:57 +00:00: [MA-Bounce] Pre-fetched history for 8/8 validated symbols
+2026-02-25 15:30:57 +00:00: [Div-BB] Pre-fetched history for 9/9 configured symbols
+2026-02-25 15:30:57 +00:00: [Watchlist] DB: 10 static, 40 dynamic
+2026-02-25 15:30:58 +00:00: [Discovery] Opportunity scanner contributed 37 symbols (46 with flow data)
+2026-02-25 15:30:58 +00:00: [Discovery] 50 symbols: 10 static + 40 dynamic (watchlist: 40, sector_leader: 1, opportunity_scanner: 37, market_data: 3)
+2026-02-25 15:30:58 +00:00: [Discovery] Found 50 symbols to scan
+2026-02-25 15:30:58 +00:00: [Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+2026-02-25 15:30:58 +00:00: [Bias] Intraday: NEUTRAL | Swing: BULLISH
+2026-02-25 15:30:58 +00:00: [Top Discoveries]
+2026-02-25 15:30:58 +00:00:   1. $VIX (score: 100, watchlist)
+2026-02-25 15:30:58 +00:00:   2. MSFT (score: 100, watchlist)
+2026-02-25 15:30:58 +00:00:   3. META (score: 100, watchlist)
+2026-02-25 15:30:58 +00:00:   4. AAPL (score: 100, watchlist)
+2026-02-25 15:30:58 +00:00:   5. AMD (score: 100, watchlist)
+2026-02-25 15:30:58 +00:00:   6. IBIT (score: 100, watchlist)
+2026-02-25 15:30:58 +00:00:   7. TSLA (score: 100, watchlist)
+2026-02-25 15:30:58 +00:00:   8. NVDA (score: 100, watchlist)
+2026-02-25 15:31:49 +00:00: [Backoff] ⚠️ ACTIVATED - 3 slow responses (>5000ms)
+2026-02-25 15:31:49 +00:00: [Backoff]    Switching to batched mode: 5 symbols, 1000ms delay
+2026-02-25 15:31:49 +00:00: [Backoff] 📊 Active (slow: 3, fast: 0)
+2026-02-25 15:32:28 +00:00: [Backoff] 📊 Active (slow: 5, fast: 1)
+2026-02-25 15:33:00 +00:00: [Backoff] 📊 Active (slow: 5, fast: 5)
+2026-02-25 15:33:32 +00:00: [Backoff] 📊 Active (slow: 5, fast: 6)
+2026-02-25 15:33:55 +00:00: [Backoff] ✅ RECOVERED - 10 fast responses, resuming parallel mode
+2026-02-25 15:34:45 +00:00: 
+2026-02-25 15:34:45 +00:00: [VELOCITY ALERTS]
+2026-02-25 15:34:45 +00:00:   🚀 F: +21 pts (15→36) 🔴
+2026-02-25 15:34:45 +00:00: 
+2026-02-25 15:34:45 +00:00: [History] Updating scanner history for 50 symbols...
+2026-02-25 15:34:45 +00:00: [History] Updated 50 symbols in database.
+2026-02-25 15:34:45 +00:00: 
+2026-02-25 15:34:45 +00:00: [Results] Analyzed 50 symbols:
+2026-02-25 15:34:45 +00:00:   ✅ XLU: 65/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), ⭐ PRIME SETUP: Wall + Extended RSI
+2026-02-25 15:34:45 +00:00:   ✅ OXY: 65/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), ⭐ PRIME SETUP: Wall + Extended RSI
+2026-02-25 15:34:45 +00:00:   ✅ F: 36/100 🔴 - VELOCITY +21 pts, ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR)
+2026-02-25 15:34:45 +00:00:   ✅ TSLA: 35/100 🔴 - ⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR), At call wall resistance ($415)
+2026-02-25 15:34:45 +00:00:   ⬜ EEM: 33/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), At upper Bollinger Band
+2026-02-25 15:34:45 +00:00:   ⬜ XLF: 33/100 🟢 - ⭐ COMBO: Put wall + Heavy puts (89% 3d WR), At lower Bollinger Band
+2026-02-25 15:34:45 +00:00:   ⬜ META: 32/100 🔴 - ⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR), At call wall resistance ($650)
+2026-02-25 15:34:45 +00:00:   ⬜ IBRX: 28/100 🟢 - RSI overbought (82.8), At upper Bollinger Band
+2026-02-25 15:34:45 +00:00:   ⬜ AAPL: 23/100 🔴 - At call wall resistance ($275), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:34:45 +00:00:   ⬜ XLI: 23/100 🔴 - At call wall resistance ($175), ℹ️ Confluence zone (5 levels)
+2026-02-25 15:34:45 +00:00:   ⬜ XLP: 23/100 🔴 - RSI overbought (73.0), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:34:45 +00:00:   ⬜ SNDK: 20/100 🔴 - At call wall resistance ($650), ℹ️ At VWAP ($645.16)
+2026-02-25 15:34:45 +00:00:   ⬜ XLE: 20/100 🔴 - At call wall resistance ($55), ℹ️ Confluence zone (2 levels)
+2026-02-25 15:34:45 +00:00:   ⬜ XLC: 20/100 🔴 - At call wall resistance ($117), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:34:45 +00:00:   ⬜ UVXY: 17/100 🟢 - At put wall support ($37.5), Heavy call bias (2.35 C/P) [-3]
+2026-02-25 15:34:45 +00:00:   ⬜ GLD: 15/100 🔴 - At call wall resistance ($475), ℹ️ Confluence zone (5 levels)
+2026-02-25 15:34:45 +00:00:   ⬜ GM: 15/100 🟢 - At put wall support ($82), ℹ️ Confluence zone (2 levels)
+2026-02-25 15:34:45 +00:00:   ⬜ XLRE: 15/100 🟢 - At put wall support ($43), ℹ️ Confluence zone (4 levels)
+2026-02-25 15:34:45 +00:00:   ⬜ GOOGL: 12/100 🟢 - At put wall support ($310), ℹ️ Confluence zone (4 levels)
+2026-02-25 15:34:45 +00:00:   ⬜ AMD: 8/100 🟢 - 🚀 BREAKOUT above call wall ($210) +1.8%, ℹ️ Elevated volume (1.9x avg)
+2026-02-25 15:34:45 +00:00:   ⬜ T: 8/100 ⚪ - 🧲 Convergent walls ($28/$28) — gamma magnet, ℹ️ Confluence zone (2 levels)
+2026-02-25 15:34:45 +00:00:   ⬜ SLV: 8/100 🟢 - 🚀 BREAKOUT above call wall ($80) +1.8%, ℹ️ Above gamma flip ($79.52)
+2026-02-25 15:34:45 +00:00:   ⬜ CVNA: 8/100 🟢 - 🚀 BREAKOUT above call wall ($300) +9.4%, ℹ️ Above gamma flip ($297.80)
+2026-02-25 15:34:45 +00:00:   ⬜ MRNA: 7/100 🟢 - At upper Bollinger Band, 🚀 BREAKOUT above call wall ($51) +3.2%
+2026-02-25 15:34:45 +00:00:   ⬜ IBIT: 5/100 ⚪ - 🧲 Convergent walls ($38/$38) — gamma magnet, ℹ️ Confluence zone (3 levels)
+2026-02-25 15:34:45 +00:00:   ⬜ NVDA: 5/100 ⚪ - ℹ️ $220M net bullish premium, Heavy call bias (3.94 C/P) [-3]
+2026-02-25 15:34:45 +00:00:   ⬜ ORCL: 5/100 🟢 - 🚀 BREAKOUT above call wall ($150) +1.1%, Heavy call bias (3.09 C/P) [-3]
+2026-02-25 15:34:45 +00:00:   ⬜ PYPL: 5/100 ⚪ - ℹ️ Elevated volume (1.6x avg), ℹ️ $11M net bullish premium
+2026-02-25 15:34:45 +00:00:   ⬜ OPEN: 5/100 ⚪ - 🧲 Convergent walls ($5/$5) — gamma magnet, ℹ️ Confluence zone (4 levels)
+2026-02-25 15:34:45 +00:00:   ⬜ MU: 5/100 ⚪ - ℹ️ Options flow detected (not at wall — informational), 🔥 Unusual PUT $425 OTM (hedge, 10.1x, $8.9M)
+2026-02-25 15:34:45 +00:00:   ⬜ PANW: 5/100 🟢 - RSI oversold (23.9), At lower Bollinger Band
+2026-02-25 15:34:45 +00:00:   ⬜ INTC: 5/100 ⚪ - Heavy call bias (2.27 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (HC 21.9x $13.6M) [+8]
+2026-02-25 15:34:45 +00:00:   ⬜ UNG: 5/100 ⚪ - 📡 Flow confirmed by Opportunity Scanner (T 40.0x) [+5], ℹ️ Sector headwind (UNG bottom quartile, -50th pctl)
+2026-02-25 15:34:45 +00:00:   ⬜ USO: 5/100 🔴 - 💥 BREAKDOWN below put wall ($81) -1.8%, 📡 Flow confirmed by Opportunity Scanner (T 16.5x) [+5]
+2026-02-25 15:34:45 +00:00:   ⬜ XLK: 5/100 ⚪ - Heavy put bias (0.25 C/P), 📡 Flow confirmed by Opportunity Scanner (T 1573.0x) [+5]
+2026-02-25 15:34:45 +00:00:   ⬜ QQQ: 4/100 🔴 - At call wall resistance ($614), ⚠️ CALL wall ACTIVE (7.8x vol/OI — cascade risk)
+2026-02-25 15:34:45 +00:00:   ⬜ HPQ: 3/100 🟢 - At lower Bollinger Band, ℹ️ At VWAP ($18.2)
+2026-02-25 15:34:45 +00:00:   ⬜ VNDA: 2/100 🟢 - 🚀 BREAKOUT above call wall ($8) +6.7%, ℹ️ Above gamma flip ($6.04)
+2026-02-25 15:34:45 +00:00:   ⬜ SOLZ: 2/100 ⚪ - Heavy call bias (249.75 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 58.7x) [+5]
+2026-02-25 15:34:45 +00:00:   ⬜ ETHA: 2/100 ⚪ - Heavy call bias (2.16 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 7.1x) [+5]
+2026-02-25 15:34:45 +00:00:   ⬜ PLTR: 2/100 ⚪ - ℹ️ Elevated call $132 02/27 (3.0x, $3.0M), ℹ️ $19M net bullish premium
+2026-02-25 15:34:45 +00:00:   ⬜ $VIX: 0/100 ⚪ - Heavy call bias (3.01 C/P) [-3], 🆕 New discovery
+2026-02-25 15:34:45 +00:00:   ⬜ MSFT: 0/100 ⚪ - 🧲 Convergent walls ($400/$400) — gamma magnet, ℹ️ Confluence zone (3 levels)
+2026-02-25 15:34:45 +00:00:   ⬜ SPY: 0/100 📍 - 📍 PINNED between walls ($687-$693), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:34:45 +00:00:   ⬜ AMZN: 0/100 🟢 - 🧲 Convergent walls ($210/$210) — gamma magnet, ℹ️ Confluence zone (4 levels)
+2026-02-25 15:34:45 +00:00:   ⬜ NFLX: 0/100 🟢 - 🚀 BREAKOUT above call wall ($80) +2.5%, ℹ️ Above gamma flip ($78.20)
+2026-02-25 15:34:45 +00:00:   ⬜ VXX: 0/100 ⚪ - ℹ️ Confluence zone (3 levels), 📡 Flow confirmed by Opportunity Scanner (T 7.1x) [+5]
+2026-02-25 15:34:45 +00:00:   ⬜ XLV: 0/100 ⚪ - ℹ️ At VWAP ($158.01), ℹ️ Confluence zone (5 levels)
+2026-02-25 15:34:45 +00:00:   ⬜ BAC: 0/100 🔴 - At lower Bollinger Band, 💥 BREAKDOWN below put wall ($52) -1.4%
+2026-02-25 15:34:45 +00:00:   ⬜ IWM: 0/100 📍 - 📍 PINNED between walls ($262-$265), ℹ️ At VWAP ($262.83)
+2026-02-25 15:34:45 +00:00: 
+2026-02-25 15:34:45 +00:00: [Tiers] HIGH_CONVICTION: 0 | TRADEABLE: 1 | WATCH: 12 | FILTERED: 37
+2026-02-25 15:34:45 +00:00: [TRADEABLE]
+2026-02-25 15:34:45 +00:00:   ✅ F: 36/100 🔴 (SELL) [Counter-trend (swing: BULLISH), Dormant wall, Bearish direction (0% historical win rate)]
+2026-02-25 15:34:45 +00:00: [WATCH LIST]
+2026-02-25 15:34:45 +00:00:   👀 XLU: 65/100 
+2026-02-25 15:34:45 +00:00:   👀 OXY: 65/100 
+2026-02-25 15:34:45 +00:00:   👀 TSLA: 35/100 (score 35)
+2026-02-25 15:34:45 +00:00:   👀 EEM: 33/100 (score 33)
+2026-02-25 15:34:45 +00:00:   👀 XLF: 33/100 (score 33)
+2026-02-25 15:34:45 +00:00: 
+2026-02-25 15:34:45 +00:00: [Alerts] Sending 1 TRADEABLE alert(s)...
+2026-02-25 15:34:46 +00:00: [Telegram] Sent alert
+2026-02-25 15:34:46 +00:00: [Signal Logger] F conditions changed on existing signal:
+2026-02-25 15:34:46 +00:00:   Score: 30 → 36 (+6)
+2026-02-25 15:34:46 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:34:46 +00:00:   Direction: bullish → bearish
+2026-02-25 15:34:46 +00:00: [Signal Logger] F tier promoted: WATCH → TRADEABLE (score: 36)
+2026-02-25 15:34:46 +00:00: 
+2026-02-25 15:34:46 +00:00: [Signal Logger] Logging 12 WATCH signal(s) for baseline analysis...
+2026-02-25 15:34:46 +00:00: [Signal Logger] XLU conditions changed on existing signal:
+2026-02-25 15:34:46 +00:00:   Score: 70 → 65 (-5)
+2026-02-25 15:34:46 +00:00:   Zone: BUY_ZONE → HIGH_MOMENTUM
+2026-02-25 15:34:46 +00:00: [Signal Logger] OXY conditions changed on existing signal:
+2026-02-25 15:34:46 +00:00:   Score: 27 → 65 (+38)
+2026-02-25 15:34:46 +00:00: [Signal Logger] TSLA conditions changed on existing signal:
+2026-02-25 15:34:46 +00:00:   Score: 36 → 35 (-1)
+2026-02-25 15:34:46 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:34:46 +00:00:   Direction: bullish → bearish
+2026-02-25 15:34:46 +00:00: [Signal Logger] EEM conditions changed on existing signal:
+2026-02-25 15:34:46 +00:00:   Score: 20 → 33 (+13)
+2026-02-25 15:34:46 +00:00:   Zone: MID_RANGE → SELL_ZONE
+2026-02-25 15:34:46 +00:00: [Signal Logger] XLF conditions changed on existing signal:
+2026-02-25 15:34:46 +00:00:   Score: 70 → 33 (-37)
+2026-02-25 15:34:46 +00:00:   Zone: null → BUY_ZONE
+2026-02-25 15:34:46 +00:00: [Signal Logger] META conditions changed on existing signal:
+2026-02-25 15:34:46 +00:00:   Score: 30 → 32 (+2)
+2026-02-25 15:34:46 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:34:46 +00:00:   Direction: bullish → bearish
+2026-02-25 15:34:46 +00:00: [Signal Logger] XLI conditions changed on existing signal:
+2026-02-25 15:34:46 +00:00:   Score: 73 → 23 (-50)
+2026-02-25 15:34:46 +00:00: [Signal Logger] XLP conditions changed on existing signal:
+2026-02-25 15:34:46 +00:00:   Score: 71 → 23 (-48)
+2026-02-25 15:34:46 +00:00:   Zone: SELL_ZONE → HIGH_MOMENTUM
+2026-02-25 15:34:46 +00:00: [Signal Logger] SNDK conditions changed on existing signal:
+2026-02-25 15:34:46 +00:00:   Score: 33 → 20 (-13)
+2026-02-25 15:34:46 +00:00: [Signal Logger] XLE conditions changed on existing signal:
+2026-02-25 15:34:46 +00:00:   Score: 65 → 20 (-45)
+2026-02-25 15:34:46 +00:00:   Zone: null → SELL_ZONE
+2026-02-25 15:34:46 +00:00:   Direction: bullish → bearish
+2026-02-25 15:34:46 +00:00: [Signal Logger] XLC conditions changed on existing signal:
+2026-02-25 15:34:46 +00:00:   Score: 40 → 20 (-20)
+2026-02-25 15:34:46 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:34:46 +00:00:   Direction: bullish → bearish
+2026-02-25 15:34:47 +00:00: [SignalDB] Inserted 50 bloodhound results for scan 1122
+2026-02-25 15:34:47 +00:00: [Bloodhound] Wrote 50 results to database (scan_id: 1122)
+2026-02-25 15:34:47 +00:00: 
+2026-02-25 15:34:47 +00:00: [Bloodhound] Scan complete (243s). Next scan in 5 minutes.
+2026-02-25 15:34:47 +00:00: [API Cache] 211 fresh / 211 total entries (0 stale)
+2026-02-25 15:34:47 +00:00: [Signal Logger] Price cache built with 50 symbols
+2026-02-25 15:34:48 +00:00: [SignalDB] Closed option signal TSLA_1771858262430: LOSS (peak +0%, close -100%)
+2026-02-25 15:34:48 +00:00: [Signal Logger] Option .TSLA260223C405 expired — closed
+2026-02-25 15:34:49 +00:00: [SignalDB] Closed option signal AAPL_1771859135376: WIN (peak +629%, close -100%)
+2026-02-25 15:34:49 +00:00: [Signal Logger] Option .AAPL260223C267.5 expired — closed
+2026-02-25 15:34:53 +00:00: [SignalDB] Closed option signal IWM_1771869674094: WIN (peak +203%, close -100%)
+2026-02-25 15:34:53 +00:00: [Signal Logger] Option .IWM260224C260 expired — closed
+2026-02-25 15:35:02 +00:00: [Signal Logger] Updated prices for 45 signal(s), 5 option(s) (45 cached, 0 API)
+2026-02-25 15:35:43 +00:00: 
+2026-02-25 15:35:43 +00:00: ============================================================
+2026-02-25 15:35:43 +00:00: [2026-02-25T15:35:43.734Z] Running Bloodhound scan...
+2026-02-25 15:35:43 +00:00: ============================================================
+2026-02-25 15:35:55 +00:00: [Context] VIX: 18.62 (normal) | SPY: bearish
+2026-02-25 15:35:55 +00:00: [Internals] TICK: 27, A/D: -263, Vol Ratio: 1.29
+2026-02-25 15:35:55 +00:00: [RS] Read 18 rankings from DB (snapshot 1970m ago)
+2026-02-25 15:36:00 +00:00: [RS] Rankings loaded (18 assets), no regime data
+2026-02-25 15:36:07 +00:00: [MA-Bounce] Pre-fetched history for 8/8 validated symbols
+2026-02-25 15:36:07 +00:00: [Div-BB] Pre-fetched history for 9/9 configured symbols
+2026-02-25 15:36:07 +00:00: [Watchlist] DB: 10 static, 40 dynamic
+2026-02-25 15:36:08 +00:00: [Discovery] Opportunity scanner contributed 37 symbols (46 with flow data)
+2026-02-25 15:36:08 +00:00: [Discovery] 50 symbols: 10 static + 40 dynamic (watchlist: 40, sector_leader: 1, opportunity_scanner: 37, market_data: 3)
+2026-02-25 15:36:08 +00:00: [Discovery] Found 50 symbols to scan
+2026-02-25 15:36:08 +00:00: [Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+2026-02-25 15:36:08 +00:00: [Bias] Intraday: NEUTRAL | Swing: BULLISH
+2026-02-25 15:36:08 +00:00: [Top Discoveries]
+2026-02-25 15:36:08 +00:00:   1. $VIX (score: 100, watchlist)
+2026-02-25 15:36:08 +00:00:   2. MSFT (score: 100, watchlist)
+2026-02-25 15:36:08 +00:00:   3. META (score: 100, watchlist)
+2026-02-25 15:36:08 +00:00:   4. AAPL (score: 100, watchlist)
+2026-02-25 15:36:08 +00:00:   5. AMD (score: 100, watchlist)
+2026-02-25 15:36:08 +00:00:   6. IBIT (score: 100, watchlist)
+2026-02-25 15:36:08 +00:00:   7. TSLA (score: 100, watchlist)
+2026-02-25 15:36:08 +00:00:   8. NVDA (score: 100, watchlist)
+2026-02-25 15:37:39 +00:00: 
+2026-02-25 15:37:39 +00:00: [History] Updating scanner history for 50 symbols...
+2026-02-25 15:37:39 +00:00: [History] Updated 50 symbols in database.
+2026-02-25 15:37:39 +00:00: 
+2026-02-25 15:37:39 +00:00: [Results] Analyzed 50 symbols:
+2026-02-25 15:37:39 +00:00:   ✅ XLU: 65/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), ⭐ PRIME SETUP: Wall + Extended RSI
+2026-02-25 15:37:39 +00:00:   ✅ OXY: 65/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), ⭐ PRIME SETUP: Wall + Extended RSI
+2026-02-25 15:37:39 +00:00:   ✅ TSLA: 35/100 🔴 - ⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR), At call wall resistance ($415)
+2026-02-25 15:37:39 +00:00:   ⬜ EEM: 33/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), At upper Bollinger Band
+2026-02-25 15:37:39 +00:00:   ⬜ XLF: 33/100 🟢 - ⭐ COMBO: Put wall + Heavy puts (89% 3d WR), At lower Bollinger Band
+2026-02-25 15:37:39 +00:00:   ⬜ META: 32/100 🔴 - ⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR), At call wall resistance ($650)
+2026-02-25 15:37:39 +00:00:   ⬜ IBRX: 28/100 🟢 - RSI overbought (82.8), At upper Bollinger Band
+2026-02-25 15:37:39 +00:00:   ⬜ AAPL: 23/100 🔴 - At call wall resistance ($275), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:37:39 +00:00:   ⬜ XLP: 23/100 🔴 - RSI overbought (73.0), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:37:39 +00:00:   ⬜ ORCL: 20/100 🔴 - At call wall resistance ($150), CALL wall dormant
+2026-02-25 15:37:39 +00:00:   ⬜ XLC: 20/100 🔴 - At call wall resistance ($117), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:37:39 +00:00:   ⬜ XLI: 18/100 📍 - ⭐ COMBO: Put wall + Heavy puts (89% 3d WR), 📍 PINNED between walls ($173-$175)
+2026-02-25 15:37:39 +00:00:   ⬜ UVXY: 17/100 🟢 - At put wall support ($37.5), Heavy call bias (2.35 C/P) [-3]
+2026-02-25 15:37:39 +00:00:   ⬜ AMZN: 15/100 🔴 - At call wall resistance ($210), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:37:39 +00:00:   ⬜ GM: 15/100 🟢 - At put wall support ($82), ℹ️ At VWAP ($81.59)
+2026-02-25 15:37:39 +00:00:   ⬜ XLRE: 15/100 🟢 - At put wall support ($43), ℹ️ Dip buy setup (SPY bearish)
+2026-02-25 15:37:39 +00:00:   ⬜ F: 13/100 🔴 - At upper Bollinger Band, 📡 Flow confirmed by Opportunity Scanner (HC 22.5x $1.6M) [+8]
+2026-02-25 15:37:39 +00:00:   ⬜ AMD: 8/100 🟢 - 🚀 BREAKOUT above call wall ($210) +1.5%, ℹ️ At VWAP ($212.8)
+2026-02-25 15:37:39 +00:00:   ⬜ GLD: 8/100 ⚪ - 🧲 Convergent walls ($475/$475) — gamma magnet, ℹ️ Confluence zone (7 levels)
+2026-02-25 15:37:39 +00:00:   ⬜ T: 8/100 ⚪ - 🧲 Convergent walls ($28/$28) — gamma magnet, ℹ️ Confluence zone (2 levels)
+2026-02-25 15:37:39 +00:00:   ⬜ SLV: 8/100 🟢 - 🚀 BREAKOUT above call wall ($80) +2.1%, ℹ️ Above gamma flip ($79.60)
+2026-02-25 15:37:39 +00:00:   ⬜ CVNA: 8/100 🟢 - 🚀 BREAKOUT above call wall ($300) +9.8%, ℹ️ Above gamma flip ($297.65)
+2026-02-25 15:37:39 +00:00:   ⬜ MRNA: 7/100 🟢 - At upper Bollinger Band, 🚀 BREAKOUT above call wall ($51) +2.1%
+2026-02-25 15:37:39 +00:00:   ⬜ IBIT: 5/100 ⚪ - 🧲 Convergent walls ($38/$38) — gamma magnet, PUT wall dormant
+2026-02-25 15:37:39 +00:00:   ⬜ NVDA: 5/100 ⚪ - ℹ️ Confluence zone (2 levels), ℹ️ $220M net bullish premium
+2026-02-25 15:37:39 +00:00:   ⬜ PYPL: 5/100 ⚪ - ℹ️ Elevated volume (1.6x avg), ℹ️ $11M net bullish premium
+2026-02-25 15:37:39 +00:00:   ⬜ OPEN: 5/100 ⚪ - 🧲 Convergent walls ($5/$5) — gamma magnet, PUT wall dormant
+2026-02-25 15:37:39 +00:00:   ⬜ MU: 5/100 ⚪ - ℹ️ Options flow detected (not at wall — informational), 🔥 Unusual PUT $425 OTM (hedge, 10.1x, $8.9M)
+2026-02-25 15:37:39 +00:00:   ⬜ SNDK: 5/100 ⚪ - ℹ️ $16M net bullish premium, Heavy call bias (2.08 C/P) [-3]
+2026-02-25 15:37:39 +00:00:   ⬜ PANW: 5/100 🟢 - RSI oversold (23.9), At lower Bollinger Band
+2026-02-25 15:37:39 +00:00:   ⬜ INTC: 5/100 ⚪ - Heavy call bias (2.27 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (HC 21.9x $13.6M) [+8]
+2026-02-25 15:37:39 +00:00:   ⬜ UNG: 5/100 ⚪ - 📡 Flow confirmed by Opportunity Scanner (T 40.0x) [+5], ℹ️ Sector headwind (UNG bottom quartile, -50th pctl)
+2026-02-25 15:37:39 +00:00:   ⬜ XLE: 5/100 ⚪ - ℹ️ Confluence zone (2 levels), 📡 Flow confirmed by Opportunity Scanner (T 0.9x) [+5]
+2026-02-25 15:37:39 +00:00:   ⬜ USO: 5/100 🔴 - 💥 BREAKDOWN below put wall ($81) -1.6%, ℹ️ Confluence zone (2 levels)
+2026-02-25 15:37:39 +00:00:   ⬜ XLK: 5/100 ⚪ - Heavy put bias (0.25 C/P), 📡 Flow confirmed by Opportunity Scanner (T 1573.0x) [+5]
+2026-02-25 15:37:39 +00:00:   ⬜ QQQ: 4/100 🔴 - At call wall resistance ($614), ⚠️ CALL wall ACTIVE (7.8x vol/OI — cascade risk)
+2026-02-25 15:37:39 +00:00:   ⬜ HPQ: 3/100 🟢 - At lower Bollinger Band, ℹ️ Dip buy setup (SPY bearish)
+2026-02-25 15:37:39 +00:00:   ⬜ VNDA: 2/100 🟢 - 🚀 BREAKOUT above call wall ($8) +6.7%, ℹ️ Above gamma flip ($6.04)
+2026-02-25 15:37:39 +00:00:   ⬜ SOLZ: 2/100 ⚪ - Heavy call bias (249.75 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 58.7x) [+5]
+2026-02-25 15:37:39 +00:00:   ⬜ ETHA: 2/100 ⚪ - Heavy call bias (2.16 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 7.1x) [+5]
+2026-02-25 15:37:39 +00:00:   ⬜ PLTR: 2/100 ⚪ - ℹ️ Elevated call $132 02/27 (3.0x, $3.0M), ℹ️ $19M net bullish premium
+2026-02-25 15:37:39 +00:00:   ⬜ $VIX: 0/100 ⚪ - Heavy call bias (3.01 C/P) [-3], 🆕 New discovery
+2026-02-25 15:37:39 +00:00:   ⬜ MSFT: 0/100 ⚪ - 🧲 Convergent walls ($400/$400) — gamma magnet, ℹ️ Confluence zone (3 levels)
+2026-02-25 15:37:39 +00:00:   ⬜ SPY: 0/100 📍 - 📍 PINNED between walls ($687-$693), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:37:39 +00:00:   ⬜ NFLX: 0/100 🟢 - 🚀 BREAKOUT above call wall ($80) +2.5%, ℹ️ Above gamma flip ($78.19)
+2026-02-25 15:37:39 +00:00:   ⬜ VXX: 0/100 ⚪ - ℹ️ Confluence zone (3 levels), 📡 Flow confirmed by Opportunity Scanner (T 7.1x) [+5]
+2026-02-25 15:37:39 +00:00:   ⬜ XLV: 0/100 ⚪ - ℹ️ At VWAP ($158.01), ℹ️ Confluence zone (5 levels)
+2026-02-25 15:37:39 +00:00:   ⬜ BAC: 0/100 🔴 - At lower Bollinger Band, 💥 BREAKDOWN below put wall ($52) -1.4%
+2026-02-25 15:37:39 +00:00:   ⬜ IWM: 0/100 📍 - 📍 PINNED between walls ($262-$265), ℹ️ At VWAP ($262.83)
+2026-02-25 15:37:39 +00:00:   ⬜ GOOGL: 0/100 🟢 - 🧲 Convergent walls ($310/$310) — gamma magnet, ℹ️ At VWAP ($310.03)
+2026-02-25 15:37:39 +00:00: 
+2026-02-25 15:37:39 +00:00: [Tiers] HIGH_CONVICTION: 0 | TRADEABLE: 0 | WATCH: 9 | FILTERED: 41
+2026-02-25 15:37:39 +00:00: [WATCH LIST]
+2026-02-25 15:37:39 +00:00:   👀 XLU: 65/100 
+2026-02-25 15:37:39 +00:00:   👀 OXY: 65/100 
+2026-02-25 15:37:39 +00:00:   👀 TSLA: 35/100 (score 35)
+2026-02-25 15:37:39 +00:00:   👀 EEM: 33/100 (score 33)
+2026-02-25 15:37:39 +00:00:   👀 XLF: 33/100 (score 33)
+2026-02-25 15:37:39 +00:00: 
+2026-02-25 15:37:39 +00:00: [Alerts] No alertable opportunities (0 tradeable below cooldown, 9 on watch)
+2026-02-25 15:37:39 +00:00: 
+2026-02-25 15:37:39 +00:00: [Signal Logger] Logging 9 WATCH signal(s) for baseline analysis...
+2026-02-25 15:37:39 +00:00: [Signal Logger] XLU conditions changed on existing signal:
+2026-02-25 15:37:39 +00:00:   Score: 70 → 65 (-5)
+2026-02-25 15:37:39 +00:00:   Zone: BUY_ZONE → HIGH_MOMENTUM
+2026-02-25 15:37:39 +00:00: [Signal Logger] OXY conditions changed on existing signal:
+2026-02-25 15:37:39 +00:00:   Score: 27 → 65 (+38)
+2026-02-25 15:37:39 +00:00: [Signal Logger] TSLA conditions changed on existing signal:
+2026-02-25 15:37:39 +00:00:   Score: 36 → 35 (-1)
+2026-02-25 15:37:39 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:37:39 +00:00:   Direction: bullish → bearish
+2026-02-25 15:37:39 +00:00: [Signal Logger] EEM conditions changed on existing signal:
+2026-02-25 15:37:39 +00:00:   Score: 20 → 33 (+13)
+2026-02-25 15:37:39 +00:00:   Zone: MID_RANGE → SELL_ZONE
+2026-02-25 15:37:39 +00:00: [Signal Logger] XLF conditions changed on existing signal:
+2026-02-25 15:37:39 +00:00:   Score: 70 → 33 (-37)
+2026-02-25 15:37:39 +00:00:   Zone: null → BUY_ZONE
+2026-02-25 15:37:39 +00:00: [Signal Logger] META conditions changed on existing signal:
+2026-02-25 15:37:39 +00:00:   Score: 30 → 32 (+2)
+2026-02-25 15:37:39 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:37:39 +00:00:   Direction: bullish → bearish
+2026-02-25 15:37:39 +00:00: [Signal Logger] ORCL conditions changed on existing signal:
+2026-02-25 15:37:39 +00:00:   Score: 75 → 20 (-55)
+2026-02-25 15:37:39 +00:00:   Zone: null → SELL_ZONE
+2026-02-25 15:37:39 +00:00:   Direction: neutral → bearish
+2026-02-25 15:37:39 +00:00: [Signal Logger] XLC conditions changed on existing signal:
+2026-02-25 15:37:39 +00:00:   Score: 40 → 20 (-20)
+2026-02-25 15:37:39 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:37:39 +00:00:   Direction: bullish → bearish
+2026-02-25 15:37:39 +00:00: [SignalDB] Inserted 50 bloodhound results for scan 1123
+2026-02-25 15:37:39 +00:00: [Bloodhound] Wrote 50 results to database (scan_id: 1123)
+2026-02-25 15:37:39 +00:00: 
+2026-02-25 15:37:39 +00:00: [Bloodhound] Scan complete (116s). Next scan in 5 minutes.
+2026-02-25 15:37:39 +00:00: [API Cache] 248 fresh / 253 total entries (5 stale)
+2026-02-25 15:37:39 +00:00: [Signal Logger] Price cache built with 50 symbols
+2026-02-25 15:37:41 +00:00: [SignalDB] Closed option signal TSLA_1771858262430: LOSS (peak +0%, close -100%)
+2026-02-25 15:37:41 +00:00: [Signal Logger] Option .TSLA260223C405 expired — closed
+2026-02-25 15:37:42 +00:00: [SignalDB] Closed option signal AAPL_1771859135376: WIN (peak +629%, close -100%)
+2026-02-25 15:37:42 +00:00: [Signal Logger] Option .AAPL260223C267.5 expired — closed
+2026-02-25 15:37:45 +00:00: [SignalDB] Closed option signal IWM_1771869674094: WIN (peak +203%, close -100%)
+2026-02-25 15:37:45 +00:00: [Signal Logger] Option .IWM260224C260 expired — closed
+2026-02-25 15:37:51 +00:00: [Signal Logger] Updated prices for 45 signal(s), 5 option(s) (45 cached, 0 API)
+2026-02-25 15:40:43 +00:00: 
+2026-02-25 15:40:43 +00:00: ============================================================
+2026-02-25 15:40:43 +00:00: [2026-02-25T15:40:43.734Z] Running Bloodhound scan...
+2026-02-25 15:40:43 +00:00: ============================================================
+2026-02-25 15:40:49 +00:00: [Context] VIX: 18.74 (normal) | SPY: bearish
+2026-02-25 15:40:49 +00:00: [Internals] TICK: -88, A/D: -285, Vol Ratio: 1.27
+2026-02-25 15:40:49 +00:00: [RS] Read 18 rankings from DB (snapshot 1975m ago)
+2026-02-25 15:40:53 +00:00: [RS] Rotation regime: mid_cycle | 18 assets ranked
+2026-02-25 15:40:55 +00:00: [MA-Bounce] Pre-fetched history for 8/8 validated symbols
+2026-02-25 15:40:55 +00:00: [Div-BB] Pre-fetched history for 9/9 configured symbols
+2026-02-25 15:40:55 +00:00: [Watchlist] DB: 10 static, 40 dynamic
+2026-02-25 15:40:56 +00:00: [Discovery] Opportunity scanner contributed 37 symbols (46 with flow data)
+2026-02-25 15:40:56 +00:00: [Discovery] 50 symbols: 10 static + 40 dynamic (watchlist: 40, sector_leader: 1, opportunity_scanner: 37, market_data: 3)
+2026-02-25 15:40:56 +00:00: [Discovery] Found 50 symbols to scan
+2026-02-25 15:40:56 +00:00: [Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+2026-02-25 15:40:56 +00:00: [Bias] Intraday: NEUTRAL | Swing: BULLISH
+2026-02-25 15:40:56 +00:00: [Top Discoveries]
+2026-02-25 15:40:56 +00:00:   1. $VIX (score: 100, watchlist)
+2026-02-25 15:40:56 +00:00:   2. MSFT (score: 100, watchlist)
+2026-02-25 15:40:56 +00:00:   3. META (score: 100, watchlist)
+2026-02-25 15:40:56 +00:00:   4. AAPL (score: 100, watchlist)
+2026-02-25 15:40:56 +00:00:   5. AMD (score: 100, watchlist)
+2026-02-25 15:40:56 +00:00:   6. IBIT (score: 100, watchlist)
+2026-02-25 15:40:56 +00:00:   7. TSLA (score: 100, watchlist)
+2026-02-25 15:40:56 +00:00:   8. NVDA (score: 100, watchlist)
+2026-02-25 15:42:37 +00:00: 
+2026-02-25 15:42:37 +00:00: [History] Updating scanner history for 50 symbols...
+2026-02-25 15:42:37 +00:00: [History] Updated 50 symbols in database.
+2026-02-25 15:42:37 +00:00: 
+2026-02-25 15:42:37 +00:00: [Results] Analyzed 50 symbols:
+2026-02-25 15:42:37 +00:00:   ✅ XLU: 65/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), ⭐ PRIME SETUP: Wall + Extended RSI
+2026-02-25 15:42:37 +00:00:   ✅ OXY: 65/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), ⭐ PRIME SETUP: Wall + Extended RSI
+2026-02-25 15:42:37 +00:00:   ✅ TSLA: 35/100 🔴 - ⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR), At call wall resistance ($415)
+2026-02-25 15:42:37 +00:00:   ✅ SLV: 35/100 🔴 - ⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR), At call wall resistance ($82)
+2026-02-25 15:42:37 +00:00:   ⬜ EEM: 33/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), At upper Bollinger Band
+2026-02-25 15:42:37 +00:00:   ⬜ META: 32/100 🔴 - ⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR), At call wall resistance ($650)
+2026-02-25 15:42:37 +00:00:   ⬜ MRNA: 30/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), At upper Bollinger Band
+2026-02-25 15:42:37 +00:00:   ⬜ IBRX: 28/100 🟢 - RSI overbought (82.8), At upper Bollinger Band
+2026-02-25 15:42:37 +00:00:   ⬜ AAPL: 23/100 🔴 - At call wall resistance ($275), ℹ️ At VWAP ($272.54)
+2026-02-25 15:42:37 +00:00:   ⬜ XLI: 23/100 🔴 - At call wall resistance ($175), ℹ️ Confluence zone (5 levels)
+2026-02-25 15:42:37 +00:00:   ⬜ XLP: 23/100 🔴 - RSI overbought (73.0), ℹ️ Elevated call $95 04/17 (39.4x, $0.4M)
+2026-02-25 15:42:37 +00:00:   ⬜ ORCL: 20/100 🔴 - At call wall resistance ($150), ℹ️ Confluence zone (2 levels)
+2026-02-25 15:42:37 +00:00:   ⬜ XLC: 20/100 🔴 - At call wall resistance ($117), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:42:37 +00:00:   ⬜ XLF: 18/100 📍 - ⭐ COMBO: Put wall + Heavy puts (89% 3d WR), At lower Bollinger Band
+2026-02-25 15:42:37 +00:00:   ⬜ AMZN: 15/100 🔴 - At call wall resistance ($210), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:42:37 +00:00:   ⬜ GM: 15/100 🟢 - At put wall support ($82), ℹ️ Confluence zone (2 levels)
+2026-02-25 15:42:37 +00:00:   ⬜ XLRE: 15/100 🟢 - At put wall support ($43), ℹ️ Dip buy setup (SPY bearish)
+2026-02-25 15:42:37 +00:00:   ⬜ F: 13/100 🔴 - At upper Bollinger Band, 📡 Flow confirmed by Opportunity Scanner (HC 22.5x $1.6M) [+8]
+2026-02-25 15:42:37 +00:00:   ⬜ AMD: 8/100 🟢 - 🚀 BREAKOUT above call wall ($210) +1.3%, ℹ️ At VWAP ($212.8)
+2026-02-25 15:42:37 +00:00:   ⬜ GLD: 8/100 ⚪ - 🧲 Convergent walls ($475/$475) — gamma magnet, PUT wall dormant
+2026-02-25 15:42:37 +00:00:   ⬜ T: 8/100 ⚪ - 🧲 Convergent walls ($28/$28) — gamma magnet, ℹ️ Confluence zone (3 levels)
+2026-02-25 15:42:37 +00:00:   ⬜ CVNA: 8/100 🟢 - 🚀 BREAKOUT above call wall ($300) +9.2%, ℹ️ Above gamma flip ($297.80)
+2026-02-25 15:42:37 +00:00:   ⬜ IBIT: 5/100 ⚪ - 🧲 Convergent walls ($38/$38) — gamma magnet, PUT wall dormant
+2026-02-25 15:42:37 +00:00:   ⬜ NVDA: 5/100 ⚪ - ℹ️ $220M net bullish premium, Heavy call bias (3.94 C/P) [-3]
+2026-02-25 15:42:37 +00:00:   ⬜ PYPL: 5/100 ⚪ - ℹ️ Elevated volume (1.6x avg), ℹ️ $11M net bullish premium
+2026-02-25 15:42:37 +00:00:   ⬜ OPEN: 5/100 🔴 - 💥 BREAKDOWN below put wall ($5) -1.2%, Heavy call bias (5.66 C/P) [-3]
+2026-02-25 15:42:37 +00:00:   ⬜ MU: 5/100 ⚪ - ℹ️ Options flow detected (not at wall — informational), 🔥 Unusual PUT $425 OTM (hedge, 10.1x, $8.9M)
+2026-02-25 15:42:37 +00:00:   ⬜ SNDK: 5/100 ⚪ - ℹ️ $16M net bullish premium, Heavy call bias (2.08 C/P) [-3]
+2026-02-25 15:42:37 +00:00:   ⬜ PANW: 5/100 🟢 - RSI oversold (23.9), At lower Bollinger Band
+2026-02-25 15:42:37 +00:00:   ⬜ INTC: 5/100 ⚪ - Heavy call bias (2.27 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (HC 21.9x $13.6M) [+8]
+2026-02-25 15:42:37 +00:00:   ⬜ UNG: 5/100 ⚪ - 📡 Flow confirmed by Opportunity Scanner (T 40.0x) [+5], ℹ️ Sector headwind (UNG bottom quartile, -50th pctl)
+2026-02-25 15:42:37 +00:00:   ⬜ XLE: 5/100 ⚪ - ℹ️ Confluence zone (2 levels), 📡 Flow confirmed by Opportunity Scanner (T 0.9x) [+5]
+2026-02-25 15:42:37 +00:00:   ⬜ USO: 5/100 🔴 - 💥 BREAKDOWN below put wall ($81) -1.6%, ℹ️ Confluence zone (2 levels)
+2026-02-25 15:42:37 +00:00:   ⬜ XLK: 5/100 ⚪ - Heavy put bias (0.25 C/P), 📡 Flow confirmed by Opportunity Scanner (T 1573.0x) [+5]
+2026-02-25 15:42:37 +00:00:   ⬜ QQQ: 4/100 🔴 - At call wall resistance ($614), ⚠️ CALL wall ACTIVE (7.8x vol/OI — cascade risk)
+2026-02-25 15:42:37 +00:00:   ⬜ HPQ: 3/100 🟢 - At lower Bollinger Band, ℹ️ Dip buy setup (SPY bearish)
+2026-02-25 15:42:37 +00:00:   ⬜ VNDA: 2/100 🟢 - 🚀 BREAKOUT above call wall ($8) +6.3%, ℹ️ Above gamma flip ($6.04)
+2026-02-25 15:42:37 +00:00:   ⬜ SOLZ: 2/100 ⚪ - Heavy call bias (249.75 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 58.7x) [+5]
+2026-02-25 15:42:37 +00:00:   ⬜ UVXY: 2/100 🔴 - 💥 BREAKDOWN below put wall ($40) -6.1%, Heavy call bias (2.35 C/P) [-3]
+2026-02-25 15:42:37 +00:00:   ⬜ ETHA: 2/100 ⚪ - Heavy call bias (2.16 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 7.1x) [+5]
+2026-02-25 15:42:37 +00:00:   ⬜ PLTR: 2/100 ⚪ - ℹ️ Elevated call $132 02/27 (3.0x, $3.0M), ℹ️ $19M net bullish premium
+2026-02-25 15:42:37 +00:00:   ⬜ $VIX: 0/100 ⚪ - Heavy call bias (3.01 C/P) [-3], 🆕 New discovery
+2026-02-25 15:42:37 +00:00:   ⬜ MSFT: 0/100 ⚪ - 🧲 Convergent walls ($400/$400) — gamma magnet, ℹ️ Confluence zone (3 levels)
+2026-02-25 15:42:37 +00:00:   ⬜ SPY: 0/100 📍 - 📍 PINNED between walls ($687-$693), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:42:37 +00:00:   ⬜ NFLX: 0/100 🟢 - 🚀 BREAKOUT above call wall ($80) +2.4%, ℹ️ Above gamma flip ($78.19)
+2026-02-25 15:42:37 +00:00:   ⬜ VXX: 0/100 ⚪ - ℹ️ Confluence zone (3 levels), 📡 Flow confirmed by Opportunity Scanner (T 7.1x) [+5]
+2026-02-25 15:42:37 +00:00:   ⬜ XLV: 0/100 ⚪ - ℹ️ At VWAP ($158.01), ℹ️ Confluence zone (5 levels)
+2026-02-25 15:42:37 +00:00:   ⬜ BAC: 0/100 🔴 - At lower Bollinger Band, 💥 BREAKDOWN below put wall ($52) -1.2%
+2026-02-25 15:42:37 +00:00:   ⬜ IWM: 0/100 📍 - 📍 PINNED between walls ($262-$265), ℹ️ At VWAP ($262.83)
+2026-02-25 15:42:37 +00:00:   ⬜ GOOGL: 0/100 📍 - 📍 PINNED between walls ($310-$312.5), ℹ️ At VWAP ($310.03)
+2026-02-25 15:42:37 +00:00: 
+2026-02-25 15:42:37 +00:00: [Tiers] HIGH_CONVICTION: 0 | TRADEABLE: 0 | WATCH: 12 | FILTERED: 38
+2026-02-25 15:42:37 +00:00: [WATCH LIST]
+2026-02-25 15:42:37 +00:00:   👀 XLU: 65/100 
+2026-02-25 15:42:37 +00:00:   👀 OXY: 65/100 
+2026-02-25 15:42:37 +00:00:   👀 TSLA: 35/100 (score 35)
+2026-02-25 15:42:37 +00:00:   👀 SLV: 35/100 (score 35)
+2026-02-25 15:42:37 +00:00:   👀 EEM: 33/100 (score 33)
+2026-02-25 15:42:37 +00:00: 
+2026-02-25 15:42:37 +00:00: [Alerts] No alertable opportunities (0 tradeable below cooldown, 12 on watch)
+2026-02-25 15:42:37 +00:00: 
+2026-02-25 15:42:37 +00:00: [Signal Logger] Logging 12 WATCH signal(s) for baseline analysis...
+2026-02-25 15:42:37 +00:00: [Signal Logger] XLU conditions changed on existing signal:
+2026-02-25 15:42:37 +00:00:   Score: 70 → 65 (-5)
+2026-02-25 15:42:37 +00:00:   Zone: BUY_ZONE → HIGH_MOMENTUM
+2026-02-25 15:42:37 +00:00: [Signal Logger] OXY conditions changed on existing signal:
+2026-02-25 15:42:37 +00:00:   Score: 27 → 65 (+38)
+2026-02-25 15:42:37 +00:00: [Signal Logger] TSLA conditions changed on existing signal:
+2026-02-25 15:42:37 +00:00:   Score: 36 → 35 (-1)
+2026-02-25 15:42:37 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:42:37 +00:00:   Direction: bullish → bearish
+2026-02-25 15:42:37 +00:00: [Signal Logger] EEM conditions changed on existing signal:
+2026-02-25 15:42:37 +00:00:   Score: 20 → 33 (+13)
+2026-02-25 15:42:37 +00:00:   Zone: MID_RANGE → SELL_ZONE
+2026-02-25 15:42:37 +00:00: [Signal Logger] META conditions changed on existing signal:
+2026-02-25 15:42:37 +00:00:   Score: 30 → 32 (+2)
+2026-02-25 15:42:37 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:42:37 +00:00:   Direction: bullish → bearish
+2026-02-25 15:42:37 +00:00: [Signal Logger] MRNA conditions changed on existing signal:
+2026-02-25 15:42:37 +00:00:   Score: 40 → 30 (-10)
+2026-02-25 15:42:37 +00:00: [Signal Logger] XLI conditions changed on existing signal:
+2026-02-25 15:42:37 +00:00:   Score: 73 → 23 (-50)
+2026-02-25 15:42:37 +00:00: [Signal Logger] XLP conditions changed on existing signal:
+2026-02-25 15:42:37 +00:00:   Score: 71 → 23 (-48)
+2026-02-25 15:42:37 +00:00:   Zone: SELL_ZONE → HIGH_MOMENTUM
+2026-02-25 15:42:37 +00:00: [Signal Logger] ORCL conditions changed on existing signal:
+2026-02-25 15:42:37 +00:00:   Score: 75 → 20 (-55)
+2026-02-25 15:42:37 +00:00:   Zone: null → SELL_ZONE
+2026-02-25 15:42:37 +00:00:   Direction: neutral → bearish
+2026-02-25 15:42:37 +00:00: [Signal Logger] XLC conditions changed on existing signal:
+2026-02-25 15:42:37 +00:00:   Score: 40 → 20 (-20)
+2026-02-25 15:42:37 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:42:37 +00:00:   Direction: bullish → bearish
+2026-02-25 15:42:37 +00:00: [SignalDB] Inserted 50 bloodhound results for scan 1124
+2026-02-25 15:42:37 +00:00: [Bloodhound] Wrote 50 results to database (scan_id: 1124)
+2026-02-25 15:42:37 +00:00: 
+2026-02-25 15:42:37 +00:00: [Bloodhound] Scan complete (114s). Next scan in 5 minutes.
+2026-02-25 15:42:37 +00:00: [API Cache] 211 fresh / 253 total entries (42 stale)
+2026-02-25 15:42:37 +00:00: [Signal Logger] Price cache built with 50 symbols
+2026-02-25 15:42:39 +00:00: [SignalDB] Closed option signal TSLA_1771858262430: LOSS (peak +0%, close -100%)
+2026-02-25 15:42:39 +00:00: [Signal Logger] Option .TSLA260223C405 expired — closed
+2026-02-25 15:42:41 +00:00: [SignalDB] Closed option signal AAPL_1771859135376: WIN (peak +629%, close -100%)
+2026-02-25 15:42:41 +00:00: [Signal Logger] Option .AAPL260223C267.5 expired — closed
+2026-02-25 15:42:45 +00:00: [SignalDB] Closed option signal IWM_1771869674094: WIN (peak +203%, close -100%)
+2026-02-25 15:42:45 +00:00: [Signal Logger] Option .IWM260224C260 expired — closed
+2026-02-25 15:42:53 +00:00: [Signal Logger] Updated prices for 45 signal(s), 5 option(s) (45 cached, 0 API)
+2026-02-25 15:45:43 +00:00: 
+2026-02-25 15:45:43 +00:00: ============================================================
+2026-02-25 15:45:43 +00:00: [2026-02-25T15:45:43.735Z] Running Bloodhound scan...
+2026-02-25 15:45:43 +00:00: ============================================================
+2026-02-25 15:45:49 +00:00: [Context] VIX: 18.74 (normal) | SPY: bearish
+2026-02-25 15:45:49 +00:00: [Internals] TICK: 102, A/D: -247, Vol Ratio: 1.25
+2026-02-25 15:45:49 +00:00: [RS] Read 18 rankings from DB (snapshot 1980m ago)
+2026-02-25 15:45:54 +00:00: [RS] Rotation regime: mid_cycle | 18 assets ranked
+2026-02-25 15:45:55 +00:00: [MA-Bounce] Pre-fetched history for 8/8 validated symbols
+2026-02-25 15:45:55 +00:00: [Div-BB] Pre-fetched history for 9/9 configured symbols
+2026-02-25 15:45:55 +00:00: [Watchlist] DB: 10 static, 40 dynamic
+2026-02-25 15:45:56 +00:00: [Discovery] Opportunity scanner contributed 37 symbols (46 with flow data)
+2026-02-25 15:45:56 +00:00: [Discovery] 50 symbols: 10 static + 40 dynamic (watchlist: 40, market_data: 3, opportunity_scanner: 37, sector_leader: 1)
+2026-02-25 15:45:56 +00:00: [Discovery] Found 50 symbols to scan
+2026-02-25 15:45:56 +00:00: [Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+2026-02-25 15:45:56 +00:00: [Bias] Intraday: NEUTRAL | Swing: BULLISH
+2026-02-25 15:45:56 +00:00: [Top Discoveries]
+2026-02-25 15:45:56 +00:00:   1. $VIX (score: 100, watchlist)
+2026-02-25 15:45:56 +00:00:   2. MSFT (score: 100, watchlist)
+2026-02-25 15:45:56 +00:00:   3. META (score: 100, watchlist)
+2026-02-25 15:45:56 +00:00:   4. AAPL (score: 100, watchlist)
+2026-02-25 15:45:56 +00:00:   5. AMD (score: 100, watchlist)
+2026-02-25 15:45:56 +00:00:   6. IBIT (score: 100, watchlist)
+2026-02-25 15:45:56 +00:00:   7. TSLA (score: 100, watchlist)
+2026-02-25 15:45:56 +00:00:   8. NVDA (score: 100, watchlist)
+2026-02-25 15:49:00 +00:00: 
+2026-02-25 15:49:00 +00:00: [VELOCITY ALERTS]
+2026-02-25 15:49:00 +00:00:   🚀 F: +21 pts (15→36) 🔴
+2026-02-25 15:49:00 +00:00: 
+2026-02-25 15:49:00 +00:00: [History] Updating scanner history for 50 symbols...
+2026-02-25 15:49:00 +00:00: [History] Updated 50 symbols in database.
+2026-02-25 15:49:00 +00:00: 
+2026-02-25 15:49:00 +00:00: [Results] Analyzed 50 symbols:
+2026-02-25 15:49:00 +00:00:   ✅ XLU: 65/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), ⭐ PRIME SETUP: Wall + Extended RSI
+2026-02-25 15:49:00 +00:00:   ✅ OXY: 65/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), ⭐ PRIME SETUP: Wall + Extended RSI
+2026-02-25 15:49:00 +00:00:   ✅ F: 36/100 🔴 - VELOCITY +21 pts, ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR)
+2026-02-25 15:49:00 +00:00:   ✅ TSLA: 35/100 🔴 - ⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR), At call wall resistance ($415)
+2026-02-25 15:49:00 +00:00:   ✅ SLV: 35/100 🔴 - ⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR), At call wall resistance ($82)
+2026-02-25 15:49:00 +00:00:   ⬜ EEM: 33/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), At upper Bollinger Band
+2026-02-25 15:49:00 +00:00:   ⬜ XLF: 33/100 🟢 - ⭐ COMBO: Put wall + Heavy puts (89% 3d WR), At lower Bollinger Band
+2026-02-25 15:49:00 +00:00:   ⬜ META: 32/100 🔴 - ⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR), At call wall resistance ($650)
+2026-02-25 15:49:00 +00:00:   ⬜ MRNA: 30/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), At upper Bollinger Band
+2026-02-25 15:49:00 +00:00:   ⬜ IBRX: 28/100 🟢 - RSI overbought (82.8), At upper Bollinger Band
+2026-02-25 15:49:00 +00:00:   ⬜ AAPL: 23/100 🔴 - At call wall resistance ($275), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:49:00 +00:00:   ⬜ XLI: 23/100 🔴 - At call wall resistance ($175), ℹ️ Confluence zone (5 levels)
+2026-02-25 15:49:00 +00:00:   ⬜ XLP: 23/100 🔴 - RSI overbought (73.0), ℹ️ Elevated call $95 04/17 (39.4x, $0.4M)
+2026-02-25 15:49:00 +00:00:   ⬜ ORCL: 20/100 🔴 - At call wall resistance ($150), CALL wall dormant
+2026-02-25 15:49:00 +00:00:   ⬜ XLC: 20/100 🔴 - At call wall resistance ($117), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:49:00 +00:00:   ⬜ UVXY: 17/100 🟢 - At put wall support ($37.5), Heavy call bias (2.44 C/P) [-3]
+2026-02-25 15:49:00 +00:00:   ⬜ GM: 15/100 🟢 - At put wall support ($82), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:49:00 +00:00:   ⬜ XLRE: 15/100 🟢 - At put wall support ($43), ℹ️ Dip buy setup (SPY bearish)
+2026-02-25 15:49:00 +00:00:   ⬜ AMD: 8/100 🟢 - 🚀 BREAKOUT above call wall ($210) +1.1%, ℹ️ At VWAP ($212.8)
+2026-02-25 15:49:00 +00:00:   ⬜ T: 8/100 ⚪ - 🧲 Convergent walls ($28/$28) — gamma magnet, ℹ️ Confluence zone (3 levels)
+2026-02-25 15:49:00 +00:00:   ⬜ CVNA: 8/100 🟢 - 🚀 BREAKOUT above call wall ($300) +9.1%, ℹ️ Above gamma flip ($297.80)
+2026-02-25 15:49:00 +00:00:   ⬜ SNDK: 8/100 ⚪ - ℹ️ $10M net bullish premium, 📡 Flow confirmed by Opportunity Scanner (HC 6.1x $11.1M) [+8]
+2026-02-25 15:49:00 +00:00:   ⬜ INTC: 8/100 ⚪ - 📡 Flow confirmed by Opportunity Scanner (HC 21.9x $13.6M) [+8], ℹ️ Sector headwind (XLK bottom quartile, -33th pctl)
+2026-02-25 15:49:00 +00:00:   ⬜ IBIT: 5/100 ⚪ - 🧲 Convergent walls ($38/$38) — gamma magnet, PUT wall dormant
+2026-02-25 15:49:00 +00:00:   ⬜ NVDA: 5/100 ⚪ - ℹ️ Confluence zone (2 levels), ℹ️ Elevated put $195 02/27 (2.1x, $6.0M)
+2026-02-25 15:49:00 +00:00:   ⬜ PYPL: 5/100 ⚪ - ℹ️ Elevated volume (1.6x avg), Heavy call bias (3.73 C/P) [-3]
+2026-02-25 15:49:00 +00:00:   ⬜ OPEN: 5/100 ⚪ - 🧲 Convergent walls ($5/$5) — gamma magnet, PUT wall dormant
+2026-02-25 15:49:00 +00:00:   ⬜ MU: 5/100 ⚪ - ℹ️ Options flow detected (not at wall — informational), 🔥 Unusual PUT $425 OTM (hedge, 10.2x, $9.8M)
+2026-02-25 15:49:00 +00:00:   ⬜ PANW: 5/100 🟢 - RSI oversold (23.9), At lower Bollinger Band
+2026-02-25 15:49:00 +00:00:   ⬜ UNG: 5/100 ⚪ - 📡 Flow confirmed by Opportunity Scanner (T 40.0x) [+5], ℹ️ Sector headwind (UNG bottom quartile, -50th pctl)
+2026-02-25 15:49:00 +00:00:   ⬜ XLE: 5/100 ⚪ - ℹ️ Confluence zone (2 levels), 📡 Flow confirmed by Opportunity Scanner (T 0.9x) [+5]
+2026-02-25 15:49:00 +00:00:   ⬜ USO: 5/100 🔴 - 💥 BREAKDOWN below put wall ($81) -1.8%, ℹ️ Confluence zone (2 levels)
+2026-02-25 15:49:00 +00:00:   ⬜ ETHA: 5/100 ⚪ - 📡 Flow confirmed by Opportunity Scanner (T 7.1x) [+5], 📈 Streak (6 consecutive days)
+2026-02-25 15:49:00 +00:00:   ⬜ XLK: 5/100 ⚪ - Heavy put bias (0.43 C/P), 📡 Flow confirmed by Opportunity Scanner (T 1573.0x) [+5]
+2026-02-25 15:49:00 +00:00:   ⬜ QQQ: 4/100 🔴 - At call wall resistance ($614), ⚠️ CALL wall ACTIVE (8.7x vol/OI — cascade risk)
+2026-02-25 15:49:00 +00:00:   ⬜ GLD: 3/100 🟢 - 🧲 Convergent walls ($475/$475) — gamma magnet, PUT wall dormant
+2026-02-25 15:49:00 +00:00:   ⬜ HPQ: 3/100 🟢 - At lower Bollinger Band, ℹ️ Dip buy setup (SPY bearish)
+2026-02-25 15:49:00 +00:00:   ⬜ VNDA: 2/100 🟢 - 🚀 BREAKOUT above call wall ($8) +7.2%, ℹ️ Above gamma flip ($5.79)
+2026-02-25 15:49:00 +00:00:   ⬜ SOLZ: 2/100 ⚪ - Heavy call bias (250.50 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 58.7x) [+5]
+2026-02-25 15:49:00 +00:00:   ⬜ PLTR: 2/100 ⚪ - ℹ️ Elevated call $132 02/27 (3.1x, $4.3M), ℹ️ $37M net bullish premium
+2026-02-25 15:49:00 +00:00:   ⬜ $VIX: 0/100 ⚪ - Heavy call bias (2.96 C/P) [-3], 🆕 New discovery
+2026-02-25 15:49:00 +00:00:   ⬜ MSFT: 0/100 🔴 - 🧲 Convergent walls ($400/$400) — gamma magnet, ℹ️ Confluence zone (3 levels)
+2026-02-25 15:49:00 +00:00:   ⬜ SPY: 0/100 📍 - 📍 PINNED between walls ($687-$693), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:49:00 +00:00:   ⬜ AMZN: 0/100 🟢 - 🧲 Convergent walls ($210/$210) — gamma magnet, ℹ️ Confluence zone (4 levels)
+2026-02-25 15:49:00 +00:00:   ⬜ NFLX: 0/100 🟢 - 🚀 BREAKOUT above call wall ($80) +2.6%, ℹ️ Above gamma flip ($78.18)
+2026-02-25 15:49:00 +00:00:   ⬜ VXX: 0/100 ⚪ - ℹ️ Confluence zone (3 levels), 📡 Flow confirmed by Opportunity Scanner (T 7.1x) [+5]
+2026-02-25 15:49:00 +00:00:   ⬜ XLV: 0/100 ⚪ - ℹ️ At VWAP ($158.01), ℹ️ Confluence zone (5 levels)
+2026-02-25 15:49:00 +00:00:   ⬜ BAC: 0/100 🔴 - At lower Bollinger Band, 💥 BREAKDOWN below put wall ($52) -1.3%
+2026-02-25 15:49:00 +00:00:   ⬜ IWM: 0/100 📍 - 📍 PINNED between walls ($262-$265), ℹ️ At VWAP ($262.83)
+2026-02-25 15:49:00 +00:00:   ⬜ GOOGL: 0/100 🟢 - 🧲 Convergent walls ($310/$310) — gamma magnet, ℹ️ At VWAP ($310.03)
+2026-02-25 15:49:00 +00:00: 
+2026-02-25 15:49:00 +00:00: [Tiers] HIGH_CONVICTION: 0 | TRADEABLE: 1 | WATCH: 13 | FILTERED: 36
+2026-02-25 15:49:00 +00:00: [TRADEABLE]
+2026-02-25 15:49:00 +00:00:   ✅ F: 36/100 🔴 (SELL) [Counter-trend (swing: BULLISH), Dormant wall, Bearish direction (0% historical win rate)]
+2026-02-25 15:49:00 +00:00: [WATCH LIST]
+2026-02-25 15:49:00 +00:00:   👀 XLU: 65/100 
+2026-02-25 15:49:00 +00:00:   👀 OXY: 65/100 
+2026-02-25 15:49:00 +00:00:   👀 TSLA: 35/100 (score 35)
+2026-02-25 15:49:00 +00:00:   👀 SLV: 35/100 (score 35)
+2026-02-25 15:49:00 +00:00:   👀 EEM: 33/100 (score 33)
+2026-02-25 15:49:00 +00:00: 
+2026-02-25 15:49:00 +00:00: [Alerts] No alertable opportunities (1 tradeable below cooldown, 13 on watch)
+2026-02-25 15:49:00 +00:00: 
+2026-02-25 15:49:00 +00:00: [Signal Logger] Logging 1 TRADEABLE signal(s) for validation...
+2026-02-25 15:49:00 +00:00: [Signal Logger] F conditions changed on existing signal:
+2026-02-25 15:49:00 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:49:00 +00:00:   Direction: bullish → bearish
+2026-02-25 15:49:00 +00:00: 
+2026-02-25 15:49:00 +00:00: [Signal Logger] Logging 13 WATCH signal(s) for baseline analysis...
+2026-02-25 15:49:00 +00:00: [Signal Logger] XLU conditions changed on existing signal:
+2026-02-25 15:49:00 +00:00:   Score: 70 → 65 (-5)
+2026-02-25 15:49:00 +00:00:   Zone: BUY_ZONE → HIGH_MOMENTUM
+2026-02-25 15:49:00 +00:00: [Signal Logger] OXY conditions changed on existing signal:
+2026-02-25 15:49:00 +00:00:   Score: 27 → 65 (+38)
+2026-02-25 15:49:00 +00:00: [Signal Logger] TSLA conditions changed on existing signal:
+2026-02-25 15:49:00 +00:00:   Score: 36 → 35 (-1)
+2026-02-25 15:49:00 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:49:00 +00:00:   Direction: bullish → bearish
+2026-02-25 15:49:00 +00:00: [Signal Logger] EEM conditions changed on existing signal:
+2026-02-25 15:49:00 +00:00:   Score: 20 → 33 (+13)
+2026-02-25 15:49:00 +00:00:   Zone: MID_RANGE → SELL_ZONE
+2026-02-25 15:49:00 +00:00: [Signal Logger] XLF conditions changed on existing signal:
+2026-02-25 15:49:00 +00:00:   Score: 70 → 33 (-37)
+2026-02-25 15:49:00 +00:00:   Zone: null → BUY_ZONE
+2026-02-25 15:49:00 +00:00: [Signal Logger] META conditions changed on existing signal:
+2026-02-25 15:49:00 +00:00:   Score: 30 → 32 (+2)
+2026-02-25 15:49:00 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:49:00 +00:00:   Direction: bullish → bearish
+2026-02-25 15:49:00 +00:00: [Signal Logger] MRNA conditions changed on existing signal:
+2026-02-25 15:49:00 +00:00:   Score: 40 → 30 (-10)
+2026-02-25 15:49:00 +00:00: [Signal Logger] XLI conditions changed on existing signal:
+2026-02-25 15:49:00 +00:00:   Score: 73 → 23 (-50)
+2026-02-25 15:49:00 +00:00: [Signal Logger] XLP conditions changed on existing signal:
+2026-02-25 15:49:00 +00:00:   Score: 71 → 23 (-48)
+2026-02-25 15:49:00 +00:00:   Zone: SELL_ZONE → HIGH_MOMENTUM
+2026-02-25 15:49:00 +00:00: [Signal Logger] ORCL conditions changed on existing signal:
+2026-02-25 15:49:00 +00:00:   Score: 75 → 20 (-55)
+2026-02-25 15:49:00 +00:00:   Zone: null → SELL_ZONE
+2026-02-25 15:49:00 +00:00:   Direction: neutral → bearish
+2026-02-25 15:49:00 +00:00: [Signal Logger] XLC conditions changed on existing signal:
+2026-02-25 15:49:00 +00:00:   Score: 40 → 20 (-20)
+2026-02-25 15:49:00 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:49:00 +00:00:   Direction: bullish → bearish
+2026-02-25 15:49:00 +00:00: [SignalDB] Inserted 50 bloodhound results for scan 1125
+2026-02-25 15:49:00 +00:00: [Bloodhound] Wrote 50 results to database (scan_id: 1125)
+2026-02-25 15:49:00 +00:00: 
+2026-02-25 15:49:00 +00:00: [Bloodhound] Scan complete (197s). Next scan in 5 minutes.
+2026-02-25 15:49:00 +00:00: [API Cache] 193 fresh / 240 total entries (47 stale)
+2026-02-25 15:49:00 +00:00: [Signal Logger] Price cache built with 50 symbols
+2026-02-25 15:49:03 +00:00: [SignalDB] Closed option signal TSLA_1771858262430: LOSS (peak +0%, close -100%)
+2026-02-25 15:49:03 +00:00: [Signal Logger] Option .TSLA260223C405 expired — closed
+2026-02-25 15:49:05 +00:00: [SignalDB] Closed option signal AAPL_1771859135376: WIN (peak +629%, close -100%)
+2026-02-25 15:49:05 +00:00: [Signal Logger] Option .AAPL260223C267.5 expired — closed
+2026-02-25 15:49:08 +00:00: [SignalDB] Closed option signal IWM_1771869674094: WIN (peak +203%, close -100%)
+2026-02-25 15:49:08 +00:00: [Signal Logger] Option .IWM260224C260 expired — closed
+2026-02-25 15:49:15 +00:00: [Signal Logger] Updated prices for 45 signal(s), 5 option(s) (45 cached, 0 API)
+2026-02-25 15:49:15 +00:00: [Signal Logger] Validating 1 signal(s) for 7d checkpoint...
+2026-02-25 15:49:16 +00:00: [SignalDB] Recorded 7d checkpoint for CLSK_1771429382169: CORRECT (10.63%)
+2026-02-25 15:49:16 +00:00: [Signal Logger] 7d | CLSK_1771429382169: ✅ +10.63%
+2026-02-25 15:50:43 +00:00: 
+2026-02-25 15:50:43 +00:00: ============================================================
+2026-02-25 15:50:43 +00:00: [2026-02-25T15:50:43.735Z] Running Bloodhound scan...
+2026-02-25 15:50:43 +00:00: ============================================================
+2026-02-25 15:50:49 +00:00: [Context] VIX: 18.77 (normal) | SPY: bearish
+2026-02-25 15:50:49 +00:00: [Internals] TICK: -239, A/D: -270, Vol Ratio: 1.24
+2026-02-25 15:50:49 +00:00: [RS] Read 18 rankings from DB (snapshot 1985m ago)
+2026-02-25 15:50:53 +00:00: [RS] Rotation regime: mid_cycle | 18 assets ranked
+2026-02-25 15:50:55 +00:00: [MA-Bounce] Pre-fetched history for 8/8 validated symbols
+2026-02-25 15:50:55 +00:00: [Div-BB] Pre-fetched history for 9/9 configured symbols
+2026-02-25 15:50:55 +00:00: [Watchlist] DB: 10 static, 40 dynamic
+2026-02-25 15:50:56 +00:00: [Discovery] Opportunity scanner contributed 37 symbols (46 with flow data)
+2026-02-25 15:50:56 +00:00: [Discovery] 50 symbols: 10 static + 40 dynamic (watchlist: 40, market_data: 3, opportunity_scanner: 37, sector_leader: 1)
+2026-02-25 15:50:56 +00:00: [Discovery] Found 50 symbols to scan
+2026-02-25 15:50:56 +00:00: [Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+2026-02-25 15:50:56 +00:00: [Bias] Intraday: NEUTRAL | Swing: BULLISH
+2026-02-25 15:50:56 +00:00: [Top Discoveries]
+2026-02-25 15:50:56 +00:00:   1. $VIX (score: 100, watchlist)
+2026-02-25 15:50:56 +00:00:   2. MSFT (score: 100, watchlist)
+2026-02-25 15:50:56 +00:00:   3. META (score: 100, watchlist)
+2026-02-25 15:50:56 +00:00:   4. AAPL (score: 100, watchlist)
+2026-02-25 15:50:56 +00:00:   5. AMD (score: 100, watchlist)
+2026-02-25 15:50:56 +00:00:   6. IBIT (score: 100, watchlist)
+2026-02-25 15:50:56 +00:00:   7. TSLA (score: 100, watchlist)
+2026-02-25 15:50:56 +00:00:   8. NVDA (score: 100, watchlist)
+2026-02-25 15:52:46 +00:00: 
+2026-02-25 15:52:46 +00:00: [VELOCITY ALERTS]
+2026-02-25 15:52:46 +00:00:   🚀 F: +21 pts (15→36) 🔴
+2026-02-25 15:52:46 +00:00: 
+2026-02-25 15:52:46 +00:00: [History] Updating scanner history for 50 symbols...
+2026-02-25 15:52:46 +00:00: [History] Updated 50 symbols in database.
+2026-02-25 15:52:46 +00:00: 
+2026-02-25 15:52:46 +00:00: [Results] Analyzed 50 symbols:
+2026-02-25 15:52:46 +00:00:   ✅ XLU: 65/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), ⭐ PRIME SETUP: Wall + Extended RSI
+2026-02-25 15:52:46 +00:00:   ✅ OXY: 65/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), ⭐ PRIME SETUP: Wall + Extended RSI
+2026-02-25 15:52:46 +00:00:   ✅ F: 36/100 🔴 - VELOCITY +21 pts, ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR)
+2026-02-25 15:52:46 +00:00:   ✅ TSLA: 35/100 🔴 - ⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR), At call wall resistance ($415)
+2026-02-25 15:52:46 +00:00:   ✅ SLV: 35/100 🔴 - ⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR), At call wall resistance ($82)
+2026-02-25 15:52:46 +00:00:   ⬜ EEM: 33/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), At upper Bollinger Band
+2026-02-25 15:52:46 +00:00:   ⬜ XLF: 33/100 🟢 - ⭐ COMBO: Put wall + Heavy puts (89% 3d WR), At lower Bollinger Band
+2026-02-25 15:52:46 +00:00:   ⬜ MRNA: 30/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), At upper Bollinger Band
+2026-02-25 15:52:46 +00:00:   ⬜ IBRX: 28/100 🟢 - RSI overbought (82.8), At upper Bollinger Band
+2026-02-25 15:52:46 +00:00:   ⬜ AAPL: 23/100 🔴 - At call wall resistance ($275), ℹ️ At VWAP ($272.54)
+2026-02-25 15:52:46 +00:00:   ⬜ AMD: 23/100 🔴 - At call wall resistance ($210), CALL wall dormant
+2026-02-25 15:52:46 +00:00:   ⬜ XLI: 23/100 🔴 - At call wall resistance ($175), ℹ️ Confluence zone (5 levels)
+2026-02-25 15:52:46 +00:00:   ⬜ XLP: 23/100 🔴 - RSI overbought (73.0), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:52:46 +00:00:   ⬜ ORCL: 20/100 🔴 - At call wall resistance ($150), CALL wall dormant
+2026-02-25 15:52:46 +00:00:   ⬜ XLC: 20/100 🔴 - At call wall resistance ($117), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:52:46 +00:00:   ⬜ GM: 15/100 🟢 - At put wall support ($82), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:52:46 +00:00:   ⬜ XLRE: 15/100 🟢 - At put wall support ($43), ℹ️ Dip buy setup (SPY bearish)
+2026-02-25 15:52:46 +00:00:   ⬜ T: 8/100 ⚪ - 🧲 Convergent walls ($28/$28) — gamma magnet, ℹ️ Confluence zone (3 levels)
+2026-02-25 15:52:46 +00:00:   ⬜ CVNA: 8/100 🟢 - 🚀 BREAKOUT above call wall ($300) +9.1%, ℹ️ Above gamma flip ($297.96)
+2026-02-25 15:52:46 +00:00:   ⬜ SNDK: 8/100 ⚪ - ℹ️ $10M net bullish premium, 📡 Flow confirmed by Opportunity Scanner (HC 6.1x $11.1M) [+8]
+2026-02-25 15:52:46 +00:00:   ⬜ INTC: 8/100 ⚪ - 📡 Flow confirmed by Opportunity Scanner (HC 21.9x $13.6M) [+8], ℹ️ Sector headwind (XLK bottom quartile, -33th pctl)
+2026-02-25 15:52:46 +00:00:   ⬜ META: 5/100 🟢 - 🚀 BREAKOUT above call wall ($635) +2.2%, ℹ️ Above gamma flip ($632.51)
+2026-02-25 15:52:46 +00:00:   ⬜ IBIT: 5/100 ⚪ - 🧲 Convergent walls ($38/$38) — gamma magnet, PUT wall dormant
+2026-02-25 15:52:46 +00:00:   ⬜ NVDA: 5/100 ⚪ - ℹ️ Elevated put $195 02/27 (2.1x, $6.0M), ℹ️ $239M net bullish premium
+2026-02-25 15:52:46 +00:00:   ⬜ PYPL: 5/100 ⚪ - ℹ️ Elevated volume (1.6x avg), Heavy call bias (3.73 C/P) [-3]
+2026-02-25 15:52:46 +00:00:   ⬜ OPEN: 5/100 🔴 - 💥 BREAKDOWN below put wall ($5) -1.0%, Heavy call bias (5.83 C/P) [-3]
+2026-02-25 15:52:46 +00:00:   ⬜ MU: 5/100 ⚪ - ℹ️ Options flow detected (not at wall — informational), 🔥 Unusual PUT $425 OTM (hedge, 10.2x, $9.8M)
+2026-02-25 15:52:46 +00:00:   ⬜ PLTR: 5/100 ⚪ - ℹ️ Elevated call $132 02/27 (3.1x, $4.3M), ℹ️ $37M net bullish premium
+2026-02-25 15:52:46 +00:00:   ⬜ PANW: 5/100 🟢 - RSI oversold (23.9), At lower Bollinger Band
+2026-02-25 15:52:46 +00:00:   ⬜ UNG: 5/100 ⚪ - 📡 Flow confirmed by Opportunity Scanner (T 40.0x) [+5], ℹ️ Sector headwind (UNG bottom quartile, -50th pctl)
+2026-02-25 15:52:46 +00:00:   ⬜ XLE: 5/100 ⚪ - ℹ️ Confluence zone (2 levels), 📡 Flow confirmed by Opportunity Scanner (T 0.9x) [+5]
+2026-02-25 15:52:46 +00:00:   ⬜ USO: 5/100 🔴 - 💥 BREAKDOWN below put wall ($81) -1.8%, ℹ️ Confluence zone (2 levels)
+2026-02-25 15:52:46 +00:00:   ⬜ ETHA: 5/100 ⚪ - 📡 Flow confirmed by Opportunity Scanner (T 7.1x) [+5], 📈 Streak (6 consecutive days)
+2026-02-25 15:52:46 +00:00:   ⬜ XLK: 5/100 ⚪ - Heavy put bias (0.43 C/P), 📡 Flow confirmed by Opportunity Scanner (T 1573.0x) [+5]
+2026-02-25 15:52:46 +00:00:   ⬜ QQQ: 4/100 🔴 - At call wall resistance ($614), ⚠️ CALL wall ACTIVE (8.7x vol/OI — cascade risk)
+2026-02-25 15:52:46 +00:00:   ⬜ GLD: 3/100 🟢 - 🧲 Convergent walls ($475/$475) — gamma magnet, PUT wall dormant
+2026-02-25 15:52:46 +00:00:   ⬜ HPQ: 3/100 🟢 - At lower Bollinger Band, ℹ️ Dip buy setup (SPY bearish)
+2026-02-25 15:52:46 +00:00:   ⬜ VNDA: 2/100 🟢 - 🚀 BREAKOUT above call wall ($8) +6.7%, ℹ️ Above gamma flip ($1.00)
+2026-02-25 15:52:46 +00:00:   ⬜ SOLZ: 2/100 ⚪ - Heavy call bias (250.50 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 58.7x) [+5]
+2026-02-25 15:52:46 +00:00:   ⬜ UVXY: 2/100 🔴 - 💥 BREAKDOWN below put wall ($40) -6.1%, Heavy call bias (2.44 C/P) [-3]
+2026-02-25 15:52:46 +00:00:   ⬜ $VIX: 0/100 ⚪ - Heavy call bias (2.96 C/P) [-3], 🆕 New discovery
+2026-02-25 15:52:46 +00:00:   ⬜ MSFT: 0/100 🔴 - 🧲 Convergent walls ($400/$400) — gamma magnet, ℹ️ Confluence zone (3 levels)
+2026-02-25 15:52:46 +00:00:   ⬜ SPY: 0/100 📍 - 📍 PINNED between walls ($687-$693), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:52:46 +00:00:   ⬜ AMZN: 0/100 🟢 - 🧲 Convergent walls ($210/$210) — gamma magnet, ℹ️ Confluence zone (4 levels)
+2026-02-25 15:52:46 +00:00:   ⬜ NFLX: 0/100 🟢 - 🚀 BREAKOUT above call wall ($80) +2.4%, ℹ️ Above gamma flip ($78.18)
+2026-02-25 15:52:46 +00:00:   ⬜ VXX: 0/100 ⚪ - ℹ️ Confluence zone (3 levels), 📡 Flow confirmed by Opportunity Scanner (T 7.1x) [+5]
+2026-02-25 15:52:46 +00:00:   ⬜ XLV: 0/100 ⚪ - ℹ️ At VWAP ($158.01), ℹ️ Confluence zone (5 levels)
+2026-02-25 15:52:46 +00:00:   ⬜ BAC: 0/100 🔴 - At lower Bollinger Band, 💥 BREAKDOWN below put wall ($52) -1.4%
+2026-02-25 15:52:46 +00:00:   ⬜ IWM: 0/100 📍 - 📍 PINNED between walls ($262-$265), ℹ️ At VWAP ($262.83)
+2026-02-25 15:52:46 +00:00:   ⬜ GOOGL: 0/100 🟢 - 🧲 Convergent walls ($310/$310) — gamma magnet, ℹ️ At VWAP ($310.03)
+2026-02-25 15:52:46 +00:00: 
+2026-02-25 15:52:46 +00:00: [Tiers] HIGH_CONVICTION: 0 | TRADEABLE: 1 | WATCH: 13 | FILTERED: 36
+2026-02-25 15:52:46 +00:00: [TRADEABLE]
+2026-02-25 15:52:46 +00:00:   ✅ F: 36/100 🔴 (SELL) [Counter-trend (swing: BULLISH), Dormant wall, Bearish direction (0% historical win rate)]
+2026-02-25 15:52:46 +00:00: [WATCH LIST]
+2026-02-25 15:52:46 +00:00:   👀 XLU: 65/100 
+2026-02-25 15:52:46 +00:00:   👀 OXY: 65/100 
+2026-02-25 15:52:46 +00:00:   👀 TSLA: 35/100 (score 35)
+2026-02-25 15:52:46 +00:00:   👀 SLV: 35/100 (score 35)
+2026-02-25 15:52:46 +00:00:   👀 EEM: 33/100 (score 33)
+2026-02-25 15:52:46 +00:00: 
+2026-02-25 15:52:46 +00:00: [Alerts] No alertable opportunities (1 tradeable below cooldown, 13 on watch)
+2026-02-25 15:52:46 +00:00: 
+2026-02-25 15:52:46 +00:00: [Signal Logger] Logging 1 TRADEABLE signal(s) for validation...
+2026-02-25 15:52:46 +00:00: [Signal Logger] F conditions changed on existing signal:
+2026-02-25 15:52:46 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:52:46 +00:00:   Direction: bullish → bearish
+2026-02-25 15:52:46 +00:00: 
+2026-02-25 15:52:46 +00:00: [Signal Logger] Logging 13 WATCH signal(s) for baseline analysis...
+2026-02-25 15:52:46 +00:00: [Signal Logger] XLU conditions changed on existing signal:
+2026-02-25 15:52:46 +00:00:   Score: 70 → 65 (-5)
+2026-02-25 15:52:46 +00:00:   Zone: BUY_ZONE → HIGH_MOMENTUM
+2026-02-25 15:52:46 +00:00: [Signal Logger] OXY conditions changed on existing signal:
+2026-02-25 15:52:46 +00:00:   Score: 27 → 65 (+38)
+2026-02-25 15:52:46 +00:00: [Signal Logger] TSLA conditions changed on existing signal:
+2026-02-25 15:52:46 +00:00:   Score: 36 → 35 (-1)
+2026-02-25 15:52:46 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:52:46 +00:00:   Direction: bullish → bearish
+2026-02-25 15:52:46 +00:00: [Signal Logger] EEM conditions changed on existing signal:
+2026-02-25 15:52:46 +00:00:   Score: 20 → 33 (+13)
+2026-02-25 15:52:46 +00:00:   Zone: MID_RANGE → SELL_ZONE
+2026-02-25 15:52:46 +00:00: [Signal Logger] XLF conditions changed on existing signal:
+2026-02-25 15:52:46 +00:00:   Score: 70 → 33 (-37)
+2026-02-25 15:52:46 +00:00:   Zone: null → BUY_ZONE
+2026-02-25 15:52:46 +00:00: [Signal Logger] MRNA conditions changed on existing signal:
+2026-02-25 15:52:46 +00:00:   Score: 40 → 30 (-10)
+2026-02-25 15:52:46 +00:00: [Signal Logger] AMD conditions changed on existing signal:
+2026-02-25 15:52:46 +00:00:   Score: 36 → 23 (-13)
+2026-02-25 15:52:46 +00:00: [Signal Logger] XLI conditions changed on existing signal:
+2026-02-25 15:52:46 +00:00:   Score: 73 → 23 (-50)
+2026-02-25 15:52:46 +00:00: [Signal Logger] XLP conditions changed on existing signal:
+2026-02-25 15:52:46 +00:00:   Score: 71 → 23 (-48)
+2026-02-25 15:52:46 +00:00:   Zone: SELL_ZONE → HIGH_MOMENTUM
+2026-02-25 15:52:46 +00:00: [Signal Logger] ORCL conditions changed on existing signal:
+2026-02-25 15:52:46 +00:00:   Score: 75 → 20 (-55)
+2026-02-25 15:52:46 +00:00:   Zone: null → SELL_ZONE
+2026-02-25 15:52:46 +00:00:   Direction: neutral → bearish
+2026-02-25 15:52:46 +00:00: [Signal Logger] XLC conditions changed on existing signal:
+2026-02-25 15:52:46 +00:00:   Score: 40 → 20 (-20)
+2026-02-25 15:52:46 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:52:46 +00:00:   Direction: bullish → bearish
+2026-02-25 15:52:46 +00:00: [SignalDB] Inserted 50 bloodhound results for scan 1126
+2026-02-25 15:52:46 +00:00: [Bloodhound] Wrote 50 results to database (scan_id: 1126)
+2026-02-25 15:52:46 +00:00: 
+2026-02-25 15:52:46 +00:00: [Bloodhound] Scan complete (123s). Next scan in 5 minutes.
+2026-02-25 15:52:46 +00:00: [API Cache] 249 fresh / 253 total entries (4 stale)
+2026-02-25 15:52:46 +00:00: [Signal Logger] Price cache built with 50 symbols
+2026-02-25 15:52:48 +00:00: [SignalDB] Closed option signal TSLA_1771858262430: LOSS (peak +0%, close -100%)
+2026-02-25 15:52:48 +00:00: [Signal Logger] Option .TSLA260223C405 expired — closed
+2026-02-25 15:52:50 +00:00: [SignalDB] Closed option signal AAPL_1771859135376: WIN (peak +629%, close -100%)
+2026-02-25 15:52:50 +00:00: [Signal Logger] Option .AAPL260223C267.5 expired — closed
+2026-02-25 15:52:53 +00:00: [SignalDB] Closed option signal IWM_1771869674094: WIN (peak +203%, close -100%)
+2026-02-25 15:52:53 +00:00: [Signal Logger] Option .IWM260224C260 expired — closed
+2026-02-25 15:52:59 +00:00: [Signal Logger] Updated prices for 45 signal(s), 5 option(s) (45 cached, 0 API)
+2026-02-25 15:55:43 +00:00: 
+2026-02-25 15:55:43 +00:00: ============================================================
+2026-02-25 15:55:43 +00:00: [2026-02-25T15:55:43.734Z] Running Bloodhound scan...
+2026-02-25 15:55:43 +00:00: ============================================================
+2026-02-25 15:55:47 +00:00: [Context] VIX: 18.77 (normal) | SPY: bearish
+2026-02-25 15:55:47 +00:00: [Internals] TICK: -36, A/D: -293, Vol Ratio: 1.22
+2026-02-25 15:55:47 +00:00: [RS] Read 18 rankings from DB (snapshot 1990m ago)
+2026-02-25 15:55:51 +00:00: [RS] Rotation regime: mid_cycle | 18 assets ranked
+2026-02-25 15:55:53 +00:00: [MA-Bounce] Pre-fetched history for 8/8 validated symbols
+2026-02-25 15:55:53 +00:00: [Div-BB] Pre-fetched history for 9/9 configured symbols
+2026-02-25 15:55:53 +00:00: [Watchlist] DB: 10 static, 40 dynamic
+2026-02-25 15:55:54 +00:00: [Discovery] Opportunity scanner contributed 37 symbols (46 with flow data)
+2026-02-25 15:55:54 +00:00: [Discovery] 50 symbols: 10 static + 40 dynamic (watchlist: 40, market_data: 3, opportunity_scanner: 37, sector_leader: 1)
+2026-02-25 15:55:54 +00:00: [Discovery] Found 50 symbols to scan
+2026-02-25 15:55:54 +00:00: [Themes] Institutional ETF inflows and accumulation | AI sector monetization pressure vs adoption momentum | Regulatory framework changes in crypto and banking
+2026-02-25 15:55:54 +00:00: [Bias] Intraday: NEUTRAL | Swing: BULLISH
+2026-02-25 15:55:54 +00:00: [Top Discoveries]
+2026-02-25 15:55:54 +00:00:   1. $VIX (score: 100, watchlist)
+2026-02-25 15:55:54 +00:00:   2. MSFT (score: 100, watchlist)
+2026-02-25 15:55:54 +00:00:   3. META (score: 100, watchlist)
+2026-02-25 15:55:54 +00:00:   4. AAPL (score: 100, watchlist)
+2026-02-25 15:55:54 +00:00:   5. AMD (score: 100, watchlist)
+2026-02-25 15:55:54 +00:00:   6. IBIT (score: 100, watchlist)
+2026-02-25 15:55:54 +00:00:   7. TSLA (score: 100, watchlist)
+2026-02-25 15:55:54 +00:00:   8. NVDA (score: 100, watchlist)
+2026-02-25 15:57:38 +00:00: 
+2026-02-25 15:57:38 +00:00: [VELOCITY ALERTS]
+2026-02-25 15:57:38 +00:00:   🚀 F: +21 pts (15→36) 🔴
+2026-02-25 15:57:38 +00:00:   🚀 HPQ: +18 pts (0→18) 🟢
+2026-02-25 15:57:38 +00:00: 
+2026-02-25 15:57:38 +00:00: [History] Updating scanner history for 50 symbols...
+2026-02-25 15:57:38 +00:00: [History] Updated 50 symbols in database.
+2026-02-25 15:57:38 +00:00: 
+2026-02-25 15:57:38 +00:00: [Results] Analyzed 50 symbols:
+2026-02-25 15:57:38 +00:00:   ✅ XLU: 65/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), ⭐ PRIME SETUP: Wall + Extended RSI
+2026-02-25 15:57:38 +00:00:   ✅ OXY: 65/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), ⭐ PRIME SETUP: Wall + Extended RSI
+2026-02-25 15:57:38 +00:00:   ✅ F: 36/100 🔴 - VELOCITY +21 pts, ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR)
+2026-02-25 15:57:38 +00:00:   ✅ TSLA: 35/100 🔴 - ⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR), At call wall resistance ($415)
+2026-02-25 15:57:38 +00:00:   ✅ SLV: 35/100 🔴 - ⭐ SMART FLOW: Engaged wall + OTM PUT hedge (100% WR), At call wall resistance ($82)
+2026-02-25 15:57:38 +00:00:   ⬜ EEM: 33/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), At upper Bollinger Band
+2026-02-25 15:57:38 +00:00:   ⬜ XLF: 33/100 🟢 - ⭐ COMBO: Put wall + Heavy puts (89% 3d WR), At lower Bollinger Band
+2026-02-25 15:57:38 +00:00:   ⬜ MRNA: 30/100 🔴 - ⭐ COMBO: Upper BB + Dormant wall (89% 3d WR), At upper Bollinger Band
+2026-02-25 15:57:38 +00:00:   ⬜ IBRX: 28/100 🟢 - RSI overbought (82.8), At upper Bollinger Band
+2026-02-25 15:57:38 +00:00:   ⬜ AAPL: 23/100 🔴 - At call wall resistance ($275), ℹ️ At VWAP ($272.54)
+2026-02-25 15:57:38 +00:00:   ⬜ AMD: 23/100 🔴 - At call wall resistance ($210), CALL wall dormant
+2026-02-25 15:57:38 +00:00:   ⬜ XLI: 23/100 🔴 - At call wall resistance ($175), ℹ️ Confluence zone (5 levels)
+2026-02-25 15:57:38 +00:00:   ⬜ XLP: 23/100 🔴 - RSI overbought (73.0), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:57:38 +00:00:   ⬜ META: 20/100 🔴 - At call wall resistance ($650), ℹ️ Confluence zone (2 levels)
+2026-02-25 15:57:38 +00:00:   ⬜ ORCL: 20/100 🔴 - At call wall resistance ($150), ℹ️ Confluence zone (2 levels)
+2026-02-25 15:57:38 +00:00:   ⬜ XLE: 20/100 🔴 - At call wall resistance ($55), ℹ️ Confluence zone (2 levels)
+2026-02-25 15:57:38 +00:00:   ⬜ XLC: 20/100 🔴 - At call wall resistance ($117), ℹ️ At VWAP ($115.85)
+2026-02-25 15:57:38 +00:00:   ⬜ HPQ: 18/100 🟢 - VELOCITY +18 pts, At lower Bollinger Band
+2026-02-25 15:57:38 +00:00:   ⬜ UVXY: 17/100 🟢 - At put wall support ($37.5), Heavy call bias (2.44 C/P) [-3]
+2026-02-25 15:57:38 +00:00:   ⬜ AMZN: 15/100 🔴 - At call wall resistance ($210), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:57:38 +00:00:   ⬜ GM: 15/100 🟢 - At put wall support ($82), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:57:38 +00:00:   ⬜ XLRE: 15/100 🟢 - At put wall support ($43), ℹ️ Confluence zone (4 levels)
+2026-02-25 15:57:38 +00:00:   ⬜ T: 8/100 ⚪ - 🧲 Convergent walls ($28/$28) — gamma magnet, ℹ️ Confluence zone (3 levels)
+2026-02-25 15:57:38 +00:00:   ⬜ CVNA: 8/100 🟢 - 🚀 BREAKOUT above call wall ($300) +8.6%, ℹ️ Above gamma flip ($297.92)
+2026-02-25 15:57:38 +00:00:   ⬜ SNDK: 8/100 ⚪ - ℹ️ Confluence zone (2 levels), ℹ️ $10M net bullish premium
+2026-02-25 15:57:38 +00:00:   ⬜ INTC: 8/100 ⚪ - ℹ️ At VWAP ($45.51), 📡 Flow confirmed by Opportunity Scanner (HC 21.9x $13.6M) [+8]
+2026-02-25 15:57:38 +00:00:   ⬜ IBIT: 5/100 ⚪ - 🧲 Convergent walls ($38/$38) — gamma magnet, PUT wall dormant
+2026-02-25 15:57:38 +00:00:   ⬜ NVDA: 5/100 ⚪ - ℹ️ Elevated put $195 02/27 (2.1x, $6.0M), ℹ️ $239M net bullish premium
+2026-02-25 15:57:38 +00:00:   ⬜ PYPL: 5/100 ⚪ - ℹ️ Elevated volume (1.6x avg), Heavy call bias (3.73 C/P) [-3]
+2026-02-25 15:57:38 +00:00:   ⬜ OPEN: 5/100 ⚪ - 🧲 Convergent walls ($5/$5) — gamma magnet, PUT wall dormant
+2026-02-25 15:57:38 +00:00:   ⬜ MU: 5/100 ⚪ - ℹ️ Options flow detected (not at wall — informational), 🔥 Unusual PUT $425 OTM (hedge, 10.2x, $9.8M)
+2026-02-25 15:57:38 +00:00:   ⬜ PLTR: 5/100 ⚪ - ℹ️ Elevated call $132 02/27 (3.1x, $4.3M), ℹ️ $37M net bullish premium
+2026-02-25 15:57:38 +00:00:   ⬜ PANW: 5/100 🟢 - RSI oversold (23.9), At lower Bollinger Band
+2026-02-25 15:57:38 +00:00:   ⬜ UNG: 5/100 ⚪ - 📡 Flow confirmed by Opportunity Scanner (T 40.0x) [+5], ℹ️ Sector headwind (UNG bottom quartile, -50th pctl)
+2026-02-25 15:57:38 +00:00:   ⬜ USO: 5/100 🔴 - 💥 BREAKDOWN below put wall ($81) -1.5%, ℹ️ Confluence zone (2 levels)
+2026-02-25 15:57:38 +00:00:   ⬜ ETHA: 5/100 ⚪ - 📡 Flow confirmed by Opportunity Scanner (T 7.1x) [+5], 📈 Streak (6 consecutive days)
+2026-02-25 15:57:38 +00:00:   ⬜ XLK: 5/100 ⚪ - Heavy put bias (0.43 C/P), 📡 Flow confirmed by Opportunity Scanner (T 1573.0x) [+5]
+2026-02-25 15:57:38 +00:00:   ⬜ QQQ: 4/100 🔴 - At call wall resistance ($614), ⚠️ CALL wall ACTIVE (8.7x vol/OI — cascade risk)
+2026-02-25 15:57:38 +00:00:   ⬜ GLD: 3/100 🟢 - 🧲 Convergent walls ($475/$475) — gamma magnet, PUT wall dormant
+2026-02-25 15:57:38 +00:00:   ⬜ VNDA: 2/100 🟢 - 🚀 BREAKOUT above call wall ($8) +6.5%, ℹ️ Above gamma flip ($1.00)
+2026-02-25 15:57:38 +00:00:   ⬜ SOLZ: 2/100 ⚪ - Heavy call bias (250.50 C/P) [-3], 📡 Flow confirmed by Opportunity Scanner (T 58.7x) [+5]
+2026-02-25 15:57:38 +00:00:   ⬜ $VIX: 0/100 ⚪ - Heavy call bias (2.96 C/P) [-3], 🆕 New discovery
+2026-02-25 15:57:38 +00:00:   ⬜ MSFT: 0/100 🔴 - 🧲 Convergent walls ($400/$400) — gamma magnet, ⚠️ PUT wall ACTIVE (10.5x vol/OI — cascade risk)
+2026-02-25 15:57:38 +00:00:   ⬜ SPY: 0/100 📍 - 📍 PINNED between walls ($687-$693), ℹ️ Confluence zone (3 levels)
+2026-02-25 15:57:38 +00:00:   ⬜ NFLX: 0/100 🟢 - 🚀 BREAKOUT above call wall ($80) +2.3%, ℹ️ Above gamma flip ($78.18)
+2026-02-25 15:57:38 +00:00:   ⬜ VXX: 0/100 ⚪ - ℹ️ Confluence zone (3 levels), 📡 Flow confirmed by Opportunity Scanner (T 7.1x) [+5]
+2026-02-25 15:57:38 +00:00:   ⬜ XLV: 0/100 ⚪ - ℹ️ At VWAP ($158.01), ℹ️ Confluence zone (5 levels)
+2026-02-25 15:57:38 +00:00:   ⬜ BAC: 0/100 🔴 - At lower Bollinger Band, 💥 BREAKDOWN below put wall ($52) -1.6%
+2026-02-25 15:57:38 +00:00:   ⬜ IWM: 0/100 📍 - 📍 PINNED between walls ($262-$265), ℹ️ At VWAP ($262.83)
+2026-02-25 15:57:38 +00:00:   ⬜ GOOGL: 0/100 🟢 - 🧲 Convergent walls ($310/$310) — gamma magnet, ℹ️ At VWAP ($310.03)
+2026-02-25 15:57:38 +00:00: 
+2026-02-25 15:57:38 +00:00: [Tiers] HIGH_CONVICTION: 0 | TRADEABLE: 1 | WATCH: 14 | FILTERED: 35
+2026-02-25 15:57:38 +00:00: [TRADEABLE]
+2026-02-25 15:57:38 +00:00:   ✅ F: 36/100 🔴 (SELL) [Counter-trend (swing: BULLISH), Dormant wall, Bearish direction (0% historical win rate)]
+2026-02-25 15:57:38 +00:00: [WATCH LIST]
+2026-02-25 15:57:38 +00:00:   👀 XLU: 65/100 
+2026-02-25 15:57:38 +00:00:   👀 OXY: 65/100 
+2026-02-25 15:57:38 +00:00:   👀 TSLA: 35/100 (score 35)
+2026-02-25 15:57:38 +00:00:   👀 SLV: 35/100 (score 35)
+2026-02-25 15:57:38 +00:00:   👀 EEM: 33/100 (score 33)
+2026-02-25 15:57:38 +00:00: 
+2026-02-25 15:57:38 +00:00: [Alerts] No alertable opportunities (1 tradeable below cooldown, 14 on watch)
+2026-02-25 15:57:38 +00:00: 
+2026-02-25 15:57:38 +00:00: [Signal Logger] Logging 1 TRADEABLE signal(s) for validation...
+2026-02-25 15:57:38 +00:00: [Signal Logger] F conditions changed on existing signal:
+2026-02-25 15:57:38 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:57:38 +00:00:   Direction: bullish → bearish
+2026-02-25 15:57:38 +00:00: 
+2026-02-25 15:57:38 +00:00: [Signal Logger] Logging 14 WATCH signal(s) for baseline analysis...
+2026-02-25 15:57:38 +00:00: [Signal Logger] XLU conditions changed on existing signal:
+2026-02-25 15:57:38 +00:00:   Score: 70 → 65 (-5)
+2026-02-25 15:57:38 +00:00:   Zone: BUY_ZONE → HIGH_MOMENTUM
+2026-02-25 15:57:38 +00:00: [Signal Logger] OXY conditions changed on existing signal:
+2026-02-25 15:57:38 +00:00:   Score: 27 → 65 (+38)
+2026-02-25 15:57:38 +00:00: [Signal Logger] TSLA conditions changed on existing signal:
+2026-02-25 15:57:38 +00:00:   Score: 36 → 35 (-1)
+2026-02-25 15:57:38 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:57:38 +00:00:   Direction: bullish → bearish
+2026-02-25 15:57:38 +00:00: [Signal Logger] EEM conditions changed on existing signal:
+2026-02-25 15:57:38 +00:00:   Score: 20 → 33 (+13)
+2026-02-25 15:57:38 +00:00:   Zone: MID_RANGE → SELL_ZONE
+2026-02-25 15:57:38 +00:00: [Signal Logger] XLF conditions changed on existing signal:
+2026-02-25 15:57:38 +00:00:   Score: 70 → 33 (-37)
+2026-02-25 15:57:38 +00:00:   Zone: null → BUY_ZONE
+2026-02-25 15:57:38 +00:00: [Signal Logger] MRNA conditions changed on existing signal:
+2026-02-25 15:57:38 +00:00:   Score: 40 → 30 (-10)
+2026-02-25 15:57:38 +00:00: [Signal Logger] AMD conditions changed on existing signal:
+2026-02-25 15:57:38 +00:00:   Score: 36 → 23 (-13)
+2026-02-25 15:57:38 +00:00: [Signal Logger] XLI conditions changed on existing signal:
+2026-02-25 15:57:38 +00:00:   Score: 73 → 23 (-50)
+2026-02-25 15:57:38 +00:00: [Signal Logger] META conditions changed on existing signal:
+2026-02-25 15:57:38 +00:00:   Score: 30 → 20 (-10)
+2026-02-25 15:57:38 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:57:38 +00:00:   Direction: bullish → bearish
+2026-02-25 15:57:38 +00:00: [Signal Logger] ORCL conditions changed on existing signal:
+2026-02-25 15:57:38 +00:00:   Score: 75 → 20 (-55)
+2026-02-25 15:57:38 +00:00:   Zone: null → SELL_ZONE
+2026-02-25 15:57:38 +00:00:   Direction: neutral → bearish
+2026-02-25 15:57:38 +00:00: [Signal Logger] XLE conditions changed on existing signal:
+2026-02-25 15:57:38 +00:00:   Score: 65 → 20 (-45)
+2026-02-25 15:57:38 +00:00:   Zone: null → SELL_ZONE
+2026-02-25 15:57:38 +00:00:   Direction: bullish → bearish
+2026-02-25 15:57:38 +00:00: [Signal Logger] XLC conditions changed on existing signal:
+2026-02-25 15:57:38 +00:00:   Score: 40 → 20 (-20)
+2026-02-25 15:57:38 +00:00:   Zone: BUY_ZONE → SELL_ZONE
+2026-02-25 15:57:38 +00:00:   Direction: bullish → bearish
+2026-02-25 15:57:38 +00:00: [SignalDB] Inserted 50 bloodhound results for scan 1127
+2026-02-25 15:57:38 +00:00: [Bloodhound] Wrote 50 results to database (scan_id: 1127)
+2026-02-25 15:57:38 +00:00: 
+2026-02-25 15:57:38 +00:00: [Bloodhound] Scan complete (114s). Next scan in 5 minutes.
+2026-02-25 15:57:38 +00:00: [API Cache] 207 fresh / 253 total entries (46 stale)
+2026-02-25 15:57:38 +00:00: [Signal Logger] Price cache built with 50 symbols
+2026-02-25 15:57:40 +00:00: [SignalDB] Closed option signal TSLA_1771858262430: LOSS (peak +0%, close -100%)
+2026-02-25 15:57:40 +00:00: [Signal Logger] Option .TSLA260223C405 expired — closed
+2026-02-25 15:57:42 +00:00: [SignalDB] Closed option signal AAPL_1771859135376: WIN (peak +629%, close -100%)
+2026-02-25 15:57:42 +00:00: [Signal Logger] Option .AAPL260223C267.5 expired — closed
+2026-02-25 15:57:46 +00:00: [SignalDB] Closed option signal IWM_1771869674094: WIN (peak +203%, close -100%)
+2026-02-25 15:57:46 +00:00: [Signal Logger] Option .IWM260224C260 expired — closed
+2026-02-25 15:57:53 +00:00: [Signal Logger] Updated prices for 45 signal(s), 5 option(s) (45 cached, 0 API)
+2026-02-25 15:57:53 +00:00: [Signal Logger] Validating 1 signal(s) for 24h checkpoint...
+2026-02-25 15:57:53 +00:00: [SignalDB] Recorded 24h checkpoint for XLV_1771948657064: WRONG (-0.09%)
+2026-02-25 15:57:53 +00:00: [Signal Logger] 24h | XLV_1771948657064: ❌ -0.09%
