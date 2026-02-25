@@ -1464,6 +1464,13 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
         }
     }
 
+    // --- WARNING: Flow + sector headwind (audit Feb 2026: +3.4pp delta, annotation only) ---
+    // QCOM lesson: bullish flow in bottom-quartile sector underperforms.
+    // Delta too small for scoring change (3.4pp < 10pp threshold), but worth flagging.
+    if (oppFlow && symbolRsData && symbolRsData.percentile < 25) {
+        signals.push(`⚠️ Flow + sector headwind (${symbolRsData.sectorEtf} bottom quartile) — reduced conviction`);
+    }
+
     // --- ANNOTATION: MA Structure Alignment (no score — pending backtest validation) ---
     const sma20 = technicals.sma_20;
     const sma50 = technicals.sma_50;
@@ -1560,33 +1567,61 @@ async function analyzeSymbol(symbol, discoveryData, bounceHistoryCache, divBbHis
         signals.push(`⚠️ Returned setup — historically weak (31% WR)`);
     }
 
-    // --- MARKET INTERNALS CONFIRMATION (±5 pts) ---
+    // --- MARKET INTERNALS / BREADTH CONFIRMATION ---
+    // Strategy 10: Breadth Extreme Trading — tiered thresholds from $TICK/$ADD framework
+    // No score — internals unproven. Annotation only (Feb 2026 factor analysis).
     if (latestInternals && direction !== 'neutral' && direction !== 'pinned') {
         const tick = latestInternals.tick;
         const adSpread = latestInternals.ad_spread;
         const volRatio = latestInternals.vol_ratio;
 
+        // Tiered breadth classification (TICK: ±600/±800/±1000, A/D: ±1000/±1500/±2000)
+        let tickSignal = 'neutral';
+        if (tick > 1000) tickSignal = 'extreme_bull';
+        else if (tick > 600) tickSignal = 'bull';
+        else if (tick < -1000) tickSignal = 'extreme_bear';
+        else if (tick < -600) tickSignal = 'bear';
+
+        let adSignal = 'neutral';
+        if (adSpread > 2000) adSignal = 'extreme_bull';
+        else if (adSpread > 1000) adSignal = 'bull';
+        else if (adSpread < -2000) adSignal = 'extreme_bear';
+        else if (adSpread < -1000) adSignal = 'bear';
+
+        const volBullish = volRatio > 1.5;
+        const volBearish = volRatio < 0.67;
+
+        // Dual extreme = strongest signal (Strategy 10C)
+        const dualExtremeBull = tickSignal === 'extreme_bull' && (adSignal === 'extreme_bull' || adSignal === 'bull');
+        const dualExtremeBear = tickSignal === 'extreme_bear' && (adSignal === 'extreme_bear' || adSignal === 'bear');
+
+        // Count bullish/bearish signals across all three internals
         let bullishCount = 0;
         let bearishCount = 0;
+        if (tickSignal.includes('bull')) bullishCount++;
+        if (tickSignal.includes('bear')) bearishCount++;
+        if (adSignal.includes('bull')) bullishCount++;
+        if (adSignal.includes('bear')) bearishCount++;
+        if (volBullish) bullishCount++;
+        if (volBearish) bearishCount++;
 
-        if (tick > 400) bullishCount++;
-        else if (tick < -400) bearishCount++;
+        const tickStr = `TICK ${tick > 0 ? '+' : ''}${tick}`;
+        const adStr = `A/D ${adSpread > 0 ? '+' : ''}${adSpread}`;
 
-        if (adSpread > 400) bullishCount++;
-        else if (adSpread < -400) bearishCount++;
-
-        if (volRatio > 1.5) bullishCount++;
-        else if (volRatio < 0.67) bearishCount++;
-
-        // No score — internals unproven. Annotation only (Feb 2026 factor analysis).
-        if (direction === 'bullish' && bullishCount >= 2) {
-            signals.push(`ℹ️ Internals confirm bullish (${bullishCount}/3)`);
+        if (dualExtremeBull) {
+            signals.push(`⚡ Breadth dual extreme bullish (${tickStr}, ${adStr}) — exhaustion risk`);
+        } else if (dualExtremeBear) {
+            signals.push(`⚡ Breadth dual extreme bearish (${tickStr}, ${adStr}) — capitulation zone`);
+        } else if (direction === 'bullish' && bullishCount >= 2) {
+            const strength = tickSignal === 'extreme_bull' || adSignal === 'extreme_bull' ? '📊 Breadth strong' : 'ℹ️ Breadth';
+            signals.push(`${strength} confirms bullish (${tickStr}, ${adStr})`);
         } else if (direction === 'bearish' && bearishCount >= 2) {
-            signals.push(`ℹ️ Internals confirm bearish (${bearishCount}/3)`);
+            const strength = tickSignal === 'extreme_bear' || adSignal === 'extreme_bear' ? '📊 Breadth strong' : 'ℹ️ Breadth';
+            signals.push(`${strength} confirms bearish (${tickStr}, ${adStr})`);
         } else if (direction === 'bullish' && bearishCount >= 2) {
-            signals.push(`ℹ️ Internals oppose bullish (${bearishCount}/3 bearish)`);
+            signals.push(`ℹ️ Breadth opposes bullish (${tickStr}, ${adStr})`);
         } else if (direction === 'bearish' && bullishCount >= 2) {
-            signals.push(`ℹ️ Internals oppose bearish (${bullishCount}/3 bullish)`);
+            signals.push(`ℹ️ Breadth opposes bearish (${tickStr}, ${adStr})`);
         }
     }
 
@@ -2026,7 +2061,12 @@ const scannerState = {
     // VIX hysteresis: require 3 consecutive readings in new regime before alerting
     // Prevents chatter when VIX oscillates near thresholds (Feb 12: 13 alerts in one day)
     vixRegimeCandidate: null,   // The regime we're seeing but haven't confirmed
-    vixRegimeConsecutive: 0     // How many consecutive scans in candidate regime
+    vixRegimeConsecutive: 0,    // How many consecutive scans in candidate regime
+    // Breadth extreme detection (Strategy 10: Breadth Extreme Trading)
+    previousBreadthState: null,     // 'extreme_bullish' | 'extreme_bearish' | 'strong_bullish' | 'strong_bearish' | 'normal'
+    breadthStateCandidate: null,    // Hysteresis candidate
+    breadthStateConsecutive: 0,     // Consecutive readings count
+    breadthAlertCooldown: null      // Timestamp of last breadth alert (30-min cooldown)
 };
 
 function isPaused() {
@@ -2407,10 +2447,109 @@ async function runScan() {
 
     // Signal validation moved to end of scan cycle (with priceCache) — see step 9
 
-    // 1.6. Fetch market internals snapshot for scoring
+    // 1.6. Fetch market internals snapshot for scoring + breadth extreme detection
     latestInternals = signalDb.getLatestInternals();
     if (latestInternals) {
         console.log(`[Internals] TICK: ${latestInternals.tick}, A/D: ${latestInternals.ad_spread}, Vol Ratio: ${latestInternals.vol_ratio?.toFixed(2)}`);
+
+        // Breadth Extreme Detection (Strategy 10: Breadth Extreme Trading)
+        // Pattern-matches VIX regime alerts: hysteresis + cooldown to prevent chatter.
+        const tick = latestInternals.tick;
+        const adSpread = latestInternals.ad_spread;
+        const volRatio = latestInternals.vol_ratio;
+
+        // Classify breadth state from TICK + A/D thresholds
+        let breadthState = 'normal';
+        if (tick < -1000 && adSpread < -1500) breadthState = 'extreme_bearish';
+        else if (tick > 1000 && adSpread > 1500) breadthState = 'extreme_bullish';
+        else if (tick < -800 || adSpread < -1500) breadthState = 'strong_bearish';
+        else if (tick > 800 || adSpread > 1500) breadthState = 'strong_bullish';
+
+        const BREADTH_CONFIRM_COUNT = 1;  // Alert on first reading — extremes can be fleeting
+        const BREADTH_COOLDOWN_MS = 0;  // No cooldown — will tune later if too noisy
+
+        if (breadthState !== 'normal' && breadthState !== scannerState.previousBreadthState) {
+            // Non-normal state differs from confirmed — track as candidate
+            if (breadthState === scannerState.breadthStateCandidate) {
+                scannerState.breadthStateConsecutive++;
+            } else {
+                scannerState.breadthStateCandidate = breadthState;
+                scannerState.breadthStateConsecutive = 1;
+            }
+
+            if (scannerState.breadthStateConsecutive >= BREADTH_CONFIRM_COUNT) {
+                // Confirmed breadth extreme — check cooldown before alerting
+                const now = Date.now();
+                const canAlert = !scannerState.breadthAlertCooldown ||
+                    (now - scannerState.breadthAlertCooldown) > BREADTH_COOLDOWN_MS;
+
+                if (canAlert) {
+                    const isBearish = breadthState.includes('bearish');
+                    const isExtreme = breadthState.includes('extreme');
+                    const emoji = isBearish ? '📉' : '📈';
+                    const direction = isBearish ? 'BEARISH' : 'BULLISH';
+                    const level = isExtreme ? 'EXTREME' : 'STRONG';
+                    const context = isExtreme
+                        ? (isBearish
+                            ? 'Dual extreme = capitulation zone. Watch for reversal at support.'
+                            : 'Dual extreme = potential exhaustion at resistance.')
+                        : (isBearish
+                            ? 'Strong selling pressure. Monitor for support levels.'
+                            : 'Strong buying pressure. Monitor for resistance levels.');
+
+                    const breadthMsg = `${emoji} <b>BREADTH ${level} — ${direction}</b>\n\n` +
+                        `<b>TICK:</b> ${tick > 0 ? '+' : ''}${tick}\n` +
+                        `<b>A/D Spread:</b> ${adSpread > 0 ? '+' : ''}${adSpread}\n` +
+                        `<b>Vol Ratio:</b> ${volRatio?.toFixed(2)}:1\n\n` +
+                        `⚡ ${context}\n\n` +
+                        `<i>${formatTimePST()} PST</i>`;
+                    await sendTelegram(breadthMsg);
+                    scannerState.breadthAlertCooldown = now;
+                    console.log(`[Breadth] Alert sent: ${level} ${direction} (TICK ${tick}, A/D ${adSpread})`);
+
+                    // Log to alerts database
+                    try {
+                        signalDb.insertAlert({
+                            type: 'BREADTH_EXTREME',
+                            priority: isExtreme ? 'HIGH' : 'MEDIUM',
+                            message: `Breadth ${level.toLowerCase()} ${direction.toLowerCase()}: TICK ${tick}, A/D ${adSpread}`,
+                            details: {
+                                state: breadthState,
+                                tick,
+                                ad_spread: adSpread,
+                                vol_ratio: volRatio,
+                                vix: marketContext?.vix,
+                                spy_price: marketContext?.spyPrice
+                            }
+                        });
+                    } catch (e) {
+                        console.error('[Breadth] Failed to log alert:', e.message);
+                    }
+                } else {
+                    console.log(`[Breadth] ${level} ${direction} confirmed but in cooldown (${Math.round((BREADTH_COOLDOWN_MS - (now - scannerState.breadthAlertCooldown)) / 60000)}min remaining)`);
+                }
+
+                // Update confirmed state and reset candidate
+                scannerState.previousBreadthState = breadthState;
+                scannerState.breadthStateCandidate = null;
+                scannerState.breadthStateConsecutive = 0;
+            } else {
+                console.log(`[Breadth] Candidate: ${breadthState} (${scannerState.breadthStateConsecutive}/${BREADTH_CONFIRM_COUNT} readings)`);
+            }
+        } else if (breadthState === 'normal' && scannerState.previousBreadthState && scannerState.previousBreadthState !== 'normal') {
+            // Returned to normal — reset state silently
+            scannerState.previousBreadthState = 'normal';
+            scannerState.breadthStateCandidate = null;
+            scannerState.breadthStateConsecutive = 0;
+            console.log('[Breadth] Returned to normal');
+        } else {
+            // Same state — reset any candidate
+            scannerState.breadthStateCandidate = null;
+            scannerState.breadthStateConsecutive = 0;
+            if (!scannerState.previousBreadthState) {
+                scannerState.previousBreadthState = breadthState;
+            }
+        }
     }
 
     // 1.7. Fetch relative strength data from divergence scanner

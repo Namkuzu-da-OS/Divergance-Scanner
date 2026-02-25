@@ -92,6 +92,50 @@
         .strategy-type.swing { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
         .strategy-type.scalp { background: rgba(249, 115, 22, 0.2); color: #f97316; }
         .strategy-type.indicator { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
+        .strategy-type.breakout { background: rgba(234, 179, 8, 0.2); color: #eab308; }
+        .strategy-type.reversion { background: rgba(99, 102, 241, 0.2); color: #818cf8; }
+
+        .automation-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .automation-badge.auto { background: rgba(0, 212, 170, 0.15); color: #00d4aa; border: 1px solid rgba(0, 212, 170, 0.3); }
+        .automation-badge.manual { background: rgba(139, 146, 168, 0.1); color: #8b92a8; border: 1px solid rgba(139, 146, 168, 0.2); }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+        }
+        .filter-btn {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            border: 1px solid #2a3641;
+            background: #151821;
+            color: #8b92a8;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover { border-color: #a855f7; color: #e5e7eb; }
+        .filter-btn.active { background: rgba(168, 85, 247, 0.2); border-color: #a855f7; color: #a855f7; }
+        .filter-btn .filter-count {
+            display: inline-block;
+            margin-left: 4px;
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 10px;
+            background: rgba(255,255,255,0.08);
+        }
 
         .strategy-body {
             padding: 20px;
@@ -409,6 +453,11 @@
                 </nav>
             </div>
             <div class="header-right">
+                <div class="filter-group">
+                    <button class="filter-btn active" onclick="filterStrategies('all')" data-filter="all">All <span class="filter-count">11</span></button>
+                    <button class="filter-btn" onclick="filterStrategies('auto')" data-filter="auto">Automated <span class="filter-count">5</span></button>
+                    <button class="filter-btn" onclick="filterStrategies('manual')" data-filter="manual">Manual <span class="filter-count">6</span></button>
+                </div>
             </div>
         </div>
 
@@ -429,45 +478,85 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr onclick="openModal('smart-money-dip')">
-                        <td>Smart Money Dip Buy</td>
-                        <td>Swing</td>
-                        <td>4H/Daily</td>
-                        <td>Below put wall (1-2%)</td>
-                        <td>Gamma flip -> Call wall</td>
-                        <td>2:1</td>
-                    </tr>
-                    <tr onclick="openModal('earnings-flow')">
-                        <td>Earnings Flow Confluence</td>
+                    <tr onclick="openModal('weekly-range')" data-automation="manual">
+                        <td>1. Weekly Range</td>
                         <td>Swing</td>
                         <td>Daily</td>
-                        <td>Below confluence zone</td>
-                        <td>Call wall / Max pain</td>
+                        <td>Beyond level + 1 ATR</td>
+                        <td>Opposite range extreme</td>
                         <td>2:1</td>
                     </tr>
-                    <tr onclick="openModal('vix-capitulation')">
-                        <td>VIX Fear Capitulation</td>
-                        <td>Swing</td>
-                        <td>Daily</td>
-                        <td>SPY swing low - 1 ATR</td>
-                        <td>Hold 10-20 days</td>
-                        <td>2:1</td>
-                    </tr>
-                    <tr onclick="openModal('vwap-reversion')">
-                        <td>VWAP Reversion</td>
+                    <tr onclick="openModal('vwap-reversion')" data-automation="manual">
+                        <td>2. VWAP Reversion</td>
                         <td>Scalp</td>
                         <td>5/15min</td>
                         <td>Beyond swing + 0.5 ATR</td>
                         <td>VWAP, then runner</td>
                         <td>1.5:1</td>
                     </tr>
-                    <tr onclick="openModal('weekly-range')">
-                        <td>Weekly Range</td>
+                    <tr onclick="openModal('ma-reversion')" data-automation="manual">
+                        <td>3. MA Reversion</td>
+                        <td>Scalp / Swing</td>
+                        <td>5min-Daily</td>
+                        <td>1 ATR beyond MA</td>
+                        <td>Next MA or S/R</td>
+                        <td>1.5:1</td>
+                    </tr>
+                    <tr onclick="openModal('midpoint-range')" data-automation="manual">
+                        <td>4. Mid-Point Range</td>
                         <td>Swing</td>
                         <td>Daily</td>
-                        <td>Beyond level + 1 ATR</td>
-                        <td>Opposite range extreme</td>
+                        <td>Beyond extreme + 1 ATR</td>
+                        <td>50%, then 61.8% retrace</td>
                         <td>2:1</td>
+                    </tr>
+                    <tr onclick="openModal('vol-box-breakout')" data-automation="manual">
+                        <td>5. Volatility Box Breakout</td>
+                        <td>Breakout</td>
+                        <td>15min-4H</td>
+                        <td>Opposite side of box</td>
+                        <td>127% Fib extension</td>
+                        <td>2:1</td>
+                    </tr>
+                    <tr onclick="openModal('golden-pocket')" data-automation="auto">
+                        <td>6. Golden Pocket + GEX</td>
+                        <td>Reversal</td>
+                        <td>4H/Daily</td>
+                        <td>Below 61.8% / -2 SD</td>
+                        <td>Gamma flip -> Call wall</td>
+                        <td>2:1</td>
+                    </tr>
+                    <tr onclick="openModal('smart-money-dip')" data-automation="auto">
+                        <td>7. Smart Money Dip Buy</td>
+                        <td>Swing</td>
+                        <td>4H/Daily</td>
+                        <td>Below put wall (1-2%)</td>
+                        <td>Gamma flip -> Call wall</td>
+                        <td>2:1</td>
+                    </tr>
+                    <tr onclick="openModal('earnings-flow')" data-automation="auto">
+                        <td>8. Earnings Flow Confluence</td>
+                        <td>Swing</td>
+                        <td>Daily</td>
+                        <td>Below confluence zone</td>
+                        <td>Call wall / Max pain</td>
+                        <td>2:1</td>
+                    </tr>
+                    <tr onclick="openModal('vix-capitulation')" data-automation="auto">
+                        <td>9. VIX Fear Capitulation</td>
+                        <td>Swing</td>
+                        <td>Daily</td>
+                        <td>SPY swing low - 1 ATR</td>
+                        <td>Hold 10-20 days</td>
+                        <td>2:1</td>
+                    </tr>
+                    <tr onclick="openModal('breadth-extreme')" data-automation="auto">
+                        <td>10. Breadth Extreme Trading</td>
+                        <td>Scalp / Swing</td>
+                        <td>1-15min / Daily</td>
+                        <td>1 ATR beyond extreme</td>
+                        <td>Mean reversion (VWAP/mid-range)</td>
+                        <td>1.5:1</td>
                     </tr>
                 </tbody>
             </table>
@@ -475,10 +564,218 @@
 
         <!-- Strategy Cards -->
         <div class="strategies-grid">
-            <!-- Smart Money Dip Buy -->
-            <div class="strategy-card" onclick="openModal('smart-money-dip')">
+            <!-- 1. Weekly Range -->
+            <div class="strategy-card" onclick="openModal('weekly-range')" data-automation="manual">
                 <div class="strategy-header">
-                    <div class="strategy-title">Smart Money Dip Buy</div>
+                    <div class="strategy-title">1. Weekly Range</div>
+                    <span class="strategy-type swing">Swing</span>
+                </div>
+                <div class="strategy-body">
+                    <div class="strategy-description">
+                        Trade established weekly support/resistance levels. Buy support, sell resistance. No mid-range entries.
+                    </div>
+                    <div class="strategy-formula">
+                        Price at weekly S/R + Rejection + Momentum shift = ENTRY
+                    </div>
+                    <div class="strategy-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">S/R</div>
+                            <div class="stat-label">Level-Based</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">Daily</div>
+                            <div class="stat-label">Timeframe</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">2:1</div>
+                            <div class="stat-label">Min R:R</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="strategy-footer">
+                    <span class="strategy-link">View Full Strategy Details</span>
+                    <span class="automation-badge manual">Manual</span>
+                </div>
+            </div>
+
+            <!-- 2. VWAP Reversion -->
+            <div class="strategy-card" onclick="openModal('vwap-reversion')" data-automation="manual">
+                <div class="strategy-header">
+                    <div class="strategy-title">2. VWAP Reversion</div>
+                    <span class="strategy-type scalp">Scalp</span>
+                    <span class="strategy-type reversion">Reversion</span>
+                </div>
+                <div class="strategy-body">
+                    <div class="strategy-description">
+                        Mean reversion to VWAP from extended deviations. Best during choppy/range-bound sessions.
+                    </div>
+                    <div class="strategy-formula">
+                        Price at ±2 SD from VWAP + Reversal candle = ENTRY toward VWAP
+                    </div>
+                    <div class="strategy-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">VWAP</div>
+                            <div class="stat-label">Anchor</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">5/15m</div>
+                            <div class="stat-label">Timeframe</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">1.5:1</div>
+                            <div class="stat-label">Min R:R</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="strategy-footer">
+                    <span class="strategy-link">View Full Strategy Details</span>
+                    <span class="automation-badge manual">Manual</span>
+                </div>
+            </div>
+
+            <!-- 3. MA Reversion -->
+            <div class="strategy-card" onclick="openModal('ma-reversion')" data-automation="manual">
+                <div class="strategy-header">
+                    <div class="strategy-title">3. MA Reversion</div>
+                    <span class="strategy-type scalp">Scalp</span>
+                    <span class="strategy-type reversion">Reversion</span>
+                </div>
+                <div class="strategy-body">
+                    <div class="strategy-description">
+                        Trade bounces off key moving averages (20 EMA, 50 SMA, 200 SMA). Enter on momentum shift back inside the MA.
+                    </div>
+                    <div class="strategy-formula">
+                        Price touches key MA + Close back inside + Confluence = ENTRY
+                    </div>
+                    <div class="strategy-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">20/50/200</div>
+                            <div class="stat-label">Key MAs</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">1 ATR</div>
+                            <div class="stat-label">Stop Distance</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">1.5:1</div>
+                            <div class="stat-label">Min R:R</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="strategy-footer">
+                    <span class="strategy-link">View Full Strategy Details</span>
+                    <span class="automation-badge manual">Manual</span>
+                </div>
+            </div>
+
+            <!-- 4. Mid-Point Range -->
+            <div class="strategy-card" onclick="openModal('midpoint-range')" data-automation="manual">
+                <div class="strategy-header">
+                    <div class="strategy-title">4. Mid-Point Range</div>
+                    <span class="strategy-type swing">Swing</span>
+                    <span class="strategy-type reversion">Reversion</span>
+                </div>
+                <div class="strategy-body">
+                    <div class="strategy-description">
+                        Enter at range extremes (top/bottom 10%) targeting the midpoint. Best for defined ranges with clear boundaries.
+                    </div>
+                    <div class="strategy-formula">
+                        Price at range extreme + Rejection + Momentum toward mid = ENTRY
+                    </div>
+                    <div class="strategy-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">50%</div>
+                            <div class="stat-label">Primary Target</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">61.8%</div>
+                            <div class="stat-label">Runner Target</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">2:1</div>
+                            <div class="stat-label">Min R:R</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="strategy-footer">
+                    <span class="strategy-link">View Full Strategy Details</span>
+                    <span class="automation-badge manual">Manual</span>
+                </div>
+            </div>
+
+            <!-- 5. Volatility Box Breakout -->
+            <div class="strategy-card" onclick="openModal('vol-box-breakout')" data-automation="manual">
+                <div class="strategy-header">
+                    <div class="strategy-title">5. Volatility Box Breakout</div>
+                    <span class="strategy-type breakout">Breakout</span>
+                </div>
+                <div class="strategy-body">
+                    <div class="strategy-description">
+                        Trade breakouts from consolidation boxes at key levels. Requires 3+ touches each side and volume confirmation on the break.
+                    </div>
+                    <div class="strategy-formula">
+                        Consolidation box (3+ touches) + Breakout candle + Vol > 2x = ENTRY
+                    </div>
+                    <div class="strategy-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">3+</div>
+                            <div class="stat-label">Min Touches</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">2x Vol</div>
+                            <div class="stat-label">Confirmation</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">2:1</div>
+                            <div class="stat-label">Min R:R</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="strategy-footer">
+                    <span class="strategy-link">View Full Strategy Details</span>
+                    <span class="automation-badge manual">Manual</span>
+                </div>
+            </div>
+
+            <!-- 6. Golden Pocket + GEX Reversion -->
+            <div class="strategy-card" onclick="openModal('golden-pocket')" data-automation="auto">
+                <div class="strategy-header">
+                    <div class="strategy-title">6. Golden Pocket + GEX</div>
+                    <span class="strategy-type reversal">Reversal</span>
+                    <span class="strategy-type swing">Swing</span>
+                </div>
+                <div class="strategy-body">
+                    <div class="strategy-description">
+                        Combines golden pocket Fib retracement (50-61.8%) with gamma exposure levels and oversold RSI. The TSLA pattern.
+                    </div>
+                    <div class="strategy-formula">
+                        Golden Pocket + Put Wall + RSI < 35 + Unusual Calls = ENTRY
+                    </div>
+                    <div class="strategy-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">4/6</div>
+                            <div class="stat-label">Min Confluence</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">50-61.8%</div>
+                            <div class="stat-label">Fib Zone</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">2:1</div>
+                            <div class="stat-label">Min R:R</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="strategy-footer">
+                    <span class="strategy-link">View Full Strategy Details</span>
+                    <span class="automation-badge auto">Partial Auto</span>
+                </div>
+            </div>
+
+            <!-- 7. Smart Money Dip Buy -->
+            <div class="strategy-card" onclick="openModal('smart-money-dip')" data-automation="auto">
+                <div class="strategy-header">
+                    <div class="strategy-title">7. Smart Money Dip Buy</div>
                     <span class="strategy-type reversal">Reversal</span>
                     <span class="strategy-type swing">Swing</span>
                 </div>
@@ -506,14 +803,14 @@
                 </div>
                 <div class="strategy-footer">
                     <span class="strategy-link">View Full Strategy Details</span>
-                    <span style="color: #8b92a8; font-size: 11px;">Auto-detected by Bloodhound</span>
+                    <span class="automation-badge auto">Auto + Telegram</span>
                 </div>
             </div>
 
-            <!-- Earnings Flow Confluence -->
-            <div class="strategy-card" onclick="openModal('earnings-flow')">
+            <!-- 8. Earnings Flow Confluence -->
+            <div class="strategy-card" onclick="openModal('earnings-flow')" data-automation="auto">
                 <div class="strategy-header">
-                    <div class="strategy-title">Earnings Flow Confluence</div>
+                    <div class="strategy-title">8. Earnings Flow Confluence</div>
                     <span class="strategy-type swing">Swing</span>
                 </div>
                 <div class="strategy-body">
@@ -540,14 +837,14 @@
                 </div>
                 <div class="strategy-footer">
                     <span class="strategy-link">View Full Strategy Details</span>
-                    <span style="color: #8b92a8; font-size: 11px;">Case Study: AAPL Jan 2026</span>
+                    <span class="automation-badge auto">Auto + Telegram</span>
                 </div>
             </div>
 
-            <!-- VIX Fear Capitulation -->
-            <div class="strategy-card" onclick="openModal('vix-capitulation')">
+            <!-- 9. VIX Fear Capitulation -->
+            <div class="strategy-card" onclick="openModal('vix-capitulation')" data-automation="auto">
                 <div class="strategy-header">
-                    <div class="strategy-title">VIX Fear Capitulation</div>
+                    <div class="strategy-title">9. VIX Fear Capitulation</div>
                     <span class="strategy-type reversal">Reversal</span>
                     <span class="strategy-type swing">Market-Wide</span>
                 </div>
@@ -575,12 +872,47 @@
                 </div>
                 <div class="strategy-footer">
                     <span class="strategy-link">View Full Strategy Details</span>
-                    <span style="color: #8b92a8; font-size: 11px;">Backtested 2016-2026</span>
+                    <span class="automation-badge auto">Auto + Telegram</span>
+                </div>
+            </div>
+
+            <!-- 10. Breadth Extreme Trading -->
+            <div class="strategy-card" onclick="openModal('breadth-extreme')" data-automation="auto">
+                <div class="strategy-header">
+                    <div class="strategy-title">10. Breadth Extreme Trading</div>
+                    <span class="strategy-type scalp">Scalp</span>
+                    <span class="strategy-type reversal">Reversal</span>
+                </div>
+                <div class="strategy-body">
+                    <div class="strategy-description">
+                        Uses $TICK and A/D spread ($ADD) extremes to identify capitulation longs and exhaustion fades. Dual confirmation when both align is the highest conviction breadth signal.
+                    </div>
+                    <div class="strategy-formula">
+                        TICK ±1000 + A/D ±1500 = DUAL EXTREME (fade or capitulation entry)
+                    </div>
+                    <div class="strategy-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">±1000</div>
+                            <div class="stat-label">TICK Extreme</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">±1500</div>
+                            <div class="stat-label">A/D Dual Extreme</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">1.5:1</div>
+                            <div class="stat-label">Min R:R</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="strategy-footer">
+                    <span class="strategy-link">View Full Strategy Details</span>
+                    <span class="automation-badge auto">Auto + Telegram</span>
                 </div>
             </div>
 
             <!-- VIX Master Indicator -->
-            <div class="strategy-card" onclick="openModal('vix-indicator')">
+            <div class="strategy-card" onclick="openModal('vix-indicator')" data-automation="manual">
                 <div class="strategy-header">
                     <div class="strategy-title">VIX Master Indicator</div>
                     <span class="strategy-type indicator">TradingView</span>
@@ -610,6 +942,49 @@
                 <div class="strategy-footer">
                     <span class="strategy-link">View Indicator Code</span>
                     <span style="color: #8b92a8; font-size: 11px;">Pine Script v5</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Backtest Candidates -->
+        <div style="background: #151821; border: 1px solid #2a3641; border-radius: 10px; overflow: hidden; margin-top: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: linear-gradient(135deg, #1a1f2e 0%, #151821 100%); border-bottom: 1px solid #2a3641;">
+                <span style="font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #eab308;">Backtest Candidates</span>
+                <span style="font-size: 11px; color: #8b92a8;">from data/STRATEGY_CANDIDATES.md</span>
+            </div>
+            <div style="padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 12px;">
+                <!-- P1 Column -->
+                <div>
+                    <div style="color: #00d4aa; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #2a3641;">P1 — Implement Now</div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr><td style="padding: 4px 0; color: #e5e7eb;">3-Drive RSI / Triple Divergence</td><td style="padding: 4px 8px; color: #00d4aa; text-align: right; white-space: nowrap;">75-91%</td><td style="padding: 4px 0; color: #8b92a8; font-size: 11px;">User priority</td></tr>
+                        <tr><td style="padding: 4px 0; color: #e5e7eb;">Put Wall Bounce</td><td style="padding: 4px 8px; color: #00d4aa; text-align: right; white-space: nowrap;">89%</td><td style="padding: 4px 0; color: #8b92a8; font-size: 11px;">SpotGamma</td></tr>
+                        <tr><td style="padding: 4px 0; color: #e5e7eb;">Call Wall Fade</td><td style="padding: 4px 8px; color: #00d4aa; text-align: right; white-space: nowrap;">83%</td><td style="padding: 4px 0; color: #8b92a8; font-size: 11px;">SpotGamma</td></tr>
+                        <tr><td style="padding: 4px 0; color: #e5e7eb;">GEX Regime (Gamma Flip)</td><td style="padding: 4px 8px; color: #00d4aa; text-align: right; white-space: nowrap;">78%</td><td style="padding: 4px 0; color: #8b92a8; font-size: 11px;">Mode switch</td></tr>
+                        <tr><td style="padding: 4px 0; color: #e5e7eb;">TRIN Extreme + Confirm</td><td style="padding: 4px 8px; color: #00d4aa; text-align: right; white-space: nowrap;">77%</td><td style="padding: 4px 0; color: #8b92a8; font-size: 11px;">QuantStrat</td></tr>
+                        <tr><td style="padding: 4px 0; color: #e5e7eb;">Connors RSI(2)</td><td style="padding: 4px 8px; color: #00d4aa; text-align: right; white-space: nowrap;">75-90%</td><td style="padding: 4px 0; color: #8b92a8; font-size: 11px;">103-300 trades</td></tr>
+                        <tr><td style="padding: 4px 0; color: #e5e7eb;">IBS (Internal Bar Strength)</td><td style="padding: 4px 8px; color: #00d4aa; text-align: right; white-space: nowrap;">74-78%</td><td style="padding: 4px 0; color: #8b92a8; font-size: 11px;">583 trades</td></tr>
+                        <tr><td style="padding: 4px 0; color: #e5e7eb;">CumTICK Divergence</td><td style="padding: 4px 8px; color: #00d4aa; text-align: right; white-space: nowrap;">73-79%</td><td style="padding: 4px 0; color: #8b92a8; font-size: 11px;">w/ levels</td></tr>
+                        <tr><td style="padding: 4px 0; color: #e5e7eb;">Cumulative RSI(2,2)</td><td style="padding: 4px 8px; color: #00d4aa; text-align: right; white-space: nowrap;">65%</td><td style="padding: 4px 0; color: #8b92a8; font-size: 11px;">280K events</td></tr>
+                    </table>
+                </div>
+                <!-- P2 Column -->
+                <div>
+                    <div style="color: #3b82f6; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #2a3641;">P2 — Good Candidates</div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr><td style="padding: 4px 0; color: #e5e7eb;">StochRSI Crossover</td><td style="padding: 4px 8px; color: #3b82f6; text-align: right; white-space: nowrap;">78%</td><td style="padding: 4px 0; color: #8b92a8; font-size: 11px;">228 trades</td></tr>
+                        <tr><td style="padding: 4px 0; color: #e5e7eb;">Double 7s (Connors)</td><td style="padding: 4px 8px; color: #3b82f6; text-align: right; white-space: nowrap;">75%</td><td style="padding: 4px 0; color: #8b92a8; font-size: 11px;">271 signals</td></tr>
+                        <tr><td style="padding: 4px 0; color: #e5e7eb;">RSI 50 Crossover</td><td style="padding: 4px 8px; color: #3b82f6; text-align: right; white-space: nowrap;">71%</td><td style="padding: 4px 0; color: #8b92a8; font-size: 11px;">Trend filter</td></tr>
+                        <tr><td style="padding: 4px 0; color: #e5e7eb;">IV Crush (Earnings)</td><td style="padding: 4px 8px; color: #3b82f6; text-align: right; white-space: nowrap;">60-70%</td><td style="padding: 4px 0; color: #8b92a8; font-size: 11px;">Options strat</td></tr>
+                        <tr><td style="padding: 4px 0; color: #e5e7eb;">Vol/OI Spike</td><td style="padding: 4px 8px; color: #3b82f6; text-align: right; white-space: nowrap;">60%+</td><td style="padding: 4px 0; color: #8b92a8; font-size: 11px;">Academic alpha</td></tr>
+                        <tr><td style="padding: 4px 0; color: #e5e7eb;">Turnaround Tuesday</td><td style="padding: 4px 8px; color: #3b82f6; text-align: right; white-space: nowrap;">~60%</td><td style="padding: 4px 0; color: #8b92a8; font-size: 11px;">Calendar anomaly</td></tr>
+                        <tr><td style="padding: 4px 0; color: #e5e7eb;">A/D Thrust / Zweig</td><td style="padding: 4px 8px; color: #3b82f6; text-align: right; white-space: nowrap;">100%</td><td style="padding: 4px 0; color: #8b92a8; font-size: 11px;">Super rare</td></tr>
+                        <tr><td style="padding: 4px 0; color: #e5e7eb;">Max Pain Convergence</td><td style="padding: 4px 8px; color: #3b82f6; text-align: right; white-space: nowrap;">~55%</td><td style="padding: 4px 0; color: #8b92a8; font-size: 11px;">Tiebreaker</td></tr>
+                    </table>
+                    <div style="color: #ff6b6b; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin: 12px 0 6px; padding-bottom: 4px; border-bottom: 1px solid #2a3641;">Rejected</div>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr><td style="padding: 4px 0; color: #8b92a8; text-decoration: line-through;">RSI + Bollinger Band</td><td style="padding: 4px 8px; color: #ff6b6b; text-align: right; white-space: nowrap;">35%</td><td style="padding: 4px 0; color: #ff6b6b; font-size: 11px;">Worse than random</td></tr>
+                    </table>
                 </div>
             </div>
         </div>
@@ -655,6 +1030,198 @@
     <script>
         // Strategy content (loaded from markdown files conceptually)
         const strategies = {
+            'weekly-range': {
+                title: '1. Weekly Range',
+                content: `
+                    <h2>Weekly Range Strategy</h2>
+                    <h3>Overview</h3>
+                    <p>Trade established weekly support and resistance levels. The core principle: <strong>buy support, sell resistance, never enter mid-range.</strong></p>
+
+                    <h3>Setup Criteria</h3>
+                    <table>
+                        <tr><td><strong>Setup</strong></td><td>Price at established weekly support or resistance (2+ prior touches)</td></tr>
+                        <tr><td><strong>Entry</strong></td><td>Rejection candle at level + momentum shift toward opposite extreme</td></tr>
+                        <tr><td><strong>Stop</strong></td><td>Beyond the level + 1 ATR</td></tr>
+                        <tr><td><strong>Target</strong></td><td>Opposite range extreme</td></tr>
+                        <tr><td><strong>Skip if</strong></td><td>Breakout beyond range with volume, range narrowing, mid-range price</td></tr>
+                    </table>
+
+                    <h3>Key Rules</h3>
+                    <ul>
+                        <li>NO entries at mid-range prices — ever</li>
+                        <li>BUY at established support (bottom of range)</li>
+                        <li>SELL at established resistance (top of range)</li>
+                        <li>Breakouts only count after the level is <strong>cleared</strong> (close beyond, not just wick)</li>
+                        <li>Best on large-cap names with defined weekly ranges</li>
+                    </ul>
+
+                    <h3>Automation</h3>
+                    <p><span class="automation-badge manual">Manual</span> — You identify the range from weekly charts. Bloodhound's zone classification (AT_WALL, MID_RANGE) helps confirm positioning but doesn't trigger this strategy specifically.</p>
+                `
+            },
+            'vwap-reversion': {
+                title: '2. VWAP Reversion',
+                content: `
+                    <h2>VWAP Reversion Strategy</h2>
+                    <h3>Overview</h3>
+                    <p>Mean reversion to VWAP from extended deviations. Price tends to revert to VWAP, especially during range-bound or choppy sessions.</p>
+
+                    <h3>Setup Criteria</h3>
+                    <table>
+                        <tr><td><strong>Setup</strong></td><td>Price ≥2 standard deviations from VWAP</td></tr>
+                        <tr><td><strong>Entry</strong></td><td>Reversal candle (hammer/engulfing) at deviation extreme</td></tr>
+                        <tr><td><strong>Stop</strong></td><td>Beyond swing high/low + 0.5 ATR</td></tr>
+                        <tr><td><strong>Target</strong></td><td>VWAP (primary), then runner to opposite SD</td></tr>
+                        <tr><td><strong>Skip if</strong></td><td>Strong trend day (VIX rising, TICK one-directional), first 15 min, news catalyst</td></tr>
+                    </table>
+
+                    <h3>Best Conditions</h3>
+                    <ul>
+                        <li>Choppy / range-bound sessions (TICK oscillating, A/D near zero)</li>
+                        <li>VIX stable or declining</li>
+                        <li>No major catalysts driving directional moves</li>
+                        <li>After the first hour when VWAP is established</li>
+                    </ul>
+
+                    <h3>Automation</h3>
+                    <p><span class="automation-badge manual">Manual</span> — VWAP and bands are shown in Bloodhound's gamma levels data. You identify deviations on the chart. Pairs well with breadth confirmation (Strategy 10).</p>
+                `
+            },
+            'ma-reversion': {
+                title: '3. MA Reversion',
+                content: `
+                    <h2>MA Reversion Strategy</h2>
+                    <h3>Overview</h3>
+                    <p>Trade bounces off key moving averages. When price touches and holds a major MA, enter on the momentum shift back inside.</p>
+
+                    <h3>Setup Criteria</h3>
+                    <table>
+                        <tr><td><strong>Setup</strong></td><td>Price touches 20 EMA, 50 SMA, or 200 SMA</td></tr>
+                        <tr><td><strong>Entry</strong></td><td>Momentum shift (close back inside MA) + confluence</td></tr>
+                        <tr><td><strong>Stop</strong></td><td>1 ATR beyond the MA (use ATR matching trade timeframe)</td></tr>
+                        <tr><td><strong>Target</strong></td><td>Next MA level or major support/resistance</td></tr>
+                        <tr><td><strong>Skip if</strong></td><td>Strong close beyond MA (> 1 ATR), counter to higher timeframe trend</td></tr>
+                    </table>
+
+                    <h3>MA Hierarchy</h3>
+                    <ul>
+                        <li><strong>20 EMA</strong> — Short-term trend. Scalp/intraday bounces.</li>
+                        <li><strong>50 SMA</strong> — Intermediate trend. Swing trade bounces.</li>
+                        <li><strong>200 SMA</strong> — Major trend. Highest conviction bounces, strongest support/resistance.</li>
+                    </ul>
+
+                    <h3>Confluence Boosters</h3>
+                    <ul>
+                        <li>MA aligns with a gamma wall (put wall for support, call wall for resistance)</li>
+                        <li>RSI at extreme when price touches MA</li>
+                        <li>Volume spike on the test of the MA</li>
+                        <li>Multiple MAs converging at same price level</li>
+                    </ul>
+
+                    <h3>Automation</h3>
+                    <p><span class="automation-badge manual">Manual</span> — Bloodhound tracks MA positions (20/50/200 SMA) in technicals data. MA alignment is annotated on signals but not a standalone scored factor (removed in scoring overhaul — did not prove edge alone).</p>
+                `
+            },
+            'midpoint-range': {
+                title: '4. Mid-Point Range',
+                content: `
+                    <h2>Mid-Point Range Strategy</h2>
+                    <h3>Overview</h3>
+                    <p>Enter at range extremes (top/bottom 10%) targeting the midpoint. Price gravitates toward the middle of established ranges.</p>
+
+                    <h3>Setup Criteria</h3>
+                    <table>
+                        <tr><td><strong>Setup</strong></td><td>Price at range extreme (top or bottom 10%)</td></tr>
+                        <tr><td><strong>Entry</strong></td><td>Rejection at extreme + momentum shift toward midpoint</td></tr>
+                        <tr><td><strong>Stop</strong></td><td>Beyond the extreme + 1 ATR</td></tr>
+                        <tr><td><strong>Target</strong></td><td>Primary: 50% retracement. Secondary: 61.8% retracement</td></tr>
+                        <tr><td><strong>Skip if</strong></td><td>Breakout beyond range, range < 2 ATR wide, midpoint already tested today</td></tr>
+                    </table>
+
+                    <h3>Key Rules</h3>
+                    <ul>
+                        <li>Only enter at the <strong>extremes</strong> — the top and bottom 10% of the range</li>
+                        <li>50% retracement is the primary target (take profit on half)</li>
+                        <li>61.8% retracement is the runner target</li>
+                        <li>Range must be wide enough (≥ 2 ATR) to offer meaningful R:R</li>
+                        <li>Works best when market internals are neutral/choppy (no strong trend)</li>
+                    </ul>
+
+                    <h3>Automation</h3>
+                    <p><span class="automation-badge manual">Manual</span> — You identify the range from charts. Bloodhound's zone classification can help (AT_WALL = near extreme, MID_RANGE = avoid).</p>
+                `
+            },
+            'vol-box-breakout': {
+                title: '5. Volatility Box Breakout',
+                content: `
+                    <h2>Volatility Box Breakout Strategy</h2>
+                    <h3>Overview</h3>
+                    <p>Trade breakouts from well-defined consolidation boxes at key levels. Requires structural confirmation (3+ touches each side) and volume confirmation on the break.</p>
+
+                    <h3>Setup Criteria</h3>
+                    <table>
+                        <tr><td><strong>Setup</strong></td><td>Consolidation box with 3+ touches on each side, at a key level</td></tr>
+                        <tr><td><strong>Entry</strong></td><td>Breakout candle closes beyond the box + volume > 2x average</td></tr>
+                        <tr><td><strong>Stop</strong></td><td>Opposite side of the box</td></tr>
+                        <tr><td><strong>Target</strong></td><td>127% Fibonacci extension of the box height</td></tr>
+                        <tr><td><strong>Skip if</strong></td><td>Volume < 1.5x on breakout, no clear box (< 3 touches), low volume session</td></tr>
+                    </table>
+
+                    <h3>Box Validation</h3>
+                    <ul>
+                        <li><strong>Minimum 3 touches</strong> on both the top and bottom of the box</li>
+                        <li>Box should form at a <strong>meaningful level</strong> (prior S/R, MA, gamma wall)</li>
+                        <li>Tighter boxes (lower ATR within box) produce more explosive breakouts</li>
+                        <li>Volume should contract during consolidation, then expand on breakout</li>
+                    </ul>
+
+                    <h3>Volume Confirmation</h3>
+                    <ul>
+                        <li><strong>> 2x average</strong> — High conviction breakout</li>
+                        <li><strong>1.5x - 2x</strong> — Moderate, needs additional confirmation</li>
+                        <li><strong>< 1.5x</strong> — Likely false breakout, skip</li>
+                    </ul>
+
+                    <h3>Automation</h3>
+                    <p><span class="automation-badge manual">Manual</span> — You identify the consolidation box on charts. Bloodhound does not currently detect box patterns. Volume data is available via the Options API.</p>
+                `
+            },
+            'golden-pocket': {
+                title: '6. Golden Pocket + GEX Reversion',
+                content: `
+                    <h2>Golden Pocket + GEX Reversion Strategy</h2>
+                    <h3>Overview</h3>
+                    <p>Combines the golden pocket Fibonacci retracement (50-61.8%) with gamma exposure levels and oversold RSI for high-conviction reversal entries. The "TSLA Pattern" from Jan 2026.</p>
+
+                    <h3>Setup Criteria</h3>
+                    <table>
+                        <tr><td><strong>Setup</strong></td><td>Price at golden pocket (50-61.8% Fib), at/below put wall, RSI < 35</td></tr>
+                        <tr><td><strong>Entry</strong></td><td>Bottoming tail reclaims VWAP OR close above -1 SD after touch</td></tr>
+                        <tr><td><strong>Stop</strong></td><td>Below 61.8% Fib / -2 SD / inefficiency zone low</td></tr>
+                        <tr><td><strong>Target</strong></td><td>T1: Gamma flip, T2: 200 MA, T3: Call wall</td></tr>
+                        <tr><td><strong>Skip if</strong></td><td>VIX > 25, counter-trend to SPY</td></tr>
+                    </table>
+
+                    <h3>Confluence Checklist (need 4+ of 6)</h3>
+                    <ul>
+                        <li>Golden pocket (50-61.8% Fib of recent swing)</li>
+                        <li>At/near put wall or GEX -1 SD band</li>
+                        <li>RSI oversold (< 35) or recovering from < 30</li>
+                        <li>Unusual call activity (> 5x vol/OI)</li>
+                        <li>Key MA nearby (100/200 SMA flat or as support)</li>
+                        <li>VWAP reclaimed after dip</li>
+                    </ul>
+
+                    <h3>The TSLA Pattern (Jan 2026)</h3>
+                    <pre><code>Score 48 → Technical only (BB lower, put wall)
+Score 72 → RSI oversold + unusual calls (TRIGGER)
+Result:  → +3% move to call wall</code></pre>
+                    <p>When RSI hits oversold AND unusual call activity appears together = smart money buying the dip. This caused a +35 point score jump in the scanner.</p>
+
+                    <h3>Automation</h3>
+                    <p><span class="automation-badge auto">Partial Auto</span> — Bloodhound scores put wall proximity + RSI combos + unusual call activity. The golden pocket (Fib) is not auto-calculated, but the other confluence factors are scored. When the scanner flags a high score at a put wall with oversold RSI, check if it's also at the golden pocket on your chart.</p>
+                `
+            },
             'smart-money-dip': {
                 title: 'Smart Money Dip Buy',
                 content: `
@@ -862,72 +1429,73 @@ VIX > 40           -> Panic/capitulation, aggressive entry</code></pre>
                     <pre><code>$VIX > 30 AND $ADD < -1500</code></pre>
                 `
             },
-            'vwap-reversion': {
-                title: 'VWAP Reversion',
+            'breadth-extreme': {
+                title: 'Breadth Extreme Trading',
                 content: `
-                    <h2>VWAP Reversion Strategy</h2>
+                    <h2>Breadth Extreme Trading ($TICK & $ADD)</h2>
 
-                    <h3>Overview</h3>
-                    <p>A scalping strategy that captures mean reversion to VWAP when price extends too far from the anchored volume-weighted average price.</p>
+                    <h3>Two Indicators, Two Lenses</h3>
+                    <table>
+                        <tr><th>Indicator</th><th>What It Measures</th><th>Speed</th><th>Best For</th></tr>
+                        <tr><td><strong>$TICK</strong></td><td>Upticking − downticking NYSE stocks <em>right now</em></td><td>Fastest — very volatile</td><td>Entry timing, scalp fades</td></tr>
+                        <tr><td><strong>$ADD (A/D Spread)</strong></td><td>Advancing − declining NYSE stocks (cumulative)</td><td>Slower — smoother, trending</td><td>Session bias, swing confirmation</td></tr>
+                    </table>
+
+                    <h3>Threshold Reference</h3>
+                    <table>
+                        <tr><th>Level</th><th>$TICK</th><th>A/D Spread ($ADD)</th><th>Meaning</th></tr>
+                        <tr style="background: rgba(0, 212, 170, 0.1);"><td><strong>Extreme</strong></td><td style="color: #00d4aa;">±1000</td><td style="color: #00d4aa;">±2000</td><td>Capitulation / exhaustion — reversal zone</td></tr>
+                        <tr><td><strong>Strong</strong></td><td>±800</td><td>±1500</td><td>Directional conviction — confirms move</td></tr>
+                        <tr><td><strong>Momentum</strong></td><td>±600</td><td>±1000</td><td>Directional participation building</td></tr>
+                        <tr><td>Neutral</td><td>within ±600</td><td>within ±1000</td><td>No clear conviction</td></tr>
+                    </table>
 
                     <h3>Setup Criteria</h3>
                     <table>
                         <tr><th>Component</th><th>Specification</th></tr>
-                        <tr><td>Setup</td><td>Price 1.5-2.5 ATR from VWAP</td></tr>
-                        <tr><td>Entry</td><td>Rejection candle OR RSI divergence + volume</td></tr>
-                        <tr><td>Stop</td><td>Beyond swing + 0.5 ATR (max 1.5 ATR from entry)</td></tr>
-                        <tr><td>Target</td><td>50% at VWAP, 50% runner beyond</td></tr>
-                        <tr><td>Skip if</td><td>ADX > 30, news-driven move, extension < 1.5 ATR</td></tr>
+                        <tr><td>Setup</td><td>$TICK at ±1000 extreme AND/OR A/D spread at ±2000, at a key support/resistance level</td></tr>
+                        <tr><td>Entry</td><td>Fade extreme at level (rejection candle) OR ride continuation with dual confirmation</td></tr>
+                        <tr><td>Stop</td><td>1 ATR beyond the extreme (support for longs, resistance for shorts)</td></tr>
+                        <tr><td>Target</td><td>Mean reversion: VWAP or mid-range. Continuation: next S/R level</td></tr>
+                        <tr><td>Skip if</td><td>First 15 min of session, news-driven move with follow-through, ADX > 30 trending</td></tr>
                     </table>
 
-                    <h3>Entry Definitions</h3>
+                    <h3>Sub-Strategies</h3>
 
-                    <p><strong>Rejection Candle (required):</strong></p>
-                    <ul>
-                        <li>Close is in opposite direction of move (bullish rejection = close > open after downmove)</li>
-                        <li>Close is in upper/lower 25% of candle range</li>
-                        <li>Wick extends beyond prior bar's extreme</li>
-                    </ul>
+                    <p><strong>A. Fade $TICK Extremes (Scalp)</strong></p>
+                    <p>TICK > +1000 at resistance → institutions likely exhausted → look for short entries.<br>
+                    TICK < -1000 at support → capitulation often marks the bottom → look for long entries.<br>
+                    Pair with RSI divergence or VWAP deviation for higher probability.</p>
 
-                    <p><strong>Volume Confirmation:</strong></p>
-                    <ul>
-                        <li>Entry bar volume > 1.5x 20-bar average volume</li>
-                        <li>Without this: entry is lower probability</li>
-                    </ul>
+                    <p><strong>B. A/D Capitulation Entry (Swing)</strong></p>
+                    <p>A/D < -2000 = nearly everything is declining. Historically produces the highest probability mean reversion long entries on SPY/ES. Supplements VIX Fear Capitulation — can fire independently or together.</p>
 
-                    <h3>When to Skip</h3>
-                    <ul>
-                        <li>ADX > 30 (strong trend - don't fade it)</li>
-                        <li>News-driven move (momentum can continue)</li>
-                        <li>Extension < 1.5 ATR (not stretched enough)</li>
-                    </ul>
-                `
-            },
-            'weekly-range': {
-                title: 'Weekly Range',
-                content: `
-                    <h2>Weekly Range Strategy</h2>
+                    <p><strong>C. Dual Confirmation (Highest Conviction)</strong></p>
+                    <p>When TICK hits ±1000 while A/D is already at ±1500 — both breadth measures confirming. This is the strongest signal:</p>
+                    <pre><code>TICK +1000 AND A/D +1500 = exhaustion at resistance (fade or trail stops)
+TICK -1000 AND A/D -1500 = capitulation at support (high probability long entry)</code></pre>
 
-                    <h3>Overview</h3>
-                    <p>A swing trading strategy that capitalizes on mean reversion from weekly range extremes.</p>
+                    <p><strong>D. Breadth Divergence (Warning Signal)</strong></p>
+                    <p>Price makes a new high but TICK prints a lower high (or A/D fails to confirm). Fewer stocks participating = rally thinning. Often a precursor to pullback. Inverse applies at lows.</p>
 
-                    <h3>Setup Criteria</h3>
+                    <p><strong>E. Session Trend (Bias Filter)</strong></p>
+                    <p>A/D rising all day = bullish session bias. Use A/D direction to determine your lean, then use TICK extremes to time entries in that direction. Don't fade TICK extremes against the A/D trend.</p>
+
+                    <h3>Power Combo</h3>
+                    <pre><code>$TICK for entry timing + A/D for session bias + Vol Ratio for volume confirmation
+All three aligned = highest conviction trades</code></pre>
+
+                    <h3>Best Practices</h3>
                     <table>
-                        <tr><th>Component</th><th>Specification</th></tr>
-                        <tr><td>Setup</td><td>Price at weekly high/low (within 0.5%)</td></tr>
-                        <tr><td>Entry</td><td>Rejection candle + volume confirm</td></tr>
-                        <tr><td>Stop</td><td>Beyond weekly level + 1 Daily ATR</td></tr>
-                        <tr><td>Target</td><td>50% at mid-range, runner to opposite extreme</td></tr>
-                        <tr><td>Skip if</td><td>Mid-range, no rejection, news within 24h</td></tr>
+                        <tr><th>Indicator</th><th>Chart</th><th>Notes</th></tr>
+                        <tr><td>$TICK</td><td>1-min and 5-min</td><td>Scalping only. Resets each session. First minutes are noise.</td></tr>
+                        <tr><td>A/D Spread</td><td>5-min</td><td>Direction matters more than absolute value. Session trend.</td></tr>
+                        <tr><td>Both</td><td>—</td><td>Pair with: ES/NQ, SPY/QQQ, VWAP reversion, RSI divergence, VIX</td></tr>
                     </table>
 
-                    <h3>Key Principle</h3>
-                    <p><strong>NO entries at mid-range prices</strong></p>
-                    <ul>
-                        <li>BUY established support (bottom of range)</li>
-                        <li>SELL established resistance (top of range)</li>
-                        <li>Breakouts only after level is cleared</li>
-                    </ul>
+                    <h3>Automated Detection</h3>
+                    <p>Bloodhound monitors breadth extremes every scan cycle (5 min). Telegram alerts fire immediately on the first extreme reading — no delay. Annotations appear on all scanner signals showing current breadth context with tiered labels.</p>
+                    <p>Alert types: <code>BREADTH_EXTREME</code> (high priority) and <code>BREADTH_STRONG</code> (medium priority). No cooldown — every extreme fires.</p>
                 `
             },
             'vix-indicator': {
@@ -997,6 +1565,31 @@ VIX > 40           -> Panic/capitulation, aggressive entry</code></pre>
             if (event.target.id === 'modal-overlay') {
                 closeModal();
             }
+        }
+
+        function filterStrategies(filter) {
+            // Update button states
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === filter);
+            });
+
+            // Filter matrix rows
+            document.querySelectorAll('.matrix-table tbody tr[data-automation]').forEach(row => {
+                if (filter === 'all') {
+                    row.style.display = '';
+                } else {
+                    row.style.display = row.dataset.automation === filter ? '' : 'none';
+                }
+            });
+
+            // Filter strategy cards
+            document.querySelectorAll('.strategy-card[data-automation]').forEach(card => {
+                if (filter === 'all') {
+                    card.style.display = '';
+                } else {
+                    card.style.display = card.dataset.automation === filter ? '' : 'none';
+                }
+            });
         }
 
         document.addEventListener('keydown', (e) => {

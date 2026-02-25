@@ -26,6 +26,7 @@
 | **Smart Money Dip Buy** | Both | 4H/Daily | Below put wall (1-2%) | Gamma flip → Call wall | 2:1 |
 | Earnings Flow Confluence | Swing | Daily | Below confluence zone | Call wall / Max pain | 2:1 |
 | **VIX Fear Capitulation** | Swing | Daily | SPY swing low - 1 ATR | Hold 10-20 days | 2:1 |
+| **Breadth Extreme Trading** | Scalp/Swing | 1-15min / Daily | Beyond extreme + 1 ATR | Mean reversion target | 1.5:1 |
 
 ## ENTRY DEFINITIONS
 
@@ -266,3 +267,54 @@ $VIX > 30 AND $ADD < -1500
 ```
 
 **The Thesis:** When fear (VIX) and breadth (A/D) both hit extremes simultaneously, it signals broad capitulation selling. Historical data shows 73%+ probability of positive returns over 10-20 days. This is a market-wide mean reversion play that exploits the "blood in the streets" phenomenon.
+
+### 10. Breadth Extreme Trading ($TICK & $ADD)
+| Component | Specification |
+|-----------|---------------|
+| Setup | $TICK at ±1000 extreme AND/OR A/D spread at ±2000, at a key support/resistance level |
+| Entry | Fade extreme at level (rejection candle) OR ride continuation with dual confirmation |
+| Stop | 1 ATR beyond the extreme (support for longs, resistance for shorts) |
+| Target | Mean reversion: VWAP or mid-range. Continuation: next S/R level |
+| Skip if | First 15 min of session (noisy), news-driven move with follow-through, ADX > 30 trending |
+
+**Two Indicators, Two Lenses:**
+- **$TICK** = real-time snapshot (upticking minus downticking NYSE stocks right now). Fast, volatile, best for entry timing.
+- **$ADD (A/D Spread)** = cumulative session breadth (advancing minus declining NYSE stocks). Smoother, trending, best for session bias.
+
+**Threshold Reference:**
+
+| Level | $TICK | A/D Spread ($ADD) | Meaning |
+|-------|-------|-------------------|---------|
+| Extreme | ±1000 | ±2000 | Capitulation / exhaustion — reversal zone |
+| Strong (Dual Extreme trigger) | ±800 | ±1500 | TICK ±1000 + A/D ±1500 = dual extreme alert |
+| Momentum | ±600 | ±1000 | Directional bias emerging |
+| Neutral | < ±600 | < ±1000 | No breadth signal |
+
+**Sub-Strategies:**
+
+**A. Fade $TICK Extremes (Scalp)**
+TICK > +1000 at resistance → institutions likely exhausted → look for short entries. TICK < -1000 at support → capitulation often marks the bottom → look for long entries. Pair with RSI divergence or VWAP deviation for higher probability.
+
+**B. A/D Capitulation Entry (Swing)**
+A/D < -2000 = nearly everything is declining. Historically produces the highest probability mean reversion long entries on SPY/ES. Supplements Strategy 9 (VIX Fear Capitulation) — can fire independently or together. A/D > +2000 = exhaustion, watch for reversal at resistance.
+
+**C. Dual Confirmation (Highest Conviction)**
+When TICK hits ±1000 while A/D is already at ±1500 — both breadth measures confirming. This is the strongest signal:
+- TICK +1000 AND A/D +1500 = exhaustion at resistance (fade or trail stops)
+- TICK -1000 AND A/D -1500 = capitulation at support (high probability long entry)
+
+**D. Breadth Divergence (Warning Signal)**
+Price makes a new high but TICK prints a lower high (or A/D fails to confirm). Fewer stocks participating = rally thinning. Often a precursor to pullback. Inverse applies at lows.
+
+**E. Session Trend (Bias Filter)**
+A/D rising all day = bullish session bias. A/D falling = bearish. Use A/D direction to determine your lean, then use TICK extremes to time entries in that direction. Don't fade TICK extremes against the A/D trend.
+
+**Power Combo:**
+$TICK for entry timing + A/D for session bias + Vol Ratio for volume confirmation. All three aligned = highest conviction trades.
+
+**Best Practices:**
+- $TICK: 1-min and 5-min charts for scalping. First minutes are noise. Resets each session.
+- A/D: 5-min chart for session trend. Direction matters more than absolute value.
+- Both pair well with: ES/NQ futures, SPY/QQQ, VWAP reversion, RSI divergence, VIX readings.
+
+**Automated Detection:** Bloodhound monitors breadth extremes every scan cycle (5 min) and sends Telegram alerts immediately on the first reading when dual extremes are detected (TICK ±1000 AND A/D ±1500). No cooldown — every extreme fires an alert. Annotations appear on all scanner signals showing current breadth context with tiered labels (extreme/strong/momentum).

@@ -126,12 +126,12 @@ After receiving the subagent data, present the Market Pulse using this framework
 
 **Interpretation Guide (use these thresholds):**
 
-$TICK:
-- > +800: Extreme buying (potential exhaustion if sustained)
-- +400 to +800: Strong buying pressure
-- -400 to +400: Normal / choppy
-- -400 to -800: Strong selling pressure
-- < -800: Extreme selling (potential capitulation bounce)
+$TICK (real-time uptick vs downtick snapshot):
+- > +1000: EXTREME buying — institutional exhaustion risk at resistance. Fade candidate.
+- +600 to +1000: Strong buying momentum — confirms bullish price action
+- -600 to +600: Neutral / choppy — no directional conviction
+- -600 to -1000: Strong selling momentum — confirms bearish price action
+- < -1000: EXTREME selling — capitulation at support. Reversal candidate.
 
 $TRIN:
 - < 0.80: Bullish (advancing stocks getting more than their share of volume)
@@ -152,12 +152,20 @@ $VIX:
 - 30-40: Fear (quality entries emerging)
 - > 40: Capitulation (scale in — historically near bottoms)
 
-A/D Spread (ADVN - DECN):
-- > +1000: Extreme bullish breadth
-- +400 to +1000: Bullish
-- -400 to +400: Neutral / narrow
-- -1000 to -400: Bearish
-- < -1000: Extreme bearish (potential capitulation)
+A/D Spread (ADVN - DECN = cumulative session breadth, same as $ADD):
+- > +2000: EXTREME bullish — exhaustion likely, watch for reversal
+- +1000 to +2000: Strong breadth — broad advance, healthy participation
+- -1000 to +1000: Neutral / rotational — no dominant direction
+- -1000 to -2000: Weak breadth — broad decline, selling widespread
+- < -2000: EXTREME bearish — capitulation zone, highest probability reversal entries
+
+**Dual Breadth Extreme (Strategy 10):**
+When TICK ±1000 AND A/D ±1500 align = strongest breadth signal.
+- Both extreme bearish → capitulation (high probability long at support)
+- Both extreme bullish → exhaustion (fade or trail stops at resistance)
+- Divergence (TICK extreme but A/D disagrees) → signal is weaker, proceed with caution
+- **Session trend:** A/D direction = bias (rising = bullish, falling = bearish). TICK extremes = entry timing. Don't fade TICK against A/D trend.
+- **Power combo:** TICK extreme + A/D extreme + Vol Ratio confirming (>3:1 or <0.5:1) = highest conviction
 
 ### Section 2: INDEX POSITIONING
 

@@ -219,6 +219,10 @@ const FACTOR_MAP = [
     { match: s => s.includes('Chasing'),                       factor: 'CHASING' },
     { match: s => s.includes('Index ETF penalty'),             factor: 'INDEX_ETF' },
 
+    // Cross-scanner flow confirmation (from Opportunity Scanner)
+    { match: s => s.includes('Flow confirmed by Opportunity Scanner') && s.includes('(HC'), factor: 'OPP_FLOW_HC' },
+    { match: s => s.includes('Flow confirmed by Opportunity Scanner') && s.includes('(T'),  factor: 'OPP_FLOW_T' },
+
     // Sector RS
     { match: s => s.includes('Strong sector RS'),              factor: 'SECTOR_RS_TOP' },
     { match: s => s.includes('Above-avg sector RS'),           factor: 'SECTOR_RS_ABOVE' },

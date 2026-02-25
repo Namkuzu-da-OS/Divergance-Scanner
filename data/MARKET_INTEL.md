@@ -1,7 +1,7 @@
 # MARKET INTELLIGENCE REPORT
 
-**Last Updated:** 2026-02-23 23:59 ET (post-close)
-**Session:** Monday Feb 23, 2026
+**Last Updated:** 2026-02-24 16:15 ET (post-close)
+**Session:** Tuesday Feb 24, 2026
 **Market Status:** Closed
 
 ---
@@ -10,57 +10,60 @@
 
 | Metric | Value | Read |
 |--------|-------|------|
-| VIX | 21.01 (intraday high 22.04) | **ELEVATED** — spiked from 19.09 Fri close. Settled from 21.62 at 3:19 PM to 21.01 close. Still above 20. |
-| SPY | $683.17 (-0.91%) | Late bounce saved it. Session low $680.37 tested $680 Redler support twice, held by $0.37. Closed above put wall $682. |
-| SPY Gamma | Negative gamma regime | Put wall $682 (11,062 OI). Call wall $683 (+1.29B GEX). Gamma flip $668. Max pain $687. VWAP $683.19. Tight $682-683 pin zone. |
-| QQQ | $602.54 (-1.03%) | **$600 held AGAIN — 5th consecutive defense.** Session low $599.05 (briefly broke), recovered to close above call wall $602. |
+| VIX | 19.47 (session high 22.08, low 19.23) | **NORMAL** — collapsed 13% intraday. Regime change: Elevated → Normal. |
+| SPY | $687.42 (+0.74%) | 84-pt SPX reversal. Closed $0.03 below 50 SMA ($687.45). Call wall $688, put wall $687. |
+| SPY Gamma | Negative gamma regime | Call wall $688 (+1.10B GEX, 8,950 OI). Put wall $687 (-2.12B GEX). Gamma flip $673. Max pain $683. VWAP $683.19. |
+| QQQ | $607.94 (+1.09%) | Call wall $608 (+2.50B GEX). Gamma flip $607.14 — razor-thin 0.12% below close. Positive gamma (+2.21B GEX). |
 | IV Rank (SPY) | 100% | Maximum. All names at IV Rank 100. |
-| Risk Appetite | Reduced | **0.75x position sizing ($150/trade).** VIX Elevated confirmed. |
+| Risk Appetite | Standard | **1.0x position sizing ($200/trade).** VIX Normal restored. |
 
-**Regime Summary:** Major selloff on tariff escalation (10% → 15%) + AI private credit concerns (Blue Owl/CRWV). SPY gapped from Fri $689.43 close, sold to $680.37, bounced to close $683.17. QQQ broke $600 intraday ($599.05) but recovered to $602.54 — this is the 5th defense of $600 and strongest yet (intraday violation → recovery). VIX spiked to 22.04, settled 21.01. Late-day recovery significant: SPY gained $2.24 and QQQ $2.90 in final 40 minutes. Internals were terrible all day (TRIN 1.94, A/D -1,466, Vol Ratio 0.42:1) but the close was constructive. NVDA bucked trend (+1.14% green on a red day). Safe havens ripped (GLD +2.45%). PYPL standout flow signal ($33M) validated with +6.22% close.
+**Regime Summary:** Massive intraday reversal day. SPX 6,815 → 6,899 (+84 pts). VIX crushed from 22.08 to 19.23 (13% intraday range), closed 19.47 (Normal). SPY reversed from session low $681.72 to close $687.42 — $0.03 below 50 SMA. QQQ reversed from low to close at call wall $608. Internals improved all session: TRIN 1.35→1.12 (neutral), A/D +361→+867 (bullish), Vol Ratio 0.98→1.72 (session best — buyers accelerated into bell). Consumer Confidence beat initially failed, then market reversed. VXX $2.7M bullish flow at 1:53 PM (smart money buying vol protection ahead of SOTU/NVDA). HOWEVER: credit stress WORSENED — HYG/TLT z-score -3.7 (from -3.2 Mon), SPY/TLT z-score -4.0 (from -2.8). Bond market is NOT confirming the equity rally.
 
 ---
 
 ## SECTOR ROTATION
 
 ### Current Rotation Theme
-**Mid-cycle commodity/value rotation intensifying. Energy/Materials still dominant despite broad selloff. Tech broke critical support ($140 XLK put wall). Defensives absorbed flow (PYPL $33M, XLU $13.3M, T $2M). Credit stress at systemic threshold (HYG/TLT z-score -3.2). Safe haven bid strongest in weeks (GLD +2.45%, GDX #1 RS).**
+**Late-cycle defensive rotation. Commodities (Silver, Gold, Energy) and Staples dominate. Tech, Discretionary, Financials lagging badly. Credit stress WORSENING despite equity bounce — HYG/TLT z-score -3.7, SPY/TLT -4.0. Bond market NOT confirming equities. Safe haven bid continues (GDX #1 RS). Software capitulation deepening (ZS RSI 19, PANW 25, MSFT 27.6).**
 
 ### Rotation Regime (Divergence Scanner)
-- **Phase:** Mid Cycle (67% confidence)
-- **Leading:** XLE (Energy), XLB (Materials), XLI (Industrials)
-- **Lagging:** XLY (Consumer Discretionary), XLF (Financials), XLK (Technology)
-- **Active Divergences (5):**
+- **Phase:** Late Cycle (67% confidence) — upgraded from Mid Cycle
+- **Leading:** XLE (Energy), XLB (Materials), XLP (Consumer Staples)
+- **Lagging:** XLK (Technology), XLY (Consumer Discretionary), XLF (Financials)
+- **Active Divergences (7):**
   - XLE >> XLK — Energy outperforming Tech (strengthening)
   - XLU >> XLK — Utilities outperforming Tech (strengthening)
   - XLI >> XLF — Industrials pulling away from Financials
-  - HYG / TLT correlation breakdown (z-score -3.2) — **ABOVE systemic -3.0 threshold**
-  - SPY / TLT decorrelation (z-score -2.8)
+  - XLP >> XLY — Staples beating Discretionary
+  - GLD >> SPY — Safe haven outperforming equities
+  - HYG / TLT correlation breakdown (z-score **-3.7**) — **WELL ABOVE systemic -3.0 threshold**
+  - SPY / TLT decorrelation (z-score **-4.0**) — **EXTREME**
 
 ### RS Rankings (Top 5 / Bottom 5 by Relative Strength Score)
 
-| Rank | Symbol | RS Score | Note |
-|------|--------|----------|------|
-| 1 | XLE | ~12+ | Energy dominant, OXY held green |
-| 2 | XLB | ~10+ | Materials strong |
-| 3 | GDX | ~10+ | Gold miners #1 RS |
-| 4 | GLD | ~8+ | Safe haven +2.45% |
-| 5 | SLV | ~8+ | Precious metals |
-| ... | | | |
-| 24+ | QQQ | Negative | Nasdaq lagging |
-| 25+ | XLF | Negative | Financials -3.22% worst sector |
-| 26+ | XLK | Negative | Tech broke $140 put wall |
-| 27+ | UUP | Negative | Dollar weak |
-| 28 | UNG | Deep negative | Nat gas bottom |
+| Rank | Symbol | RS Score | 60d Perf | Trend |
+|------|--------|----------|----------|-------|
+| 1 | SLV | 21.59 | +72.8% | Pulling back |
+| 2 | GDX | 15.42 | +41.5% | Strong up |
+| 3 | XLE | 11.77 | +23.7% | Strong up |
+| 4 | GLD | 11.03 | +26.6% | Strong up |
+| 5 | USO | 9.30 | +14.9% | Strong up |
+| ... | | | | |
+| 24 | QQQ | -1.53 | -0.6% | Strong down |
+| 25 | XLK | -2.23 | -1.0% | Strong down |
+| 26 | XLY | -2.59 | +0.6% | Strong down |
+| 27 | XLF | -2.99 | -2.2% | Strong down |
+| 28 | UNG | -12.78 | -18.5% | Strong down |
 
-*Note: RS scores approximate — divergence scanner timed out during today's session. Using Friday's rankings + today's price action.*
+*RS scores confirmed from divergence scanner Feb 24.*
 
 ### Key Rotation Notes
-- Credit stress crossed -3.0 systemic threshold (HYG/TLT z-score -3.2). This is a risk flag.
-- XLK $140 put wall BROKE — confirmed our IGV-based downgrade. Software in freefall (IGV -4.79%).
-- XLF worst sector performance (-3.22%). Put wall broke. But HC 70 bullish flow from Opp Scanner — watch for divergence.
-- Energy held green (OXY +1.06%) on a deeply red day. Sector leadership confirmed.
-- Gold/miners best performers. Safe haven bid accelerating.
+- **Credit stress WORSENING:** HYG/TLT z-score -3.7 (from -3.2 Mon), SPY/TLT -4.0 (from -2.8). Bond market disagrees with equity rally.
+- Phase upgraded Mid → Late Cycle. Commodities + defensives leading, growth lagging.
+- XLK still in breakdown. Software oversold (ZS RSI 19, PANW 25, MSFT 27.6) but no bounce signal.
+- Energy remains sector leader (XLE +23.7% 60d). Gold miners #1 overall RS (GDX 15.42).
+- SLV has highest RS (21.59) but pulling back — potential entry.
+- Dollar weak (UUP -4.58% 60d). Hedge funds short dollar. Supports gold/commodities.
 
 ---
 
@@ -116,9 +119,9 @@
 
 | Ticker | Dir | Entry Zone | Stop | T1 | T2 | R:R | Status | Notes |
 |--------|-----|-----------|------|-----|-----|-----|--------|-------|
-| **IGV** | LONG | $75-76 (61.8% Fib) | Below $74.30 (2023 high) | $80 (put wall) | $85 (call wall) | ~3:1 | **APPROACHING** — $76.91, need $75-76 | 61.8% Fib retrace. Redler confirms **$76.42 active pivot**. Software underperforming Nasdaq by **widest margin on record** (IGV -9% 2yr vs NDX +39%). Either extreme value or structural decline. IBM AI disruption + DeepSeek new model = risk catalysts pushing software lower. Apr 17 $83C at $2.33. |
-| **PYPL** | LONG | Pullback to $42-43 | Below $40.50 (session low) | $48 | $52 | ~3:1 | **MONITORING FOR PULLBACK** | HC 80 bullish flow ($33M net premium). +6.22% close on a -1% SPY day. Standout signal. Chased today — need pullback. Vol/OI 0.1 but premium overwhelms. |
-| **NVDA** | LONG | Post-earnings level (Feb 26-28) | 1.5x ATR trailing (~$10.30) | +6-8% from entry | +12-13% from entry (avg) | ~3:1 | **PRE-GTC TRADE — ENTRY MAR 2** | See trade plan below. 91% WR, +12.65% avg, 3.44 Sharpe. Highest conviction backtested trade. S-6 blocks until post-earnings (Feb 25 night). Enter Mar 2 for GTC run-up. |
+| **IGV** | LONG | $75-76 (61.8% Fib) | Below $74.30 (2023 high) | $80 (put wall) | $85 (call wall) | ~3:1 | **APPROACHING** — $76.91, $0.49 from $76.42 pivot | 61.8% Fib retrace. Redler confirms **$76.42 active pivot**. Software capitulation deepening (ZS RSI 19, PANW 25, MSFT 27.6). XLK bottom quartile RS (-2.23). Either extreme value or structural decline. Apr 17 $83C at $2.33. |
+| **PYPL** | LONG | Pullback to $42-43 | Below $40.50 | $48 | $52 | ~3:1 | **MONITORING FOR PULLBACK** | HC 80 bullish flow ($33M Mon). EXTENDED_HIGH on Tue. Still needs pullback. |
+| **NVDA** | LONG | Post-earnings level (Feb 26-28) | 1.5x ATR trailing (~$10.30) | +6-8% from entry | +12-13% from entry (avg) | ~3:1 | **PRE-GTC TRADE — ENTRY MAR 2** | See trade plan below. 91% WR, +12.65% avg, 3.44 Sharpe. **S-6 ACTIVE — earnings Wed Feb 25 after close.** Score 8, MID_RANGE today. RSI 56.75 (neutral). Observe earnings reaction Wed night, determine price for Mar 2. |
 
 ### NVDA Pre-GTC Trade Plan (Mar 2 Entry)
 
@@ -197,16 +200,18 @@
 
 | Ticker | Dir | What We're Waiting For |
 |--------|-----|----------------------|
-| **GLD** | LONG | $480.09 (+2.45% Mon). Pulling back premarket Tue. GDX #1 RS. **Wells Fargo gold target $6,100-$6,300** (18-22% upside from $5,175). Hedge funds short dollar. Pullback entry forming — watch $470-475. |
-| **PANW** | LONG | RSI dropped to **25** (from 29 Mon). Cyber sector in capitulation (ZS RSI 19, CRWD RSI 28). XLK headwind. Extreme oversold — watch for bounce setup but don't catch falling knife alone. |
-| **GOOGL** | LONG | WFC upgrade to OW $387. Tech selloff likely hit this. XLK headwind. Watch for Tier 2 promotion if tech stabilizes. |
-| **MARA** | LONG | Earnings Feb 26 before open. S-6 applies. HC flow ($4.5M bullish, C/P 4.84x). BTC -4.9% to $63K, Master WU targets **$52,650 mid-March.** Major headwind — **downgraded conviction.** |
-| **AMD** | LONG | +9.6% premarket on Meta $100B AI chip deal (160M shares, 6GW). Massive catalyst. Watch for multi-day re-rating vs fade. Do NOT chase gap — wait for confirmation. |
-| **ZS** | WATCH | RSI **19** — extreme oversold, 46% below SMA200. Earnings Feb 26 (Thu). Binary event. Capitulation-level reading. S-6 blocks until post-earnings. |
-| **XLE** | LONG | Leading sector (RS ~93rd %ile). Needs pullback from extended zone. Iran talks Thu may be catalyst. |
-| **OXY** | MIXED | HC SELL (63) fired Monday. But held green (+1.06%) on deeply red day. Energy sector wind strong. Sell signal vs sector strength = conflicting. Monitor. |
-| **XLF** | LONG | Broke put wall $51.50, closed $50.80 (-3.22%). BUT HC 70 bullish flow from Opp Scanner. Price/flow divergence — interesting for Tue if flow confirmed. Bottom quartile RS. |
-| **MRNA** | LONG | $51 alert fired. Closed $50.31 (below put wall). SELL signal was PASSED (0% WR). Needs fresh technicals at $50 level to evaluate long thesis. |
+| **GLD** | LONG | -2.32% gap down Tue. Score 15, BUY_ZONE, put wall support. GDX still #1 RS (15.42). Dollar weak (-4.58% 60d). **Approaching $470-475 pullback entry zone.** |
+| **MU** | LONG | **NEW.** $59.4M flow at 42x vol/OI. Score 15, BUY_ZONE. IV Rank 92% favors premium selling. XLK headwind (-33rd pctl RS). Watch for continuation. |
+| **PANW** | LONG | RSI 25.2. Score 8, LOW_MOM. Cyber still in capitulation (ZS RSI 19). XLK headwind. No bounce signal yet. |
+| **GOOGL** | LONG | Score 18, BUY_ZONE, put wall engaged. HC +8 flow. XLC 0th pctl RS = headwind. WFC upgrade OW $387. Needs tech stabilization. |
+| **MARA** | LONG | Earnings Feb 26 before open. S-6 applies. Score 10, BUY_ZONE. BTC still weak. |
+| **AMD** | LONG | +8.47% gap Tue (Meta deal). Score 8, EXTENDED_HIGH. **Flow + sector headwind warning firing.** XLK -33rd pctl. Do NOT chase. Wait for consolidation. |
+| **ZS** | WATCH | RSI **19** — extreme oversold. Earnings Thu Feb 26. S-6 blocks. Binary event. |
+| **XLE** | MIXED | Score 17, HIGH_MOM, RSI 70.3 overbought. HC SELL signals. Leading sector but extended. Iran talks Thu. |
+| **OXY** | MIXED | Score 22, HIGH_MOM, RSI 73.7 overbought. Flow T +5. Energy sector strong but overbought. |
+| **XLF** | LONG | Score 18, BUY_ZONE, put wall. HC +8 flow. Bottom quartile RS (-2.99). Sector headwind warning. |
+| **MRNA** | WATCH | Score 18, EXTENDED_HIGH. Was a sell setup, now showing bullish breakout. Conflicting. |
+| **MSFT** | LONG | Score **42** (highest bullish dip setup). RSI 27.6 oversold. HC +8 flow. BUT $1.01B net BEARISH premium. XLK headwind. Price vs flow disagree. |
 
 ### Removed / Passed
 
@@ -227,70 +232,81 @@
 
 ## OPEN POSITIONS
 
-| Ticker | Dir | Contract | Entry | Current Mark | P&L | Strategy | Notes |
-|--------|-----|----------|-------|-------------|-----|----------|-------|
-| QCOM | Long (Paper) | Mar 20 $150C | $2.06 | ~$0.50-0.80 (est) | **~-60% to -75%** | Smart Money Dip Buy | QCOM closed $140.51 (-1.66%). RSI 35.79, strong downtrend. Strike is 6.7% OTM. 20 SMA at $144.80, 50 SMA at $160.94. ~24 DTE remaining. **RECOMMEND CLOSE TOMORROW** — trend against, theta eating, no catalyst to recover $10 in 24 days. Cut the loss. |
+*No open positions.* QCOM paper trade closed Feb 24 at +38.8% ($80/contract). Drove the "Flow × Sector RS" audit — see `data/AUDIT_FINDINGS.md`.
 
 ---
 
-## SPY GAMMA MAP (Feb 23 Close — for Feb 24 Session)
+## SPY GAMMA MAP (Feb 24 Close — for Feb 25 Session)
 
 ```
-$695.00 ── Prior call cluster
-$689.71 ── R1 weekly pivot
-$689.43 ── Fri Feb 21 close (gap down from here)
-$687.00 ── MAX PAIN
-$685.00 ── High OI (12,963 puts vs 5,304 calls)
+$700.00 ── Major call cluster (20,067 OI)
+$690.00 ── High OI call cluster (13,984 calls / 1,499 puts)
+$688.78 ── 20 SMA
+$688.00 ── CALL WALL (+1.10B GEX, 8,950 OI)
+─────────── $687.42 CLOSE ───────────
+$687.45 ── 50 SMA ⚠️ ($0.03 ABOVE CLOSE — decision point)
+$687.00 ── PUT WALL (-2.12B GEX, 4,378 OI)
+$685.50 ── +1σ band upper
+$685.00 ── High OI cluster (12,124 calls / 6,647 puts)
 $683.19 ── VWAP
-$683.00 ── CALL WALL (+1.29B GEX)
-─────────── $683.17 CLOSE ───────────
-$682.74 ── Weekly pivot
-$682.00 ── PUT WALL (-1.81B GEX, 11,062 OI)
-$680.37 ── SESSION LOW (Mon) — Redler $680 tested 2x, held
-$680.12 ── S1 weekly pivot
-$675.43 ── S2 weekly pivot
+$683.00 ── MAX PAIN
+$680.89 ── -1σ band lower
 $675.00 ── Redler MAJOR support
-$668.00 ── GAMMA FLIP (below = accelerated selling)
+$673.00 ── GAMMA FLIP (below = accelerated selling)
 $651.77 ── 200 SMA
 ```
 
-**Key Reading:** SPY pinned between call wall $683 and put wall $682 — extremely tight $1 range. Negative gamma. Close right at VWAP. Above $685 = breathing room to $687 max pain. Below $680 = air pocket to gamma flip $668 and Redler MAJOR $675. The $680 double-bottom from Monday is the critical floor.
+**Key Reading:** SPY closed exactly at the 50 SMA decision point ($0.03 below $687.45). Walls tight: call wall $688, put wall $687 — $1 range. Negative gamma (-1.16B total GEX). Above $688 = breathing room toward $690 cluster. Below $687 = put wall breaks, air pocket to VWAP $683 / max pain $683. Below $673 gamma flip = accelerated selling to $651 (200 SMA). The 50 SMA test is Wednesday's defining level.
 
 **Level Validation:**
-- **QQQ $600:** "VALIDATED x5" — 5th consecutive defense. Broke intraday to $599.05 but recovered to $602.54. Strongest defense yet.
-- **SPY $680:** "HELD" — Tested twice (low $680.37). Redler $680 support confirmed.
-- **SPY $685:** "RESISTANCE" — Triple-failed last week, gapped below Monday. Now overhead.
-- **XLK $140:** "BROKE" — Put wall violated. Closed $138.85. IGV freefall confirms.
+- **SPY 50 SMA $687.45:** "TESTING" — closed $0.03 below. Wed open decides.
+- **QQQ $600:** "VALIDATED x5" — still holding. Not tested today.
+- **SPX 6,925 (Mancini top):** "APPROACHING" — closed 6,891, session high 6,899. 33 pts away.
+- **SPX 6,849 (Mancini bottom):** "RECLAIMED" — held as support after morning test.
 
 ---
 
-## QQQ GAMMA MAP (Feb 23 Close — for Feb 24 Session)
+## QQQ GAMMA MAP (Feb 24 Close — for Feb 25 Session)
 
 ```
-$617.02 ── 50 SMA
-$613.99 ── 20 SMA
-$610.06 ── R1 weekly pivot
-$607.00 ── MAX PAIN
-$606.96 ── VWAP (from Monday)
-$604.12 ── Upper 1σ band
-$602.00 ── CALL WALL (+580.7M GEX)
-─────────── $602.54 CLOSE ───────────
-$601.70 ── Weekly pivot
-$600.00 ── PUT WALL (-687.2M GEX, 21,839 OI) ⚠️ MASSIVE
-$599.87 ── Lower 1σ band
-$599.05 ── SESSION LOW (Mon) — intraday break, recovered
-$596.00 ── Heavy put OI (10,382 puts)
-$593.05 ── S1 weekly pivot
-$590.00 ── Put OI cluster (10,183)
-$587.00 ── GAMMA FLIP
+$616.55 ── 50 SMA
+$612.92 ── 20 SMA
+$610.00 ── High OI call cluster (10,066 calls / 1,832 puts)
+$608.00 ── CALL WALL (+2.50B GEX, 6,884 OI) + PUT WALL (-243.6M GEX)
+─────────── $607.94 CLOSE ───────────
+$607.14 ── GAMMA FLIP ⚠️ (0.12% BELOW CLOSE — extremely tight)
+$606.25 ── +2σ band upper
+$605.00 ── OI cluster (6,094 calls / 3,707 puts)
+$604.12 ── +1σ band upper
+$603.00 ── MAX PAIN
+$601.99 ── VWAP
+$600.00 ── MASSIVE put OI (8,731 puts) — validated x5
+$596.00 ── Put OI cluster
+$590.00 ── Put OI cluster
 $584.29 ── 200 SMA
 ```
 
-**Key Reading:** QQQ squeezed between call wall $602 and put wall $600. Massive 21,839 put OI at $600 = strong magnet/support. Close at $602.54 is right at call wall. Above $607 = positive territory toward max pain. Below $600 = air pocket to gamma flip $587 → 200 SMA $584.29. The $596 and $590 put clusters mark the staircase down if $600 breaks.
+**Key Reading:** QQQ closed right at the $608 call wall in POSITIVE gamma (+2.21B GEX). BUT the gamma flip at $607.14 is only 0.12% below — razor thin. Any dip below $607 flips to negative gamma and accelerates selling. Above $610 = call cluster resistance, then 20/50 SMAs at $613-617. Below $607 = flip → VWAP $602 → $600 put fortress. The $600 level has been defended 5 times and remains the line in the sand.
 
 ---
 
 ## PREVIOUS SESSION RECAPS
+
+### Feb 24 (Tuesday) — The 84-Point Reversal
+
+**The Story:** Massive intraday reversal. SPX 6,815 → 6,899 (+84 pts). VIX crushed from 22.08 to 19.23 (13% intraday range), closed 19.47 — regime change Elevated → Normal. SPY reversed from low to close $687.42 (+0.74%), exactly at 50 SMA ($0.03 below). QQQ +1.09% to $607.94 at call wall $608. Internals improved all session: TRIN resolved from 1.35→1.12, A/D improved to +867, Vol Ratio surged to 1.72:1 (session best — buyers dominated the close).
+
+**Key Developments:**
+- **VIX regime change: Elevated → Normal.** 19.47 close, down 7.3%. Risk sizing restored to 1.0x ($200).
+- **SPY at 50 SMA decision point.** $687.42 close vs $687.45 SMA = $0.03 gap. Wed open is the verdict.
+- **SPX 6,899 session high in final minutes** — inside Mancini 6849-6925 range, 33 pts from breakout.
+- **Consumer Confidence beat initially failed**, market reversed anyway. "Good news failing = bearish" was wrong by close.
+- **VXX $2.7M bullish flow at 1:53 PM** — smart money buying vol protection ahead of SOTU/NVDA. Directional bearish bet.
+- **Credit stress WORSENED despite rally** — HYG/TLT z-score -3.7 (from -3.2 Mon), SPY/TLT -4.0 (from -2.8). Bond market NOT confirming.
+- **Flow × Sector RS audit completed** ("The QCOM Lesson"). Delta +3.4pp → annotation-only. `⚠️ Flow + sector headwind` warning deployed in Bloodhound.
+- **QCOM paper trade closed +38.8%** ($80/contract). Position flat.
+- **Gamma walls shifted up aggressively** — SPY call $685→$688, put $680→$687. QQQ converged at $608.
+- **No entries taken.** Morning "sit on hands" thesis. Rally came fast with overnight risk (SOTU). Correct decision.
 
 ### Feb 23 (Monday) — The Tariff Selloff + Late Bounce
 
@@ -335,116 +351,80 @@ VIX 22.96→19.90. SPY $675.50→$684.76. QQQ $598.42→$601.20. Afternoon recov
 
 ---
 
-## NEXT SESSION FOCUS (Feb 24 — Tuesday)
+## NEXT SESSION FOCUS (Feb 25 — Wednesday)
 
-### Current Posture: CAUTIOUS — LATE BOUNCE CONSTRUCTIVE BUT TREND IS DOWN
+### Current Posture: CONSTRUCTIVE BUT BINARY — NVDA EARNINGS NIGHT
 
-VIX Elevated (21.01), SPY closed $683 (above put wall $682), QQQ held $600 for the 5th time. The late bounce was constructive but the daily trend is bearish. Credit stress at systemic level. Fibonacci confluence across many names being stress-tested.
+VIX Normal (19.47), SPY at 50 SMA decision point ($687.42 vs $687.45), QQQ at call wall $608. Massive Tue reversal (+84 SPX pts) was constructive, but credit stress WORSENING (HYG/TLT -3.7, SPY/TLT -4.0) and two binary events define the session: SOTU aftermath + NVDA earnings after close.
 
 ### Scenario Matrix
 
-**Scenario A: Stabilization/Bounce (SPY holds above $682, QQQ above $600)**
-- Late bounce suggests some institutional support at these levels.
-- If holds: range trade $682-687 SPY, $600-607 QQQ. Look for scanner setups emerging from oversold conditions.
-- PYPL pullback entry if it retraces from +6.22% pop.
-- IGV watch — approaching $75-76 Fib support.
+**Scenario A: Gap Up / Confirmation (SPY above $688, reclaims 50 SMA)**
+- SOTU benign or positive for markets. 50 SMA reclaimed = bullish signal.
+- SPX targets Mancini top $6,925 (only 33 pts away). Push through = breakout.
+- QQQ above $610 = call cluster, then 20 SMA $613. Positive gamma supports.
+- NVDA anticipation could lift tech further into earnings.
+- Best case for Mar 2 GTC entry: NVDA runs into earnings, sells the news, entry at lower post-ER level.
 
-**Scenario B: Continued Selling (SPY below $680, QQQ below $600)**
-- Gamma flip SPY $668 / QQQ $587 become targets.
-- Redler MAJOR $675 is last stand for SPY. QQQ 200 SMA $584 is next major support.
-- VIX Fear Capitulation watch: need VIX >25 + A/D < -1,500 for signal (73%+ 20d WR).
-- HYG/TLT z-score already at -3.2 — additional selling could trigger broader risk-off.
+**Scenario B: Fade / Rejection (SPY fails $688, drops below $687)**
+- 50 SMA rejection confirmed. Put wall $687 breaks.
+- SPY targets: VWAP $683 → max pain $683 → Redler $675 → gamma flip $673.
+- QQQ gamma flip at $607.14 (only 0.12% below close) = very fragile. Break = acceleration to $603-600.
+- Credit stress narrative wins. Bond market was right.
+- Pre-NVDA anxiety could compound selling.
 
-**Scenario C: Strong Recovery (SPY above $685, VIX below 20)**
-- Clears VWAP and approaches max pain $687.
-- Would need catalyst. Unlikely without earnings or policy change.
-- NVDA earnings Wed could be the catalyst if guidance strong.
+**Scenario C: Chop into NVDA (SPY $685-690 range)**
+- Market treads water waiting for earnings. Low conviction.
+- SPY stuck between 50 SMA ($687.45) and 20 SMA ($688.78). Tight range.
+- All eyes on NVDA after-hours. Everything else is noise.
 
 ### Priority Actions
-1. **QCOM paper position — CLOSE.** $140.51, 6.7% OTM, ~24 DTE, strong downtrend. Cut the loss.
-2. **Fresh gamma levels at open** — today's selloff reshaped everything. Verify $682/$683 SPY pin holds.
-3. **Run `/pulse` at 9:45 AM** — check if internals confirm direction before any action.
-4. **NVDA S-6 active** — earnings Wed night. Do not enter NVDA, CRM, or SNOW until post-earnings.
-5. **NVDA Pre-GTC prep** — observe earnings reaction Wed night. Determine post-earnings price level for Mar 2 entry. This is our #1 backtested trade (91% WR, 3.44 Sharpe).
-6. **IGV monitor** — $76.91, approaching $75-76 thesis zone. If hits, evaluate Apr 17 $83C entry.
-7. **PYPL pullback watch** — HC 80 flow ($33M) was today's standout. Wait for pullback to $42-43 for entry.
-8. **VIX Fear Capitulation monitor** — VIX 21.01, A/D -1,466. If selling continues, could approach trigger (VIX 25 + A/D -1,500).
-9. **Credit stress monitor** — HYG/TLT z-score at -3.2 (above systemic -3.0). Track for deterioration.
-10. **Post-earnings vehicle selection (Feb 28)** — Once NVDA IV crushes, compare Mar 21 calls vs put selling vs spreads for GTC trade. Budget $150-200 risk.
+1. **Check SOTU impact first thing** — futures reaction, tariff rhetoric, spending, tech regulation.
+2. **VXX follow-up** — $2.7M vol buyer from Tue 1:53 PM. Did they get paid overnight?
+3. **Run `/pulse` at 9:45 AM** — internals will clarify direction. Tue close was bullish but SOTU is overnight risk.
+4. **SPY 50 SMA verdict** — $687.45. Wed open is the test. Clear reclaim above $688 = bullish. Rejection = bearish.
+5. **SPX 6,925 watch** — Mancini range top. Only 33 pts away. Push through = breakout.
+6. **NVDA S-6 ACTIVE** — earnings Wed night. Do NOT enter NVDA, CRM, or SNOW.
+7. **NVDA Pre-GTC prep** — observe earnings reaction Wed night. This determines the Mar 2 entry level. Key question: beat + guide up (higher entry), or sell-the-news (ideal entry at dip).
+8. **Credit stress monitor** — HYG/TLT -3.7, SPY/TLT -4.0. If worsening, the equity rally is a trap.
+9. **IGV monitor** — $76.91 Tue, $0.49 from $76.42 Redler pivot. If tech sells off more, could reach $75-76 Fib entry zone.
+10. **GLD pullback** — -2.32% Tue. Approaching $470-475 entry zone. GDX still #1 RS.
+11. **Post-earnings vehicle selection (Feb 26-28)** — Once NVDA IV crushes, compare Mar 21 calls vs put selling vs spreads for GTC trade. Budget $200 risk (1.0x restored).
 
 ### What We're NOT Doing
-- NOT buying NVDA/CRM/SNOW before Wed night earnings. S-6 is firm.
-- NOT chasing AMD +9.6% gap. Wait for confirmation or pullback. Gap-chasing is not our game.
-- NOT fighting the selloff with aggressive longs. Internals were terrible Monday. Wait for confirmation.
-- NOT chasing PYPL after +6.22% day. Flow was right but need pullback.
-- NOT bottom-fishing broken tech (XLK, IGV) until Fib support is tested and holds.
-- NOT catching falling knives in cyber (ZS, PANW, CRWD) without bounce confirmation.
-- NOT ignoring credit stress. HYG/TLT at -3.2 is a real warning.
+- NOT entering NVDA/CRM/SNOW before Wed night earnings. S-6 is firm.
+- NOT ignoring credit stress. Bond market disagrees with equity rally (HYG/TLT -3.7).
+- NOT chasing AMD gap (+8.47%). Sector headwind confirmed, flow warning firing.
+- NOT bottom-fishing broken tech until bounce confirmation (ZS RSI 19, PANW 25).
+- NOT overreacting to SOTU either direction. Wait for market open confirmation.
+- NOT taking large positions ahead of NVDA earnings. Binary event = reduced exposure.
 
-### Today's Key Data (Feb 24) — CORRECTED TIMES (briefing was UTC mislabeled as ET)
+### Key Data from Feb 24 Session
 
-**Fed Speakers:**
-- Bostic 9:00 AM | **Waller 9:15 AM** | Cook 9:30 AM
-- **Goolsbee (pre-market):** Rate cuts NOT appropriate until more evidence inflation coming down. Hawkish lean.
+**What Happened:**
+- Consumer Confidence beat initially failed, market reversed anyway. 84-pt SPX reversal.
+- AMD +8.47% on Meta AI chip deal ($60-100B, custom MI450). Flow + sector headwind warning firing.
+- QCOM paper trade closed +38.8%. Flow × Sector RS audit completed ("The QCOM Lesson").
+- VXX $2.7M bullish flow (smart money hedging ahead of SOTU/NVDA).
+- Goolsbee hawkish: rate cuts not appropriate until more evidence inflation coming down.
+- BLS revised 2025 job additions from 584K → 181K (69% less). Favors rate cuts.
 
-**Economic:**
-- **CB Consumer Confidence 10:00 AM ET** — consensus 87.4. Context: US adults' optimism 59.2% = **lowest EVER** (Gallup).
-- **Richmond Mfg Index 10:00 AM ET** — consensus -8.
-- **BLS revised 2025 job additions down to 181K** — 69% fewer than initial 584K estimate. Also lowered 2024 job growth ~28%. Major revision favoring rate cuts.
-- US personal savings rate averaging 4.5% in 2025. Loan delinquencies highest since 2017.
+**Overnight Risk (SOTU 9 PM ET):**
+- Trump State of the Union may include tariff escalation, spending, tech regulation.
+- Stacks on NVDA earnings Wed — dual overnight risk events.
 
-**Market Events:**
-- **Trump State of the Union 9 PM ET tonight** — overnight risk stacking on NVDA earnings Wed.
-- **DeepSeek reportedly releasing new AI model** (CNBC) — risk catalyst for tech. Remember Jan selloff.
-- **Hindenburg Omen** triggered 5th time in a month. Last time = S&P +1.5% following month (not necessarily bearish).
-- **Tom Lee:** Markets tend to bottom on bad news, and we're in a wave of it.
-
-**Corporate:**
-- **AMD +11-15%** ($219-222). Meta deal $60-100B over 5 years. Custom MI450 + Venice EPYC. First 1GW ships H2 2026. 160M share warrants (~10% of AMD). $1.3M whale calls loaded day before.
-- **HD beat:** EPS $2.72 vs $2.52, rev $38.2B in line. +2.6%. 156th consecutive dividend raise. Consumer resilience.
-- **IBM -13%** — Anthropic COBOL AI disruption. Contagion risk to ORCL, ACN, legacy software.
-- **NVDA earnings Wed** — has beat expectations 15 of 17 quarters.
-- **Apple reshoring:** Mac mini production to Houston (Foxconn). 100M chips from TSMC Arizona plant.
-- **Novo Nordisk:** Cutting Ozempic/Wegovy prices up to 50% in US (NVO/LLY down).
-
-**Financial Stress:**
-- **Dimon warning:** Today's banking practices remind him of pre-2008 era.
-- Loan delinquencies highest since 2017. HYG/TLT z-score -3.2 aligns.
-- Almost all hedge fund types now short the dollar.
-- 10Y yield 4.029% — rate-cut repricing accelerating. Yields fell fastest rate in 5 months.
-
-**Crypto:** BTC below $63K (-5%), sellers dominant. -49% from ATH. ETH -63%, SOL -75%. Master WU targets $52,650 mid-March.
-
-**2026 YTD Sector Performance:** Energy +23%, Materials +16%, Staples +14%. Software is the big laggard — **IGV down 9% over 2 years while Nasdaq +39%. Widest underperformance gap on record.**
-
-### Twitter Technicals Levels (Feb 24 Pre-Open)
-**SPY/SPX:**
-- GammaEdge: Bulls need SPY above **$681**. Put dominated open = moves accentuated both ways.
-- Trade With Insight: SPX **6820** buyer defense, breach → 6800 fast. Above **6871** → targets 6900.
-- Mancini: ES range **6925-6849**, 6849 paying. Need 6857 reclaim for 6867/6888. **6822** support.
-- Inside weekly candle: **7,008 to 6,735** — will resolve forcefully one direction.
-
-**QQQ:**
-- Redler: **$604.50** key level — failed to hold Mon, watching if rejects or early strength holds.
-- GammaEdge: Bulls need QQQ above **$601**.
-
-**IGV:**
-- Redler: **$76.42 active pivot.** "Don't catch falling knives." Confirms our $75-76 entry zone.
-
-**JPM:**
-- Redler: On 200-day. **$295** huge level, **$324** sell area, **$305** nearby.
-- GammaEdge: Put dominated, **$290** downside opportunity.
-
-**NVDA:**
-- Rock Trading Group: Sold $193, re-entered $189, expects slap-down ahead of Wed earnings.
+**Key Levels Confirmed Tue:**
+- Mancini SPX range: 6849-6925. Closed 6,891. Session high 6,899 (33 pts from top).
+- SPY 50 SMA $687.45 = decision point. Closed $0.03 below.
+- QQQ gamma flip $607.14 = razor thin (0.12% below $607.94 close).
 
 ### Macro Calendar (CONFIRMED)
-- **Feb 24 (Tue):** NVDA S-6 active. CEG earnings (pre-open). Bostic 9 AM, Waller 9:15 AM, Cook 9:30 AM. **CB Consumer Confidence 10 AM** (consensus 87.4). Richmond Mfg 10 AM. WDAY earnings Tue night. **Trump State of the Union 9 PM ET.** DeepSeek new AI model reportedly imminent (risk catalyst).
-- **Feb 25 (Wed night):** **NVDA/CRM/SNOW earnings after close.** THE event of the week. $650B hyperscaler capex narrative.
+- **Feb 24 (Tue) TONIGHT:** Trump State of the Union 9 PM ET — overnight risk. ✅ Consumer Confidence 10 AM beat. ✅ Goolsbee hawkish.
+- **Feb 25 (Wed):** **NVDA/CRM/SNOW earnings after close.** THE event of the week. S-6 ACTIVE. $650B hyperscaler capex narrative. NVDA has beat 15 of 17 quarters.
 - **Feb 26 (Thu AM):** MARA earnings before open. ZS/RKLB/VST/MP earnings.
 - **Feb 26 (Thu):** US-Iran talks in Geneva. ADSK/CRWV/DELL/INTU earnings.
 - **Feb 27 (Fri):** PPI (confirmed BLS).
-- **Mar 2 (Mon):** **NVDA Pre-GTC entry.** T-10 before GTC.
+- **Mar 2 (Mon):** **NVDA Pre-GTC entry.** T-10 before GTC. 91% WR.
 - **Mar 3:** CRWD earnings (RSI 28).
 - **Mar 4:** AVGO earnings (consolidating $332).
 - **Mar 6:** Artemis II launch.
@@ -460,6 +440,7 @@ VIX Elevated (21.01), SPY closed $683 (above put wall $682), QQQ held $600 for t
 
 | Date | Key Actions | Market Theme |
 |------|-------------|--------------|
+| 2026-02-24 EOD | **84-PT SPX REVERSAL.** VIX crushed 22.08→19.47 (Elevated→Normal). SPY at 50 SMA ($687.42 vs $687.45). QQQ at call wall $608. QCOM closed +38.8%. Flow × Sector RS audit completed. `⚠️ Flow + sector headwind` annotation deployed. VXX $2.7M vol hedge. Credit stress worsened (HYG/TLT -3.7, SPY/TLT -4.0). No entries. | VIX 19.47 (Normal). SPY $687.42 (+0.74%). QQQ $607.94 (+1.09%). 50 SMA test. SOTU tonight. |
 | 2026-02-23 EOD | **TARIFF SELLOFF + LATE BOUNCE.** 5 Bloodhound + 7+ Opp alerts (most active day in weeks). OXY HC SELL, XLI T SELL, XLK T BUY (downgraded), XLF T BUY (broke), MRNA T SELL (passed 0% WR). PYPL HC 80 flow ($33M) validated (+6.22%). IGV freefall identified, options scanned (Apr $83C). QCOM paper deeply underwater. Late bounce saved QQQ $600 (5th defense). No entries. | VIX 21.01 (Elevated). SPY $683.17 (-0.91%). QQQ $602.54 (-1.03%). Tariff 10%→15%. XLK $140 broke. Credit z-score -3.2. |
 | 2026-02-19 EOD | Catch-up session. Watchlist gutted. 7 gaps filled. Mega-cap put hedging dominant. 0 tradeable. | VIX 20.26 (Elevated). SPY $684.43. OpEx eve. |
 | 2026-02-18 EOD | Modest green. SPY $685.80. Breadth bullish. 0 tradeable. MSFT cascade flagged. | VIX 19.44 (Normal). SPY rejected $689. |
