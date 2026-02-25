@@ -13877,3 +13877,777 @@
 2026-02-25 19:57:59 +00:00: [Watchlist] Skipped AMD — manual entry protected (attempted by opportunity)
 2026-02-25 19:57:59 +00:00: [Opportunity] Added 7 symbols to Bloodhound watchlist
 2026-02-25 19:57:59 +00:00: [Opportunity] Scan complete in 86s. Next scan at 2026-02-25T20:01:34.295Z
+2026-02-25 20:01:34 +00:00: 
+2026-02-25 20:01:34 +00:00: [Opportunity] ===== SCAN #306 =====
+2026-02-25 20:01:34 +00:00: [Opportunity] Time: 2026-02-25T20:01:34.295Z
+2026-02-25 20:01:34 +00:00: [Opportunity] VIX: 18.03 (normal) | SPY: 693.25 (bearish)
+2026-02-25 20:01:40 +00:00: [Opportunity] Discovery: 50 symbols from [core:3, watchlist:51, volume:10, gainers:4, losers:4, nasdaq:3, extremes:5, etf_categories:21]
+2026-02-25 20:01:40 +00:00: [Opportunity] Discovery: 50 symbols in 6.1s
+2026-02-25 20:01:40 +00:00: [Opportunity] Analyzing 50 symbols (sequential, ~110s est)...
+2026-02-25 20:01:41 +00:00: [Opportunity] NVDA: Score 75 (HIGH_CONVICTION) - neutral [watchlist,volume_leader,gainer,loser,nasdaq_mover]
+2026-02-25 20:01:46 +00:00: [Opportunity] SPY: Score 65 (TRADEABLE) - neutral [core,watchlist,52wk_extreme]
+2026-02-25 20:01:48 +00:00: [Opportunity] HOOD: Score 65 (TRADEABLE) - bullish [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:01:50 +00:00: [Opportunity] NFLX: Score 80 (HIGH_CONVICTION) - neutral [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:01:52 +00:00: [Opportunity] PLTR: Score 65 (TRADEABLE) - neutral [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:01:53 +00:00: [Opportunity] QQQ: Score 65 (TRADEABLE) - neutral [core,watchlist]
+2026-02-25 20:01:56 +00:00: [Opportunity] IWM: Score 40 (WATCH) - bullish [core,watchlist]
+2026-02-25 20:01:59 +00:00: [Opportunity] VXX: Score 45 (WATCH) - bearish [watchlist,52wk_extreme,etf_volatility]
+2026-02-25 20:02:03 +00:00: [Opportunity] XLI: Score 55 (TRADEABLE) - bearish [watchlist,52wk_extreme,etf_sectors]
+2026-02-25 20:02:05 +00:00: [Opportunity] XLU: Score 55 (TRADEABLE) - bullish [watchlist,52wk_extreme,etf_sectors]
+2026-02-25 20:02:07 +00:00: [Opportunity] XLV: Score 40 (WATCH) - bearish [watchlist,etf_sectors]
+2026-02-25 20:02:09 +00:00: [Opportunity] UNG: Score 40 (WATCH) - bearish [watchlist,etf_commodities]
+2026-02-25 20:02:11 +00:00: [Opportunity] XLE: Score 45 (WATCH) - bullish [watchlist,etf_sectors]
+2026-02-25 20:02:15 +00:00: [Opportunity] SOLZ: Score 45 (WATCH) - bullish [watchlist,etf_crypto]
+2026-02-25 20:02:20 +00:00: [Opportunity] USO: Score 40 (WATCH) - bullish [watchlist,etf_commodities]
+2026-02-25 20:02:22 +00:00: [Opportunity] GLD: Score 80 (HIGH_CONVICTION) - bullish [watchlist,etf_commodities]
+2026-02-25 20:02:23 +00:00: [Opportunity] XLP: Score 55 (TRADEABLE) - bearish [watchlist,etf_sectors]
+2026-02-25 20:02:25 +00:00: [Opportunity] UVXY: Score 60 (TRADEABLE) - bullish [watchlist,etf_volatility]
+2026-02-25 20:02:26 +00:00: [Opportunity] SLV: Score 65 (TRADEABLE) - neutral [watchlist,etf_commodities]
+2026-02-25 20:02:27 +00:00: [Opportunity] ETHA: Score 45 (WATCH) - bullish [watchlist,etf_crypto]
+2026-02-25 20:02:30 +00:00: [Opportunity] XLK: Score 45 (WATCH) - bearish [watchlist,etf_sectors]
+2026-02-25 20:02:32 +00:00: [Opportunity] XLF: Score 55 (TRADEABLE) - bullish [watchlist,etf_sectors]
+2026-02-25 20:02:33 +00:00: [Opportunity] IBIT: Score 65 (TRADEABLE) - bullish [watchlist,etf_crypto]
+2026-02-25 20:02:34 +00:00: [Opportunity] HPQ: Score 40 (WATCH) - bearish [watchlist,volume_leader]
+2026-02-25 20:02:36 +00:00: [Opportunity] AMZN: Score 65 (TRADEABLE) - bullish [watchlist,volume_leader]
+2026-02-25 20:02:37 +00:00: [Opportunity] PYPL: Score 80 (HIGH_CONVICTION) - neutral [watchlist,volume_leader]
+2026-02-25 20:02:38 +00:00: [Opportunity] INTC: Score 45 (WATCH) - bullish [watchlist,volume_leader]
+2026-02-25 20:02:40 +00:00: [Opportunity] AMD: Score 75 (HIGH_CONVICTION) - neutral [watchlist,volume_leader]
+2026-02-25 20:02:41 +00:00: [Opportunity] TSLA: Score 65 (TRADEABLE) - neutral [watchlist,volume_leader]
+2026-02-25 20:02:43 +00:00: [Opportunity] IBRX: Score 55 (TRADEABLE) - bullish [watchlist,nasdaq_mover]
+2026-02-25 20:02:44 +00:00: [Opportunity] EEM: Score 80 (HIGH_CONVICTION) - bullish [watchlist,52wk_extreme]
+2026-02-25 20:02:47 +00:00: [Opportunity] $VIX: Score 80 (HIGH_CONVICTION) - neutral [watchlist]
+2026-02-25 20:02:48 +00:00: [Opportunity] GM: Score 50 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:02:49 +00:00: [Opportunity] BAC: Score 55 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:02:50 +00:00: [Opportunity] T: Score 45 (WATCH) - bearish [watchlist]
+2026-02-25 20:02:51 +00:00: [Opportunity] ORCL: Score 65 (TRADEABLE) - bearish [watchlist]
+2026-02-25 20:02:55 +00:00: [Opportunity] F: Score 55 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:02:56 +00:00: [Opportunity] OPEN: Score 40 (WATCH) - bullish [watchlist]
+2026-02-25 20:02:56 +00:00: [Opportunity] MU: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:02:57 +00:00: [Opportunity] OXY: Score 50 (TRADEABLE) - bearish [watchlist]
+2026-02-25 20:02:58 +00:00: [Opportunity] CVNA: Score 65 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:02:59 +00:00: [Opportunity] SNDK: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:03:00 +00:00: [Opportunity] GOOGL: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:03:01 +00:00: [Opportunity] MRNA: Score 45 (WATCH) - bearish [watchlist]
+2026-02-25 20:03:02 +00:00: [Opportunity] PANW: Score 55 (TRADEABLE) - bearish [watchlist]
+2026-02-25 20:03:02 +00:00: [Opportunity] MSFT: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:03:03 +00:00: [Opportunity] META: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:03:03 +00:00: [Opportunity] Results: 7 HIGH_CONVICTION, 26 TRADEABLE, 14 WATCH
+2026-02-25 20:03:03 +00:00: [OpportunityDB] Saved scan: 50 opportunities, scanId=2503
+2026-02-25 20:03:03 +00:00: [Opportunity] Persistence: NFLX:64(HC), GLD:64(HC), PYPL:67(HC), EEM:61(HC), $VIX:46(HC), NVDA:61(HC), AMD:58(HC), SPY:67(T), HOOD:38(T), PLTR:61(T), QQQ:64(T), SLV:67(T), IBIT:61(T), AMZN:61(T), TSLA:67(T), ORCL:43(T), MU:64(T), CVNA:26(T), SNDK:64(T), GOOGL:64(T), MSFT:64(T), META:67(T), UVXY:61(T), XLI:58(T), XLU:34(T), XLP:52(T), XLF:14(T), IBRX:28(T), BAC:8(T), F:43(T), PANW:49(T), GM:20(T), OXY:23(T)
+2026-02-25 20:03:03 +00:00: [Opportunity] Alerts sent: 0 (53 unique today)
+2026-02-25 20:03:03 +00:00: [Watchlist] Updated NFLX (source: opportunity)
+2026-02-25 20:03:03 +00:00: [Watchlist] Updated GLD (source: opportunity)
+2026-02-25 20:03:03 +00:00: [Watchlist] Updated PYPL (source: opportunity)
+2026-02-25 20:03:03 +00:00: [Watchlist] Updated EEM (source: opportunity)
+2026-02-25 20:03:03 +00:00: [Watchlist] Skipped $VIX — manual entry protected (attempted by opportunity)
+2026-02-25 20:03:03 +00:00: [Watchlist] Skipped NVDA — manual entry protected (attempted by opportunity)
+2026-02-25 20:03:03 +00:00: [Watchlist] Skipped AMD — manual entry protected (attempted by opportunity)
+2026-02-25 20:03:03 +00:00: [Opportunity] Added 7 symbols to Bloodhound watchlist
+2026-02-25 20:03:03 +00:00: [Opportunity] Scan complete in 90s. Next scan at 2026-02-25T20:06:34.295Z
+2026-02-25 20:06:34 +00:00: 
+2026-02-25 20:06:34 +00:00: [Opportunity] ===== SCAN #307 =====
+2026-02-25 20:06:34 +00:00: [Opportunity] Time: 2026-02-25T20:06:34.295Z
+2026-02-25 20:06:36 +00:00: [Opportunity] VIX: 18.09 (normal) | SPY: 693.1 (bearish)
+2026-02-25 20:06:40 +00:00: [Opportunity] Discovery: 50 symbols from [core:3, watchlist:51, volume:10, gainers:4, losers:4, nasdaq:3, extremes:5, etf_categories:21]
+2026-02-25 20:06:40 +00:00: [Opportunity] Discovery: 50 symbols in 4.4s
+2026-02-25 20:06:40 +00:00: [Opportunity] Analyzing 50 symbols (sequential, ~110s est)...
+2026-02-25 20:06:48 +00:00: [Opportunity] NVDA: Score 75 (HIGH_CONVICTION) - neutral [watchlist,volume_leader,gainer,loser,nasdaq_mover]
+2026-02-25 20:07:01 +00:00: [Opportunity] SPY: Score 65 (TRADEABLE) - neutral [core,watchlist,52wk_extreme]
+2026-02-25 20:07:07 +00:00: [Opportunity] HOOD: Score 65 (TRADEABLE) - bullish [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:07:16 +00:00: [Opportunity] NFLX: Score 80 (HIGH_CONVICTION) - neutral [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:07:22 +00:00: [Opportunity] PLTR: Score 65 (TRADEABLE) - neutral [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:07:30 +00:00: [Opportunity] QQQ: Score 65 (TRADEABLE) - neutral [core,watchlist]
+2026-02-25 20:07:38 +00:00: [Opportunity] IWM: Score 45 (WATCH) - bullish [core,watchlist]
+2026-02-25 20:07:44 +00:00: [Opportunity] VXX: Score 45 (WATCH) - bearish [watchlist,52wk_extreme,etf_volatility]
+2026-02-25 20:07:48 +00:00: [Opportunity] XLI: Score 55 (TRADEABLE) - bearish [watchlist,52wk_extreme,etf_sectors]
+2026-02-25 20:07:54 +00:00: [Opportunity] XLU: Score 55 (TRADEABLE) - bullish [watchlist,52wk_extreme,etf_sectors]
+2026-02-25 20:08:04 +00:00: [Opportunity] XLV: Score 40 (WATCH) - bearish [watchlist,etf_sectors]
+2026-02-25 20:08:08 +00:00: [Opportunity] UNG: Score 40 (WATCH) - bearish [watchlist,etf_commodities]
+2026-02-25 20:08:16 +00:00: [Opportunity] XLE: Score 45 (WATCH) - bullish [watchlist,etf_sectors]
+2026-02-25 20:08:26 +00:00: [Opportunity] SOLZ: Score 45 (WATCH) - bullish [watchlist,etf_crypto]
+2026-02-25 20:08:37 +00:00: [Opportunity] USO: Score 40 (WATCH) - bullish [watchlist,etf_commodities]
+2026-02-25 20:08:51 +00:00: [Opportunity] GLD: Score 65 (TRADEABLE) - bullish [watchlist,etf_commodities]
+2026-02-25 20:08:59 +00:00: [Opportunity] XLP: Score 55 (TRADEABLE) - bearish [watchlist,etf_sectors]
+2026-02-25 20:09:05 +00:00: [Opportunity] UVXY: Score 60 (TRADEABLE) - bullish [watchlist,etf_volatility]
+2026-02-25 20:09:13 +00:00: [Opportunity] SLV: Score 65 (TRADEABLE) - neutral [watchlist,etf_commodities]
+2026-02-25 20:09:20 +00:00: [Opportunity] ETHA: Score 45 (WATCH) - bullish [watchlist,etf_crypto]
+2026-02-25 20:09:26 +00:00: [Opportunity] XLK: Score 45 (WATCH) - bearish [watchlist,etf_sectors]
+2026-02-25 20:09:31 +00:00: [Opportunity] XLF: Score 55 (TRADEABLE) - bullish [watchlist,etf_sectors]
+2026-02-25 20:09:41 +00:00: [Opportunity] IBIT: Score 65 (TRADEABLE) - bullish [watchlist,etf_crypto]
+2026-02-25 20:09:45 +00:00: [Opportunity] HPQ: Score 40 (WATCH) - bearish [watchlist,volume_leader]
+2026-02-25 20:09:53 +00:00: [Opportunity] AMZN: Score 65 (TRADEABLE) - bullish [watchlist,volume_leader]
+2026-02-25 20:09:57 +00:00: [Opportunity] PYPL: Score 90 (HIGH_CONVICTION) - neutral [watchlist,volume_leader]
+2026-02-25 20:10:02 +00:00: [Opportunity] INTC: Score 45 (WATCH) - bullish [watchlist,volume_leader]
+2026-02-25 20:10:07 +00:00: [Opportunity] AMD: Score 75 (HIGH_CONVICTION) - neutral [watchlist,volume_leader]
+2026-02-25 20:10:12 +00:00: [Opportunity] TSLA: Score 75 (HIGH_CONVICTION) - neutral [watchlist,volume_leader]
+2026-02-25 20:10:19 +00:00: [Opportunity] IBRX: Score 55 (TRADEABLE) - bullish [watchlist,nasdaq_mover]
+2026-02-25 20:10:25 +00:00: [Opportunity] EEM: Score 80 (HIGH_CONVICTION) - bullish [watchlist,52wk_extreme]
+2026-02-25 20:10:28 +00:00: [Opportunity] $VIX: Score 80 (HIGH_CONVICTION) - bullish [watchlist]
+2026-02-25 20:10:33 +00:00: [Opportunity] GM: Score 50 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:10:39 +00:00: [Opportunity] BAC: Score 45 (WATCH) - bullish [watchlist]
+2026-02-25 20:10:45 +00:00: [Opportunity] T: Score 45 (WATCH) - bearish [watchlist]
+2026-02-25 20:10:51 +00:00: [Opportunity] ORCL: Score 75 (HIGH_CONVICTION) - bearish [watchlist]
+2026-02-25 20:10:56 +00:00: [Opportunity] F: Score 55 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:10:59 +00:00: [Opportunity] OPEN: Score 40 (WATCH) - bullish [watchlist]
+2026-02-25 20:11:02 +00:00: [Opportunity] MU: Score 75 (HIGH_CONVICTION) - neutral [watchlist]
+2026-02-25 20:11:04 +00:00: [Opportunity] OXY: Score 50 (TRADEABLE) - bearish [watchlist]
+2026-02-25 20:11:10 +00:00: [Opportunity] CVNA: Score 65 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:11:12 +00:00: [Opportunity] SNDK: Score 75 (HIGH_CONVICTION) - neutral [watchlist]
+2026-02-25 20:11:19 +00:00: [Opportunity] GOOGL: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:11:23 +00:00: [Opportunity] MRNA: Score 45 (WATCH) - bearish [watchlist]
+2026-02-25 20:11:26 +00:00: [Opportunity] PANW: Score 55 (TRADEABLE) - bearish [watchlist]
+2026-02-25 20:11:33 +00:00: [Opportunity] MSFT: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:11:34 +00:00: [Opportunity] Scan already in progress — skipping
+2026-02-25 20:11:37 +00:00: [Opportunity] META: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:11:37 +00:00: [Opportunity] Results: 10 HIGH_CONVICTION, 22 TRADEABLE, 15 WATCH
+2026-02-25 20:11:37 +00:00: [OpportunityDB] Saved scan: 50 opportunities, scanId=2504
+2026-02-25 20:11:37 +00:00: [Opportunity] Persistence: PYPL:68(HC), NFLX:65(HC), EEM:62(HC), $VIX:47(HC), NVDA:62(HC), AMD:59(HC), TSLA:68(HC), ORCL:44(HC), MU:65(HC), SNDK:65(HC), SPY:68(T), HOOD:39(T), PLTR:62(T), QQQ:65(T), GLD:65(T), SLV:68(T), IBIT:62(T), AMZN:62(T), CVNA:27(T), GOOGL:65(T), MSFT:65(T), META:68(T), UVXY:62(T), XLI:59(T), XLU:35(T), XLP:53(T), XLF:15(T), IBRX:29(T), F:44(T), PANW:50(T), GM:21(T), OXY:24(T)
+2026-02-25 20:11:37 +00:00: [Opportunity] Alerts sent: 0 (53 unique today)
+2026-02-25 20:11:37 +00:00: [Watchlist] Updated PYPL (source: opportunity)
+2026-02-25 20:11:37 +00:00: [Watchlist] Updated NFLX (source: opportunity)
+2026-02-25 20:11:37 +00:00: [Watchlist] Updated EEM (source: opportunity)
+2026-02-25 20:11:37 +00:00: [Watchlist] Skipped $VIX — manual entry protected (attempted by opportunity)
+2026-02-25 20:11:37 +00:00: [Watchlist] Skipped NVDA — manual entry protected (attempted by opportunity)
+2026-02-25 20:11:37 +00:00: [Watchlist] Skipped AMD — manual entry protected (attempted by opportunity)
+2026-02-25 20:11:37 +00:00: [Watchlist] Skipped TSLA — manual entry protected (attempted by opportunity)
+2026-02-25 20:11:37 +00:00: [Watchlist] Updated ORCL (source: opportunity)
+2026-02-25 20:11:37 +00:00: [Watchlist] Updated MU (source: opportunity)
+2026-02-25 20:11:37 +00:00: [Watchlist] Updated SNDK (source: opportunity)
+2026-02-25 20:11:37 +00:00: [Opportunity] Added 10 symbols to Bloodhound watchlist
+2026-02-25 20:11:37 +00:00: [Opportunity] Scan complete in 304s. Next scan at 2026-02-25T20:11:34.295Z
+2026-02-25 20:16:34 +00:00: 
+2026-02-25 20:16:34 +00:00: [Opportunity] ===== SCAN #308 =====
+2026-02-25 20:16:34 +00:00: [Opportunity] Time: 2026-02-25T20:16:34.296Z
+2026-02-25 20:16:34 +00:00: [Opportunity] VIX: 18.08 (normal) | SPY: 693.06 (bearish)
+2026-02-25 20:16:40 +00:00: [Opportunity] Discovery: 50 symbols from [core:3, watchlist:51, volume:10, gainers:4, losers:4, nasdaq:3, extremes:5, etf_categories:21]
+2026-02-25 20:16:40 +00:00: [Opportunity] Discovery: 50 symbols in 5.9s
+2026-02-25 20:16:40 +00:00: [Opportunity] Analyzing 50 symbols (sequential, ~110s est)...
+2026-02-25 20:16:43 +00:00: [Opportunity] NVDA: Score 75 (HIGH_CONVICTION) - neutral [watchlist,volume_leader,gainer,loser,nasdaq_mover]
+2026-02-25 20:16:46 +00:00: [Opportunity] SPY: Score 65 (TRADEABLE) - neutral [core,watchlist,52wk_extreme]
+2026-02-25 20:16:48 +00:00: [Opportunity] NFLX: Score 80 (HIGH_CONVICTION) - neutral [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:16:50 +00:00: [Opportunity] PLTR: Score 65 (TRADEABLE) - neutral [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:16:54 +00:00: [Opportunity] MSFT: Score 65 (TRADEABLE) - neutral [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:16:58 +00:00: [Opportunity] QQQ: Score 65 (TRADEABLE) - neutral [core,watchlist]
+2026-02-25 20:17:01 +00:00: [Opportunity] IWM: Score 45 (WATCH) - bullish [core,watchlist]
+2026-02-25 20:17:04 +00:00: [Opportunity] VXX: Score 45 (WATCH) - bearish [watchlist,52wk_extreme,etf_volatility]
+2026-02-25 20:17:07 +00:00: [Opportunity] XLI: Score 55 (TRADEABLE) - bearish [watchlist,52wk_extreme,etf_sectors]
+2026-02-25 20:17:09 +00:00: [Opportunity] XLU: Score 55 (TRADEABLE) - bullish [watchlist,52wk_extreme,etf_sectors]
+2026-02-25 20:17:12 +00:00: [Opportunity] XLV: Score 40 (WATCH) - bearish [watchlist,etf_sectors]
+2026-02-25 20:17:13 +00:00: [Opportunity] UNG: Score 40 (WATCH) - bearish [watchlist,etf_commodities]
+2026-02-25 20:17:14 +00:00: [Opportunity] XLE: Score 45 (WATCH) - bullish [watchlist,etf_sectors]
+2026-02-25 20:17:17 +00:00: [Opportunity] SOLZ: Score 45 (WATCH) - bullish [watchlist,etf_crypto]
+2026-02-25 20:17:21 +00:00: [Opportunity] USO: Score 40 (WATCH) - bullish [watchlist,etf_commodities]
+2026-02-25 20:17:22 +00:00: [Opportunity] GLD: Score 65 (TRADEABLE) - bullish [watchlist,etf_commodities]
+2026-02-25 20:17:23 +00:00: [Opportunity] XLP: Score 55 (TRADEABLE) - bearish [watchlist,etf_sectors]
+2026-02-25 20:17:25 +00:00: [Opportunity] UVXY: Score 60 (TRADEABLE) - bullish [watchlist,etf_volatility]
+2026-02-25 20:17:27 +00:00: [Opportunity] SLV: Score 65 (TRADEABLE) - neutral [watchlist,etf_commodities]
+2026-02-25 20:17:30 +00:00: [Opportunity] ETHA: Score 45 (WATCH) - bullish [watchlist,etf_crypto]
+2026-02-25 20:17:31 +00:00: [Opportunity] XLK: Score 45 (WATCH) - bearish [watchlist,etf_sectors]
+2026-02-25 20:17:34 +00:00: [Opportunity] XLF: Score 55 (TRADEABLE) - bullish [watchlist,etf_sectors]
+2026-02-25 20:17:37 +00:00: [Opportunity] IBIT: Score 65 (TRADEABLE) - bullish [watchlist,etf_crypto]
+2026-02-25 20:17:38 +00:00: [Opportunity] HPQ: Score 40 (WATCH) - bearish [watchlist,volume_leader]
+2026-02-25 20:17:41 +00:00: [Opportunity] AMZN: Score 65 (TRADEABLE) - bullish [watchlist,volume_leader]
+2026-02-25 20:17:44 +00:00: [Opportunity] PYPL: Score 90 (HIGH_CONVICTION) - neutral [watchlist,volume_leader]
+2026-02-25 20:17:46 +00:00: [Opportunity] INTC: Score 45 (WATCH) - bullish [watchlist,volume_leader]
+2026-02-25 20:17:49 +00:00: [Opportunity] AMD: Score 75 (HIGH_CONVICTION) - neutral [watchlist,volume_leader]
+2026-02-25 20:17:50 +00:00: [Opportunity] TSLA: Score 75 (HIGH_CONVICTION) - neutral [watchlist,volume_leader]
+2026-02-25 20:17:51 +00:00: [Opportunity] IBRX: Score 55 (TRADEABLE) - bullish [watchlist,nasdaq_mover]
+2026-02-25 20:17:52 +00:00: [Opportunity] EEM: Score 80 (HIGH_CONVICTION) - bullish [watchlist,52wk_extreme]
+2026-02-25 20:17:57 +00:00: [Opportunity] HOOD: Score 65 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:17:58 +00:00: [Opportunity] $VIX: Score 80 (HIGH_CONVICTION) - bullish [watchlist]
+2026-02-25 20:17:59 +00:00: [Opportunity] GM: Score 50 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:18:00 +00:00: [Opportunity] BAC: Score 45 (WATCH) - bullish [watchlist]
+2026-02-25 20:18:01 +00:00: [Opportunity] T: Score 45 (WATCH) - bearish [watchlist]
+2026-02-25 20:18:02 +00:00: [Opportunity] ORCL: Score 75 (HIGH_CONVICTION) - bearish [watchlist]
+2026-02-25 20:18:04 +00:00: [Opportunity] F: Score 55 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:18:05 +00:00: [Opportunity] OPEN: Score 40 (WATCH) - bullish [watchlist]
+2026-02-25 20:18:05 +00:00: [Opportunity] MU: Score 75 (HIGH_CONVICTION) - neutral [watchlist]
+2026-02-25 20:18:06 +00:00: [Opportunity] OXY: Score 50 (TRADEABLE) - bearish [watchlist]
+2026-02-25 20:18:07 +00:00: [Opportunity] CVNA: Score 65 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:18:08 +00:00: [Opportunity] SNDK: Score 75 (HIGH_CONVICTION) - neutral [watchlist]
+2026-02-25 20:18:09 +00:00: [Opportunity] GOOGL: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:18:10 +00:00: [Opportunity] MRNA: Score 45 (WATCH) - bearish [watchlist]
+2026-02-25 20:18:11 +00:00: [Opportunity] PANW: Score 55 (TRADEABLE) - bearish [watchlist]
+2026-02-25 20:18:12 +00:00: [Opportunity] META: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:18:12 +00:00: [Opportunity] Results: 10 HIGH_CONVICTION, 22 TRADEABLE, 15 WATCH
+2026-02-25 20:18:12 +00:00: [OpportunityDB] Saved scan: 50 opportunities, scanId=2505
+2026-02-25 20:18:12 +00:00: [Opportunity] Persistence: PYPL:69(HC), NFLX:66(HC), EEM:63(HC), $VIX:48(HC), NVDA:63(HC), AMD:60(HC), TSLA:69(HC), ORCL:45(HC), MU:66(HC), SNDK:66(HC), SPY:69(T), PLTR:63(T), MSFT:66(T), QQQ:66(T), GLD:66(T), SLV:69(T), IBIT:63(T), AMZN:63(T), HOOD:40(T), CVNA:28(T), GOOGL:66(T), META:69(T), UVXY:63(T), XLI:60(T), XLU:36(T), XLP:54(T), XLF:16(T), IBRX:30(T), F:45(T), PANW:51(T), GM:22(T), OXY:25(T)
+2026-02-25 20:18:12 +00:00: [Opportunity] Alerts sent: 0 (53 unique today)
+2026-02-25 20:18:12 +00:00: [Watchlist] Updated PYPL (source: opportunity)
+2026-02-25 20:18:12 +00:00: [Watchlist] Updated NFLX (source: opportunity)
+2026-02-25 20:18:12 +00:00: [Watchlist] Updated EEM (source: opportunity)
+2026-02-25 20:18:12 +00:00: [Watchlist] Skipped $VIX — manual entry protected (attempted by opportunity)
+2026-02-25 20:18:12 +00:00: [Watchlist] Skipped NVDA — manual entry protected (attempted by opportunity)
+2026-02-25 20:18:12 +00:00: [Watchlist] Skipped AMD — manual entry protected (attempted by opportunity)
+2026-02-25 20:18:12 +00:00: [Watchlist] Skipped TSLA — manual entry protected (attempted by opportunity)
+2026-02-25 20:18:12 +00:00: [Watchlist] Updated ORCL (source: opportunity)
+2026-02-25 20:18:12 +00:00: [Watchlist] Updated MU (source: opportunity)
+2026-02-25 20:18:12 +00:00: [Watchlist] Updated SNDK (source: opportunity)
+2026-02-25 20:18:12 +00:00: [Opportunity] Added 10 symbols to Bloodhound watchlist
+2026-02-25 20:18:12 +00:00: [Opportunity] Scan complete in 98s. Next scan at 2026-02-25T20:21:34.297Z
+2026-02-25 20:21:34 +00:00: 
+2026-02-25 20:21:34 +00:00: [Opportunity] ===== SCAN #309 =====
+2026-02-25 20:21:34 +00:00: [Opportunity] Time: 2026-02-25T20:21:34.297Z
+2026-02-25 20:21:35 +00:00: [Opportunity] VIX: 18.12 (normal) | SPY: 692.96 (bearish)
+2026-02-25 20:21:40 +00:00: [Opportunity] Discovery: 50 symbols from [core:3, watchlist:51, volume:10, gainers:3, losers:3, nasdaq:3, extremes:5, etf_categories:21]
+2026-02-25 20:21:40 +00:00: [Opportunity] Discovery: 50 symbols in 5.6s
+2026-02-25 20:21:40 +00:00: [Opportunity] Analyzing 50 symbols (sequential, ~110s est)...
+2026-02-25 20:21:46 +00:00: [Opportunity] NVDA: Score 75 (HIGH_CONVICTION) - neutral [watchlist,volume_leader,gainer,loser,nasdaq_mover]
+2026-02-25 20:21:52 +00:00: [Opportunity] SPY: Score 65 (TRADEABLE) - neutral [core,watchlist,52wk_extreme]
+2026-02-25 20:22:00 +00:00: [Opportunity] NFLX: Score 80 (HIGH_CONVICTION) - neutral [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:22:09 +00:00: [Opportunity] PLTR: Score 65 (TRADEABLE) - neutral [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:22:30 +00:00: [Opportunity] QQQ: Score 65 (TRADEABLE) - neutral [core,watchlist]
+2026-02-25 20:22:39 +00:00: [Opportunity] IWM: Score 65 (TRADEABLE) - neutral [core,watchlist]
+2026-02-25 20:22:46 +00:00: [Opportunity] VXX: Score 45 (WATCH) - bearish [watchlist,52wk_extreme,etf_volatility]
+2026-02-25 20:22:57 +00:00: [Opportunity] XLI: Score 55 (TRADEABLE) - bearish [watchlist,52wk_extreme,etf_sectors]
+2026-02-25 20:23:01 +00:00: [Opportunity] XLU: Score 55 (TRADEABLE) - bullish [watchlist,52wk_extreme,etf_sectors]
+2026-02-25 20:23:08 +00:00: [Opportunity] XLV: Score 40 (WATCH) - bearish [watchlist,etf_sectors]
+2026-02-25 20:23:12 +00:00: [Opportunity] UNG: Score 40 (WATCH) - bearish [watchlist,etf_commodities]
+2026-02-25 20:23:18 +00:00: [Opportunity] XLE: Score 45 (WATCH) - bullish [watchlist,etf_sectors]
+2026-02-25 20:23:26 +00:00: [Opportunity] SOLZ: Score 45 (WATCH) - bullish [watchlist,etf_crypto]
+2026-02-25 20:23:35 +00:00: [Opportunity] USO: Score 45 (WATCH) - bullish [watchlist,etf_commodities]
+2026-02-25 20:23:44 +00:00: [Opportunity] GLD: Score 65 (TRADEABLE) - bullish [watchlist,etf_commodities]
+2026-02-25 20:23:51 +00:00: [Opportunity] XLP: Score 50 (TRADEABLE) - bearish [watchlist,etf_sectors]
+2026-02-25 20:23:59 +00:00: [Opportunity] UVXY: Score 60 (TRADEABLE) - bullish [watchlist,etf_volatility]
+2026-02-25 20:24:04 +00:00: [Opportunity] SLV: Score 65 (TRADEABLE) - neutral [watchlist,etf_commodities]
+2026-02-25 20:24:08 +00:00: [Opportunity] ETHA: Score 45 (WATCH) - bullish [watchlist,etf_crypto]
+2026-02-25 20:24:13 +00:00: [Opportunity] XLK: Score 45 (WATCH) - bearish [watchlist,etf_sectors]
+2026-02-25 20:24:17 +00:00: [Opportunity] XLF: Score 70 (HIGH_CONVICTION) - bearish [watchlist,etf_sectors]
+2026-02-25 20:24:21 +00:00: [Opportunity] IBIT: Score 65 (TRADEABLE) - bullish [watchlist,etf_crypto]
+2026-02-25 20:24:25 +00:00: [Opportunity] HPQ: Score 40 (WATCH) - bearish [watchlist,volume_leader]
+2026-02-25 20:24:31 +00:00: [Opportunity] AMZN: Score 65 (TRADEABLE) - bullish [watchlist,volume_leader]
+2026-02-25 20:24:37 +00:00: [Opportunity] PYPL: Score 80 (HIGH_CONVICTION) - neutral [watchlist,volume_leader]
+2026-02-25 20:24:44 +00:00: [Opportunity] INTC: Score 55 (TRADEABLE) - bullish [watchlist,volume_leader]
+2026-02-25 20:24:50 +00:00: [Opportunity] AMD: Score 75 (HIGH_CONVICTION) - neutral [watchlist,volume_leader]
+2026-02-25 20:25:02 +00:00: [Opportunity] TSLA: Score 65 (TRADEABLE) - neutral [watchlist,volume_leader]
+2026-02-25 20:25:07 +00:00: [Opportunity] IBRX: Score 55 (TRADEABLE) - bullish [watchlist,nasdaq_mover]
+2026-02-25 20:25:10 +00:00: [Opportunity] EEM: Score 80 (HIGH_CONVICTION) - bullish [watchlist,52wk_extreme]
+2026-02-25 20:25:11 +00:00: [Opportunity] HOOD: Score 65 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:25:14 +00:00: [Opportunity] $VIX: Score 80 (HIGH_CONVICTION) - bullish [watchlist]
+2026-02-25 20:25:16 +00:00: [Opportunity] GM: Score 50 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:25:19 +00:00: [Opportunity] BAC: Score 45 (WATCH) - bullish [watchlist]
+2026-02-25 20:25:21 +00:00: [Opportunity] T: Score 45 (WATCH) - bearish [watchlist]
+2026-02-25 20:25:24 +00:00: [Opportunity] ORCL: Score 75 (HIGH_CONVICTION) - bearish [watchlist]
+2026-02-25 20:25:28 +00:00: [Opportunity] F: Score 55 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:25:30 +00:00: [Opportunity] OPEN: Score 40 (WATCH) - bullish [watchlist]
+2026-02-25 20:25:39 +00:00: [Opportunity] MU: Score 75 (HIGH_CONVICTION) - neutral [watchlist]
+2026-02-25 20:25:42 +00:00: [Opportunity] OXY: Score 50 (TRADEABLE) - bearish [watchlist]
+2026-02-25 20:25:47 +00:00: [Opportunity] CVNA: Score 65 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:25:52 +00:00: [Opportunity] SNDK: Score 75 (HIGH_CONVICTION) - neutral [watchlist]
+2026-02-25 20:25:56 +00:00: [Opportunity] GOOGL: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:25:59 +00:00: [Opportunity] MRNA: Score 45 (WATCH) - bearish [watchlist]
+2026-02-25 20:26:06 +00:00: [Opportunity] PANW: Score 65 (TRADEABLE) - bearish [watchlist]
+2026-02-25 20:26:16 +00:00: [Opportunity] MSFT: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:26:21 +00:00: [Opportunity] META: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:26:21 +00:00: [Opportunity] Results: 10 HIGH_CONVICTION, 24 TRADEABLE, 13 WATCH
+2026-02-25 20:26:21 +00:00: [OpportunityDB] Saved scan: 50 opportunities, scanId=2506
+2026-02-25 20:26:21 +00:00: [Opportunity] Persistence: NFLX:67(HC), PYPL:70(HC), EEM:64(HC), $VIX:49(HC), NVDA:64(HC), AMD:61(HC), ORCL:46(HC), MU:67(HC), SNDK:67(HC), XLF:17(HC), SPY:70(T), PLTR:64(T), QQQ:67(T), IWM:50(T), GLD:67(T), SLV:70(T), IBIT:64(T), AMZN:64(T), TSLA:70(T), HOOD:41(T), CVNA:29(T), GOOGL:67(T), PANW:52(T), MSFT:67(T), META:70(T), UVXY:64(T), XLI:61(T), XLU:37(T), INTC:12(T), IBRX:31(T), F:46(T), XLP:55(T), GM:23(T), OXY:26(T)
+2026-02-25 20:26:21 +00:00: [Opportunity] Alerts sent: 0 (53 unique today)
+2026-02-25 20:26:21 +00:00: [Watchlist] Updated NFLX (source: opportunity)
+2026-02-25 20:26:21 +00:00: [Watchlist] Updated PYPL (source: opportunity)
+2026-02-25 20:26:21 +00:00: [Watchlist] Updated EEM (source: opportunity)
+2026-02-25 20:26:21 +00:00: [Watchlist] Skipped $VIX — manual entry protected (attempted by opportunity)
+2026-02-25 20:26:21 +00:00: [Watchlist] Skipped NVDA — manual entry protected (attempted by opportunity)
+2026-02-25 20:26:21 +00:00: [Watchlist] Skipped AMD — manual entry protected (attempted by opportunity)
+2026-02-25 20:26:21 +00:00: [Watchlist] Updated ORCL (source: opportunity)
+2026-02-25 20:26:21 +00:00: [Watchlist] Updated MU (source: opportunity)
+2026-02-25 20:26:21 +00:00: [Watchlist] Updated SNDK (source: opportunity)
+2026-02-25 20:26:21 +00:00: [Watchlist] Updated XLF (source: opportunity)
+2026-02-25 20:26:21 +00:00: [Opportunity] Added 10 symbols to Bloodhound watchlist
+2026-02-25 20:26:21 +00:00: [Opportunity] Scan complete in 288s. Next scan at 2026-02-25T20:26:34.297Z
+2026-02-25 20:26:34 +00:00: 
+2026-02-25 20:26:34 +00:00: [Opportunity] ===== SCAN #310 =====
+2026-02-25 20:26:34 +00:00: [Opportunity] Time: 2026-02-25T20:26:34.298Z
+2026-02-25 20:26:35 +00:00: [Opportunity] VIX: 18.14 (normal) | SPY: 692.96 (bearish)
+2026-02-25 20:26:40 +00:00: [Opportunity] Discovery: 50 symbols from [core:3, watchlist:51, volume:10, gainers:3, losers:3, nasdaq:3, extremes:5, etf_categories:21]
+2026-02-25 20:26:40 +00:00: [Opportunity] Discovery: 50 symbols in 5.2s
+2026-02-25 20:26:40 +00:00: [Opportunity] Analyzing 50 symbols (sequential, ~110s est)...
+2026-02-25 20:26:42 +00:00: [Opportunity] NVDA: Score 75 (HIGH_CONVICTION) - neutral [watchlist,volume_leader,gainer,loser,nasdaq_mover]
+2026-02-25 20:26:44 +00:00: [Opportunity] SPY: Score 65 (TRADEABLE) - neutral [core,watchlist,52wk_extreme]
+2026-02-25 20:26:46 +00:00: [Opportunity] NFLX: Score 80 (HIGH_CONVICTION) - neutral [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:26:50 +00:00: [Opportunity] PLTR: Score 65 (TRADEABLE) - neutral [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:26:52 +00:00: [Opportunity] QQQ: Score 65 (TRADEABLE) - neutral [core,watchlist]
+2026-02-25 20:26:53 +00:00: [Opportunity] IWM: Score 65 (TRADEABLE) - neutral [core,watchlist]
+2026-02-25 20:26:56 +00:00: [Opportunity] VXX: Score 45 (WATCH) - bearish [watchlist,52wk_extreme,etf_volatility]
+2026-02-25 20:26:58 +00:00: [Opportunity] XLI: Score 55 (TRADEABLE) - bearish [watchlist,52wk_extreme,etf_sectors]
+2026-02-25 20:26:59 +00:00: [Opportunity] XLU: Score 55 (TRADEABLE) - bullish [watchlist,52wk_extreme,etf_sectors]
+2026-02-25 20:27:02 +00:00: [Opportunity] XLV: Score 40 (WATCH) - bearish [watchlist,etf_sectors]
+2026-02-25 20:27:06 +00:00: [Opportunity] UNG: Score 40 (WATCH) - bearish [watchlist,etf_commodities]
+2026-02-25 20:27:08 +00:00: [Opportunity] XLE: Score 45 (WATCH) - bullish [watchlist,etf_sectors]
+2026-02-25 20:27:11 +00:00: [Opportunity] SOLZ: Score 45 (WATCH) - bullish [watchlist,etf_crypto]
+2026-02-25 20:27:15 +00:00: [Opportunity] USO: Score 45 (WATCH) - bullish [watchlist,etf_commodities]
+2026-02-25 20:27:16 +00:00: [Opportunity] GLD: Score 65 (TRADEABLE) - bullish [watchlist,etf_commodities]
+2026-02-25 20:27:18 +00:00: [Opportunity] XLP: Score 50 (TRADEABLE) - bearish [watchlist,etf_sectors]
+2026-02-25 20:27:20 +00:00: [Opportunity] UVXY: Score 60 (TRADEABLE) - bullish [watchlist,etf_volatility]
+2026-02-25 20:27:21 +00:00: [Opportunity] SLV: Score 65 (TRADEABLE) - neutral [watchlist,etf_commodities]
+2026-02-25 20:27:23 +00:00: [Opportunity] ETHA: Score 45 (WATCH) - bullish [watchlist,etf_crypto]
+2026-02-25 20:27:24 +00:00: [Opportunity] XLK: Score 45 (WATCH) - bearish [watchlist,etf_sectors]
+2026-02-25 20:27:26 +00:00: [Opportunity] XLF: Score 70 (HIGH_CONVICTION) - bearish [watchlist,etf_sectors]
+2026-02-25 20:27:27 +00:00: [Opportunity] IBIT: Score 65 (TRADEABLE) - bullish [watchlist,etf_crypto]
+2026-02-25 20:27:28 +00:00: [Opportunity] HPQ: Score 40 (WATCH) - bearish [watchlist,volume_leader]
+2026-02-25 20:27:29 +00:00: [Opportunity] AMZN: Score 65 (TRADEABLE) - bullish [watchlist,volume_leader]
+2026-02-25 20:27:32 +00:00: [Opportunity] PYPL: Score 80 (HIGH_CONVICTION) - neutral [watchlist,volume_leader]
+2026-02-25 20:27:33 +00:00: [Opportunity] INTC: Score 55 (TRADEABLE) - bullish [watchlist,volume_leader]
+2026-02-25 20:27:34 +00:00: [Opportunity] AMD: Score 75 (HIGH_CONVICTION) - neutral [watchlist,volume_leader]
+2026-02-25 20:27:36 +00:00: [Opportunity] TSLA: Score 65 (TRADEABLE) - neutral [watchlist,volume_leader]
+2026-02-25 20:27:38 +00:00: [Opportunity] IBRX: Score 55 (TRADEABLE) - bullish [watchlist,nasdaq_mover]
+2026-02-25 20:27:40 +00:00: [Opportunity] EEM: Score 80 (HIGH_CONVICTION) - bullish [watchlist,52wk_extreme]
+2026-02-25 20:27:41 +00:00: [Opportunity] HOOD: Score 65 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:27:43 +00:00: [Opportunity] $VIX: Score 80 (HIGH_CONVICTION) - bullish [watchlist]
+2026-02-25 20:27:45 +00:00: [Opportunity] GM: Score 50 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:27:47 +00:00: [Opportunity] BAC: Score 45 (WATCH) - bullish [watchlist]
+2026-02-25 20:27:48 +00:00: [Opportunity] T: Score 45 (WATCH) - bearish [watchlist]
+2026-02-25 20:27:50 +00:00: [Opportunity] ORCL: Score 75 (HIGH_CONVICTION) - bearish [watchlist]
+2026-02-25 20:27:52 +00:00: [Opportunity] F: Score 55 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:27:54 +00:00: [Opportunity] OPEN: Score 40 (WATCH) - bullish [watchlist]
+2026-02-25 20:27:55 +00:00: [Opportunity] MU: Score 75 (HIGH_CONVICTION) - neutral [watchlist]
+2026-02-25 20:27:57 +00:00: [Opportunity] OXY: Score 50 (TRADEABLE) - bearish [watchlist]
+2026-02-25 20:27:58 +00:00: [Opportunity] CVNA: Score 65 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:27:58 +00:00: [Opportunity] SNDK: Score 75 (HIGH_CONVICTION) - neutral [watchlist]
+2026-02-25 20:27:59 +00:00: [Opportunity] GOOGL: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:28:00 +00:00: [Opportunity] MRNA: Score 45 (WATCH) - bearish [watchlist]
+2026-02-25 20:28:01 +00:00: [Opportunity] PANW: Score 65 (TRADEABLE) - bearish [watchlist]
+2026-02-25 20:28:02 +00:00: [Opportunity] MSFT: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:28:02 +00:00: [Opportunity] META: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:28:03 +00:00: [Opportunity] Results: 10 HIGH_CONVICTION, 24 TRADEABLE, 13 WATCH
+2026-02-25 20:28:03 +00:00: [OpportunityDB] Saved scan: 50 opportunities, scanId=2507
+2026-02-25 20:28:03 +00:00: [Opportunity] Persistence: NFLX:68(HC), PYPL:71(HC), EEM:65(HC), $VIX:50(HC), NVDA:65(HC), AMD:62(HC), ORCL:47(HC), MU:68(HC), SNDK:68(HC), XLF:18(HC), SPY:71(T), PLTR:65(T), QQQ:68(T), IWM:51(T), GLD:68(T), SLV:71(T), IBIT:65(T), AMZN:65(T), TSLA:71(T), HOOD:42(T), CVNA:30(T), GOOGL:68(T), PANW:53(T), MSFT:68(T), META:71(T), UVXY:65(T), XLI:62(T), XLU:38(T), INTC:13(T), IBRX:32(T), F:47(T), XLP:56(T), GM:24(T), OXY:27(T)
+2026-02-25 20:28:03 +00:00: [Opportunity] Alerts sent: 0 (53 unique today)
+2026-02-25 20:28:03 +00:00: [Watchlist] Updated NFLX (source: opportunity)
+2026-02-25 20:28:03 +00:00: [Watchlist] Updated PYPL (source: opportunity)
+2026-02-25 20:28:03 +00:00: [Watchlist] Updated EEM (source: opportunity)
+2026-02-25 20:28:03 +00:00: [Watchlist] Skipped $VIX — manual entry protected (attempted by opportunity)
+2026-02-25 20:28:03 +00:00: [Watchlist] Skipped NVDA — manual entry protected (attempted by opportunity)
+2026-02-25 20:28:03 +00:00: [Watchlist] Skipped AMD — manual entry protected (attempted by opportunity)
+2026-02-25 20:28:03 +00:00: [Watchlist] Updated ORCL (source: opportunity)
+2026-02-25 20:28:03 +00:00: [Watchlist] Updated MU (source: opportunity)
+2026-02-25 20:28:03 +00:00: [Watchlist] Updated SNDK (source: opportunity)
+2026-02-25 20:28:03 +00:00: [Watchlist] Updated XLF (source: opportunity)
+2026-02-25 20:28:03 +00:00: [Opportunity] Added 10 symbols to Bloodhound watchlist
+2026-02-25 20:28:03 +00:00: [Opportunity] Scan complete in 89s. Next scan at 2026-02-25T20:31:34.298Z
+2026-02-25 20:31:34 +00:00: 
+2026-02-25 20:31:34 +00:00: [Opportunity] ===== SCAN #311 =====
+2026-02-25 20:31:34 +00:00: [Opportunity] Time: 2026-02-25T20:31:34.298Z
+2026-02-25 20:31:36 +00:00: [Opportunity] VIX: 18.18 (normal) | SPY: 692.77 (bearish)
+2026-02-25 20:31:41 +00:00: [Opportunity] Discovery: 50 symbols from [core:3, watchlist:51, volume:10, gainers:4, losers:4, nasdaq:3, extremes:5, etf_categories:21]
+2026-02-25 20:31:41 +00:00: [Opportunity] Discovery: 50 symbols in 5.5s
+2026-02-25 20:31:41 +00:00: [Opportunity] Analyzing 50 symbols (sequential, ~110s est)...
+2026-02-25 20:31:43 +00:00: [Opportunity] NVDA: Score 75 (HIGH_CONVICTION) - neutral [watchlist,volume_leader,gainer,loser,nasdaq_mover]
+2026-02-25 20:31:45 +00:00: [Opportunity] SPY: Score 65 (TRADEABLE) - neutral [core,watchlist,52wk_extreme]
+2026-02-25 20:31:50 +00:00: [Opportunity] NFLX: Score 80 (HIGH_CONVICTION) - neutral [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:31:51 +00:00: [Opportunity] PLTR: Score 65 (TRADEABLE) - neutral [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:31:54 +00:00: [Opportunity] MSFT: Score 65 (TRADEABLE) - neutral [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:31:55 +00:00: [Opportunity] QQQ: Score 65 (TRADEABLE) - neutral [core,watchlist]
+2026-02-25 20:31:56 +00:00: [Opportunity] IWM: Score 65 (TRADEABLE) - neutral [core,watchlist]
+2026-02-25 20:31:59 +00:00: [Opportunity] VXX: Score 45 (WATCH) - bearish [watchlist,52wk_extreme,etf_volatility]
+2026-02-25 20:32:01 +00:00: [Opportunity] XLI: Score 55 (TRADEABLE) - bearish [watchlist,52wk_extreme,etf_sectors]
+2026-02-25 20:32:02 +00:00: [Opportunity] XLU: Score 55 (TRADEABLE) - bullish [watchlist,52wk_extreme,etf_sectors]
+2026-02-25 20:32:03 +00:00: [Opportunity] XLV: Score 40 (WATCH) - bearish [watchlist,etf_sectors]
+2026-02-25 20:32:06 +00:00: [Opportunity] UNG: Score 40 (WATCH) - bearish [watchlist,etf_commodities]
+2026-02-25 20:32:07 +00:00: [Opportunity] XLE: Score 45 (WATCH) - bullish [watchlist,etf_sectors]
+2026-02-25 20:32:11 +00:00: [Opportunity] SOLZ: Score 45 (WATCH) - bullish [watchlist,etf_crypto]
+2026-02-25 20:32:15 +00:00: [Opportunity] USO: Score 45 (WATCH) - bullish [watchlist,etf_commodities]
+2026-02-25 20:32:16 +00:00: [Opportunity] GLD: Score 65 (TRADEABLE) - bullish [watchlist,etf_commodities]
+2026-02-25 20:32:19 +00:00: [Opportunity] XLP: Score 50 (TRADEABLE) - bearish [watchlist,etf_sectors]
+2026-02-25 20:32:21 +00:00: [Opportunity] UVXY: Score 60 (TRADEABLE) - bullish [watchlist,etf_volatility]
+2026-02-25 20:32:23 +00:00: [Opportunity] SLV: Score 65 (TRADEABLE) - neutral [watchlist,etf_commodities]
+2026-02-25 20:32:25 +00:00: [Opportunity] ETHA: Score 45 (WATCH) - bullish [watchlist,etf_crypto]
+2026-02-25 20:32:27 +00:00: [Opportunity] XLK: Score 45 (WATCH) - bearish [watchlist,etf_sectors]
+2026-02-25 20:32:28 +00:00: [Opportunity] XLF: Score 70 (HIGH_CONVICTION) - bearish [watchlist,etf_sectors]
+2026-02-25 20:32:30 +00:00: [Opportunity] IBIT: Score 65 (TRADEABLE) - bullish [watchlist,etf_crypto]
+2026-02-25 20:32:32 +00:00: [Opportunity] HPQ: Score 40 (WATCH) - bearish [watchlist,volume_leader]
+2026-02-25 20:32:33 +00:00: [Opportunity] AMZN: Score 65 (TRADEABLE) - bullish [watchlist,volume_leader]
+2026-02-25 20:32:35 +00:00: [Opportunity] PYPL: Score 80 (HIGH_CONVICTION) - neutral [watchlist,volume_leader]
+2026-02-25 20:32:36 +00:00: [Opportunity] INTC: Score 55 (TRADEABLE) - bullish [watchlist,volume_leader]
+2026-02-25 20:32:37 +00:00: [Opportunity] AMD: Score 75 (HIGH_CONVICTION) - neutral [watchlist,volume_leader]
+2026-02-25 20:32:38 +00:00: [Opportunity] TSLA: Score 65 (TRADEABLE) - neutral [watchlist,volume_leader]
+2026-02-25 20:32:39 +00:00: [Opportunity] IBRX: Score 55 (TRADEABLE) - bullish [watchlist,nasdaq_mover]
+2026-02-25 20:32:41 +00:00: [Opportunity] EEM: Score 80 (HIGH_CONVICTION) - bullish [watchlist,52wk_extreme]
+2026-02-25 20:32:46 +00:00: [Opportunity] HOOD: Score 65 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:32:47 +00:00: [Opportunity] $VIX: Score 80 (HIGH_CONVICTION) - bullish [watchlist]
+2026-02-25 20:32:50 +00:00: [Opportunity] GM: Score 50 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:32:50 +00:00: [Opportunity] BAC: Score 45 (WATCH) - bullish [watchlist]
+2026-02-25 20:32:52 +00:00: [Opportunity] T: Score 45 (WATCH) - bearish [watchlist]
+2026-02-25 20:32:53 +00:00: [Opportunity] ORCL: Score 75 (HIGH_CONVICTION) - bearish [watchlist]
+2026-02-25 20:32:56 +00:00: [Opportunity] F: Score 55 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:32:57 +00:00: [Opportunity] OPEN: Score 40 (WATCH) - bullish [watchlist]
+2026-02-25 20:33:00 +00:00: [Opportunity] MU: Score 75 (HIGH_CONVICTION) - neutral [watchlist]
+2026-02-25 20:33:03 +00:00: [Opportunity] OXY: Score 50 (TRADEABLE) - bearish [watchlist]
+2026-02-25 20:33:04 +00:00: [Opportunity] CVNA: Score 65 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:33:05 +00:00: [Opportunity] SNDK: Score 75 (HIGH_CONVICTION) - neutral [watchlist]
+2026-02-25 20:33:07 +00:00: [Opportunity] GOOGL: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:33:08 +00:00: [Opportunity] MRNA: Score 45 (WATCH) - bearish [watchlist]
+2026-02-25 20:33:11 +00:00: [Opportunity] PANW: Score 65 (TRADEABLE) - bearish [watchlist]
+2026-02-25 20:33:11 +00:00: [Opportunity] META: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:33:12 +00:00: [Opportunity] Results: 10 HIGH_CONVICTION, 24 TRADEABLE, 13 WATCH
+2026-02-25 20:33:12 +00:00: [OpportunityDB] Saved scan: 50 opportunities, scanId=2508
+2026-02-25 20:33:12 +00:00: [Opportunity] Persistence: NFLX:69(HC), PYPL:72(HC), EEM:66(HC), $VIX:51(HC), NVDA:66(HC), AMD:63(HC), ORCL:48(HC), MU:69(HC), SNDK:69(HC), XLF:19(HC), SPY:72(T), PLTR:66(T), MSFT:69(T), QQQ:69(T), IWM:52(T), GLD:69(T), SLV:72(T), IBIT:66(T), AMZN:66(T), TSLA:72(T), HOOD:43(T), CVNA:31(T), GOOGL:69(T), PANW:54(T), META:72(T), UVXY:66(T), XLI:63(T), XLU:39(T), INTC:14(T), IBRX:33(T), F:48(T), XLP:57(T), GM:25(T), OXY:28(T)
+2026-02-25 20:33:12 +00:00: [Opportunity] Alerts sent: 0 (53 unique today)
+2026-02-25 20:33:12 +00:00: [Watchlist] Updated NFLX (source: opportunity)
+2026-02-25 20:33:12 +00:00: [Watchlist] Updated PYPL (source: opportunity)
+2026-02-25 20:33:12 +00:00: [Watchlist] Updated EEM (source: opportunity)
+2026-02-25 20:33:12 +00:00: [Watchlist] Skipped $VIX — manual entry protected (attempted by opportunity)
+2026-02-25 20:33:12 +00:00: [Watchlist] Skipped NVDA — manual entry protected (attempted by opportunity)
+2026-02-25 20:33:12 +00:00: [Watchlist] Skipped AMD — manual entry protected (attempted by opportunity)
+2026-02-25 20:33:12 +00:00: [Watchlist] Updated ORCL (source: opportunity)
+2026-02-25 20:33:12 +00:00: [Watchlist] Updated MU (source: opportunity)
+2026-02-25 20:33:12 +00:00: [Watchlist] Updated SNDK (source: opportunity)
+2026-02-25 20:33:12 +00:00: [Watchlist] Updated XLF (source: opportunity)
+2026-02-25 20:33:12 +00:00: [Opportunity] Added 10 symbols to Bloodhound watchlist
+2026-02-25 20:33:12 +00:00: [Opportunity] Scan complete in 98s. Next scan at 2026-02-25T20:36:34.298Z
+2026-02-25 20:36:34 +00:00: 
+2026-02-25 20:36:34 +00:00: [Opportunity] ===== SCAN #312 =====
+2026-02-25 20:36:34 +00:00: [Opportunity] Time: 2026-02-25T20:36:34.299Z
+2026-02-25 20:36:34 +00:00: [Opportunity] VIX: 18.16 (normal) | SPY: 692.86 (bearish)
+2026-02-25 20:36:38 +00:00: [Opportunity] Discovery: 50 symbols from [core:3, watchlist:51, volume:10, gainers:3, losers:3, nasdaq:3, extremes:5, etf_categories:21]
+2026-02-25 20:36:38 +00:00: [Opportunity] Discovery: 50 symbols in 4.1s
+2026-02-25 20:36:38 +00:00: [Opportunity] Analyzing 50 symbols (sequential, ~110s est)...
+2026-02-25 20:36:46 +00:00: [Opportunity] SPY: Score 65 (TRADEABLE) - neutral [core,watchlist,52wk_extreme]
+2026-02-25 20:36:52 +00:00: [Opportunity] NFLX: Score 80 (HIGH_CONVICTION) - neutral [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:36:56 +00:00: [Opportunity] PLTR: Score 65 (TRADEABLE) - bearish [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:37:07 +00:00: [Opportunity] MSFT: Score 65 (TRADEABLE) - neutral [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:37:14 +00:00: [Opportunity] QQQ: Score 65 (TRADEABLE) - neutral [core,watchlist]
+2026-02-25 20:37:30 +00:00: [Opportunity] IWM: Score 65 (TRADEABLE) - neutral [core,watchlist]
+2026-02-25 20:37:37 +00:00: [Opportunity] VXX: Score 45 (WATCH) - bearish [watchlist,52wk_extreme,etf_volatility]
+2026-02-25 20:37:44 +00:00: [Opportunity] XLI: Score 55 (TRADEABLE) - bearish [watchlist,52wk_extreme,etf_sectors]
+2026-02-25 20:37:53 +00:00: [Opportunity] XLU: Score 55 (TRADEABLE) - bullish [watchlist,52wk_extreme,etf_sectors]
+2026-02-25 20:37:59 +00:00: [Opportunity] NVDA: Score 75 (HIGH_CONVICTION) - neutral [watchlist,volume_leader,nasdaq_mover]
+2026-02-25 20:38:06 +00:00: [Opportunity] XLV: Score 40 (WATCH) - bearish [watchlist,etf_sectors]
+2026-02-25 20:38:12 +00:00: [Opportunity] UNG: Score 40 (WATCH) - bearish [watchlist,etf_commodities]
+2026-02-25 20:38:17 +00:00: [Opportunity] XLE: Score 45 (WATCH) - bullish [watchlist,etf_sectors]
+2026-02-25 20:38:24 +00:00: [Opportunity] SOLZ: Score 45 (WATCH) - bullish [watchlist,etf_crypto]
+2026-02-25 20:38:33 +00:00: [Opportunity] USO: Score 45 (WATCH) - bullish [watchlist,etf_commodities]
+2026-02-25 20:38:50 +00:00: [Opportunity] GLD: Score 65 (TRADEABLE) - bullish [watchlist,etf_commodities]
+2026-02-25 20:38:55 +00:00: [Opportunity] XLP: Score 50 (TRADEABLE) - bearish [watchlist,etf_sectors]
+2026-02-25 20:39:00 +00:00: [Opportunity] UVXY: Score 60 (TRADEABLE) - bullish [watchlist,etf_volatility]
+2026-02-25 20:39:08 +00:00: [Opportunity] SLV: Score 75 (HIGH_CONVICTION) - neutral [watchlist,etf_commodities]
+2026-02-25 20:39:13 +00:00: [Opportunity] ETHA: Score 45 (WATCH) - bullish [watchlist,etf_crypto]
+2026-02-25 20:39:17 +00:00: [Opportunity] XLK: Score 45 (WATCH) - bearish [watchlist,etf_sectors]
+2026-02-25 20:39:22 +00:00: [Opportunity] XLF: Score 70 (HIGH_CONVICTION) - bearish [watchlist,etf_sectors]
+2026-02-25 20:39:29 +00:00: [Opportunity] IBIT: Score 65 (TRADEABLE) - bullish [watchlist,etf_crypto]
+2026-02-25 20:39:31 +00:00: [Opportunity] HPQ: Score 40 (WATCH) - bearish [watchlist,volume_leader]
+2026-02-25 20:39:34 +00:00: [Opportunity] AMZN: Score 65 (TRADEABLE) - bullish [watchlist,volume_leader]
+2026-02-25 20:39:37 +00:00: [Opportunity] PYPL: Score 90 (HIGH_CONVICTION) - neutral [watchlist,volume_leader]
+2026-02-25 20:39:40 +00:00: [Opportunity] INTC: Score 45 (WATCH) - bullish [watchlist,volume_leader]
+2026-02-25 20:39:45 +00:00: [Opportunity] AMD: Score 75 (HIGH_CONVICTION) - neutral [watchlist,volume_leader]
+2026-02-25 20:39:48 +00:00: [Opportunity] TSLA: Score 65 (TRADEABLE) - neutral [watchlist,volume_leader]
+2026-02-25 20:39:50 +00:00: [Opportunity] IBRX: Score 65 (TRADEABLE) - bullish [watchlist,nasdaq_mover]
+2026-02-25 20:39:53 +00:00: [Opportunity] EEM: Score 80 (HIGH_CONVICTION) - bullish [watchlist,52wk_extreme]
+2026-02-25 20:39:54 +00:00: [Opportunity] HOOD: Score 65 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:39:57 +00:00: [Opportunity] $VIX: Score 80 (HIGH_CONVICTION) - bullish [watchlist]
+2026-02-25 20:39:59 +00:00: [Opportunity] GM: Score 50 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:40:01 +00:00: [Opportunity] BAC: Score 45 (WATCH) - bullish [watchlist]
+2026-02-25 20:40:04 +00:00: [Opportunity] T: Score 45 (WATCH) - bearish [watchlist]
+2026-02-25 20:40:10 +00:00: [Opportunity] ORCL: Score 75 (HIGH_CONVICTION) - bearish [watchlist]
+2026-02-25 20:40:13 +00:00: [Opportunity] F: Score 55 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:40:15 +00:00: [Opportunity] OPEN: Score 40 (WATCH) - bullish [watchlist]
+2026-02-25 20:40:18 +00:00: [Opportunity] MU: Score 75 (HIGH_CONVICTION) - neutral [watchlist]
+2026-02-25 20:40:21 +00:00: [Opportunity] OXY: Score 50 (TRADEABLE) - bearish [watchlist]
+2026-02-25 20:40:26 +00:00: [Opportunity] CVNA: Score 65 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:40:32 +00:00: [Opportunity] SNDK: Score 75 (HIGH_CONVICTION) - bullish [watchlist]
+2026-02-25 20:40:39 +00:00: [Opportunity] GOOGL: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:40:42 +00:00: [Opportunity] MRNA: Score 45 (WATCH) - bearish [watchlist]
+2026-02-25 20:40:48 +00:00: [Opportunity] PANW: Score 75 (HIGH_CONVICTION) - bearish [watchlist]
+2026-02-25 20:40:58 +00:00: [Opportunity] META: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:40:58 +00:00: [Opportunity] Results: 12 HIGH_CONVICTION, 21 TRADEABLE, 14 WATCH
+2026-02-25 20:40:58 +00:00: [OpportunityDB] Saved scan: 50 opportunities, scanId=2509
+2026-02-25 20:40:58 +00:00: [Opportunity] Persistence: PYPL:73(HC), NFLX:70(HC), EEM:67(HC), $VIX:52(HC), NVDA:67(HC), SLV:73(HC), AMD:64(HC), ORCL:49(HC), MU:70(HC), SNDK:70(HC), PANW:55(HC), XLF:20(HC), SPY:73(T), PLTR:67(T), MSFT:70(T), QQQ:70(T), IWM:53(T), GLD:70(T), IBIT:67(T), AMZN:67(T), TSLA:73(T), IBRX:34(T), HOOD:44(T), CVNA:32(T), GOOGL:70(T), META:73(T), UVXY:67(T), XLI:64(T), XLU:40(T), F:49(T), XLP:58(T), GM:26(T), OXY:29(T)
+2026-02-25 20:40:58 +00:00: [Opportunity] Alerts sent: 0 (53 unique today)
+2026-02-25 20:40:58 +00:00: [Watchlist] Updated PYPL (source: opportunity)
+2026-02-25 20:40:58 +00:00: [Watchlist] Updated NFLX (source: opportunity)
+2026-02-25 20:40:58 +00:00: [Watchlist] Updated EEM (source: opportunity)
+2026-02-25 20:40:58 +00:00: [Watchlist] Skipped $VIX — manual entry protected (attempted by opportunity)
+2026-02-25 20:40:58 +00:00: [Watchlist] Skipped NVDA — manual entry protected (attempted by opportunity)
+2026-02-25 20:40:58 +00:00: [Watchlist] Updated SLV (source: opportunity)
+2026-02-25 20:40:58 +00:00: [Watchlist] Skipped AMD — manual entry protected (attempted by opportunity)
+2026-02-25 20:40:58 +00:00: [Watchlist] Updated ORCL (source: opportunity)
+2026-02-25 20:40:58 +00:00: [Watchlist] Updated MU (source: opportunity)
+2026-02-25 20:40:58 +00:00: [Watchlist] Updated SNDK (source: opportunity)
+2026-02-25 20:40:58 +00:00: [Watchlist] Updated PANW (source: opportunity)
+2026-02-25 20:40:58 +00:00: [Watchlist] Updated XLF (source: opportunity)
+2026-02-25 20:40:58 +00:00: [Opportunity] Added 12 symbols to Bloodhound watchlist
+2026-02-25 20:40:58 +00:00: [Opportunity] Scan complete in 264s. Next scan at 2026-02-25T20:41:34.299Z
+2026-02-25 20:41:34 +00:00: 
+2026-02-25 20:41:34 +00:00: [Opportunity] ===== SCAN #313 =====
+2026-02-25 20:41:34 +00:00: [Opportunity] Time: 2026-02-25T20:41:34.300Z
+2026-02-25 20:41:35 +00:00: [Opportunity] VIX: 18.08 (normal) | SPY: 693.16 (bearish)
+2026-02-25 20:41:40 +00:00: [Opportunity] Discovery: 50 symbols from [core:3, watchlist:51, volume:10, gainers:4, losers:4, nasdaq:3, extremes:5, etf_categories:21]
+2026-02-25 20:41:40 +00:00: [Opportunity] Discovery: 50 symbols in 5.3s
+2026-02-25 20:41:40 +00:00: [Opportunity] Analyzing 50 symbols (sequential, ~110s est)...
+2026-02-25 20:41:42 +00:00: [Opportunity] NVDA: Score 75 (HIGH_CONVICTION) - neutral [watchlist,volume_leader,gainer,loser,nasdaq_mover]
+2026-02-25 20:41:43 +00:00: [Opportunity] SPY: Score 65 (TRADEABLE) - neutral [core,watchlist,52wk_extreme]
+2026-02-25 20:41:45 +00:00: [Opportunity] NFLX: Score 80 (HIGH_CONVICTION) - neutral [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:41:46 +00:00: [Opportunity] PLTR: Score 65 (TRADEABLE) - bearish [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:41:47 +00:00: [Opportunity] MSFT: Score 65 (TRADEABLE) - neutral [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:41:49 +00:00: [Opportunity] QQQ: Score 65 (TRADEABLE) - neutral [core,watchlist]
+2026-02-25 20:41:50 +00:00: [Opportunity] IWM: Score 65 (TRADEABLE) - neutral [core,watchlist]
+2026-02-25 20:41:51 +00:00: [Opportunity] VXX: Score 45 (WATCH) - bearish [watchlist,52wk_extreme,etf_volatility]
+2026-02-25 20:41:52 +00:00: [Opportunity] XLI: Score 55 (TRADEABLE) - bearish [watchlist,52wk_extreme,etf_sectors]
+2026-02-25 20:41:53 +00:00: [Opportunity] XLU: Score 55 (TRADEABLE) - bullish [watchlist,52wk_extreme,etf_sectors]
+2026-02-25 20:41:56 +00:00: [Opportunity] XLV: Score 40 (WATCH) - bearish [watchlist,etf_sectors]
+2026-02-25 20:41:56 +00:00: [Opportunity] UNG: Score 40 (WATCH) - bearish [watchlist,etf_commodities]
+2026-02-25 20:41:58 +00:00: [Opportunity] XLE: Score 45 (WATCH) - bullish [watchlist,etf_sectors]
+2026-02-25 20:42:01 +00:00: [Opportunity] SOLZ: Score 45 (WATCH) - bullish [watchlist,etf_crypto]
+2026-02-25 20:42:05 +00:00: [Opportunity] USO: Score 45 (WATCH) - bullish [watchlist,etf_commodities]
+2026-02-25 20:42:06 +00:00: [Opportunity] GLD: Score 65 (TRADEABLE) - bullish [watchlist,etf_commodities]
+2026-02-25 20:42:07 +00:00: [Opportunity] XLP: Score 50 (TRADEABLE) - bearish [watchlist,etf_sectors]
+2026-02-25 20:42:09 +00:00: [Opportunity] UVXY: Score 60 (TRADEABLE) - bullish [watchlist,etf_volatility]
+2026-02-25 20:42:10 +00:00: [Opportunity] SLV: Score 75 (HIGH_CONVICTION) - neutral [watchlist,etf_commodities]
+2026-02-25 20:42:11 +00:00: [Opportunity] ETHA: Score 45 (WATCH) - bullish [watchlist,etf_crypto]
+2026-02-25 20:42:13 +00:00: [Opportunity] XLK: Score 45 (WATCH) - bearish [watchlist,etf_sectors]
+2026-02-25 20:42:14 +00:00: [Opportunity] XLF: Score 70 (HIGH_CONVICTION) - bearish [watchlist,etf_sectors]
+2026-02-25 20:42:15 +00:00: [Opportunity] IBIT: Score 65 (TRADEABLE) - bullish [watchlist,etf_crypto]
+2026-02-25 20:42:17 +00:00: [Opportunity] HPQ: Score 40 (WATCH) - bearish [watchlist,volume_leader]
+2026-02-25 20:42:17 +00:00: [Opportunity] AMZN: Score 65 (TRADEABLE) - bullish [watchlist,volume_leader]
+2026-02-25 20:42:19 +00:00: [Opportunity] PYPL: Score 90 (HIGH_CONVICTION) - neutral [watchlist,volume_leader]
+2026-02-25 20:42:22 +00:00: [Opportunity] INTC: Score 45 (WATCH) - bullish [watchlist,volume_leader]
+2026-02-25 20:42:23 +00:00: [Opportunity] AMD: Score 75 (HIGH_CONVICTION) - neutral [watchlist,volume_leader]
+2026-02-25 20:42:25 +00:00: [Opportunity] TSLA: Score 65 (TRADEABLE) - neutral [watchlist,volume_leader]
+2026-02-25 20:42:26 +00:00: [Opportunity] IBRX: Score 65 (TRADEABLE) - bullish [watchlist,nasdaq_mover]
+2026-02-25 20:42:27 +00:00: [Opportunity] EEM: Score 80 (HIGH_CONVICTION) - bullish [watchlist,52wk_extreme]
+2026-02-25 20:42:29 +00:00: [Opportunity] HOOD: Score 65 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:42:31 +00:00: [Opportunity] $VIX: Score 80 (HIGH_CONVICTION) - bullish [watchlist]
+2026-02-25 20:42:31 +00:00: [Opportunity] GM: Score 50 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:42:33 +00:00: [Opportunity] BAC: Score 45 (WATCH) - bullish [watchlist]
+2026-02-25 20:42:35 +00:00: [Opportunity] T: Score 45 (WATCH) - bearish [watchlist]
+2026-02-25 20:42:36 +00:00: [Opportunity] ORCL: Score 75 (HIGH_CONVICTION) - bearish [watchlist]
+2026-02-25 20:42:40 +00:00: [Opportunity] F: Score 55 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:42:44 +00:00: [Opportunity] OPEN: Score 40 (WATCH) - bullish [watchlist]
+2026-02-25 20:42:45 +00:00: [Opportunity] MU: Score 75 (HIGH_CONVICTION) - neutral [watchlist]
+2026-02-25 20:42:46 +00:00: [Opportunity] OXY: Score 50 (TRADEABLE) - bearish [watchlist]
+2026-02-25 20:42:49 +00:00: [Opportunity] CVNA: Score 65 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:42:50 +00:00: [Opportunity] SNDK: Score 75 (HIGH_CONVICTION) - bullish [watchlist]
+2026-02-25 20:42:53 +00:00: [Opportunity] GOOGL: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:42:55 +00:00: [Opportunity] MRNA: Score 45 (WATCH) - bearish [watchlist]
+2026-02-25 20:42:56 +00:00: [Opportunity] PANW: Score 75 (HIGH_CONVICTION) - bearish [watchlist]
+2026-02-25 20:43:00 +00:00: [Opportunity] META: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:43:00 +00:00: [Opportunity] Results: 12 HIGH_CONVICTION, 21 TRADEABLE, 14 WATCH
+2026-02-25 20:43:00 +00:00: [OpportunityDB] Saved scan: 50 opportunities, scanId=2510
+2026-02-25 20:43:00 +00:00: [Opportunity] Persistence: PYPL:74(HC), NFLX:71(HC), EEM:68(HC), $VIX:53(HC), NVDA:68(HC), SLV:74(HC), AMD:65(HC), ORCL:50(HC), MU:71(HC), SNDK:71(HC), PANW:56(HC), XLF:21(HC), SPY:74(T), PLTR:68(T), MSFT:71(T), QQQ:71(T), IWM:54(T), GLD:71(T), IBIT:68(T), AMZN:68(T), TSLA:74(T), IBRX:35(T), HOOD:45(T), CVNA:33(T), GOOGL:71(T), META:74(T), UVXY:68(T), XLI:65(T), XLU:41(T), F:50(T), XLP:59(T), GM:27(T), OXY:30(T)
+2026-02-25 20:43:00 +00:00: [Opportunity] Alerts sent: 0 (53 unique today)
+2026-02-25 20:43:00 +00:00: [Watchlist] Updated PYPL (source: opportunity)
+2026-02-25 20:43:00 +00:00: [Watchlist] Updated NFLX (source: opportunity)
+2026-02-25 20:43:00 +00:00: [Watchlist] Updated EEM (source: opportunity)
+2026-02-25 20:43:00 +00:00: [Watchlist] Skipped $VIX — manual entry protected (attempted by opportunity)
+2026-02-25 20:43:00 +00:00: [Watchlist] Skipped NVDA — manual entry protected (attempted by opportunity)
+2026-02-25 20:43:00 +00:00: [Watchlist] Updated SLV (source: opportunity)
+2026-02-25 20:43:00 +00:00: [Watchlist] Skipped AMD — manual entry protected (attempted by opportunity)
+2026-02-25 20:43:00 +00:00: [Watchlist] Updated ORCL (source: opportunity)
+2026-02-25 20:43:00 +00:00: [Watchlist] Updated MU (source: opportunity)
+2026-02-25 20:43:00 +00:00: [Watchlist] Updated SNDK (source: opportunity)
+2026-02-25 20:43:00 +00:00: [Watchlist] Updated PANW (source: opportunity)
+2026-02-25 20:43:00 +00:00: [Watchlist] Updated XLF (source: opportunity)
+2026-02-25 20:43:00 +00:00: [Opportunity] Added 12 symbols to Bloodhound watchlist
+2026-02-25 20:43:00 +00:00: [Opportunity] Scan complete in 87s. Next scan at 2026-02-25T20:46:34.300Z
+2026-02-25 20:46:34 +00:00: 
+2026-02-25 20:46:34 +00:00: [Opportunity] ===== SCAN #314 =====
+2026-02-25 20:46:34 +00:00: [Opportunity] Time: 2026-02-25T20:46:34.301Z
+2026-02-25 20:46:35 +00:00: [Opportunity] VIX: 18.02 (normal) | SPY: 693.21 (bearish)
+2026-02-25 20:46:40 +00:00: [Opportunity] Discovery: 50 symbols from [core:3, watchlist:51, volume:10, gainers:4, losers:4, nasdaq:3, extremes:5, etf_categories:21]
+2026-02-25 20:46:40 +00:00: [Opportunity] Discovery: 50 symbols in 5.5s
+2026-02-25 20:46:40 +00:00: [Opportunity] Analyzing 50 symbols (sequential, ~110s est)...
+2026-02-25 20:46:42 +00:00: [Opportunity] NVDA: Score 75 (HIGH_CONVICTION) - neutral [watchlist,volume_leader,gainer,loser,nasdaq_mover]
+2026-02-25 20:46:43 +00:00: [Opportunity] SPY: Score 65 (TRADEABLE) - neutral [core,watchlist,52wk_extreme]
+2026-02-25 20:46:45 +00:00: [Opportunity] NFLX: Score 80 (HIGH_CONVICTION) - neutral [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:46:47 +00:00: [Opportunity] PLTR: Score 65 (TRADEABLE) - bearish [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:46:48 +00:00: [Opportunity] MSFT: Score 65 (TRADEABLE) - neutral [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:46:52 +00:00: [Opportunity] QQQ: Score 65 (TRADEABLE) - neutral [core,watchlist]
+2026-02-25 20:46:54 +00:00: [Opportunity] IWM: Score 65 (TRADEABLE) - neutral [core,watchlist]
+2026-02-25 20:46:56 +00:00: [Opportunity] VXX: Score 45 (WATCH) - bearish [watchlist,52wk_extreme,etf_volatility]
+2026-02-25 20:46:58 +00:00: [Opportunity] XLI: Score 55 (TRADEABLE) - bearish [watchlist,52wk_extreme,etf_sectors]
+2026-02-25 20:47:00 +00:00: [Opportunity] XLU: Score 55 (TRADEABLE) - bullish [watchlist,52wk_extreme,etf_sectors]
+2026-02-25 20:47:02 +00:00: [Opportunity] XLV: Score 40 (WATCH) - bearish [watchlist,etf_sectors]
+2026-02-25 20:47:05 +00:00: [Opportunity] UNG: Score 40 (WATCH) - bearish [watchlist,etf_commodities]
+2026-02-25 20:47:07 +00:00: [Opportunity] XLE: Score 45 (WATCH) - bullish [watchlist,etf_sectors]
+2026-02-25 20:47:10 +00:00: [Opportunity] SOLZ: Score 45 (WATCH) - bullish [watchlist,etf_crypto]
+2026-02-25 20:47:13 +00:00: [Opportunity] USO: Score 45 (WATCH) - bullish [watchlist,etf_commodities]
+2026-02-25 20:47:16 +00:00: [Opportunity] GLD: Score 65 (TRADEABLE) - bullish [watchlist,etf_commodities]
+2026-02-25 20:47:17 +00:00: [Opportunity] XLP: Score 50 (TRADEABLE) - bearish [watchlist,etf_sectors]
+2026-02-25 20:47:19 +00:00: [Opportunity] UVXY: Score 60 (TRADEABLE) - bullish [watchlist,etf_volatility]
+2026-02-25 20:47:21 +00:00: [Opportunity] SLV: Score 75 (HIGH_CONVICTION) - neutral [watchlist,etf_commodities]
+2026-02-25 20:47:22 +00:00: [Opportunity] ETHA: Score 45 (WATCH) - bullish [watchlist,etf_crypto]
+2026-02-25 20:47:24 +00:00: [Opportunity] XLK: Score 45 (WATCH) - bearish [watchlist,etf_sectors]
+2026-02-25 20:47:26 +00:00: [Opportunity] XLF: Score 70 (HIGH_CONVICTION) - bearish [watchlist,etf_sectors]
+2026-02-25 20:47:28 +00:00: [Opportunity] IBIT: Score 65 (TRADEABLE) - bullish [watchlist,etf_crypto]
+2026-02-25 20:47:29 +00:00: [Opportunity] HPQ: Score 40 (WATCH) - bearish [watchlist,volume_leader]
+2026-02-25 20:47:31 +00:00: [Opportunity] AMZN: Score 65 (TRADEABLE) - bullish [watchlist,volume_leader]
+2026-02-25 20:47:33 +00:00: [Opportunity] PYPL: Score 90 (HIGH_CONVICTION) - neutral [watchlist,volume_leader]
+2026-02-25 20:47:34 +00:00: [Opportunity] INTC: Score 45 (WATCH) - bullish [watchlist,volume_leader]
+2026-02-25 20:47:36 +00:00: [Opportunity] AMD: Score 75 (HIGH_CONVICTION) - neutral [watchlist,volume_leader]
+2026-02-25 20:47:38 +00:00: [Opportunity] TSLA: Score 65 (TRADEABLE) - neutral [watchlist,volume_leader]
+2026-02-25 20:47:41 +00:00: [Opportunity] IBRX: Score 65 (TRADEABLE) - bullish [watchlist,nasdaq_mover]
+2026-02-25 20:47:43 +00:00: [Opportunity] EEM: Score 80 (HIGH_CONVICTION) - bullish [watchlist,52wk_extreme]
+2026-02-25 20:47:49 +00:00: [Opportunity] HOOD: Score 65 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:47:50 +00:00: [Opportunity] $VIX: Score 80 (HIGH_CONVICTION) - bullish [watchlist]
+2026-02-25 20:47:53 +00:00: [Opportunity] GM: Score 50 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:47:55 +00:00: [Opportunity] BAC: Score 45 (WATCH) - bullish [watchlist]
+2026-02-25 20:47:56 +00:00: [Opportunity] T: Score 45 (WATCH) - bearish [watchlist]
+2026-02-25 20:47:57 +00:00: [Opportunity] ORCL: Score 75 (HIGH_CONVICTION) - bearish [watchlist]
+2026-02-25 20:47:59 +00:00: [Opportunity] F: Score 55 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:48:00 +00:00: [Opportunity] OPEN: Score 40 (WATCH) - bullish [watchlist]
+2026-02-25 20:48:01 +00:00: [Opportunity] MU: Score 75 (HIGH_CONVICTION) - neutral [watchlist]
+2026-02-25 20:48:01 +00:00: [Opportunity] OXY: Score 50 (TRADEABLE) - bearish [watchlist]
+2026-02-25 20:48:02 +00:00: [Opportunity] CVNA: Score 65 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:48:03 +00:00: [Opportunity] SNDK: Score 75 (HIGH_CONVICTION) - bullish [watchlist]
+2026-02-25 20:48:04 +00:00: [Opportunity] GOOGL: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:48:05 +00:00: [Opportunity] MRNA: Score 45 (WATCH) - bearish [watchlist]
+2026-02-25 20:48:06 +00:00: [Opportunity] PANW: Score 75 (HIGH_CONVICTION) - bearish [watchlist]
+2026-02-25 20:48:06 +00:00: [Opportunity] META: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:48:07 +00:00: [Opportunity] Results: 12 HIGH_CONVICTION, 21 TRADEABLE, 14 WATCH
+2026-02-25 20:48:07 +00:00: [OpportunityDB] Saved scan: 50 opportunities, scanId=2511
+2026-02-25 20:48:07 +00:00: [Opportunity] Persistence: PYPL:75(HC), NFLX:72(HC), EEM:69(HC), $VIX:54(HC), NVDA:69(HC), SLV:75(HC), AMD:66(HC), ORCL:51(HC), MU:72(HC), SNDK:72(HC), PANW:57(HC), XLF:22(HC), SPY:75(T), PLTR:69(T), MSFT:72(T), QQQ:72(T), IWM:55(T), GLD:72(T), IBIT:69(T), AMZN:69(T), TSLA:75(T), IBRX:36(T), HOOD:46(T), CVNA:34(T), GOOGL:72(T), META:75(T), UVXY:69(T), XLI:66(T), XLU:42(T), F:51(T), XLP:60(T), GM:28(T), OXY:31(T)
+2026-02-25 20:48:07 +00:00: [Opportunity] Alerts sent: 0 (53 unique today)
+2026-02-25 20:48:07 +00:00: [Watchlist] Updated PYPL (source: opportunity)
+2026-02-25 20:48:07 +00:00: [Watchlist] Updated NFLX (source: opportunity)
+2026-02-25 20:48:07 +00:00: [Watchlist] Updated EEM (source: opportunity)
+2026-02-25 20:48:07 +00:00: [Watchlist] Skipped $VIX — manual entry protected (attempted by opportunity)
+2026-02-25 20:48:07 +00:00: [Watchlist] Skipped NVDA — manual entry protected (attempted by opportunity)
+2026-02-25 20:48:07 +00:00: [Watchlist] Updated SLV (source: opportunity)
+2026-02-25 20:48:07 +00:00: [Watchlist] Skipped AMD — manual entry protected (attempted by opportunity)
+2026-02-25 20:48:07 +00:00: [Watchlist] Updated ORCL (source: opportunity)
+2026-02-25 20:48:07 +00:00: [Watchlist] Updated MU (source: opportunity)
+2026-02-25 20:48:07 +00:00: [Watchlist] Updated SNDK (source: opportunity)
+2026-02-25 20:48:07 +00:00: [Watchlist] Updated PANW (source: opportunity)
+2026-02-25 20:48:07 +00:00: [Watchlist] Updated XLF (source: opportunity)
+2026-02-25 20:48:07 +00:00: [Opportunity] Added 12 symbols to Bloodhound watchlist
+2026-02-25 20:48:07 +00:00: [Opportunity] Scan complete in 93s. Next scan at 2026-02-25T20:51:34.301Z
+2026-02-25 20:51:34 +00:00: 
+2026-02-25 20:51:34 +00:00: [Opportunity] ===== SCAN #315 =====
+2026-02-25 20:51:34 +00:00: [Opportunity] Time: 2026-02-25T20:51:34.301Z
+2026-02-25 20:51:34 +00:00: [Opportunity] VIX: 17.97 (normal) | SPY: 693.41 (bearish)
+2026-02-25 20:51:40 +00:00: [Opportunity] Discovery: 50 symbols from [core:3, watchlist:51, volume:10, gainers:4, losers:4, nasdaq:3, extremes:5, etf_categories:21]
+2026-02-25 20:51:40 +00:00: [Opportunity] Discovery: 50 symbols in 6.1s
+2026-02-25 20:51:40 +00:00: [Opportunity] Analyzing 50 symbols (sequential, ~110s est)...
+2026-02-25 20:51:47 +00:00: [Opportunity] NVDA: Score 75 (HIGH_CONVICTION) - neutral [watchlist,volume_leader,gainer,loser,nasdaq_mover]
+2026-02-25 20:51:58 +00:00: [Opportunity] SPY: Score 65 (TRADEABLE) - neutral [core,watchlist,52wk_extreme]
+2026-02-25 20:52:07 +00:00: [Opportunity] NFLX: Score 80 (HIGH_CONVICTION) - neutral [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:52:14 +00:00: [Opportunity] PLTR: Score 65 (TRADEABLE) - bearish [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:52:20 +00:00: [Opportunity] MSFT: Score 65 (TRADEABLE) - neutral [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:52:32 +00:00: [Opportunity] QQQ: Score 75 (HIGH_CONVICTION) - neutral [core,watchlist]
+2026-02-25 20:52:39 +00:00: [Opportunity] IWM: Score 65 (TRADEABLE) - neutral [core,watchlist]
+2026-02-25 20:52:45 +00:00: [Opportunity] VXX: Score 45 (WATCH) - bearish [watchlist,52wk_extreme,etf_volatility]
+2026-02-25 20:52:49 +00:00: [Opportunity] XLI: Score 55 (TRADEABLE) - bearish [watchlist,52wk_extreme,etf_sectors]
+2026-02-25 20:52:53 +00:00: [Opportunity] XLU: Score 55 (TRADEABLE) - bearish [watchlist,52wk_extreme,etf_sectors]
+2026-02-25 20:52:57 +00:00: [Opportunity] XLV: Score 50 (TRADEABLE) - bearish [watchlist,etf_sectors]
+2026-02-25 20:53:00 +00:00: [Opportunity] UNG: Score 40 (WATCH) - bearish [watchlist,etf_commodities]
+2026-02-25 20:53:05 +00:00: [Opportunity] XLE: Score 45 (WATCH) - bullish [watchlist,etf_sectors]
+2026-02-25 20:53:12 +00:00: [Opportunity] SOLZ: Score 45 (WATCH) - bullish [watchlist,etf_crypto]
+2026-02-25 20:53:20 +00:00: [Opportunity] USO: Score 45 (WATCH) - bullish [watchlist,etf_commodities]
+2026-02-25 20:53:25 +00:00: [Opportunity] GLD: Score 65 (TRADEABLE) - bullish [watchlist,etf_commodities]
+2026-02-25 20:53:31 +00:00: [Opportunity] XLP: Score 55 (TRADEABLE) - bearish [watchlist,etf_sectors]
+2026-02-25 20:53:38 +00:00: [Opportunity] UVXY: Score 60 (TRADEABLE) - bullish [watchlist,etf_volatility]
+2026-02-25 20:53:42 +00:00: [Opportunity] SLV: Score 65 (TRADEABLE) - neutral [watchlist,etf_commodities]
+2026-02-25 20:53:47 +00:00: [Opportunity] ETHA: Score 45 (WATCH) - bullish [watchlist,etf_crypto]
+2026-02-25 20:53:54 +00:00: [Opportunity] XLK: Score 45 (WATCH) - bearish [watchlist,etf_sectors]
+2026-02-25 20:53:58 +00:00: [Opportunity] XLF: Score 80 (HIGH_CONVICTION) - bearish [watchlist,etf_sectors]
+2026-02-25 20:54:06 +00:00: [Opportunity] IBIT: Score 65 (TRADEABLE) - bullish [watchlist,etf_crypto]
+2026-02-25 20:54:11 +00:00: [Opportunity] HPQ: Score 55 (TRADEABLE) - bearish [watchlist,volume_leader]
+2026-02-25 20:54:17 +00:00: [Opportunity] PYPL: Score 90 (HIGH_CONVICTION) - neutral [watchlist,volume_leader]
+2026-02-25 20:54:21 +00:00: [Opportunity] INTC: Score 45 (WATCH) - bullish [watchlist,volume_leader]
+2026-02-25 20:54:28 +00:00: [Opportunity] AMD: Score 65 (TRADEABLE) - neutral [watchlist,volume_leader]
+2026-02-25 20:54:39 +00:00: [Opportunity] TSLA: Score 75 (HIGH_CONVICTION) - neutral [watchlist,volume_leader]
+2026-02-25 20:54:43 +00:00: [Opportunity] IBRX: Score 65 (TRADEABLE) - bullish [watchlist,nasdaq_mover]
+2026-02-25 20:54:50 +00:00: [Opportunity] EEM: Score 65 (TRADEABLE) - neutral [watchlist,52wk_extreme]
+2026-02-25 20:54:53 +00:00: [Opportunity] HOOD: Score 65 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:54:58 +00:00: [Opportunity] $VIX: Score 80 (HIGH_CONVICTION) - bullish [watchlist]
+2026-02-25 20:55:03 +00:00: [Opportunity] GM: Score 50 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:55:06 +00:00: [Opportunity] BAC: Score 45 (WATCH) - bullish [watchlist]
+2026-02-25 20:55:12 +00:00: [Opportunity] AMZN: Score 65 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:55:16 +00:00: [Opportunity] T: Score 45 (WATCH) - bearish [watchlist]
+2026-02-25 20:55:24 +00:00: [Opportunity] ORCL: Score 75 (HIGH_CONVICTION) - bearish [watchlist]
+2026-02-25 20:55:33 +00:00: [Opportunity] F: Score 55 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:55:35 +00:00: [Opportunity] OPEN: Score 40 (WATCH) - bullish [watchlist]
+2026-02-25 20:55:44 +00:00: [Opportunity] MU: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:55:49 +00:00: [Opportunity] OXY: Score 50 (TRADEABLE) - bearish [watchlist]
+2026-02-25 20:55:55 +00:00: [Opportunity] CVNA: Score 65 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:55:59 +00:00: [Opportunity] SNDK: Score 75 (HIGH_CONVICTION) - bullish [watchlist]
+2026-02-25 20:56:13 +00:00: [Opportunity] GOOGL: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:56:18 +00:00: [Opportunity] MRNA: Score 45 (WATCH) - bearish [watchlist]
+2026-02-25 20:56:27 +00:00: [Opportunity] PANW: Score 75 (HIGH_CONVICTION) - bearish [watchlist]
+2026-02-25 20:56:33 +00:00: [Opportunity] META: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:56:34 +00:00: [Opportunity] Results: 10 HIGH_CONVICTION, 25 TRADEABLE, 12 WATCH
+2026-02-25 20:56:34 +00:00: [OpportunityDB] Saved scan: 50 opportunities, scanId=2512
+2026-02-25 20:56:34 +00:00: [Opportunity] Persistence: PYPL:76(HC), NFLX:73(HC), XLF:23(HC), $VIX:55(HC), NVDA:70(HC), QQQ:73(HC), TSLA:76(HC), ORCL:52(HC), SNDK:73(HC), PANW:58(HC), SPY:76(T), PLTR:70(T), MSFT:73(T), IWM:56(T), GLD:73(T), SLV:76(T), IBIT:70(T), AMD:67(T), IBRX:37(T), EEM:70(T), HOOD:47(T), AMZN:70(T), MU:73(T), CVNA:35(T), GOOGL:73(T), META:76(T), UVXY:70(T), XLI:67(T), XLU:43(T), XLP:61(T), HPQ:1(T), F:52(T), XLV:7(T), GM:29(T), OXY:32(T)
+2026-02-25 20:56:34 +00:00: [Opportunity] Alerts sent: 0 (53 unique today)
+2026-02-25 20:56:34 +00:00: [Watchlist] Updated PYPL (source: opportunity)
+2026-02-25 20:56:34 +00:00: [Watchlist] Updated NFLX (source: opportunity)
+2026-02-25 20:56:34 +00:00: [Watchlist] Updated XLF (source: opportunity)
+2026-02-25 20:56:34 +00:00: [Watchlist] Skipped $VIX — manual entry protected (attempted by opportunity)
+2026-02-25 20:56:34 +00:00: [Watchlist] Skipped NVDA — manual entry protected (attempted by opportunity)
+2026-02-25 20:56:34 +00:00: [Watchlist] Skipped QQQ — manual entry protected (attempted by opportunity)
+2026-02-25 20:56:34 +00:00: [Watchlist] Skipped TSLA — manual entry protected (attempted by opportunity)
+2026-02-25 20:56:34 +00:00: [Watchlist] Updated ORCL (source: opportunity)
+2026-02-25 20:56:34 +00:00: [Watchlist] Updated SNDK (source: opportunity)
+2026-02-25 20:56:34 +00:00: [Watchlist] Updated PANW (source: opportunity)
+2026-02-25 20:56:34 +00:00: [Opportunity] Added 10 symbols to Bloodhound watchlist
+2026-02-25 20:56:34 +00:00: [Opportunity] Scan complete in 300s. Next scan at 2026-02-25T20:56:34.301Z
+2026-02-25 20:56:34 +00:00: 
+2026-02-25 20:56:34 +00:00: [Opportunity] ===== SCAN #316 =====
+2026-02-25 20:56:34 +00:00: [Opportunity] Time: 2026-02-25T20:56:34.301Z
+2026-02-25 20:56:35 +00:00: [Opportunity] VIX: 17.95 (normal) | SPY: 693.27 (bearish)
+2026-02-25 20:56:38 +00:00: [Opportunity] Discovery: 50 symbols from [core:3, watchlist:51, volume:10, gainers:2, losers:2, nasdaq:3, extremes:5, etf_categories:21]
+2026-02-25 20:56:38 +00:00: [Opportunity] Discovery: 50 symbols in 3.0s
+2026-02-25 20:56:38 +00:00: [Opportunity] Analyzing 50 symbols (sequential, ~110s est)...
+2026-02-25 20:56:42 +00:00: [Opportunity] SPY: Score 65 (TRADEABLE) - neutral [core,watchlist,52wk_extreme]
+2026-02-25 20:56:44 +00:00: [Opportunity] NFLX: Score 80 (HIGH_CONVICTION) - neutral [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:56:45 +00:00: [Opportunity] PLTR: Score 65 (TRADEABLE) - bearish [watchlist,volume_leader,gainer,loser]
+2026-02-25 20:56:46 +00:00: [Opportunity] QQQ: Score 75 (HIGH_CONVICTION) - neutral [core,watchlist]
+2026-02-25 20:56:47 +00:00: [Opportunity] IWM: Score 65 (TRADEABLE) - neutral [core,watchlist]
+2026-02-25 20:56:48 +00:00: [Opportunity] VXX: Score 45 (WATCH) - bearish [watchlist,52wk_extreme,etf_volatility]
+2026-02-25 20:56:50 +00:00: [Opportunity] XLI: Score 55 (TRADEABLE) - bearish [watchlist,52wk_extreme,etf_sectors]
+2026-02-25 20:56:52 +00:00: [Opportunity] XLU: Score 55 (TRADEABLE) - bearish [watchlist,52wk_extreme,etf_sectors]
+2026-02-25 20:56:55 +00:00: [Opportunity] NVDA: Score 75 (HIGH_CONVICTION) - neutral [watchlist,volume_leader,nasdaq_mover]
+2026-02-25 20:56:57 +00:00: [Opportunity] XLV: Score 50 (TRADEABLE) - bearish [watchlist,etf_sectors]
+2026-02-25 20:56:57 +00:00: [Opportunity] UNG: Score 40 (WATCH) - bearish [watchlist,etf_commodities]
+2026-02-25 20:56:59 +00:00: [Opportunity] XLE: Score 45 (WATCH) - bullish [watchlist,etf_sectors]
+2026-02-25 20:57:03 +00:00: [Opportunity] SOLZ: Score 45 (WATCH) - bullish [watchlist,etf_crypto]
+2026-02-25 20:57:07 +00:00: [Opportunity] USO: Score 45 (WATCH) - bullish [watchlist,etf_commodities]
+2026-02-25 20:57:08 +00:00: [Opportunity] GLD: Score 65 (TRADEABLE) - bullish [watchlist,etf_commodities]
+2026-02-25 20:57:10 +00:00: [Opportunity] XLP: Score 55 (TRADEABLE) - bearish [watchlist,etf_sectors]
+2026-02-25 20:57:10 +00:00: [Opportunity] UVXY: Score 60 (TRADEABLE) - bullish [watchlist,etf_volatility]
+2026-02-25 20:57:14 +00:00: [Opportunity] SLV: Score 65 (TRADEABLE) - neutral [watchlist,etf_commodities]
+2026-02-25 20:57:15 +00:00: [Opportunity] ETHA: Score 45 (WATCH) - bullish [watchlist,etf_crypto]
+2026-02-25 20:57:16 +00:00: [Opportunity] XLK: Score 45 (WATCH) - bearish [watchlist,etf_sectors]
+2026-02-25 20:57:18 +00:00: [Opportunity] XLF: Score 80 (HIGH_CONVICTION) - bearish [watchlist,etf_sectors]
+2026-02-25 20:57:18 +00:00: [Opportunity] IBIT: Score 65 (TRADEABLE) - bullish [watchlist,etf_crypto]
+2026-02-25 20:57:20 +00:00: [Opportunity] HPQ: Score 55 (TRADEABLE) - bearish [watchlist,volume_leader]
+2026-02-25 20:57:21 +00:00: [Opportunity] AMZN: Score 65 (TRADEABLE) - bullish [watchlist,volume_leader]
+2026-02-25 20:57:23 +00:00: [Opportunity] PYPL: Score 90 (HIGH_CONVICTION) - neutral [watchlist,volume_leader]
+2026-02-25 20:57:26 +00:00: [Opportunity] INTC: Score 45 (WATCH) - bullish [watchlist,volume_leader]
+2026-02-25 20:57:27 +00:00: [Opportunity] AMD: Score 65 (TRADEABLE) - neutral [watchlist,volume_leader]
+2026-02-25 20:57:28 +00:00: [Opportunity] TSLA: Score 75 (HIGH_CONVICTION) - neutral [watchlist,volume_leader]
+2026-02-25 20:57:29 +00:00: [Opportunity] IBRX: Score 65 (TRADEABLE) - bullish [watchlist,nasdaq_mover]
+2026-02-25 20:57:30 +00:00: [Opportunity] EEM: Score 65 (TRADEABLE) - neutral [watchlist,52wk_extreme]
+2026-02-25 20:57:33 +00:00: [Opportunity] HOOD: Score 65 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:57:34 +00:00: [Opportunity] $VIX: Score 80 (HIGH_CONVICTION) - bullish [watchlist]
+2026-02-25 20:57:35 +00:00: [Opportunity] GM: Score 50 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:57:37 +00:00: [Opportunity] BAC: Score 45 (WATCH) - bullish [watchlist]
+2026-02-25 20:57:40 +00:00: [Opportunity] T: Score 45 (WATCH) - bearish [watchlist]
+2026-02-25 20:57:42 +00:00: [Opportunity] ORCL: Score 75 (HIGH_CONVICTION) - bearish [watchlist]
+2026-02-25 20:57:45 +00:00: [Opportunity] F: Score 55 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:57:47 +00:00: [Opportunity] OPEN: Score 40 (WATCH) - bullish [watchlist]
+2026-02-25 20:57:48 +00:00: [Opportunity] MU: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:57:49 +00:00: [Opportunity] OXY: Score 50 (TRADEABLE) - bearish [watchlist]
+2026-02-25 20:57:51 +00:00: [Opportunity] CVNA: Score 65 (TRADEABLE) - bullish [watchlist]
+2026-02-25 20:57:52 +00:00: [Opportunity] SNDK: Score 75 (HIGH_CONVICTION) - bullish [watchlist]
+2026-02-25 20:57:56 +00:00: [Opportunity] GOOGL: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:57:57 +00:00: [Opportunity] MRNA: Score 45 (WATCH) - bearish [watchlist]
+2026-02-25 20:58:00 +00:00: [Opportunity] PANW: Score 75 (HIGH_CONVICTION) - bearish [watchlist]
+2026-02-25 20:58:02 +00:00: [Opportunity] MSFT: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:58:06 +00:00: [Opportunity] META: Score 65 (TRADEABLE) - neutral [watchlist]
+2026-02-25 20:58:06 +00:00: [Opportunity] Results: 10 HIGH_CONVICTION, 25 TRADEABLE, 12 WATCH
+2026-02-25 20:58:06 +00:00: [OpportunityDB] Saved scan: 50 opportunities, scanId=2513
+2026-02-25 20:58:06 +00:00: [Opportunity] Persistence: PYPL:77(HC), NFLX:74(HC), XLF:24(HC), $VIX:56(HC), QQQ:74(HC), NVDA:71(HC), TSLA:77(HC), ORCL:53(HC), SNDK:74(HC), PANW:59(HC), SPY:77(T), PLTR:71(T), IWM:57(T), GLD:74(T), SLV:77(T), IBIT:71(T), AMZN:71(T), AMD:68(T), IBRX:38(T), EEM:71(T), HOOD:48(T), MU:74(T), CVNA:36(T), GOOGL:74(T), MSFT:74(T), META:77(T), UVXY:71(T), XLI:68(T), XLU:44(T), XLP:62(T), HPQ:2(T), F:53(T), XLV:8(T), GM:30(T), OXY:33(T)
+2026-02-25 20:58:06 +00:00: [Opportunity] Alerts sent: 0 (53 unique today)
+2026-02-25 20:58:06 +00:00: [Watchlist] Updated PYPL (source: opportunity)
+2026-02-25 20:58:06 +00:00: [Watchlist] Updated NFLX (source: opportunity)
+2026-02-25 20:58:06 +00:00: [Watchlist] Updated XLF (source: opportunity)
+2026-02-25 20:58:06 +00:00: [Watchlist] Skipped $VIX — manual entry protected (attempted by opportunity)
+2026-02-25 20:58:06 +00:00: [Watchlist] Skipped QQQ — manual entry protected (attempted by opportunity)
+2026-02-25 20:58:06 +00:00: [Watchlist] Skipped NVDA — manual entry protected (attempted by opportunity)
+2026-02-25 20:58:06 +00:00: [Watchlist] Skipped TSLA — manual entry protected (attempted by opportunity)
+2026-02-25 20:58:06 +00:00: [Watchlist] Updated ORCL (source: opportunity)
+2026-02-25 20:58:06 +00:00: [Watchlist] Updated SNDK (source: opportunity)
+2026-02-25 20:58:06 +00:00: [Watchlist] Updated PANW (source: opportunity)
+2026-02-25 20:58:06 +00:00: [Opportunity] Added 10 symbols to Bloodhound watchlist
+2026-02-25 20:58:06 +00:00: [Opportunity] Scan complete in 92s. Next scan at 2026-02-25T21:01:34.302Z
