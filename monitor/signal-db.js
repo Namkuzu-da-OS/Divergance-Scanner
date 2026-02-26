@@ -3480,14 +3480,32 @@ function getEarningsCalendarMeta() {
  * Called at the start of each scraper run to prune stale data.
  */
 function clearOldEarnings() {
-    const today = getETDate();
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 2);
+    const cutoffDate = getETDate(cutoff);
     const result = getDb().prepare(`
         DELETE FROM earnings_calendar WHERE earnings_date < ?
-    `).run(today);
+    `).run(cutoffDate);
 
     if (result.changes > 0) {
-        console.log(`[SignalDB] Cleared ${result.changes} old earnings calendar entries (before ${today})`);
+        console.log(`[SignalDB] Cleared ${result.changes} old earnings calendar entries (before ${cutoffDate})`);
     }
+}
+
+/**
+ * Get recent earnings reporters (symbols that reported in the last N days).
+ * Used by premarket scanner to discover post-earnings movers.
+ */
+function getRecentEarningsReporters(daysBack = 1) {
+    const cutoff = getDb().prepare(
+        `SELECT date('now', '-' || ? || ' days')`
+    ).pluck().get(daysBack);
+    return getDb().prepare(`
+        SELECT symbol, earnings_date, earnings_time
+        FROM earnings_calendar
+        WHERE earnings_date >= ? AND earnings_date <= date('now')
+        ORDER BY earnings_date DESC
+    `).all(cutoff);
 }
 
 // ==================== POSITIONS FUNCTIONS ====================
@@ -4444,6 +4462,7 @@ module.exports = {
     getEarningsCalendar,
     getEarningsCalendarMeta,
     clearOldEarnings,
+    getRecentEarningsReporters,
     // Positions functions (replaces positions.json)
     getOpenPositions,
     addPosition,

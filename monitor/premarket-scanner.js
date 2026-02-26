@@ -29,7 +29,7 @@ const CONFIG = {
     PREMARKET_START_HOUR: 6,          // 6 AM ET
     PREMARKET_END_HOUR: 9,            // 9:30 AM ET
     PREMARKET_END_MINUTE: 30,
-    MIN_GAP_PCT: 2.0                  // Minimum gap to track
+    MIN_GAP_PCT: 1.0                  // Minimum gap to track
 };
 
 // Scanner state
@@ -49,7 +49,7 @@ const CORE_SYMBOLS = ['SPY', 'QQQ', 'IWM', 'DIA'];
 // Settings
 const SETTINGS = {
     minPrice: 10,      // Skip penny stocks
-    maxSymbols: 50     // Max symbols to check per scan
+    maxSymbols: 75     // Max symbols to check per scan
 };
 
 // ============================================
@@ -286,6 +286,55 @@ async function sendGapAlert(mover, marketContext) {
 }
 
 /**
+ * Send alert for TRADEABLE gap (lighter format than HC)
+ */
+async function sendTradeableGapAlert(mover, marketContext) {
+    const symbol = mover.symbol;
+
+    // Skip if already alerted today
+    if (alertedToday.has(symbol)) {
+        return;
+    }
+
+    // Only send Telegram alerts during pre-market and first 30 min after open (6:00 AM - 10:00 AM ET)
+    const { hour: etHour } = getETTime();
+    if (etHour >= 10) {
+        return;
+    }
+
+    const tickerHistory = signalDb.getTickerGapHistory(symbol, 90);
+
+    const gapDir = mover.gap_pct >= 0 ? '📈' : '📉';
+    const gapStr = mover.gap_pct >= 0 ? `+${mover.gap_pct.toFixed(1)}%` : `${mover.gap_pct.toFixed(1)}%`;
+
+    let msg = `${gapDir} <b>TRADEABLE GAP</b>\n\n`;
+    msg += `<b>${symbol}</b> ${gapStr}\n`;
+    msg += `Price: $${mover.premarket_price?.toFixed(2) || 'N/A'}\n`;
+
+    if (mover.catalyst) {
+        const catalystLabel = mover.catalyst === 'earnings_bmo' ? '📊 Earnings (BMO)' :
+                              mover.catalyst === 'earnings_amc' ? '📊 Earnings (AMC)' :
+                              mover.catalyst === 'earnings_recent' ? '📊 Post-Earnings' :
+                              mover.catalyst;
+        msg += `Catalyst: ${catalystLabel}\n`;
+    }
+
+    msg += `Score: ${mover.score}/100\n`;
+
+    if (tickerHistory && tickerHistory.total_gaps > 0) {
+        msg += `Fill rate: ${(tickerHistory.fill_rate * 100).toFixed(0)}% (${tickerHistory.total_gaps} gaps)\n`;
+    }
+
+    msg += `\n<b>Market:</b> SPY ${marketContext.spyChange >= 0 ? '+' : ''}${marketContext.spyChange.toFixed(2)}% | VIX ${marketContext.vix.toFixed(1)}\n`;
+
+    const success = await sendTelegram(msg);
+    if (success) {
+        alertedToday.add(symbol);
+        log(`[Telegram] Sent TRADEABLE alert for ${symbol}`);
+    }
+}
+
+/**
  * Reset alerted set at start of new day
  */
 function resetAlertedToday() {
@@ -337,7 +386,7 @@ function addSymbol(map, symbol, score, source) {
  */
 async function discoverSymbols() {
     const discovered = new Map();
-    const sourceCounts = { core: 0, watchlist: 0, volume: 0, gainers: 0, losers: 0, nasdaq: 0 };
+    const sourceCounts = { core: 0, watchlist: 0, earnings: 0, volume: 0, gainers: 0, losers: 0, nasdaq: 0 };
 
     // SOURCE 1: Core symbols (always scan for market context)
     CORE_SYMBOLS.forEach(s => {
@@ -351,6 +400,20 @@ async function discoverSymbols() {
         addSymbol(discovered, s, 50, 'watchlist');
         sourceCounts.watchlist++;
     });
+
+    // SOURCE: Recent earnings reporters (local DB, zero network cost)
+    try {
+        const reporters = signalDb.getRecentEarningsReporters(1);
+        for (const r of reporters) {
+            addSymbol(discovered, r.symbol, 80, 'earnings_reporter');
+            sourceCounts.earnings++;
+        }
+        if (reporters.length > 0) {
+            log(`[Discovery] Earnings reporters: ${reporters.map(r => r.symbol).join(', ')}`);
+        }
+    } catch (e) {
+        logError(`Earnings discovery error: ${e.message}`);
+    }
 
     try {
         // SOURCE 3: Market Movers from S&P 500 (sequential to respect API pacing)
@@ -733,12 +796,16 @@ async function runScan() {
             // Check if aligned with market
             const futuresAligned = (gapPct > 0 && avgChange > 0) || (gapPct < 0 && avgChange < 0);
 
-            // Detect catalyst - check earnings lookup first
+            // Detect catalyst - check earnings lookup first, then discovery source
             let catalyst = null;
             const earningsInfo = earningsLookup.get(symbol);
             if (earningsInfo) {
                 catalyst = earningsInfo.time === 'before_open' ? 'earnings_bmo' :
                            earningsInfo.time === 'after_close' ? 'earnings_amc' : 'earnings_today';
+            } else if ((data.discoverySources || []).includes('earnings_reporter')) {
+                // Symbol found via earnings DB but checkEarningsToday didn't flag it
+                // (reported yesterday AMC, days_to_earnings is now stale)
+                catalyst = 'earnings_recent';
             } else if (data.news) {
                 catalyst = 'news';
             }
@@ -843,6 +910,15 @@ async function runScan() {
 
         // Send Telegram alert with historical fill rate
         sendGapAlert(mover, {
+            spyChange: spyChange,
+            vix: vixData.price,
+            bias: marketBias
+        });
+    }
+
+    // Send TRADEABLE gap alerts via Telegram
+    for (const mover of tradeable) {
+        sendTradeableGapAlert(mover, {
             spyChange: spyChange,
             vix: vixData.price,
             bias: marketBias
