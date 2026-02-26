@@ -86,6 +86,14 @@ module.exports = {
       name: 'internals',
       script: 'monitor/market-internals.js',
       max_memory_restart: '128M'
+    },
+    {
+      ...DEFAULTS,
+      name: 'eod-wrapup',
+      script: 'monitor/eod-wrapup.js',
+      max_restarts: 5,
+      restart_delay: 10000,
+      max_memory_restart: '128M'
     }
   ]
 };

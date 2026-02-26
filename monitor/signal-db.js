@@ -520,6 +520,29 @@ function initSchema() {
 
     // Migration: Add divergence-BB column to bloodhound_results table
     migrateBloodhoundDivergenceBB();
+
+    // EOD summaries table
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS eod_summaries (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT UNIQUE NOT NULL,
+            spy_close REAL, spy_change_pct REAL,
+            qqq_close REAL, qqq_change_pct REAL,
+            vix_close REAL, vix_change_pct REAL,
+            spx_close REAL, spx_change_pct REAL,
+            tick_final REAL, trin_final REAL, ad_spread_final REAL, vol_ratio_final REAL,
+            scan_count INTEGER, tradeable_count INTEGER, top_tickers_json TEXT,
+            positions_count INTEGER, total_exposure REAL, unrealized_pnl REAL,
+            gaps_today INTEGER, gaps_filled INTEGER, fill_rate REAL,
+            spy_call_wall REAL, spy_put_wall REAL, spy_gamma_flip REAL,
+            qqq_call_wall REAL, qqq_put_wall REAL, qqq_gamma_flip REAL,
+            top_flow_json TEXT,
+            summary_json TEXT,
+            telegram_sent INTEGER DEFAULT 0, telegram_message_id INTEGER,
+            timestamp TEXT NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_eod_summaries_date ON eod_summaries(date);
+    `);
 }
 
 /**
@@ -4231,6 +4254,108 @@ function compileTickerReport(symbol) {
     };
 }
 
+// ============================================
+// EOD SUMMARY FUNCTIONS
+// ============================================
+
+/**
+ * Insert or replace an EOD summary for a given date
+ */
+function insertEodSummary(data) {
+    const stmt = getDb().prepare(`
+        INSERT OR REPLACE INTO eod_summaries (
+            date, spy_close, spy_change_pct, qqq_close, qqq_change_pct,
+            vix_close, vix_change_pct, spx_close, spx_change_pct,
+            tick_final, trin_final, ad_spread_final, vol_ratio_final,
+            scan_count, tradeable_count, top_tickers_json,
+            positions_count, total_exposure, unrealized_pnl,
+            gaps_today, gaps_filled, fill_rate,
+            spy_call_wall, spy_put_wall, spy_gamma_flip,
+            qqq_call_wall, qqq_put_wall, qqq_gamma_flip,
+            top_flow_json, summary_json,
+            telegram_sent, telegram_message_id, timestamp
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    const result = stmt.run(
+        data.date,
+        data.spy_close ?? null, data.spy_change_pct ?? null,
+        data.qqq_close ?? null, data.qqq_change_pct ?? null,
+        data.vix_close ?? null, data.vix_change_pct ?? null,
+        data.spx_close ?? null, data.spx_change_pct ?? null,
+        data.tick_final ?? null, data.trin_final ?? null,
+        data.ad_spread_final ?? null, data.vol_ratio_final ?? null,
+        data.scan_count ?? null, data.tradeable_count ?? null,
+        data.top_tickers_json ? JSON.stringify(data.top_tickers_json) : null,
+        data.positions_count ?? null, data.total_exposure ?? null, data.unrealized_pnl ?? null,
+        data.gaps_today ?? null, data.gaps_filled ?? null, data.fill_rate ?? null,
+        data.spy_call_wall ?? null, data.spy_put_wall ?? null, data.spy_gamma_flip ?? null,
+        data.qqq_call_wall ?? null, data.qqq_put_wall ?? null, data.qqq_gamma_flip ?? null,
+        data.top_flow_json ? JSON.stringify(data.top_flow_json) : null,
+        data.summary_json ? JSON.stringify(data.summary_json) : null,
+        data.telegram_sent ? 1 : 0, data.telegram_message_id ?? null,
+        data.timestamp || new Date().toISOString()
+    );
+
+    console.log(`[SignalDB] Saved EOD summary for ${data.date}`);
+    return result.lastInsertRowid;
+}
+
+/**
+ * Update Telegram send status for an EOD summary
+ */
+function updateEodTelegramStatus(date, messageId) {
+    getDb().prepare(`
+        UPDATE eod_summaries SET telegram_sent = 1, telegram_message_id = ? WHERE date = ?
+    `).run(messageId, date);
+}
+
+/**
+ * Get the most recent EOD summary
+ */
+function getLatestEodSummary() {
+    const row = getDb().prepare(`
+        SELECT * FROM eod_summaries ORDER BY date DESC LIMIT 1
+    `).get();
+
+    if (!row) return null;
+    row.top_tickers_json = JSON.parse(row.top_tickers_json || 'null');
+    row.top_flow_json = JSON.parse(row.top_flow_json || 'null');
+    row.summary_json = JSON.parse(row.summary_json || 'null');
+    return row;
+}
+
+/**
+ * Get EOD summary history for the last N days
+ */
+function getEodSummaryHistory(days = 7) {
+    const rows = getDb().prepare(`
+        SELECT * FROM eod_summaries ORDER BY date DESC LIMIT ?
+    `).all(days);
+
+    return rows.map(row => {
+        row.top_tickers_json = JSON.parse(row.top_tickers_json || 'null');
+        row.top_flow_json = JSON.parse(row.top_flow_json || 'null');
+        row.summary_json = JSON.parse(row.summary_json || 'null');
+        return row;
+    });
+}
+
+/**
+ * Get EOD summary for a specific date
+ */
+function getEodSummaryByDate(date) {
+    const row = getDb().prepare(`
+        SELECT * FROM eod_summaries WHERE date = ?
+    `).get(date);
+
+    if (!row) return null;
+    row.top_tickers_json = JSON.parse(row.top_tickers_json || 'null');
+    row.top_flow_json = JSON.parse(row.top_flow_json || 'null');
+    row.summary_json = JSON.parse(row.summary_json || 'null');
+    return row;
+}
+
 module.exports = {
     getDb,
     getETDate,
@@ -4336,5 +4461,11 @@ module.exports = {
     getAnalysisStats,
     // Backtest results functions
     getBacktestRuns,
-    compileTickerReport
+    compileTickerReport,
+    // EOD summary functions
+    insertEodSummary,
+    updateEodTelegramStatus,
+    getLatestEodSummary,
+    getEodSummaryHistory,
+    getEodSummaryByDate
 };

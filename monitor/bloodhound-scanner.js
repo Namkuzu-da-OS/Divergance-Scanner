@@ -725,12 +725,37 @@ async function getMarketContext() {
 
     if (!context) return null;
 
+    // Calculate SPY trend from raw MAs (don't trust API's spy_trend — it only checks
+    // 5/20 SMA cross direction, ignoring where price actually is relative to the MAs)
+    let spyTrend = 'neutral';
+    const spyPrice = context.spy_price;
+    const sma5 = context.spy_sma_5;
+    const sma20 = context.spy_sma_20;
+    if (spyPrice && sma5 && sma20) {
+        const aboveSma5 = spyPrice > sma5;
+        const aboveSma20 = spyPrice > sma20;
+        const sma5Above20 = sma5 > sma20;
+
+        if (aboveSma5 && aboveSma20 && sma5Above20) {
+            spyTrend = 'bullish';       // Price > 5 > 20 — aligned uptrend
+        } else if (aboveSma5 && aboveSma20) {
+            spyTrend = 'recovering';    // Price above both but 5/20 cross lagging
+        } else if (!aboveSma5 && aboveSma20) {
+            spyTrend = 'weakening';     // Pulling back below 5 SMA, still above 20
+        } else if (!aboveSma5 && !aboveSma20 && !sma5Above20) {
+            spyTrend = 'bearish';       // Price < 5 < 20 — aligned downtrend
+        } else if (!aboveSma5 && !aboveSma20) {
+            spyTrend = 'declining';     // Below both but 5/20 cross lagging
+        } else {
+            spyTrend = 'mixed';
+        }
+    }
+
     // Calculate gamma regime from price vs gamma flip level
     // Price above gamma flip = dealers short gamma = BULLISH_SUPPORT (they buy dips)
     // Price below gamma flip = dealers long gamma = BEARISH_RESISTANCE (they sell rallies)
     let gammaRegime = 'NEUTRAL';
     const gammaFlip = spyLevels?.levels?.gamma_flip?.price;
-    const spyPrice = context.spy_price;
     if (gammaFlip && spyPrice) {
         const pctFromFlip = ((spyPrice - gammaFlip) / gammaFlip) * 100;
         if (pctFromFlip > 1) {
@@ -749,7 +774,7 @@ async function getMarketContext() {
     return {
         vix: context.vix,
         vixRegime: context.vix_regime,
-        spyTrend: context.spy_trend,
+        spyTrend: spyTrend,
         spyPrice: context.spy_price,
         riskAppetite: context.risk_appetite,
         regime: context.regime,

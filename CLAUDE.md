@@ -189,10 +189,11 @@ Scanners start at staggered intervals via `SCAN_OFFSET_MS` env var in `ecosystem
 | 8084 | Pre-Market | `monitor/premarket-scanner.js` |
 | 8085 | Internals | `monitor/market-internals.js` |
 | 8086 | API Gateway | `monitor/api-gateway.js` — central proxy for all upstream APIs |
+| 8087 | EOD Wrapup | `monitor/eod-wrapup.js` — daily Telegram summary + log archive |
 | 32212 | Divergence Scanner | External (192.168.10.61) — RS rankings, rotation |
 
 ### Dashboard URLs (all at localhost:8080)
-morning.html (default), zone-scanner.html, premarket.html, earnings-scanner.html, opportunity-scanner.html, analytics.html, strategies.html, dashboard.html, options-lab.html, research.html, scanner.html, backtests.html, levels.html
+morning.html (default), zone-scanner.html, premarket.html, earnings-scanner.html, opportunity-scanner.html, analytics.html, strategies.html, dashboard.html, options-lab.html, research.html, scanner.html, backtests.html, ticker-report.html, levels.html
 
 ### Key Web Server API Endpoints (Port 8080)
 | Endpoint | Purpose |
@@ -217,6 +218,8 @@ morning.html (default), zone-scanner.html, premarket.html, earnings-scanner.html
 | `/api/opportunities/latest` | Latest opportunity scan |
 | `/api/morning-briefing` | Aggregated morning data |
 | `/api/positions` | Open positions (GET/POST/PATCH close) |
+| `/api/eod/latest` | Latest EOD wrap-up summary |
+| `/api/eod/history?days=N` | EOD summary history (default 7 days) |
 | `/api/cache/stats` | API cache stats (total, fresh, stale entries) |
 | `/proxy/analytics/*` | Forwards to Options API |
 | `/proxy/divergence/*` | Forwards to divergence scanner |
@@ -249,12 +252,12 @@ morning.html (default), zone-scanner.html, premarket.html, earnings-scanner.html
 ## Starting All Scanners
 
 ```bash
-pm2 start ecosystem.config.js    # Start all 8 services (gateway + 7 scanners with stagger offsets)
+pm2 start ecosystem.config.js    # Start all 9 services (gateway + 8 scanners/processes with stagger offsets)
 pm2 list                          # Show processes
-pm2 logs [name]                   # View logs (gateway, bloodhound, opportunity, earnings, premarket, webserver, eod-tracker, internals)
+pm2 logs [name]                   # View logs (gateway, bloodhound, opportunity, earnings, premarket, webserver, eod-tracker, internals, eod-wrapup)
 pm2 restart all                   # Restart everything (keeps existing env vars)
 # If ecosystem.config.js env vars changed:
-pm2 delete gateway bloodhound opportunity earnings premarket webserver eod-tracker internals
+pm2 delete gateway bloodhound opportunity earnings premarket webserver eod-tracker internals eod-wrapup
 pm2 start ecosystem.config.js    # Re-reads env vars from config
 ```
 
@@ -308,6 +311,18 @@ Opportunity Scanner independently analyzes options flow (vol/OI, premium, positi
 ### Signal Validation
 HIGH_CONVICTION signals logged to SQLite with checkpoints at 4h, 24h, 7d. Tracks peak gain and max drawdown. Auto-closes at ±2% or 72h timeout. Option contracts tracked when unusual flow (vol/OI ≥5x). Analytics dashboard at `/analytics.html`.
 
+### SPY Trend Computation
+Bloodhound computes its own SPY trend label from raw SMA data (does NOT use the Options API's `spy_trend` field, which only checks SMA cross direction and produces misleading labels). Computed in `getMarketContext()` using price vs 5 SMA vs 20 SMA:
+
+| Label | Condition | Meaning |
+|-------|-----------|---------|
+| bullish | Price > 5 SMA > 20 SMA | Aligned uptrend |
+| recovering | Price > both SMAs, but 5 < 20 | Cross lagging price |
+| weakening | Price < 5 SMA but > 20 SMA | Pullback within uptrend |
+| bearish | Price < 5 SMA < 20 SMA | Aligned downtrend |
+| declining | Price < both SMAs, but 5 > 20 | Cross lagging price |
+| mixed | Any other combination | No clear trend |
+
 **Output:** `bloodhound_scans` + `bloodhound_results` tables → `/api/scan/latest` and `/api/scan/summary`
 **Config:** `monitor/config.json` (APIs, Telegram) + `monitor/bloodhound-scanner.js` SETTINGS
 
@@ -359,6 +374,35 @@ Runs at 4:15 PM ET. Captures closing data for premarket gaps: EOD close/high/low
 Gap UP filled if intraday low ≤ prev_close. Gap DOWN filled if intraday high ≥ prev_close.
 PM2: `pm2 logs eod-tracker` | Manual: `node monitor/eod-gap-tracker.js --now`
 Analytics: `/api/gaps/analytics`, `/api/gaps/ticker/:symbol`, `/api/gaps/repeat-offenders`
+
+---
+
+## EOD Wrapup
+
+Sends a comprehensive Telegram summary after AH closes, capturing the full day's data. Also archives daily_log.md. Port 8087.
+
+**Schedule:** Cron at 8:15 PM ET weekdays (`'15 20 * * 1-5'`). Backup at 8:30 PM if no summary yet for today.
+**Manual:** `node monitor/eod-wrapup.js --now`
+**PM2:** `pm2 logs eod-wrapup`
+
+**Data sources (9 collectors, only 2 external API calls):**
+1. Market close — SPY/QQQ quotes (2 API calls via fetchJSON)
+2. Final internals — TICK, TRIN, A/D, Vol Ratio from `getLatestInternals()`
+3. Bloodhound summary — scan count, tradeable count, top 5 tickers, VIX regime, SPY trend, rotation regime
+4. Positions — open count, total exposure, unrealized P&L
+5. Gap fills — today's gaps, fill count, fill rate
+6. Flow highlights — top 3 by vol/OI from Opportunity Scanner
+7. Key levels — SPY/QQQ call wall, put wall, gamma flip from latest Bloodhound scan
+8. Active signals — count of open HIGH_CONVICTION signals
+9. Tomorrow's earnings — upcoming earnings within 2 days from earnings scanner
+
+**Control API (port 8087):**
+- `GET /status` — last run time, telegram status
+- `POST /run` — trigger manual wrap-up
+- `GET /latest` — latest summary from DB
+
+**Storage:** `eod_summaries` table in wingman.db (signal-db.js)
+**Web endpoints:** `/api/eod/latest`, `/api/eod/history?days=N`
 
 ---
 

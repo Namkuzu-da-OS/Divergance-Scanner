@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+// DEPRECATED: Daily log archiving absorbed into monitor/eod-wrapup.js (PM2 process on port 8087)
+// This file is kept for reference only. Use `node monitor/eod-wrapup.js --now` instead.
+
 /**
  * END OF DAY (EOD) AUTOMATION SCRIPT
  *

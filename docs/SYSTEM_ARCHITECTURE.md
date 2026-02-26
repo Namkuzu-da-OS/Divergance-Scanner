@@ -28,41 +28,47 @@ Complete mapping of all components, data flows, and dependencies.
     │  (Background PM2 Processes)   │       │     (Background PM2 Processes)     │
     │                               │       │                                    │
     │  ┌─────────────────────────┐  │       │  ┌──────────────────────────────┐  │
-    │  │ bloodhound-scanner.js  │  │       │  │ web-server.js                │  │
-    │  │ Port 8081 (Control)    │  │       │  │ Port 8080 (HTTP)             │  │
-    │  │ • 2min scan cycle      │  │       │  │ • Serves dashboards          │  │
-    │  │ • Confluence scoring   │  │       │  │ • Default: morning.html      │  │
-    │  │ • Zone classification  │  │       │  │ • REST API proxy to SQLite   │  │
-    │  │ • VIX regime alerts    │  │       │  └──────────────────────────────┘  │
-    │  └───────────┬────────────┘  │       │                                    │
-    │              │               │       │  ┌──────────────────────────────┐  │
-    │  ┌───────────▼────────────┐  │       │  │ eod-gap-tracker.js           │  │
-    │  │ earnings-scanner.js   │  │       │  │ No HTTP (cron-scheduled)     │  │
-    │  │ Port 8082 (Control)   │  │       │  │ • Runs at 4:15 PM ET        │  │
-    │  │ • 30min scan cycle    │  │       │  │ • Captures EOD gap data      │  │
+    │  │ bloodhound-scanner.js  │  │       │  │ api-gateway.js               │  │
+    │  │ Port 8081 (Control)    │  │       │  │ Port 8086 (HTTP Proxy)       │  │
+    │  │ • 5min scan cycle      │  │       │  │ • Central proxy for all APIs │  │
+    │  │ • Confluence scoring   │  │       │  │ • Circuit breakers + queuing │  │
+    │  │ • Zone classification  │  │       │  └──────────────────────────────┘  │
+    │  │ • VIX/breadth alerts   │  │       │                                    │
+    │  └───────────┬────────────┘  │       │  ┌──────────────────────────────┐  │
+    │              │               │       │  │ web-server.js                │  │
+    │  ┌───────────▼────────────┐  │       │  │ Port 8080 (HTTP)             │  │
+    │  │ earnings-scanner.js   │  │       │  │ • Serves dashboards          │  │
+    │  │ Port 8082 (Control)   │  │       │  │ • Default: morning.html      │  │
+    │  │ • 30min scan cycle    │  │       │  │ • REST API proxy to SQLite   │  │
     │  │ • PREM strategy       │  │       │  └──────────────────────────────┘  │
     │  │ • Position tracking   │  │       │                                    │
-    │  └───────────┬────────────┘  │       └────────────────────────────────────┘
-    │              │               │
-    │  ┌───────────▼────────────┐  │
-    │  │ opportunity-scanner.js│  │
-    │  │ Port 8083 (Control)   │  │
-    │  │ • 5min scan cycle     │  │
-    │  │ • Unusual options     │  │
-    │  │ • Vol/OI detection    │  │
-    │  └───────────┬────────────┘  │
-    │              │               │
-    │  ┌───────────▼────────────┐  │
-    │  │ premarket-scanner.js  │  │
-    │  │ Port 8084 (Control)   │  │
-    │  │ • 5min scan cycle     │  │
-    │  │ • 6:00-9:30 AM ET     │  │
-    │  │ • Gap detection       │  │
-    │  └────────────────────────┘  │
-    └───────────────┬──────────────┘
-                    │
-                    │ WRITES
-                    ▼
+    │  └───────────┬────────────┘  │       │  ┌──────────────────────────────┐  │
+    │              │               │       │  │ market-internals.js          │  │
+    │  ┌───────────▼────────────┐  │       │  │ Port 8085                    │  │
+    │  │ opportunity-scanner.js│  │       │  │ • 2min cycle (RTH only)      │  │
+    │  │ Port 8083 (Control)   │  │       │  │ • TICK/TRIN/VIX/breadth      │  │
+    │  │ • 5min scan cycle     │  │       │  └──────────────────────────────┘  │
+    │  │ • Unusual options     │  │       │                                    │
+    │  │ • Vol/OI detection    │  │       │  ┌──────────────────────────────┐  │
+    │  └───────────┬────────────┘  │       │  │ eod-gap-tracker.js           │  │
+    │              │               │       │  │ Cron-scheduled               │  │
+    │  ┌───────────▼────────────┐  │       │  │ • Runs at 4:15 PM ET        │  │
+    │  │ premarket-scanner.js  │  │       │  │ • Captures EOD gap data      │  │
+    │  │ Port 8084 (Control)   │  │       │  └──────────────────────────────┘  │
+    │  │ • 5min scan cycle     │  │       │                                    │
+    │  │ • 6:00-9:30 AM ET     │  │       │  ┌──────────────────────────────┐  │
+    │  │ • Gap detection       │  │       │  │ eod-wrapup.js                │  │
+    │  └────────────────────────┘  │       │  │ Port 8087 (Control)          │  │
+    │                               │       │  │ • Runs at 8:15 PM ET        │  │
+    │                               │       │  │ • Telegram daily summary     │  │
+    │                               │       │  │ • Archives daily_log.md      │  │
+    │                               │       │  └──────────────────────────────┘  │
+    │                               │       │                                    │
+    └───────────────┬───────────────┘       └──────────────────┬─────────────────┘
+                    │                                           │
+                    └──────────────────┬───────────────────────┘
+                                       │ WRITES
+                                       ▼
     ┌───────────────────────────────────────────────────────────────────────────┐
     │                              data/                                        │
     │                                                                           │
@@ -83,16 +89,18 @@ Complete mapping of all components, data flows, and dependencies.
     │  │  positions           ── Open positions                           │    │
     │  │  opportunities       ── Unusual options activity                 │    │
     │  │  alerts              ── Telegram alert history                   │    │
+    │  │  market_internals    ── TICK/TRIN/VIX/breadth readings           │    │
+    │  │  api_cache           ── Cross-process API response cache         │    │
+    │  │  eod_summaries       ── End-of-day wrap-up summaries             │    │
     │  └──────────────────────────────────────────────────────────────────┘    │
     │                                                                           │
     │  ┌──────────────────────────────────────────────────────────────────┐    │
     │  │                    Flat Files (remaining)                         │    │
     │  │                                                                   │    │
-    │  │  watchlist.json         ── Legacy fallback (SQLite is primary)   │    │
-    │  │  earnings-calendar.json ── Earnings dates                        │    │
     │  │  account_summary.json   ── P&L summary                          │    │
     │  │  MARKET_INTEL.md        ── Living market intelligence            │    │
     │  │  daily_log.md           ── Trading journal                       │    │
+    │  │  SESSION_STATE.md       ── Intra-session checkpoint              │    │
     │  │  .bloodhound_paused     ── Pause state flag                     │    │
     │  │  .earnings_paused       ── Earnings pause flag                  │    │
     │  └──────────────────────────────────────────────────────────────────┘    │
@@ -106,19 +114,14 @@ Complete mapping of all components, data flows, and dependencies.
     │                                                                           │
     │  ┌─────────────────────────────────────────────────────────────────────┐ │
     │  │                     INTER-DASHBOARD NAVIGATION                      │ │
-    │  │              (Shared nav bar across all 10 dashboards)               │ │
+    │  │              (Shared nav bar across all 14 dashboards)               │ │
     │  │                                                                      │ │
-    │  │   morning ◄──► zone-scanner ◄──► scanner ◄──► dashboard             │ │
-    │  │     │               │                │                               │ │
-    │  │     ▼               ▼                ▼                               │ │
-    │  │   premarket    analytics       earnings-scanner                      │ │
-    │  │                    │                  │                               │ │
-    │  │              opportunity-scanner      │                               │ │
-    │  │                    │                  │                               │ │
-    │  │              INSIGHTS dropdown:       │                               │ │
-    │  │              ├── analytics            │                               │ │
-    │  │              ├── strategies           │                               │ │
-    │  │              └── options-lab          │                               │ │
+    │  │   Main nav: morning, zone-scanner, scanner, premarket,              │ │
+    │  │             earnings-scanner, opportunity-scanner, dashboard         │ │
+    │  │                                                                      │ │
+    │  │   INSIGHTS dropdown:                                                │ │
+    │  │   analytics, research, strategies, options-lab, backtests,          │ │
+    │  │   ticker-report, levels                                             │ │
     │  └─────────────────────────────────────────────────────────────────────┘ │
     └───────────────────────────────────────────────────────────────────────────┘
                     │
@@ -133,6 +136,7 @@ Complete mapping of all components, data flows, and dependencies.
     │  earnings-scanner   ──► Port 8082  ──► earnings-scanner.js               │
     │  opportunity-scanner──► Port 8083  ──► opportunity-scanner.js            │
     │  premarket.html     ──► Port 8084  ──► premarket-scanner.js              │
+    │  (no dashboard)     ──► Port 8087  ──► eod-wrapup.js                     │
     │                                                                           │
     │  All Control Endpoints:                                                  │
     │  • GET  /status          - Scanner state, next scan countdown            │
@@ -155,6 +159,11 @@ Complete mapping of all components, data flows, and dependencies.
     │  • POST /positions/close - Close position                                │
     │  • GET  /analytics       - Performance stats                             │
     │  • POST /refresh-calendar- Fetch new earnings dates                      │
+    │                                                                           │
+    │  EOD Wrapup-specific (8087):                                             │
+    │  • GET  /status         - Last run time, telegram status                 │
+    │  • POST /run            - Trigger manual wrap-up                         │
+    │  • GET  /latest         - Latest summary from DB                         │
     └───────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -166,20 +175,24 @@ Complete mapping of all components, data flows, and dependencies.
 |-----------|---------------------|--------------|---------|
 | **morning.html** | `/api/morning-briefing` | - | Morning briefing, session overview |
 | **zone-scanner.html** | `/api/scan/latest` (SQLite) | 8081 | Bloodhound confluence zones, tradeable setups |
-| **scanner.html** | `/api/scan/summary`, `/api/alerts` (SQLite) | - | Legacy market structure, VIX regime |
+| **scanner.html** | `/api/internals/*`, `/api/scan/summary` | - | Market internals gauges + intraday charts |
 | **dashboard.html** | `/api/positions`, account_summary.json | - | Account P&L, positions |
 | **analytics.html** | `/api/signals`, `/api/signals/stats` (SQLite) | - | Signal validation, performance analysis |
 | **earnings-scanner.html** | (API only - port 8082) | 8082 | PREM candidates, earnings calendar |
 | **opportunity-scanner.html** | `/api/opportunities/latest` (SQLite) | 8083 | Unusual options activity |
 | **premarket.html** | `/api/premarket`, `/api/premarket/today` (SQLite) | 8084 | Pre-market gaps and movers |
-| **strategies.html** | (static) | - | Strategy browser |
+| **strategies.html** | (static) | - | Strategy browser + backtest candidates |
 | **options-lab.html** | Options API (8000) | - | Options analysis tools |
+| **research.html** | `/api/analyses` (SQLite) | - | Research journal |
+| **backtests.html** | `/api/backtest/results` (SQLite) | - | MA backtest sweep results |
+| **ticker-report.html** | Options API (8000) | - | Single-ticker deep analysis |
+| **levels.html** | Options API (8000) | - | Gamma levels visualization |
 
 ---
 
 ## Data File Ownership
 
-### Written by bloodhound-scanner.js (every 2 min)
+### Written by bloodhound-scanner.js (every 5 min)
 ```
 data/wingman.db (SQLite tables)
 ├── bloodhound_scans      # Scan metadata (market context, VIX, counts)
@@ -190,8 +203,6 @@ data/wingman.db (SQLite tables)
 ├── watchlist             # Via /watchlist/add|remove API
 └── alerts                # Telegram alert history
 
-data/
-└── watchlist.json         # Legacy fallback (SQLite watchlist table is primary)
 ```
 
 **API access (via web-server.js on port 8080):**
@@ -206,9 +217,6 @@ data/wingman.db (SQLite tables)
 ├── earnings_scans            # Earnings scan metadata
 └── earnings_results          # PREM candidates
 
-data/
-├── earnings-calendar.json    # Earnings dates (prerequisite)
-└── earnings-paper-trades.json # Earnings paper trades
 ```
 
 **API access (via earnings scanner control API on port 8082):**
@@ -292,12 +300,6 @@ data/
 └── paper_trades.json      # Paper trade tracking for validation
 ```
 
-### Written by earnings-calendar-scraper.js (manual/scheduled)
-```
-data/
-└── earnings-calendar.json # Earnings dates (prerequisite for earnings-scanner)
-```
-
 ### VIX Regime Alerts (consolidated into bloodhound-scanner.js)
 
 VIX regime change detection was previously handled by `wingman-monitor.js` (deprecated).
@@ -305,7 +307,26 @@ It is now built directly into `bloodhound-scanner.js`. When VIX crosses regime t
 (12/20/30/40), Bloodhound sends a Telegram alert. Alerts are stored in the `alerts` table
 in `wingman.db`. No separate process is needed.
 
-### Written by eod.js (daily)
+### Written by eod-wrapup.js (daily at 8:15 PM ET)
+```
+data/wingman.db (SQLite tables)
+└── eod_summaries           # Daily wrap-up data (market close, internals, scanner, positions, gaps, flow)
+
+data/
+├── daily_log.md            # Archives to archive/daily_logs/, creates fresh template
+└── archive/daily_logs/     # Archived daily logs by date
+```
+
+**API access (via web-server.js on port 8080):**
+- `GET /api/eod/latest` -- latest EOD summary
+- `GET /api/eod/history?days=N` -- EOD summary history
+
+**Control API (port 8087):**
+- `GET /status` -- last run time, telegram status
+- `POST /run` -- trigger manual wrap-up
+- `GET /latest` -- latest summary from DB
+
+### Written by eod.js (DEPRECATED — absorbed into eod-wrapup.js)
 ```
 data/
 ├── account_summary.json   # Updates timestamp
@@ -316,11 +337,12 @@ data/
 ### Manual / UI-written
 ```
 data/
-├── watchlist.json         # Also via zone-scanner.html UI (SQLite is primary)
 ├── MARKET_INTEL.md        # Living market intelligence (swing watchlist, session recaps)
+├── SESSION_STATE.md       # Intra-session checkpoint (via /checkpoint command)
 └── daily_log.md           # User journaling via -note command
 
 data/wingman.db (SQLite tables)
+├── watchlist              # Via zone-scanner.html UI or /watchlist CLI
 └── positions              # Via /api/positions endpoint or dashboard UI
 ```
 
@@ -330,7 +352,7 @@ data/wingman.db (SQLite tables)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                        BLOODHOUND SCAN CYCLE (Every 2 min)                  │
+│                        BLOODHOUND SCAN CYCLE (Every 5 min)                  │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │  1. DISCOVERY                                                               │
@@ -438,7 +460,7 @@ data/wingman.db (SQLite tables)
 │  └──────────────────────────────────────────────────────────────────────┘  │
 │                              │                                              │
 │                              ▼                                              │
-│  TRACKING (every 2 min scan cycle)                                         │
+│  TRACKING (every 5 min scan cycle)                                         │
 │  ┌──────────────────────────────────────────────────────────────────────┐  │
 │  │ Price windows captured:                                               │  │
 │  │ • price_1h  (first check after 1 hour)                                │  │
@@ -524,6 +546,9 @@ data/wingman.db (SQLite tables)
 | **8082** | Earnings Control | HTTP API | earnings-scanner.js |
 | **8083** | Opportunity Control | HTTP API | opportunity-scanner.js |
 | **8084** | Pre-Market Control | HTTP API | premarket-scanner.js |
+| **8085** | Internals | HTTP API | market-internals.js |
+| **8086** | API Gateway | HTTP Proxy | api-gateway.js |
+| **8087** | EOD Wrapup | HTTP API | eod-wrapup.js |
 
 ---
 
@@ -536,19 +561,22 @@ wingman/
 ├── README.md              # Project readme
 ├── package.json           # Node dependencies
 ├── ecosystem.config.js    # PM2 process config (starts all scanners)
-├── eod.js                 # End-of-day script
+├── eod.js                 # DEPRECATED — absorbed into monitor/eod-wrapup.js
 │
 ├── morning.html           # DEFAULT - Morning briefing dashboard
 ├── zone-scanner.html      # Bloodhound confluence zones
-├── scanner.html           # Legacy market structure dashboard
+├── scanner.html           # Market internals gauges + intraday charts
 ├── dashboard.html         # Account/positions dashboard
 ├── analytics.html         # Signal validation dashboard
 ├── earnings-scanner.html  # Earnings dashboard
 ├── opportunity-scanner.html # Unusual options dashboard
 ├── premarket.html         # Pre-market gaps dashboard
-├── strategies.html        # Strategy browser
+├── strategies.html        # Strategy browser + backtest candidates
 ├── options-lab.html       # Options analysis tools
-├── options-explainer.html # Options education
+├── research.html          # Research journal
+├── backtests.html         # MA backtest sweep results
+├── ticker-report.html     # Single-ticker deep analysis
+├── levels.html            # Gamma levels visualization
 │
 ├── css/
 │   └── nav.css            # Shared navigation styles
@@ -559,24 +587,36 @@ wingman/
 monitor/
 ├── config.json                    # API endpoints, Telegram credentials
 │
-├── bloodhound-scanner.js          # PRIMARY SCANNER - confluence scoring, VIX alerts
-├── earnings-scanner.js            # Earnings PREM scanner
-├── opportunity-scanner.js         # Unusual options scanner
-├── premarket-scanner.js           # Pre-market gap detection (6:00-9:30 AM ET)
-├── eod-gap-tracker.js             # EOD gap fill tracking (4:15 PM ET)
-├── dynamic-scanner.js             # Zone classification module
+│   ## PM2 Processes (ecosystem.config.js)
+├── api-gateway.js                 # Central HTTP proxy, circuit breakers (port 8086)
+├── bloodhound-scanner.js          # PRIMARY SCANNER - confluence scoring, VIX/breadth alerts (port 8081)
+├── earnings-scanner.js            # Earnings PREM scanner (port 8082)
+├── opportunity-scanner.js         # Unusual options scanner (port 8083)
+├── premarket-scanner.js           # Pre-market gap detection, 6-9:30 AM ET (port 8084)
+├── market-internals.js            # TICK/TRIN/VIX/breadth collector, RTH only (port 8085)
+├── web-server.js                  # Dashboard server + REST API proxy (port 8080)
+├── eod-gap-tracker.js             # EOD gap fill tracking, 4:15 PM ET cron
+├── eod-wrapup.js                  # EOD Telegram summary + log archive, 8:15 PM ET cron (port 8087)
 │
+│   ## Shared Libraries
+├── api-client.js                  # Shared fetchJSON module (routes through gateway)
+├── api-cache.js                   # Cross-process SQLite API cache
 ├── signal-db.js                   # SQLite database layer (all tables)
 ├── signal-logger.js               # Signal tracking wrapper
 ├── opportunity-db.js              # Opportunity SQLite storage
-├── web-server.js                  # Dashboard server + REST API proxy
+├── telegram.js                    # Telegram message sending
+├── config-loader.js               # Config file loader
+├── dynamic-scanner.js             # Zone classification module
+│
+│   ## Utilities / CLI
+├── api-v1.js                      # External API v1 router (/api/v1/*)
 ├── paper-trade-manager.js         # Paper trade tracking
 ├── earnings-calendar-scraper.js   # Earnings date fetcher
 ├── trade-client.js                # Trade logging client
 ├── watchlist.js                   # Watchlist CLI
+├── scanner-validator.js           # Validation tool
 ├── migrate-to-db.js               # Migration: JSON files → SQLite
 ├── migrate-watchlist.js           # Migration: watchlist.json → SQLite
-├── scanner-validator.js           # Validation tool
 │
 ├── wingman-monitor.js             # DEPRECATED - VIX alerts now in bloodhound
 ├── _legacy/                       # Old/deprecated code
@@ -586,33 +626,35 @@ monitor/
 ```
 data/
 ├── wingman.db                 # PRIMARY - SQLite database (all scanner data)
-│   ├── bloodhound_scans      #   Scan metadata (replaces scanner.json)
-│   ├── bloodhound_results    #   Per-ticker data (replaces dynamic_scan.json)
-│   ├── scanner_history       #   History badges (replaces scanner_history.json)
-│   ├── signals               #   Signal tracking (replaces signal_tracking.json)
+│   ├── bloodhound_scans      #   Scan metadata (market context, VIX)
+│   ├── bloodhound_results    #   Per-ticker results (zones, scores)
+│   ├── scanner_history       #   History badges (NEW/Day2/Streak)
+│   ├── signals               #   Signal tracking + validation
 │   ├── checkpoints           #   Multi-checkpoint validation (4h/24h/7d)
-│   ├── watchlist             #   User watchlist (replaces watchlist.json)
+│   ├── watchlist             #   User watchlist + auto-added symbols
 │   ├── premarket_scans       #   Pre-market scan metadata
 │   ├── premarket_movers      #   Pre-market gap movers
 │   ├── gap_ticker_stats      #   Gap fill analytics per ticker
-│   ├── earnings_scans        #   Earnings scan metadata (replaces earnings-scan.json)
+│   ├── earnings_scans        #   Earnings scan metadata
 │   ├── earnings_results      #   PREM candidates
-│   ├── positions             #   Open positions (replaces positions.json)
-│   ├── opportunities         #   Unusual options (replaces opportunities.json)
-│   ├── alerts                #   Alert history (replaces alerts_log.json)
-│   └── scans                 #   Opportunity scan metadata
+│   ├── positions             #   Open positions
+│   ├── opportunities         #   Unusual options activity
+│   ├── scans                 #   Opportunity scan metadata
+│   ├── alerts                #   Telegram alert history
+│   ├── market_internals      #   TICK/TRIN/VIX/breadth readings
+│   ├── api_cache             #   Cross-process API response cache
+│   └── eod_summaries         #   End-of-day wrap-up summaries
 │
-├── watchlist.json             # Legacy fallback for watchlist (SQLite is primary)
-├── earnings-calendar.json     # Earnings dates
-├── earnings-paper-trades.json # Earnings paper trades
-├── account_summary.json       # P&L summary
+├── account_summary.json       # P&L summary (legacy)
 │
-├── MARKET_INTEL.md            # Living market intelligence (replaced ACTIVE_SESSION.md)
+├── MARKET_INTEL.md            # Living market intelligence
+├── SESSION_STATE.md           # Intra-session checkpoint (/checkpoint writes, /kungfu reads)
 ├── daily_log.md               # Trading journal
+├── STRATEGY_CANDIDATES.md     # Researched strategies ranked for backtesting
 │
 ├── .bloodhound_paused         # Pause state flag
 ├── .earnings_paused           # Earnings pause flag
-└── archive/                   # Archived deprecated JSON files
+└── archive/                   # Archived logs + deprecated files
 ```
 
 **Deprecated files (moved to data/archive/ or deleted):**
@@ -697,6 +739,13 @@ premarket-scanner.js
 eod-gap-tracker.js
     └── requires: signal-db.js (SQLite storage for gap_ticker_stats)
 
+eod-wrapup.js
+    ├── requires: signal-db.js (eod_summaries, internals, positions, gaps, signals)
+    ├── requires: opportunity-db.js (latest opportunity scan for flow highlights)
+    ├── requires: api-client.js (SPY/QQQ quotes via fetchJSON)
+    ├── requires: telegram.js (sendTelegram, escapeHtml)
+    └── requires: config-loader.js (API URLs, Telegram credentials)
+
 opportunity-db.js
     ├── exports: getDb(), saveScanResults(), getRecentScans(), getTierStats(), getTopSymbols()
     └── uses: better-sqlite3 (npm package)
@@ -715,7 +764,8 @@ web-server.js
     ├── serves: All HTML files from root
     ├── proxies: /proxy/analytics/* to Intel API (port 3000)
     └── API: /api/scan/*, /api/signals/*, /api/alerts, /api/premarket/*,
-             /api/gaps/*, /api/opportunities/*, /api/positions, /api/morning-briefing
+             /api/gaps/*, /api/opportunities/*, /api/positions, /api/morning-briefing,
+             /api/eod/latest, /api/eod/history, /api/internals/*, /api/rotation/*
 ```
 
 ---
@@ -724,10 +774,12 @@ web-server.js
 
 | Category | Count |
 |----------|-------|
-| HTML Dashboards | 10 |
-| Monitor Scripts (active) | 12 |
-| SQLite Database | 1 (wingman.db with 15+ tables) |
-| Flat Data Files | ~6 (legacy/supplemental) |
-| Control Ports | 4 (8081, 8082, 8083, 8084) |
+| HTML Dashboards | 14 |
+| PM2 Processes | 9 (gateway, bloodhound, earnings, opportunity, premarket, internals, webserver, eod-tracker, eod-wrapup) |
+| Monitor Scripts (total) | 27 |
+| SQLite Database | 1 (wingman.db with 18 tables) |
+| Flat Data Files | ~3 (account_summary.json + markdown files) |
+| Control Ports | 5 (8081, 8082, 8083, 8084, 8087) |
 | External API Ports | 2 (3000, 8000) |
 | Web Server Port | 1 (8080 - static + API) |
+| Gateway Port | 1 (8086 - proxy) |

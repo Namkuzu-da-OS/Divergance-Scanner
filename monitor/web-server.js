@@ -1195,6 +1195,35 @@ const server = http.createServer((req, res) => {
         return;
     }
 
+    // API: EOD summaries
+    if (req.method === 'GET' && urlPath === '/api/eod/latest') {
+        try {
+            const signalDb = require('./signal-db');
+            const summary = signalDb.getLatestEodSummary();
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(summary || { message: 'No EOD summaries yet' }));
+        } catch (e) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
+    if (req.method === 'GET' && urlPath === '/api/eod/history') {
+        try {
+            const signalDb = require('./signal-db');
+            const url = new URL(req.url, `http://${req.headers.host}`);
+            const days = parseInt(url.searchParams.get('days') || '7');
+            const history = signalDb.getEodSummaryHistory(days);
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(history));
+        } catch (e) {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+    }
+
     // API: Cache stats (cross-process API cache monitoring)
     if (req.method === 'GET' && urlPath === '/api/cache/stats') {
         try {
