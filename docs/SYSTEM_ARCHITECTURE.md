@@ -85,6 +85,10 @@ graph TB
         DASH["morning | zone-scanner | scanner<br/>dashboard | analytics | earnings<br/>opportunity | premarket | strategies<br/>options-lab | research | backtests<br/>ticker-report | levels"]
     end
 
+    subgraph Consumers["External Consumers"]
+        AI["External AI<br/>Cron 8:30 PM ET<br/>/api/v1/context"]
+    end
+
     OPT & INTEL & DIV --> GW
     GW --> AC
     AC --> BH & OPP & PM & EARN & MI
@@ -93,6 +97,7 @@ graph TB
     BH & OPP & EARN & PM & EODW --> TG
     DB --> WS
     WS --> DASH
+    WS -->|"/api/v1/context"| AI
     DIVDB -.->|read-only| BH
     OPP -.->|flow confirmation| BH
 
@@ -100,6 +105,7 @@ graph TB
     style DB fill:#4a9eff,color:#000
     style GW fill:#f59e0b,color:#000
     style TG fill:#ff6b6b,color:#000
+    style AI fill:#a855f7,color:#fff
 ```
 
 ---
@@ -184,7 +190,12 @@ flowchart LR
         HTML["14 HTML files<br/>Auto-refresh 10-60s"]
     end
 
+    subgraph ExtConsumers["External Consumers"]
+        AI["External AI<br/>Cron 8:30 PM ET"]
+    end
+
     A1 & A2 & A3 --> GW --> CA --> BH & OP & PR & EA & MI --> DB --> API --> HTML
+    API --> AI
 ```
 
 ### Cross-Scanner Data Flow
@@ -682,6 +693,7 @@ gantt
     section Post-Market
     EOD Gap Tracker                  :crit, gt, 16:15, 16:30
     EOD Wrapup + Telegram            :crit, ew, 20:15, 20:45
+    External AI Consumer             :done, ai, 20:30, 20:35
 
     section Always Running
     API Gateway                      :done, gw, 00:00, 23:59

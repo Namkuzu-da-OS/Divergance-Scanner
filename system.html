@@ -543,6 +543,10 @@ graph TB
         WS["14 Dashboards<br/>+ REST API"]
     end
 
+    subgraph Consumers["External Consumers"]
+        AI["External AI<br/>Cron 8:30 PM ET<br/>/api/v1/context"]
+    end
+
     OPT & INTEL & DIV --> GW
     GW --> AC
     AC --> BH & OPP & PM & EARN & MI
@@ -550,11 +554,13 @@ graph TB
     EODT & EODW --> DB
     BH & OPP & PM & EODW --> TG
     DB --> WS
+    WS -->|"/api/v1/context"| AI
     OPP -.->|"flow confirm"| BH
 
     style BH fill:#00d4aa,color:#000
     style DB fill:#4a9eff,color:#000
     style GW fill:#f59e0b,color:#000
+    style AI fill:#a855f7,color:#fff
         </div>
     </div>
 </div>

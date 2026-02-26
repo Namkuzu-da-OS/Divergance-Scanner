@@ -102,9 +102,10 @@ Keep main context lean. Offload heavy reads to subagents.
 
 ### External API (for AI integrations)
 ```
-GET http://localhost:8080/api/v1/context  — Full context bundle (market intel, session state, scan, positions, alerts, flow, internals)
+GET http://localhost:8080/api/v1/context  — Full context bundle (market intel, session state, scan, positions, alerts, flow, internals, eod_summary)
 GET http://localhost:8080/api/v1/health   — Service health check
 ```
+**External AI consumer:** Daily cron at 8:30 PM ET (5:30 PM PT) pulls `/api/v1/context` after EOD wrapup completes.
 Docs: `docs/API_V1.md`
 
 ### Discovery (if unsure about available endpoints)

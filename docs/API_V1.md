@@ -108,6 +108,7 @@ curl http://localhost:8080/api/v1/context
 | `alerts` | array | Last 20 alerts from past 3 days (see below) |
 | `options_flow` | array | Top 10 unusual options activity signals, score 50+ (see below) |
 | `internals` | object \| null | Latest market internals snapshot (see below) |
+| `eod_summary` | object \| null | Latest end-of-day wrap-up summary (see below) |
 
 ---
 
@@ -349,6 +350,63 @@ Returns `null` when no internals data is available (outside RTH, or scanner not 
 
 ---
 
+#### `eod_summary` (object)
+
+Latest end-of-day wrap-up summary. Generated at 8:15 PM ET by the EOD wrapup process.
+
+```json
+{
+  "date": "2026-02-25",
+  "spy_close": 692.15,
+  "spy_change_pct": 0.70,
+  "qqq_close": 615.12,
+  "qqq_change_pct": 1.19,
+  "vix_close": 18.44,
+  "vix_change_pct": -5.68,
+  "spx_close": 6937.94,
+  "spx_change_pct": 0.69,
+  "tick_final": 87,
+  "trin_final": 0.97,
+  "ad_spread_final": 128,
+  "vol_ratio_final": 1.13,
+  "scan_count": 50,
+  "tradeable_count": 1,
+  "vix_regime": "normal",
+  "spy_trend": "bullish",
+  "rotation_regime": "mid_cycle",
+  "open_positions": 0,
+  "active_signals": 5,
+  "gap_count": 0,
+  "gap_fill_count": 0,
+  "top_tickers_json": [...],
+  "top_flow_json": [...],
+  "summary_json": {...},
+  "telegram_sent": 1,
+  "timestamp": "2026-02-26T01:15:00.000Z"
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `date` | string | Trading date (YYYY-MM-DD) |
+| `spy_close` / `qqq_close` / `spx_close` | number | Closing prices |
+| `*_change_pct` | number | Daily change percentage |
+| `vix_close` / `vix_regime` | number / string | VIX close and regime classification |
+| `spy_trend` | string | Computed SPY trend label |
+| `rotation_regime` | string | Sector rotation phase |
+| `tick_final` / `trin_final` / `ad_spread_final` / `vol_ratio_final` | number | Final market internals readings |
+| `scan_count` / `tradeable_count` | number | Bloodhound scan stats |
+| `open_positions` / `active_signals` | number | Position and signal counts |
+| `gap_count` / `gap_fill_count` | number | Premarket gap stats |
+| `top_tickers_json` | array | Top 5 Bloodhound tickers by score |
+| `top_flow_json` | array | Top 3 unusual flow signals |
+| `summary_json` | object | Full structured summary data |
+| `telegram_sent` | number | 1 if Telegram summary was sent |
+
+Returns `null` when no EOD summary exists yet (before 8:15 PM, or on weekends/holidays).
+
+---
+
 ## Timing Notes
 
 - **Timestamps are UTC.** Convert to ET for trading context: UTC - 5 hours (EST) or UTC - 4 hours (EDT).
@@ -362,21 +420,25 @@ Returns `null` when no internals data is available (outside RTH, or scanner not 
 ## Architecture
 
 ```
-External App / AI
-       |
-       v
-  GET /api/v1/context
-       |
-       v
-  Port 8080 (web-server.js)
-       |
-       v
-  api-v1.js  ──> signal-db.js (SQLite)
-             ──> opportunity-db.js (SQLite)
-             ──> data/MARKET_INTEL.md (file, includes checkpoint)
+External App / AI ─────────────────────┐
+                                       │  GET /api/v1/context
+External AI Consumer                   │  (Cron 8:30 PM ET,
+  (daily cron after EOD wrapup)  ──────┤   after EOD wrapup)
+                                       │
+                                       v
+                                 Port 8080 (web-server.js)
+                                       │
+                                       v
+                                 api-v1.js  ──> signal-db.js (SQLite)
+                                            ──> opportunity-db.js (SQLite)
+                                            ──> data/MARKET_INTEL.md (file, includes checkpoint)
 ```
 
 All data is read-only from existing SQLite databases and markdown files. No upstream API calls are made — everything comes from cached scanner results. Response time is typically < 100ms.
+
+**Known consumers:**
+- **14 HTML dashboards** — auto-refresh 10-60s during trading hours
+- **External AI system** — daily cron at 8:30 PM ET (5:30 PM PT), pulls `/api/v1/context` after EOD wrapup completes
 
 ---
 
