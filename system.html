@@ -751,6 +751,86 @@ flowchart TD
     </div>
 </div>
 
+<!-- Key Data Files -->
+<div class="section" id="data-files">
+    <div class="section-header" onclick="toggleSection(this)">
+        <h2>Key Data Files</h2>
+        <span class="toggle">&#9660;</span>
+    </div>
+    <div class="section-content">
+        <p>Non-database files that drive the system. <strong>Source of truth:</strong> CLAUDE.md File Structure section.</p>
+        <table>
+            <tr><th>File</th><th>Purpose</th><th>Written By</th><th>Read By</th></tr>
+            <tr>
+                <td><code>data/wingman.db</code></td>
+                <td>Primary SQLite database — scans, signals, checkpoints, premarket, watchlist, positions, api_cache</td>
+                <td>All scanners</td>
+                <td>Web server, API endpoints, dashboards</td>
+            </tr>
+            <tr>
+                <td><code>data/MARKET_INTEL.md</code></td>
+                <td>Living market intelligence — regime, rotation, watchlist, session recaps. <strong>Includes SESSION CHECKPOINT section</strong> at the bottom (between <code>&lt;!-- CHECKPOINT:START --&gt;</code> / <code>&lt;!-- CHECKPOINT:END --&gt;</code> markers) for intra-session state recovery.</td>
+                <td>Human + <code>/checkpoint</code> command</td>
+                <td><code>/kungfu</code>, <code>/api/v1/context</code></td>
+            </tr>
+            <tr>
+                <td><code>data/daily_log.md</code></td>
+                <td>Today's trading journal. Archived to <code>archive/daily_logs/</code> at EOD.</td>
+                <td><code>-note</code> command, EOD wrapup</td>
+                <td>Session review</td>
+            </tr>
+            <tr>
+                <td><code>data/STRATEGY_CANDIDATES.md</code></td>
+                <td>Researched strategies ranked for backtesting (P1/P2/P3/Rejected)</td>
+                <td>Human</td>
+                <td>strategies.html, session planning</td>
+            </tr>
+            <tr>
+                <td><code>data/AUDIT_FINDINGS.md</code></td>
+                <td>Backtest audit results — factor analysis, flow analysis, scoring changes</td>
+                <td>Audit scripts</td>
+                <td>Scoring decisions</td>
+            </tr>
+            <tr>
+                <td><code>data/trades_journal.json</code></td>
+                <td>Trade history</td>
+                <td>Trade logging</td>
+                <td>dashboard.html</td>
+            </tr>
+            <tr>
+                <td><code>data/account_summary.json</code></td>
+                <td>P&L metrics</td>
+                <td>Trade close flow</td>
+                <td>dashboard.html</td>
+            </tr>
+        </table>
+        <h3 style="margin-top: 20px; color: var(--accent);">Commands</h3>
+        <table>
+            <tr><th>Command</th><th>Purpose</th><th>Target</th></tr>
+            <tr>
+                <td><code>/kungfu</code></td>
+                <td>Load full Wingman context — reads MARKET_INTEL.md (including checkpoint), RULES.md, STRATEGIES.md, positions API</td>
+                <td>Session startup</td>
+            </tr>
+            <tr>
+                <td><code>/checkpoint</code></td>
+                <td>Save session state to SESSION CHECKPOINT section in MARKET_INTEL.md</td>
+                <td><code>data/MARKET_INTEL.md</code></td>
+            </tr>
+            <tr>
+                <td><code>/pulse</code></td>
+                <td>Intraday market internals check (TICK, TRIN, A/D, Vol Ratio, VIX)</td>
+                <td><code>/api/internals/latest</code></td>
+            </tr>
+            <tr>
+                <td><code>-note</code></td>
+                <td>Quick journal entry with timestamp</td>
+                <td><code>data/daily_log.md</code></td>
+            </tr>
+        </table>
+    </div>
+</div>
+
 <!-- Dashboards -->
 <div class="section" id="dashboards">
     <div class="section-header" onclick="toggleSection(this)">
