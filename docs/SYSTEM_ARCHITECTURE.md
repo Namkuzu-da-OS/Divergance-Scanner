@@ -979,8 +979,7 @@ wingman/
 │
 ├── data/
 │   ├── wingman.db                 # PRIMARY SQLite database
-│   ├── MARKET_INTEL.md            # Living market intelligence
-│   ├── SESSION_STATE.md           # Session checkpoint
+│   ├── MARKET_INTEL.md            # Living market intelligence + session checkpoint
 │   ├── daily_log.md               # Trading journal
 │   ├── STRATEGY_CANDIDATES.md     # Strategy research
 │   ├── history/                   # OHLCV cache files

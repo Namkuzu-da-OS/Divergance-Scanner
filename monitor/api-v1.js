@@ -10,8 +10,8 @@
  * Endpoints:
  *   GET /api/v1/health   — Service health + cache stats
  *   GET /api/v1/context  — Full Wingman context bundle:
- *       market_intel    — MARKET_INTEL.md (regime, rotation, watchlist, recaps)
- *       session_state   — SESSION_STATE.md (intra-session checkpoint)
+ *       market_intel    — MARKET_INTEL.md (regime, rotation, watchlist, recaps, checkpoint)
+ *       session_state   — DEPRECATED (null) — checkpoint now in MARKET_INTEL.md
  *       scan            — Bloodhound results by tier (HC/tradeable/watch)
  *       positions       — Open positions with P&L summary
  *       alerts          — Last 20 alerts (3 days)
@@ -91,8 +91,8 @@ function handleDiscovery(req, res) {
                 path: '/api/v1/context',
                 description: 'Full context bundle — everything an AI needs in one call',
                 returns: {
-                    market_intel: 'Markdown — market regime, sector rotation, swing watchlist, session recaps, gamma maps, scenario matrix',
-                    session_state: 'Markdown — intra-session checkpoint with market snapshot, positions, conclusions, action queue',
+                    market_intel: 'Markdown — market regime, sector rotation, swing watchlist, session recaps, gamma maps, scenario matrix, session checkpoint',
+                    session_state: 'DEPRECATED — always null. Checkpoint is now in the SESSION CHECKPOINT section of market_intel.',
                     scan: 'Latest Bloodhound scanner results grouped by tier (high_conviction, tradeable, watch) with scores, zones, signals',
                     positions: 'Open positions with entry/stop/target prices and P&L summary',
                     alerts: 'Last 20 scanner alerts from past 3 days',
@@ -110,7 +110,7 @@ function handleDiscovery(req, res) {
         },
         data_sources: {
             market_intel: 'data/MARKET_INTEL.md — updated each trading session',
-            session_state: 'data/SESSION_STATE.md — updated via /checkpoint during sessions',
+            session_state: 'DEPRECATED — merged into MARKET_INTEL.md SESSION CHECKPOINT section',
             database: 'data/wingman.db — SQLite, all scanner results, signals, positions, internals'
         },
         docs: 'docs/API_V1.md'
@@ -137,9 +137,8 @@ function handleContext(req, res) {
         const signalDb = require('./signal-db');
         const opportunityDb = require('./opportunity-db');
 
-        // 1. Read markdown context files
+        // 1. Read markdown context file (checkpoint is now inline in MARKET_INTEL.md)
         const marketIntel = readFileOrNull(path.join(DATA_DIR, 'MARKET_INTEL.md'));
-        const sessionState = readFileOrNull(path.join(DATA_DIR, 'SESSION_STATE.md'));
 
         // 2. Latest bloodhound scan (summarized)
         const rawScan = signalDb.getLatestBloodhoundScan();
@@ -185,7 +184,7 @@ function handleContext(req, res) {
 
         sendOk(res, {
             market_intel: marketIntel,
-            session_state: sessionState,
+            session_state: null,  // DEPRECATED — checkpoint now in MARKET_INTEL.md SESSION CHECKPOINT section
             scan,
             positions: positionsData,
             alerts: alertsData?.alerts || [],

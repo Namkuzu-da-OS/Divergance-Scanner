@@ -101,8 +101,8 @@ curl http://localhost:8080/api/v1/context
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `market_intel` | string \| null | Full contents of `MARKET_INTEL.md` — regime, rotation, watchlist, session recaps, gamma maps, scenario matrix |
-| `session_state` | string \| null | Full contents of `SESSION_STATE.md` — intra-session checkpoint with market snapshot, positions, conclusions, action queue |
+| `market_intel` | string \| null | Full contents of `MARKET_INTEL.md` — regime, rotation, watchlist, session recaps, gamma maps, scenario matrix, session checkpoint |
+| `session_state` | null | **DEPRECATED.** Always `null`. Checkpoint data is now in the `## SESSION CHECKPOINT` section at the bottom of `market_intel`. |
 | `scan` | object \| null | Latest Bloodhound scanner results (see below) |
 | `positions` | object | Open positions with P&L summary (see below) |
 | `alerts` | array | Last 20 alerts from past 3 days (see below) |
@@ -126,20 +126,11 @@ The living market intelligence document, maintained across sessions. Contains:
 
 This is Markdown text. Parse it as-is or extract sections by heading.
 
-#### `session_state` (string)
+#### `session_state` (DEPRECATED)
 
-Intra-session checkpoint saved via `/checkpoint` command. Contains:
+**Always returns `null`.** The session checkpoint has been merged into `market_intel`.
 
-- **Market snapshot** — real-time prices, VIX, internals at time of checkpoint
-- **Bloodhound status** — ticker count, top signals
-- **Watchlist status** — table of all watched tickers with tier, zone, score, sector wind
-- **Positions** — current entries with marks
-- **Key conclusions** — what was learned this session
-- **Action queue** — next steps
-- **Rotation regime** — sector context
-- **Calendar** — confirmed dates only
-
-This is Markdown text. The timestamp at the top tells you when it was written.
+The checkpoint data now lives in the `## SESSION CHECKPOINT` section at the bottom of `MARKET_INTEL.md`, between `<!-- CHECKPOINT:START -->` and `<!-- CHECKPOINT:END -->` markers. Parse it from the `market_intel` field if needed.
 
 ---
 
@@ -363,7 +354,7 @@ Returns `null` when no internals data is available (outside RTH, or scanner not 
 - **Timestamps are UTC.** Convert to ET for trading context: UTC - 5 hours (EST) or UTC - 4 hours (EDT).
 - **Scan data** refreshes every 5 minutes during market hours.
 - **Internals** refresh every 2 minutes during RTH (9:30 AM - 4:00 PM ET).
-- **MARKET_INTEL.md** and **SESSION_STATE.md** are updated manually during trading sessions. They may be stale on weekends or between sessions.
+- **MARKET_INTEL.md** (including the session checkpoint section) is updated manually during trading sessions. It may be stale on weekends or between sessions.
 - **Options flow** refreshes every 5 minutes during market hours.
 
 ---
@@ -382,8 +373,7 @@ External App / AI
        v
   api-v1.js  ──> signal-db.js (SQLite)
              ──> opportunity-db.js (SQLite)
-             ──> data/MARKET_INTEL.md (file)
-             ──> data/SESSION_STATE.md (file)
+             ──> data/MARKET_INTEL.md (file, includes checkpoint)
 ```
 
 All data is read-only from existing SQLite databases and markdown files. No upstream API calls are made — everything comes from cached scanner results. Response time is typically < 100ms.
@@ -396,8 +386,7 @@ All data is read-only from existing SQLite databases and markdown files. No upst
 |------|---------|
 | `monitor/api-v1.js` | Route handler, envelope helpers, context aggregation |
 | `monitor/web-server.js` | Hook: routes `/api/v1/*` to api-v1.js (5 lines added) |
-| `data/MARKET_INTEL.md` | Living market intelligence document |
-| `data/SESSION_STATE.md` | Intra-session checkpoint |
+| `data/MARKET_INTEL.md` | Living market intelligence document (includes session checkpoint) |
 | `data/wingman.db` | SQLite database (scans, signals, positions, internals, etc.) |
 
 ---

@@ -232,8 +232,7 @@ morning.html (default), zone-scanner.html, premarket.html, earnings-scanner.html
 | File | Purpose |
 |------|---------|
 | `data/wingman.db` | SQLite — scans, signals, checkpoints, premarket, watchlist, positions, api_cache |
-| `data/MARKET_INTEL.md` | Living market intelligence — regime, rotation, watchlist, session recaps |
-| `data/SESSION_STATE.md` | Intra-session checkpoint (written by `/checkpoint`, read by `/kungfu`) |
+| `data/MARKET_INTEL.md` | Living market intelligence — regime, rotation, watchlist, session recaps, session checkpoint |
 | `data/daily_log.md` | Today's journal |
 | `data/STRATEGY_CANDIDATES.md` | Researched strategies ranked for backtesting (P1/P2/P3/Rejected) |
 | `data/trades_journal.json` | Trade history |
@@ -244,7 +243,7 @@ morning.html (default), zone-scanner.html, premarket.html, earnings-scanner.html
 |---------|---------|
 | `/kungfu` | Load full Wingman context |
 | `/pulse` | Intraday market internals check |
-| `/checkpoint` | Save session state to SESSION_STATE.md |
+| `/checkpoint` | Save session state to SESSION CHECKPOINT section in MARKET_INTEL.md |
 | `-note` | Quick journal entry |
 
 ---
