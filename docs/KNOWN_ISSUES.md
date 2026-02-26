@@ -1,205 +1,196 @@
-# Known Issues & Future Improvements
+# Known Issues & Status Log
+
+> Last updated: 2026-02-26
+
+---
+
+## Critical Issues
+
+### 1. Signal 7-Day Checkpoints Not Executing
+**Severity:** HIGH
+**Files:** `monitor/signal-logger.js`, `monitor/bloodhound-scanner.js`
+**Status:** Broken (0/187 eligible signals completed 7-day checkpoint)
+
+**Impact:** Swing-trade performance validation is completely non-functional. Cannot analyze whether HIGH_CONVICTION signals perform better over 7 days vs 24 hours. This is a core analytics gap.
+
+**Likely Cause:** Checkpoint scheduling logic may not be triggering the 7-day check, or signals are being auto-closed (72h timeout) before reaching the 7-day window.
+
+**Action:** Investigate signal lifecycle — the 72h auto-close may conflict with the 7-day checkpoint window.
+
+---
+
+### 2. Opportunity Scanner Aborts on Market Context Failure
+**Severity:** HIGH
+**Files:** `monitor/opportunity-scanner.js`
+**Status:** Unfixed
+
+**Impact:** When `/api/market/context` fails (observed: 30+ failures on Feb 23), the entire scan cycle aborts. This means zero opportunity data during API outages.
+
+**Current Behavior:**
+```
+"Failed to fetch market context, aborting scan"
+```
+
+**Expected:** Should fall back to cached context or run scan without context, not abort entirely.
+
+---
 
 ## Medium Priority Issues
 
-### 1. API Retry Logic Missing
-**File**: `monitor/paper-trade-manager.js:216-219`
-**Status**: Working but fragile
-**Impact**: If OPTIONS API fails to return price, trade update is silently skipped
+### 3. SPY/QQQ change_pct Hardcoded to 0
+**Severity:** MEDIUM
+**File:** `monitor/bloodhound-scanner.js:2909, 2919`
+**Status:** Unfixed
 
-**Current Behavior**:
 ```javascript
-const currentPrice = await getCurrentPrice(trade.symbol);
-if (!currentPrice) {
-  continue; // Skip if price fetch failed
-}
+spy: {
+    price: marketContext?.spyPrice || 0,
+    change_pct: 0, // TODO: get from API if needed
 ```
 
-**Improvement Needed**:
-- Add exponential backoff retry (3 attempts)
-- Log failures to monitoring
-- Distinguish between 401 (auth), 404 (symbol not found), 500 (server error)
+**Impact:** Scanner output always shows 0% daily change for SPY and QQQ. Dashboards can't display daily market movement.
 
 ---
 
-### 2. File I/O on Every Update Cycle
-**File**: `monitor/paper-trade-manager.js:205, 269`
-**Status**: Working but inefficient
-**Impact**: Reads/writes entire `paper_trades.json` every 2 minutes
+### 4. Silent Error Catch (Pause File)
+**Severity:** MEDIUM
+**File:** `monitor/bloodhound-scanner.js:2140`
+**Status:** Unfixed
 
-**Current Behavior**:
-- 20 trades × 2-min updates = ~14KB written every 2 min
-- 500 trades = ~300KB every 2 min
-- ~216MB/day with 500 trades
-
-**Improvement Options**:
-1. In-memory cache with periodic flush (every 10 min)
-2. Switch to SQLite database
-3. Write deltas only (append-only log + periodic compaction)
-
----
-
-### 3. Dashboard Auto-Refresh Race Condition
-**File**: `analytics.html:690, 331`
-**Status**: Low probability issue
-**Impact**: Manual refresh during auto-refresh could cause display inconsistency
-
-**Current Behavior**:
 ```javascript
-setInterval(loadData, 30000);  // Auto-refresh every 30s
-// But manual refresh button can also call loadData()
+try {
+    pausedAt = fs.readFileSync(PAUSE_FILE, 'utf8');
+} catch (e) {}  // Swallows all errors silently
 ```
 
-**Improvement Needed**:
-- Add debouncing: ignore manual refresh if auto-refresh in progress
-- Cancel pending fetch if new one starts
-- Show loading spinner during fetch
+**Impact:** If PAUSE_FILE read fails for unexpected reasons (permissions, corruption), the error is completely masked.
 
 ---
 
-### 4. Missing Context Capture: Gamma Regime
-**File**: `monitor/bloodhound-scanner.js:1904-1910`
-**Status**: Working but incomplete
-**Impact**: Can't analyze performance by gamma regime (BULLISH_SUPPORT vs BEARISH_RESISTANCE)
+### 5. External Divergence DB Path Fragile
+**Severity:** MEDIUM
+**File:** `monitor/bloodhound-scanner.js:832`
+**Status:** Works but fragile
 
-**Current Context Captured**:
 ```javascript
-{
-  score: analysis.totalScore,
-  zone: analysis.zone,
-  signals: analysis.signals,
-  vix: marketContext?.vix,
-  vix_regime: marketContext?.vixRegime
-}
+const DB_PATH = path.join(__dirname, '..', '..', 'divergence-scanner', 'data', 'divergence_scanner.db');
 ```
 
-**Missing**:
-- `gamma_regime` - Would show if trades work better in BULLISH_SUPPORT vs BEARISH_RESISTANCE
-- `market_sentiment` - Overall bullish/bearish sentiment score
-- `spy_trend` - Alignment with SPY direction
+**Impact:** Hardcoded relative path assumes exact directory layout. Breaks if repos are reorganized. Falls back to API (which may also fail — see divergence API timeout history).
 
 ---
 
-### 5. All-Breakevens Edge Case
-**File**: `analytics.html:482-490`
-**Status**: Edge case not handled
-**Impact**: If all closed trades are breakevens (no wins or losses), insight logic shows "FILTER OUT"
+### 6. Market Internals tick_high/tick_low Always 0
+**Severity:** MEDIUM
+**File:** `monitor/market-internals.js`
+**Status:** Unverified (533/558 rows have tick_high=0, tick_low=0)
 
-**Better Handling**:
-- Show special insight: "⚠️ INCONCLUSIVE: All trades breakeven (±2%)"
-- Suggest tightening thresholds or extending hold time
+**Likely Cause:** Schwab API's `$TICK` quote doesn't include `highPrice`/`lowPrice` fields for index symbols.
+
+**Impact:** Cannot track TICK range for the day. Limits breadth extreme analysis.
 
 ---
 
-### 6. Dashboard Sections Not Fully Responsive
-**File**: `analytics.html` (error handling)
-**Status**: Fixed for errors, but loading states inconsistent
-**Impact**: UX issue - some sections show "Loading..." forever if data fetch slow
+### 7. Divergence Scanner API Timeouts
+**Severity:** MEDIUM (intermittent)
+**File:** `logs/pm2/bloodhound-error.log`
+**Status:** External dependency issue
 
-**Improvement**:
-- Global loading state
-- Timeout after 10s → show error
-- Skeleton loaders instead of "Loading..." text
+**Observed:** 48+ consecutive API call failures to divergence scanner (Feb 23-25). Each timeout took ~5 seconds, slowing scan cycles.
+
+**Mitigation:** Bloodhound reads RS data directly from divergence scanner SQLite DB as primary source, only falling back to API. Rotation regime still requires API call.
 
 ---
 
 ## Low Priority Issues
 
-### 7. After-Hours Price Data Not Flagged
-**Status**: Data quality issue
-**Impact**: Time window prices (1h, 4h, 24h, 72h) might capture after-hours prices
+### 8. Legacy eod.js Still Exists
+**Severity:** LOW
+**File:** `eod.js` (root)
+**Status:** Deprecated, marked with comment on line 3
 
-**Improvement**:
-- Check if market is open when capturing time window prices
-- Flag after-hours prices in outcome data
-- Filter analytics by regular hours only
+**Action:** Delete file. All functionality absorbed into `monitor/eod-wrapup.js`.
 
 ---
 
-### 8. No Atomic File Writes
-**File**: `monitor/paper-trade-manager.js:65`
-**Status**: Low-probability data corruption risk
-**Impact**: If process crashes mid-write, `paper_trades.json` could be truncated
+### 9. _legacy/ Folder Should Be Cleaned Up
+**Severity:** LOW
+**File:** `monitor/_legacy/zone-scanner.js` (14.6 KB)
+**Status:** Pre-migration code, no longer referenced
 
-**Current**:
-```javascript
-fs.writeFileSync(CONFIG.DATA_FILE, JSON.stringify(data, null, 2));
-```
-
-**Fix**:
-```javascript
-const tempFile = CONFIG.DATA_FILE + '.tmp';
-fs.writeFileSync(tempFile, JSON.stringify(data, null, 2));
-fs.renameSync(tempFile, CONFIG.DATA_FILE);  // Atomic on most filesystems
-```
+**Action:** Delete folder.
 
 ---
 
-### 9. Hardcoded Win/Loss Thresholds
-**File**: `monitor/paper-trade-manager.js:11-12`
-**Status**: Arbitrary thresholds
-**Impact**: WIN (+2%) / LOSS (-2%) / BREAKEVEN band is 4% wide
+### 10. Migration Scripts No Longer Needed
+**Severity:** LOW
+**Files:** `monitor/migrate-to-db.js`, `monitor/migrate-watchlist.js`, `monitor/cleanup-duplicate-signals.js`
+**Status:** One-time utilities, already executed
 
-**Current**:
-```javascript
-WIN_THRESHOLD_PCT: 2.0,
-LOSS_THRESHOLD_PCT: -2.0,
-```
-
-**Improvement**:
-- Make configurable via config.json
-- Consider % of account risk instead of fixed %
-- Different thresholds per strategy (scalp vs swing)
+**Action:** Move to archive or delete.
 
 ---
 
-### 10. WATCH Tier Not Tracked
-**File**: `monitor/bloodhound-scanner.js:1904`
-**Status**: Intentional design choice
-**Impact**: Only HIGH_CONVICTION signals create paper trades
+### 11. JSON Files Still in data/ Directory
+**Severity:** LOW (violates project mandate but no production impact)
+**Status:** Partially addressed
 
-**Improvement**:
-- Track WATCH tier separately (signal_type='WATCH')
-- Compare HIGH_CONVICTION vs WATCH performance
-- Helps validate if 60-80 score range is actionable
+| File | Size | Status | Notes |
+|------|------|--------|-------|
+| account_summary.json | 2.4 KB | Orphaned | Written by deprecated eod.js, stale since Dec 2025 |
+| paper_trades.json | 18 bytes | Empty | Referenced in web-server.js but unused |
+| spy_history.json | 358 KB | Research | Used by legacy backtest scripts only |
+| vix_history.json | 328 KB | Research | Used by legacy backtest scripts only |
+| add_history.json | 341 KB | Research | Used by legacy backtest scripts only |
+| pcall_history.json | 42 bytes | Research | Used by legacy backtest scripts only |
+
+**Per project mandate:** "ALL data must live in SQLite. NO JSON files in data/."
 
 ---
 
-## Recently Fixed
+### 12. Hourly Log Commits Inflating Git History
+**Severity:** LOW
+**File:** `scripts/archive-logs.sh`
+**Status:** Working as designed, but generates 24 commits/day
+
+**Action:** Consider reducing frequency to every 6-12 hours.
+
+---
+
+### 13. Dashboard Auto-Refresh Race Condition
+**Severity:** LOW
+**File:** `analytics.html`
+**Status:** Low probability
+
+**Issue:** Manual refresh during auto-refresh could cause display inconsistency. No debouncing between manual and auto-refresh intervals.
+
+---
+
+## Previously Fixed
+
+### 2026-02-26
+- SPY trend computation moved to Bloodhound (was using misleading Options API label)
+- EOD wrapup consolidated (absorbed eod.js functionality)
+- CSS for new SPY trend labels in opportunity scanner
+
+### 2026-02-25
+- Breadth extreme alerts (Strategy 10) added to Bloodhound
+- Strategies dashboard updated with all 10 strategies + automation badges
+- Strategy candidates research completed (P1/P2/Rejected rankings)
+
+### 2026-02-24
+- Flow x sector RS audit completed (QCOM lesson)
+- Annotation-only warning for flow + bottom-quartile sector
+
+### 2026-02-20
+- Cross-scanner flow injection (Opportunity -> Bloodhound scoring)
+- Opportunity scanner maxSymbols raised 30 -> 50
+
+### 2026-02-19
+- API Gateway deployed (central proxy with circuit breakers)
+- Cross-process API cache implemented (SQLite-backed)
+- All scanners migrated to api-client.js routing through gateway
 
 ### 2026-01-13
-✅ **Market Hours Handling** (CRITICAL):
-- Scanner now detects market hours and stops during after-hours/weekends
-- Shows next market open time when idle
-- Prevents unnecessary API calls and alerts during closed hours
-
-✅ **Paper Trade API Endpoint** (HIGH):
-- Fixed wrong endpoint: `/api/quotes/{symbol}` → `/api/technicals/{symbol}`
-- Eliminates 401 errors during price updates
-- Properly extracts price from technicals response
-
-**Commit**: Pending
-
----
-
-### 2026-01-12
-✅ **Critical Bugs Fixed**:
-1. Time window price capture (missed snapshots on restart)
-2. Bearish trade PnL calculated backwards
-3. Exit conditions masked (couldn't see multiple reasons)
-4. Analytics dashboard crashed on malformed JSON
-5. Hardcoded '999' profit factor
-6. Missing null checks on pnl_pct
-7. Duplicate trade IDs possible
-8. Risky price/direction fallback chains
-
-**Commit**: `d93b9a4` - "Fix critical bugs in analytics system"
-
----
-
-## Priority for Next Update
-
-1. API Retry Logic (MEDIUM)
-2. Gamma Regime Context (MEDIUM)
-3. File I/O Optimization (LOW - only matters at scale)
-4. Atomic File Writes (LOW - safety improvement)
+- Market hours handling fixed (scanner stops during after-hours)
+- Paper trade API endpoint fixed (was using wrong endpoint)

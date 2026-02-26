@@ -193,7 +193,7 @@ Scanners start at staggered intervals via `SCAN_OFFSET_MS` env var in `ecosystem
 | 32212 | Divergence Scanner | External (192.168.10.61) — RS rankings, rotation |
 
 ### Dashboard URLs (all at localhost:8080)
-morning.html (default), zone-scanner.html, premarket.html, earnings-scanner.html, opportunity-scanner.html, analytics.html, strategies.html, dashboard.html, options-lab.html, research.html, scanner.html, backtests.html, ticker-report.html, levels.html
+morning.html (default), zone-scanner.html, premarket.html, earnings-scanner.html, opportunity-scanner.html, analytics.html, strategies.html, dashboard.html, options-lab.html, research.html, scanner.html, backtests.html, ticker-report.html, levels.html, system.html
 
 ### Key Web Server API Endpoints (Port 8080)
 | Endpoint | Purpose |

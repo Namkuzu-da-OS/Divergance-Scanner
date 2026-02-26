@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wingman System Documentation</title>
+<link rel="stylesheet" href="css/nav.css">
+<style>
+:root {
+    --bg: #0a0e1a;
+    --card: #151821;
+    --card-hover: #1a1f2e;
+    --border: #2a3641;
+    --text: #e5e7eb;
+    --muted: #8b92a8;
+    --accent: #00d4aa;
+    --red: #ff6b6b;
+    --yellow: #f59e0b;
+    --blue: #4a9eff;
+    --purple: #a855f7;
+    --green: #00d4aa;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+.container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+/* Header */
+.doc-header {
+    text-align: center;
+    padding: 40px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 30px;
+}
+.doc-header h1 {
+    font-size: 2.2em;
+    color: var(--accent);
+    margin-bottom: 8px;
+}
+.doc-header .subtitle {
+    color: var(--muted);
+    font-size: 1.1em;
+}
+.doc-header .updated {
+    color: var(--muted);
+    font-size: 0.85em;
+    margin-top: 8px;
+}
+
+/* TOC */
+.toc {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 30px;
+    margin-bottom: 30px;
+}
+.toc h2 {
+    color: var(--accent);
+    margin-bottom: 12px;
+    font-size: 1.1em;
+}
+.toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 6px;
+}
+.toc a {
+    color: var(--blue);
+    text-decoration: none;
+    font-size: 0.9em;
+    padding: 4px 0;
+    display: block;
+}
+.toc a:hover { color: var(--accent); }
+
+/* Status Dashboard */
+.status-dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 30px;
+}
+.status-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+    transition: border-color 0.2s;
+}
+.status-card:hover { border-color: var(--accent); }
+.status-card .name {
+    font-size: 0.85em;
+    color: var(--muted);
+    margin-bottom: 4px;
+}
+.status-card .port {
+    font-size: 0.75em;
+    color: var(--muted);
+    margin-bottom: 6px;
+}
+.status-card .status-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+.status-card .status-text {
+    font-size: 0.85em;
+    font-weight: 600;
+}
+.status-green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.status-yellow { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
+.status-red { background: var(--red); box-shadow: 0 0 6px var(--red); }
+.text-green { color: var(--green); }
+.text-yellow { color: var(--yellow); }
+.text-red { color: var(--red); }
+
+/* Collapsible Sections */
+.section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 16px;
+    overflow: hidden;
+}
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+}
+.section-header:hover { background: var(--card-hover); }
+.section-header h2 {
+    font-size: 1.15em;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.section-header .toggle {
+    font-size: 1.2em;
+    color: var(--muted);
+    transition: transform 0.3s;
+}
+.section.open .toggle { transform: rotate(180deg); }
+.section-content {
+    display: none;
+    padding: 0 20px 20px;
+}
+.section.open .section-content { display: block; }
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 0.88em;
+}
+th {
+    background: rgba(0,212,170,0.1);
+    color: var(--accent);
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 2px solid var(--border);
+    font-weight: 600;
+}
+td {
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(42,54,65,0.5);
+    vertical-align: top;
+}
+tr:hover td { background: rgba(255,255,255,0.02); }
+code {
+    background: rgba(0,212,170,0.08);
+    color: var(--accent);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: 0.9em;
+}
+pre {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+    overflow-x: auto;
+    font-size: 0.85em;
+    margin: 12px 0;
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    color: var(--text);
+    line-height: 1.5;
+}
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75em;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+.badge-green { background: rgba(0,212,170,0.15); color: var(--green); }
+.badge-yellow { background: rgba(245,158,11,0.15); color: var(--yellow); }
+.badge-red { background: rgba(255,107,107,0.15); color: var(--red); }
+.badge-blue { background: rgba(74,158,255,0.15); color: var(--blue); }
+.badge-purple { background: rgba(168,85,247,0.15); color: var(--purple); }
+
+h3 {
+    color: var(--text);
+    margin: 20px 0 10px;
+    font-size: 1.05em;
+}
+h4 {
+    color: var(--muted);
+    margin: 14px 0 8px;
+    font-size: 0.95em;
+}
+p { margin: 8px 0; }
+ul, ol { margin: 8px 0; padding-left: 24px; }
+li { margin: 4px 0; }
+
+/* Mermaid */
+.mermaid {
+    background: #0d1117;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 16px 0;
+    text-align: center;
+    overflow-x: auto;
+}
+
+/* Stats bar */
+.stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 30px;
+}
+.stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+}
+.stat-card .number {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: var(--accent);
+}
+.stat-card .label {
+    font-size: 0.8em;
+    color: var(--muted);
+    margin-top: 4px;
+}
+
+/* Issues */
+.issue-card {
+    background: rgba(0,0,0,0.2);
+    border-left: 3px solid var(--red);
+    border-radius: 0 6px 6px 0;
+    padding: 12px 16px;
+    margin: 8px 0;
+}
+.issue-card.medium { border-left-color: var(--yellow); }
+.issue-card.low { border-left-color: var(--blue); }
+.issue-card .issue-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+.issue-card .issue-file {
+    font-size: 0.8em;
+    color: var(--muted);
+}
+
+/* Port map */
+.port-grid {
+    display: grid;
+    grid-template-columns: 80px 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 12px 0;
+}
+.port-cell {
+    background: var(--card);
+    padding: 10px 14px;
+    font-size: 0.88em;
+}
+.port-cell.header {
+    background: rgba(0,212,170,0.08);
+    color: var(--accent);
+    font-weight: 600;
+}
+.port-number {
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    color: var(--yellow);
+    font-weight: 600;
+}
+
+/* Search */
+.search-box {
+    margin-bottom: 20px;
+}
+.search-box input {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 0.95em;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.search-box input:focus { border-color: var(--accent); }
+.search-box input::placeholder { color: var(--muted); }
+
+@media (max-width: 768px) {
+    .container { padding: 12px; }
+    .doc-header h1 { font-size: 1.6em; }
+    .status-dashboard { grid-template-columns: repeat(2, 1fr); }
+    .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    .toc-grid { grid-template-columns: 1fr; }
+    table { font-size: 0.8em; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- Navigation -->
+<div class="header">
+    <div class="header-left">
+        <h1>System Docs</h1>
+    </div>
+    <div class="header-center">
+        <nav class="nav-links">
+            <a href="morning.html" class="nav-link">MORNING</a>
+            <a href="zone-scanner.html" class="nav-link">ZONES</a>
+            <a href="premarket.html" class="nav-link">GAPS</a>
+            <a href="earnings-scanner.html" class="nav-link">EARNINGS</a>
+            <a href="opportunity-scanner.html" class="nav-link">FLOW</a>
+            <a href="scanner.html" class="nav-link">MARKET</a>
+            <div class="nav-dropdown">
+                <div class="nav-dropdown-toggle active">INSIGHTS</div>
+                <div class="nav-dropdown-menu">
+                    <a href="analytics.html">Analytics</a>
+                    <a href="research.html">Research</a>
+                    <a href="strategies.html">Strategies</a>
+                    <a href="options-lab.html">Options Lab</a>
+                    <a href="backtests.html">Backtests</a>
+                    <a href="ticker-report.html">Ticker Report</a>
+                    <a href="levels.html">Levels</a>
+                    <a href="system.html" class="active">System</a>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="header-right">
+        <span style="font-size: 0.7rem; color: #8b92a8;">Source: docs/SYSTEM_ARCHITECTURE.md</span>
+    </div>
+</div>
+
+<!-- Page Header -->
+<div class="doc-header">
+    <h1>Wingman System Documentation</h1>
+    <div class="subtitle">Autonomous Opportunity Detection for Options Trading</div>
+    <div class="updated">Last updated: 2026-02-26</div>
+</div>
+
+<!-- Key Stats -->
+<div class="stats-bar">
+    <div class="stat-card">
+        <div class="number">9</div>
+        <div class="label">PM2 Processes</div>
+    </div>
+    <div class="stat-card">
+        <div class="number">14</div>
+        <div class="label">Dashboards</div>
+    </div>
+    <div class="stat-card">
+        <div class="number">18+</div>
+        <div class="label">SQLite Tables</div>
+    </div>
+    <div class="stat-card">
+        <div class="number">25+</div>
+        <div class="label">API Endpoints</div>
+    </div>
+    <div class="stat-card">
+        <div class="number">50</div>
+        <div class="label">Symbols/Scan</div>
+    </div>
+    <div class="stat-card">
+        <div class="number">3</div>
+        <div class="label">External APIs</div>
+    </div>
+</div>
+
+<!-- Status Dashboard -->
+<div class="section open" id="status">
+    <div class="section-header" onclick="toggleSection(this)">
+        <h2>System Health Dashboard</h2>
+        <span class="toggle">&#9660;</span>
+    </div>
+    <div class="section-content">
+        <div class="status-dashboard">
+            <div class="status-card">
+                <div class="name">Bloodhound Scanner</div>
+                <div class="port">:8081 | 5 min cycle</div>
+                <span class="status-indicator status-green"></span>
+                <span class="status-text text-green">Working</span>
+            </div>
+            <div class="status-card">
+                <div class="name">Opportunity Scanner</div>
+                <div class="port">:8083 | 5 min cycle</div>
+                <span class="status-indicator status-yellow"></span>
+                <span class="status-text text-yellow">Fragile</span>
+            </div>
+            <div class="status-card">
+                <div class="name">Earnings Scanner</div>
+                <div class="port">:8082 | 30 min cycle</div>
+                <span class="status-indicator status-green"></span>
+                <span class="status-text text-green">Working</span>
+            </div>
+            <div class="status-card">
+                <div class="name">Premarket Scanner</div>
+                <div class="port">:8084 | 6-9:30 AM ET</div>
+                <span class="status-indicator status-green"></span>
+                <span class="status-text text-green">Working</span>
+            </div>
+            <div class="status-card">
+                <div class="name">Market Internals</div>
+                <div class="port">:8085 | 2 min RTH</div>
+                <span class="status-indicator status-green"></span>
+                <span class="status-text text-green">Working</span>
+            </div>
+            <div class="status-card">
+                <div class="name">API Gateway</div>
+                <div class="port">:8086 | Always-on</div>
+                <span class="status-indicator status-green"></span>
+                <span class="status-text text-green">Working</span>
+            </div>
+            <div class="status-card">
+                <div class="name">Web Server</div>
+                <div class="port">:8080 | Always-on</div>
+                <span class="status-indicator status-green"></span>
+                <span class="status-text text-green">Working</span>
+            </div>
+            <div class="status-card">
+                <div class="name">EOD Gap Tracker</div>
+                <div class="port">Cron 4:15 PM ET</div>
+                <span class="status-indicator status-green"></span>
+                <span class="status-text text-green">Working</span>
+            </div>
+            <div class="status-card">
+                <div class="name">EOD Wrapup</div>
+                <div class="port">:8087 | 8:15 PM ET</div>
+                <span class="status-indicator status-green"></span>
+                <span class="status-text text-green">Working</span>
+            </div>
+            <div class="status-card">
+                <div class="name">Signal Validation</div>
+                <div class="port">7-day checkpoints</div>
+                <span class="status-indicator status-red"></span>
+                <span class="status-text text-red">Broken</span>
+            </div>
+            <div class="status-card">
+                <div class="name">Options API</div>
+                <div class="port">192.168.10.60:8000</div>
+                <span class="status-indicator status-green"></span>
+                <span class="status-text text-green">External</span>
+            </div>
+            <div class="status-card">
+                <div class="name">Divergence Scanner</div>
+                <div class="port">192.168.10.61:32212</div>
+                <span class="status-indicator status-yellow"></span>
+                <span class="status-text text-yellow">Intermittent</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Architecture Diagram -->
+<div class="section open" id="architecture">
+    <div class="section-header" onclick="toggleSection(this)">
+        <h2>Architecture Overview</h2>
+        <span class="toggle">&#9660;</span>
+    </div>
+    <div class="section-content">
+        <div class="mermaid">
+graph TB
+    subgraph External["External APIs"]
+        OPT["Options API<br/>192.168.10.60:8000"]
+        INTEL["Intel API<br/>192.168.10.60:3000"]
+        DIV["Divergence Scanner<br/>192.168.10.61:32212"]
+        TG["Telegram Bot API"]
+    end
+
+    subgraph Gateway["API Gateway :8086"]
+        GW["Circuit Breaker + Queue<br/>Rate Limiting"]
+    end
+
+    subgraph Cache["Shared Cache"]
+        AC["api_cache table<br/>TTL: 5-15 min"]
+    end
+
+    subgraph Scanners["PM2 Scanner Processes"]
+        BH["Bloodhound :8081<br/>Every 5 min"]
+        OPP["Opportunity :8083<br/>Every 5 min"]
+        PM["Premarket :8084<br/>6-9:30 AM ET"]
+        EARN["Earnings :8082<br/>Every 30 min"]
+        MI["Internals :8085<br/>Every 2 min RTH"]
+    end
+
+    subgraph EOD["End-of-Day"]
+        EODT["EOD Gap Tracker<br/>4:15 PM ET"]
+        EODW["EOD Wrapup :8087<br/>8:15 PM ET"]
+    end
+
+    subgraph Data["Data Layer"]
+        DB[("wingman.db<br/>SQLite 18+ tables")]
+    end
+
+    subgraph Web["Web Server :8080"]
+        WS["14 Dashboards<br/>+ REST API"]
+    end
+
+    OPT & INTEL & DIV --> GW
+    GW --> AC
+    AC --> BH & OPP & PM & EARN & MI
+    BH & OPP & PM & EARN & MI --> DB
+    EODT & EODW --> DB
+    BH & OPP & PM & EODW --> TG
+    DB --> WS
+    OPP -.->|"flow confirm"| BH
+
+    style BH fill:#00d4aa,color:#000
+    style DB fill:#4a9eff,color:#000
+    style GW fill:#f59e0b,color:#000
+        </div>
+    </div>
+</div>
+
+<!-- Component Inventory -->
+<div class="section" id="components">
+    <div class="section-header" onclick="toggleSection(this)">
+        <h2>Component Inventory</h2>
+        <span class="toggle">&#9660;</span>
+    </div>
+    <div class="section-content">
+        <h3>PM2 Processes (9 total)</h3>
+        <table>
+            <tr><th>Process</th><th>Port</th><th>File</th><th>Purpose</th><th>Interval</th><th>Memory</th><th>Status</th></tr>
+            <tr><td><strong>gateway</strong></td><td><code>8086</code></td><td>api-gateway.js</td><td>Central HTTP proxy, circuit breakers</td><td>Always-on</td><td>128M</td><td><span class="badge badge-green">Working</span></td></tr>
+            <tr><td><strong>bloodhound</strong></td><td><code>8081</code></td><td>bloodhound-scanner.js</td><td>Core confluence scoring + alerts</td><td>5 min</td><td>512M</td><td><span class="badge badge-green">Working</span></td></tr>
+            <tr><td><strong>opportunity</strong></td><td><code>8083</code></td><td>opportunity-scanner.js</td><td>Unusual options activity detection</td><td>5 min</td><td>256M</td><td><span class="badge badge-yellow">Fragile</span></td></tr>
+            <tr><td><strong>earnings</strong></td><td><code>8082</code></td><td>earnings-scanner.js</td><td>Pre-earnings momentum (PREM)</td><td>30 min</td><td>256M</td><td><span class="badge badge-green">Working</span></td></tr>
+            <tr><td><strong>premarket</strong></td><td><code>8084</code></td><td>premarket-scanner.js</td><td>Gap detection (&ge;2%)</td><td>5 min</td><td>256M</td><td><span class="badge badge-green">Working</span></td></tr>
+            <tr><td><strong>internals</strong></td><td><code>8085</code></td><td>market-internals.js</td><td>TICK/TRIN/VIX/breadth collection</td><td>2 min</td><td>128M</td><td><span class="badge badge-green">Working</span></td></tr>
+            <tr><td><strong>webserver</strong></td><td><code>8080</code></td><td>web-server.js</td><td>Dashboards + REST API</td><td>Always-on</td><td>512M</td><td><span class="badge badge-green">Working</span></td></tr>
+            <tr><td><strong>eod-tracker</strong></td><td>-</td><td>eod-gap-tracker.js</td><td>Gap outcome tracking</td><td>4:15 PM ET</td><td>128M</td><td><span class="badge badge-green">Working</span></td></tr>
+            <tr><td><strong>eod-wrapup</strong></td><td><code>8087</code></td><td>eod-wrapup.js</td><td>Daily summary + archive</td><td>8:15 PM ET</td><td>128M</td><td><span class="badge badge-green">Working</span></td></tr>
+        </table>
+
+        <h3>Shared Libraries</h3>
+        <table>
+            <tr><th>File</th><th>Purpose</th><th>Used By</th></tr>
+            <tr><td><code>signal-db.js</code></td><td>Central SQLite data layer (40+ functions, 18+ tables)</td><td>All scanners, web server, EOD</td></tr>
+            <tr><td><code>opportunity-db.js</code></td><td>Opportunity-specific SQLite operations</td><td>Opportunity, Bloodhound, EOD wrapup</td></tr>
+            <tr><td><code>api-client.js</code></td><td>Shared fetchJSON (routes through gateway, fallback direct)</td><td>All scanners</td></tr>
+            <tr><td><code>api-cache.js</code></td><td>Cross-process SQLite cache with TTLs</td><td>All scanners via api-client</td></tr>
+            <tr><td><code>signal-logger.js</code></td><td>Signal validation + checkpoint tracking (4h/24h/7d)</td><td>Bloodhound, Earnings</td></tr>
+            <tr><td><code>telegram.js</code></td><td>Telegram messaging with retry + rate limiting</td><td>All scanners + EOD</td></tr>
+            <tr><td><code>config-loader.js</code></td><td>Config.json + env var loader</td><td>All modules</td></tr>
+            <tr><td><code>ma-bounce.js</code></td><td>MA bounce detection (per-ticker backtest configs)</td><td>Bloodhound</td></tr>
+            <tr><td><code>divergence-bb.js</code></td><td>RSI divergence + Bollinger Band detection</td><td>Bloodhound</td></tr>
+            <tr><td><code>api-v1.js</code></td><td>External API v1 router (/api/v1/*)</td><td>Web server</td></tr>
+        </table>
+
+        <h3>Detection Modules (Backtest-Validated)</h3>
+        <table>
+            <tr><th>Module</th><th>Technique</th><th>Points</th><th>Threshold</th><th>Symbols</th></tr>
+            <tr><td><code>ma-bounce.js</code></td><td>Price bounce off moving average (SMA/EMA/HMA)</td><td>+8</td><td>65%+ WR required</td><td>SPY, QQQ, AAPL, NVDA, META, MSFT, TSLA, AMD</td></tr>
+            <tr><td><code>divergence-bb.js</code></td><td>RSI divergence at Bollinger Band extremes</td><td>+8-10</td><td>65%+ WR required</td><td>9 symbols, per-direction configs</td></tr>
+        </table>
+    </div>
+</div>
+
+<!-- Data Flow -->
+<div class="section" id="dataflow">
+    <div class="section-header" onclick="toggleSection(this)">
+        <h2>Data Flow Diagrams</h2>
+        <span class="toggle">&#9660;</span>
+    </div>
+    <div class="section-content">
+        <h3>Cross-Scanner Integration</h3>
+        <div class="mermaid">
+flowchart TD
+    subgraph Discovery["Symbol Discovery"]
+        WL["Static Watchlist<br/>9 symbols"]
+        DYN["Dynamic Discovery<br/>Volume leaders, movers,<br/>52wk extremes, ETFs"]
+        OPPD["Opportunity High Scores<br/>+35/+25 discovery pts"]
+        PMG["Premarket Gaps<br/>HC auto-added"]
+    end
+
+    BH["Bloodhound Scanner"]
+    OPP["Opportunity Scanner"]
+    PM["Premarket Scanner"]
+    DIV["Divergence Scanner DB"]
+
+    WL & DYN & OPPD & PMG --> BH
+    OPP -->|"HC: +8 pts<br/>TRADEABLE: +5 pts"| BH
+    DIV -->|"Top Q: +8 pts<br/>Bottom Q: -5 pts"| BH
+    PM -->|"HC gaps auto-added<br/>7-day expiry"| WL
+    OPP -->|"HC/TRADEABLE tickers<br/>feed discovery"| OPPD
+
+    style BH fill:#00d4aa,color:#000
+        </div>
+
+        <h3>Bloodhound Scan Cycle</h3>
+        <div class="mermaid">
+flowchart TD
+    START["Scan Timer<br/>Every 5 min"] --> DISC["1. Discovery<br/>Build symbol list<br/>Static + dynamic"]
+    DISC --> CTX["2. Market Context<br/>VIX, SPY trend, rotation"]
+    CTX --> LOOP["3. Per-Symbol Analysis"]
+    LOOP --> TECH["Technicals API<br/>RSI, trend, BB"]
+    TECH --> LVL["Levels API<br/>Call/put walls"]
+    LVL --> FLOW["Flow API<br/>Options activity"]
+    FLOW --> SCORE["4. Confluence Scoring<br/>0-100 points"]
+    SCORE --> TIER["5. Tier Classification<br/>HC / TRADEABLE /<br/>WATCH / FILTERED"]
+    TIER --> DB["6. Write SQLite"]
+    DB --> ALERT["7. Telegram Alert"]
+    ALERT --> VIX["8. VIX Regime Check"]
+    VIX --> BREADTH["9. Breadth Extreme Check"]
+
+    style START fill:#f59e0b,color:#000
+    style SCORE fill:#00d4aa,color:#000
+    style ALERT fill:#ff6b6b,color:#000
+        </div>
+
+        <h3>Confluence Scoring Factors</h3>
+        <table>
+            <tr><th>Factor</th><th>Points</th><th>Source</th><th>Validation</th></tr>
+            <tr><td>Zone proximity (at wall)</td><td>Base</td><td>Gamma levels API</td><td>Zone classification</td></tr>
+            <tr><td>RSI extremes (&lt;30 / &gt;70)</td><td>Variable</td><td>Technicals API</td><td>Per-factor backtest</td></tr>
+            <tr><td>MA bounce</td><td>+8</td><td>ma-bounce.js</td><td>Per-ticker 65%+ WR</td></tr>
+            <tr><td>Divergence + BB</td><td>+8-10</td><td>divergence-bb.js</td><td>Per-ticker configs</td></tr>
+            <tr><td>Volume elevation (1.5x+)</td><td>Variable</td><td>Technicals API</td><td>Backtest validated</td></tr>
+            <tr><td>Sector RS (top quartile)</td><td>+8</td><td>Divergence scanner</td><td>72.7% 5d WR</td></tr>
+            <tr><td>Sector RS (bottom quartile)</td><td>-5</td><td>Divergence scanner</td><td>47.2% 5d WR</td></tr>
+            <tr><td>Opp flow confirm (HC)</td><td>+8</td><td>Opportunity scanner</td><td>Cross-scanner</td></tr>
+            <tr><td>Opp flow confirm (TRADEABLE)</td><td>+5</td><td>Opportunity scanner</td><td>Cross-scanner</td></tr>
+            <tr><td>Breadth alignment</td><td>Annotation</td><td>Market internals</td><td>Tiered system</td></tr>
+            <tr><td>Counter-trend warning</td><td>Annotation</td><td>SPY trend</td><td>55.6% vs 34.9% WR</td></tr>
+        </table>
+    </div>
+</div>
+
+<!-- API Gateway -->
+<div class="section" id="gateway">
+    <div class="section-header" onclick="toggleSection(this)">
+        <h2>API Gateway & Networking</h2>
+        <span class="toggle">&#9660;</span>
+    </div>
+    <div class="section-content">
+        <h3>Gateway Route Map</h3>
+        <table>
+            <tr><th>Route Prefix</th><th>Upstream</th><th>Max Concurrent</th><th>Circuit Breaker</th><th>Cooldown</th></tr>
+            <tr><td><code>/schwab/*</code></td><td>Options API :8000</td><td>250</td><td>5 failures / 60s</td><td>30s</td></tr>
+            <tr><td><code>/divergence/*</code></td><td>Divergence :32212</td><td>5</td><td>3 failures / 60s</td><td>60s</td></tr>
+            <tr><td><code>/intel/*</code></td><td>Intel API :3000</td><td>20</td><td>5 failures / 60s</td><td>30s</td></tr>
+        </table>
+        <p>Queue: FIFO, max 100 items, 30s timeout per queued request. Circuit states: CLOSED &rarr; OPEN &rarr; HALF_OPEN &rarr; CLOSED.</p>
+        <p>Fallback: If gateway returns ECONNREFUSED, <code>api-client.js</code> falls back to direct API calls.</p>
+
+        <h3>API Cache TTLs</h3>
+        <table>
+            <tr><th>Endpoint Pattern</th><th>TTL</th><th>Rationale</th></tr>
+            <tr><td><code>/api/technicals/*</code></td><td>15 min</td><td>Slow-changing indicators</td></tr>
+            <tr><td><code>/api/flow/*</code></td><td>15 min</td><td>Flow aggregates stable</td></tr>
+            <tr><td><code>/api/options/*/analysis</code></td><td>10 min</td><td>Options analysis</td></tr>
+            <tr><td><code>/api/options/*/iv</code></td><td>10 min</td><td>IV percentile</td></tr>
+            <tr><td><code>/api/market/context</code></td><td>5 min</td><td>Regime changes faster</td></tr>
+            <tr><td><code>/api/calendar/*</code></td><td>24 hours</td><td>Earnings dates rare change</td></tr>
+            <tr><td><code>/api/levels/*</code></td><td><span class="badge badge-red">NEVER</span></td><td>Real-time gamma walls</td></tr>
+            <tr><td><code>/api/quotes/*</code></td><td><span class="badge badge-red">NEVER</span></td><td>Real-time prices</td></tr>
+        </table>
+
+        <h3>Scan Staggering</h3>
+        <table>
+            <tr><th>Scanner</th><th>Offset</th><th>Rationale</th></tr>
+            <tr><td>Bloodhound</td><td>0s</td><td>Fires first, populates cache for others</td></tr>
+            <tr><td>Premarket</td><td>60s</td><td>Only 6-9:30 AM, light overlap</td></tr>
+            <tr><td>Opportunity</td><td>90s</td><td>Reads warm cache from Bloodhound</td></tr>
+            <tr><td>Earnings</td><td>180s</td><td>Everything cached, near-zero upstream load</td></tr>
+        </table>
+    </div>
+</div>
+
+<!-- Database Schema -->
+<div class="section" id="database">
+    <div class="section-header" onclick="toggleSection(this)">
+        <h2>Database Schema</h2>
+        <span class="toggle">&#9660;</span>
+    </div>
+    <div class="section-content">
+        <p>Primary database: <code>data/wingman.db</code> (SQLite, WAL mode, 15s busy_timeout)</p>
+        <table>
+            <tr><th>Table</th><th>Purpose</th><th>Written By</th><th>Key Columns</th></tr>
+            <tr><td><code>bloodhound_scans</code></td><td>Scan metadata per cycle</td><td>Bloodhound</td><td>timestamp, vix, vix_regime, spy_trend, scan_count</td></tr>
+            <tr><td><code>bloodhound_results</code></td><td>Per-ticker results per scan</td><td>Bloodhound</td><td>symbol, zone, score, tier, signals_json, sector_rs_percentile</td></tr>
+            <tr><td><code>scanner_history</code></td><td>Day 2/Streak badge tracking</td><td>Bloodhound</td><td>symbol, date, peak_score, consecutive_days</td></tr>
+            <tr><td><code>signals</code></td><td>Signal lifecycle tracking</td><td>Bloodhound, Earnings</td><td>signal_id, symbol, entry_price, status, peak_gain_pct</td></tr>
+            <tr><td><code>checkpoints</code></td><td>Multi-checkpoint validation</td><td>Signal logger</td><td>signal_id, checkpoint_type, pct_change</td></tr>
+            <tr><td><code>price_snapshots</code></td><td>Signal price history</td><td>Signal logger</td><td>signal_id, timestamp, price</td></tr>
+            <tr><td><code>scans</code></td><td>Opportunity scan metadata</td><td>Opportunity</td><td>timestamp, symbols_scanned, tier counts</td></tr>
+            <tr><td><code>opportunities</code></td><td>Unusual options activity</td><td>Opportunity</td><td>symbol, tier, score, vol_oi_ratio, direction</td></tr>
+            <tr><td><code>earnings_scans</code></td><td>Earnings scan metadata</td><td>Earnings</td><td>timestamp, total_scanned</td></tr>
+            <tr><td><code>earnings_results</code></td><td>PREM candidates</td><td>Earnings</td><td>symbol, earnings_date, score, iv_rank</td></tr>
+            <tr><td><code>earnings_calendar</code></td><td>Earnings dates</td><td>Earnings scraper</td><td>symbol, earnings_date, earnings_time</td></tr>
+            <tr><td><code>premarket_scans</code></td><td>Premarket scan metadata</td><td>Premarket</td><td>timestamp, market_bias</td></tr>
+            <tr><td><code>premarket_movers</code></td><td>Gap movers</td><td>Premarket + EOD tracker</td><td>symbol, gap_pct, tier, gap_filled, outcome</td></tr>
+            <tr><td><code>gap_ticker_stats</code></td><td>Per-ticker gap analytics</td><td>EOD tracker</td><td>symbol, fill_rate, win_rate</td></tr>
+            <tr><td><code>market_internals</code></td><td>Breadth readings (2-min RTH)</td><td>Internals</td><td>timestamp, tick, trin, ad_spread, vix</td></tr>
+            <tr><td><code>watchlist</code></td><td>Static + dynamic symbols</td><td>Premarket, manual</td><td>symbol, enabled, source, expires_at</td></tr>
+            <tr><td><code>positions</code></td><td>Open/closed trades</td><td>Manual/API</td><td>symbol, direction, entry_price, pnl</td></tr>
+            <tr><td><code>alerts</code></td><td>Telegram alert history</td><td>All scanners</td><td>timestamp, type, symbol, message</td></tr>
+            <tr><td><code>analyses</code></td><td>Research journal</td><td>Manual/API</td><td>symbol, verdict, bull/bear_factors_json</td></tr>
+            <tr><td><code>eod_summaries</code></td><td>Daily wrap-up data</td><td>EOD wrapup</td><td>date, spy_close, vix_close, summary_json</td></tr>
+            <tr><td><code>api_cache</code></td><td>Cross-process API cache</td><td>All scanners</td><td>url, response, source, expires_at</td></tr>
+        </table>
+        <p>External read-only: <code>../divergence-scanner/data/divergence_scanner.db</code> (rs_snapshots table for sector RS)</p>
+    </div>
+</div>
+
+<!-- Dashboards -->
+<div class="section" id="dashboards">
+    <div class="section-header" onclick="toggleSection(this)">
+        <h2>Dashboards (14 HTML Files)</h2>
+        <span class="toggle">&#9660;</span>
+    </div>
+    <div class="section-content">
+        <table>
+            <tr><th>Dashboard</th><th>File</th><th>Data Source</th><th>Refresh</th><th>Key Features</th></tr>
+            <tr><td><strong>Morning Briefing</strong></td><td>morning.html</td><td>/api/morning-briefing</td><td>60s</td><td>Gaps, market context, pre-market summary</td></tr>
+            <tr><td><strong>Zone Scanner</strong></td><td>zone-scanner.html</td><td>/api/scan/latest</td><td>30s</td><td>Ticker cards, zones, scores, internals bar</td></tr>
+            <tr><td><strong>Market Dashboard</strong></td><td>scanner.html</td><td>/api/internals/*</td><td>30s</td><td>4 Chart.js charts (TICK/TRIN/Vol/VIX)</td></tr>
+            <tr><td><strong>Trading Dashboard</strong></td><td>dashboard.html</td><td>/api/positions</td><td>10s</td><td>P&L tracking, positions, risk bars</td></tr>
+            <tr><td><strong>Analytics</strong></td><td>analytics.html</td><td>/api/signals/stats</td><td>30s</td><td>Signal validation by tier, regime, score</td></tr>
+            <tr><td><strong>Earnings</strong></td><td>earnings-scanner.html</td><td>:8082 API</td><td>30s</td><td>PREM candidates, calendar</td></tr>
+            <tr><td><strong>Opportunity</strong></td><td>opportunity-scanner.html</td><td>/api/opportunities/latest</td><td>30s</td><td>Vol/OI ratios, premium flow</td></tr>
+            <tr><td><strong>Pre-Market</strong></td><td>premarket.html</td><td>/api/premarket</td><td>60s</td><td>Gap tiers, fill analytics</td></tr>
+            <tr><td><strong>Strategies</strong></td><td>strategies.html</td><td>Static</td><td>None</td><td>10 strategy cards, automation badges</td></tr>
+            <tr><td><strong>Options Lab</strong></td><td>options-lab.html</td><td>Options API proxy</td><td>Manual</td><td>Greeks, vol surface</td></tr>
+            <tr><td><strong>Research</strong></td><td>research.html</td><td>/api/analyses</td><td>Manual</td><td>Analysis journal</td></tr>
+            <tr><td><strong>Backtests</strong></td><td>backtests.html</td><td>/api/backtest/results</td><td>Manual</td><td>MA backtest results</td></tr>
+            <tr><td><strong>Ticker Report</strong></td><td>ticker-report.html</td><td>Multiple APIs</td><td>Manual</td><td>Single-ticker deep dive</td></tr>
+            <tr><td><strong>Levels</strong></td><td>levels.html</td><td>Options API proxy</td><td>Manual</td><td>Gamma walls, max pain</td></tr>
+        </table>
+        <p>All dashboards share <code>css/nav.css</code> for navigation. Design: dark theme (#0a0e1a bg, #00d4aa accent, #ff6b6b red).</p>
+    </div>
+</div>
+
+<!-- Scheduling -->
+<div class="section" id="scheduling">
+    <div class="section-header" onclick="toggleSection(this)">
+        <h2>Scheduling & Cron</h2>
+        <span class="toggle">&#9660;</span>
+    </div>
+    <div class="section-content">
+        <h3>Daily Timeline (ET)</h3>
+        <div class="mermaid">
+gantt
+    title Wingman Daily Schedule (ET)
+    dateFormat HH:mm
+    axisFormat %H:%M
+
+    section Pre-Market
+    Premarket Scanner    :active, pm, 06:00, 09:30
+
+    section RTH
+    Market Internals (2 min)   :active, mi, 09:30, 16:00
+    Bloodhound (5 min)         :active, bh, 09:30, 16:00
+    Opportunity (5 min)        :active, op, 09:30, 16:00
+    Earnings (30 min)          :active, ea, 09:30, 16:00
+
+    section Post-Market
+    EOD Gap Tracker            :crit, gt, 16:15, 16:30
+    EOD Wrapup                 :crit, ew, 20:15, 20:45
+
+    section Always
+    API Gateway                :done, gw, 00:00, 23:59
+    Web Server                 :done, ws, 00:00, 23:59
+        </div>
+
+        <h3>Cron Jobs</h3>
+        <table>
+            <tr><th>Schedule</th><th>Script</th><th>Purpose</th></tr>
+            <tr><td>Every hour</td><td>scripts/archive-logs.sh</td><td>Archive PM2 logs to git</td></tr>
+            <tr><td>Sunday midnight</td><td>scripts/flush-logs.sh</td><td>Archive + flush PM2 logs</td></tr>
+            <tr><td>4:15 PM ET M-F</td><td>eod-gap-tracker.js</td><td>Capture gap fill outcomes</td></tr>
+            <tr><td>8:15 PM ET M-F</td><td>eod-wrapup.js</td><td>Daily Telegram summary</td></tr>
+            <tr><td>Midnight ET daily</td><td>opportunity-scanner.js</td><td>Reset persistence tracking</td></tr>
+        </table>
+    </div>
+</div>
+
+<!-- Scripts -->
+<div class="section" id="scripts">
+    <div class="section-header" onclick="toggleSection(this)">
+        <h2>Scripts & Analysis Tools</h2>
+        <span class="toggle">&#9660;</span>
+    </div>
+    <div class="section-content">
+        <h3>Backtest & Audit Scripts</h3>
+        <table>
+            <tr><th>Script</th><th>Purpose</th><th>Usage</th><th>Status</th></tr>
+            <tr><td><code>ma-backtest.js</code></td><td>MA alignment/crossover/bounce backtester</td><td><code>node scripts/ma-backtest.js alignment --symbol SPY --sweep --save</code></td><td><span class="badge badge-green">Active</span></td></tr>
+            <tr><td><code>divergence-bb-backtest.js</code></td><td>RSI divergence + BB confluence backtester</td><td><code>node scripts/divergence-bb-backtest.js --symbol ALL --sweep --save</code></td><td><span class="badge badge-green">Active</span></td></tr>
+            <tr><td><code>audit-build-returns.js</code></td><td>Build forward returns dataset (prerequisite)</td><td><code>node scripts/audit-build-returns.js --fresh</code></td><td><span class="badge badge-green">Active</span></td></tr>
+            <tr><td><code>audit-factor-analysis.js</code></td><td>Factor win rate analysis (60+ factors)</td><td><code>node scripts/audit-factor-analysis.js</code></td><td><span class="badge badge-green">Active</span></td></tr>
+            <tr><td><code>audit-flow-analysis.js</code></td><td>Options flow effectiveness analysis</td><td><code>node scripts/audit-flow-analysis.js</code></td><td><span class="badge badge-green">Active</span></td></tr>
+            <tr><td><code>audit-flow-sector-analysis.js</code></td><td>Flow x sector RS interaction</td><td><code>node scripts/audit-flow-sector-analysis.js</code></td><td><span class="badge badge-green">Active</span></td></tr>
+            <tr><td><code>enrich-signals-ma.js</code></td><td>Enrich signals with MA alignment</td><td><code>node scripts/enrich-signals-ma.js --save</code></td><td><span class="badge badge-green">Active</span></td></tr>
+            <tr><td><code>ticker-report.js</code></td><td>Per-symbol backtest report</td><td><code>node scripts/ticker-report.js NVDA --run</code></td><td><span class="badge badge-green">Active</span></td></tr>
+        </table>
+
+        <h3>Utility Scripts</h3>
+        <table>
+            <tr><th>Script</th><th>Purpose</th><th>Status</th></tr>
+            <tr><td><code>monitor/watchlist.js</code></td><td>Watchlist CLI (list/add/remove)</td><td><span class="badge badge-green">Active</span></td></tr>
+            <tr><td><code>monitor/scanner-validator.js</code></td><td>Validate scanner coverage</td><td><span class="badge badge-green">Active</span></td></tr>
+            <tr><td><code>monitor/trade-client.js</code></td><td>Trade logging CLI</td><td><span class="badge badge-green">Active</span></td></tr>
+            <tr><td><code>monitor/earnings-calendar-scraper.js</code></td><td>Fetch earnings dates</td><td><span class="badge badge-green">Active</span></td></tr>
+            <tr><td><code>scripts/archive-logs.sh</code></td><td>Hourly PM2 log archive</td><td><span class="badge badge-green">Active</span></td></tr>
+            <tr><td><code>scripts/revert-gateway.sh</code></td><td>Emergency gateway rollback</td><td><span class="badge badge-blue">Available</span></td></tr>
+        </table>
+
+        <h3>Deprecated</h3>
+        <table>
+            <tr><th>File</th><th>Replaced By</th></tr>
+            <tr><td><code>eod.js</code></td><td>monitor/eod-wrapup.js</td></tr>
+            <tr><td><code>monitor/wingman-monitor.js</code></td><td>VIX alerts in bloodhound-scanner.js</td></tr>
+            <tr><td><code>monitor/_legacy/zone-scanner.js</code></td><td>Current zone-scanner.html</td></tr>
+            <tr><td><code>scripts/divergence-analysis*.js</code></td><td>scripts/divergence-bb-backtest.js</td></tr>
+        </table>
+    </div>
+</div>
+
+<!-- Port Allocation -->
+<div class="section" id="ports">
+    <div class="section-header" onclick="toggleSection(this)">
+        <h2>Port Allocation</h2>
+        <span class="toggle">&#9660;</span>
+    </div>
+    <div class="section-content">
+        <table>
+            <tr><th>Port</th><th>Service</th><th>Type</th><th>File</th></tr>
+            <tr><td><span class="port-number">3000</span></td><td>Intel API</td><td><span class="badge badge-purple">External</span></td><td>Remote (192.168.10.60)</td></tr>
+            <tr><td><span class="port-number">8000</span></td><td>Options API</td><td><span class="badge badge-purple">External</span></td><td>Remote (192.168.10.60)</td></tr>
+            <tr><td><span class="port-number">8080</span></td><td>Web Server</td><td><span class="badge badge-green">HTTP + API</span></td><td>web-server.js</td></tr>
+            <tr><td><span class="port-number">8081</span></td><td>Bloodhound Control</td><td><span class="badge badge-blue">Scanner</span></td><td>bloodhound-scanner.js</td></tr>
+            <tr><td><span class="port-number">8082</span></td><td>Earnings Control</td><td><span class="badge badge-blue">Scanner</span></td><td>earnings-scanner.js</td></tr>
+            <tr><td><span class="port-number">8083</span></td><td>Opportunity Control</td><td><span class="badge badge-blue">Scanner</span></td><td>opportunity-scanner.js</td></tr>
+            <tr><td><span class="port-number">8084</span></td><td>Premarket Control</td><td><span class="badge badge-blue">Scanner</span></td><td>premarket-scanner.js</td></tr>
+            <tr><td><span class="port-number">8085</span></td><td>Internals</td><td><span class="badge badge-blue">Scanner</span></td><td>market-internals.js</td></tr>
+            <tr><td><span class="port-number">8086</span></td><td>API Gateway</td><td><span class="badge badge-yellow">Proxy</span></td><td>api-gateway.js</td></tr>
+            <tr><td><span class="port-number">8087</span></td><td>EOD Wrapup</td><td><span class="badge badge-blue">Control</span></td><td>eod-wrapup.js</td></tr>
+            <tr><td><span class="port-number">32212</span></td><td>Divergence Scanner</td><td><span class="badge badge-purple">External</span></td><td>Remote (192.168.10.61)</td></tr>
+        </table>
+    </div>
+</div>
+
+<!-- Known Issues -->
+<div class="section" id="issues">
+    <div class="section-header" onclick="toggleSection(this)">
+        <h2>Known Issues & Status</h2>
+        <span class="toggle">&#9660;</span>
+    </div>
+    <div class="section-content">
+        <h3>Critical</h3>
+        <div class="issue-card">
+            <div class="issue-title"><span class="badge badge-red">HIGH</span> Signal 7-Day Checkpoints Not Executing</div>
+            <div>0/187 eligible signals completed 7-day checkpoint. Swing-trade validation non-functional.</div>
+            <div class="issue-file">signal-logger.js, bloodhound-scanner.js</div>
+        </div>
+        <div class="issue-card">
+            <div class="issue-title"><span class="badge badge-red">HIGH</span> Opportunity Scanner Aborts on API Failure</div>
+            <div>When /api/market/context fails, entire scan cycle aborts instead of falling back.</div>
+            <div class="issue-file">opportunity-scanner.js</div>
+        </div>
+
+        <h3>Medium</h3>
+        <div class="issue-card medium">
+            <div class="issue-title"><span class="badge badge-yellow">MED</span> SPY/QQQ change_pct Hardcoded to 0</div>
+            <div>Scanner output always shows 0% daily change. TODO comment in code.</div>
+            <div class="issue-file">bloodhound-scanner.js:2909, 2919</div>
+        </div>
+        <div class="issue-card medium">
+            <div class="issue-title"><span class="badge badge-yellow">MED</span> Silent Error Catch (Pause File)</div>
+            <div>Empty catch block silently swallows all errors when reading pause file.</div>
+            <div class="issue-file">bloodhound-scanner.js:2140</div>
+        </div>
+        <div class="issue-card medium">
+            <div class="issue-title"><span class="badge badge-yellow">MED</span> Divergence DB Path Fragile</div>
+            <div>Hardcoded relative path assumes exact directory layout. Falls back to API.</div>
+            <div class="issue-file">bloodhound-scanner.js:832</div>
+        </div>
+        <div class="issue-card medium">
+            <div class="issue-title"><span class="badge badge-yellow">MED</span> tick_high/tick_low Always 0</div>
+            <div>533/558 rows have 0 values. Likely Schwab API limitation for $TICK quotes.</div>
+            <div class="issue-file">market-internals.js</div>
+        </div>
+
+        <h3>Low</h3>
+        <div class="issue-card low">
+            <div class="issue-title"><span class="badge badge-blue">LOW</span> Deprecated eod.js Still Exists</div>
+            <div>Replaced by eod-wrapup.js. Should be deleted.</div>
+            <div class="issue-file">eod.js</div>
+        </div>
+        <div class="issue-card low">
+            <div class="issue-title"><span class="badge badge-blue">LOW</span> JSON Files in data/ Directory</div>
+            <div>6 JSON files remain despite SQLite migration mandate. Most are research/orphaned.</div>
+            <div class="issue-file">data/*.json</div>
+        </div>
+        <div class="issue-card low">
+            <div class="issue-title"><span class="badge badge-blue">LOW</span> Legacy Code Cleanup Needed</div>
+            <div>monitor/_legacy/, migration scripts, deprecated analysis scripts.</div>
+            <div class="issue-file">monitor/_legacy/, migrate-*.js</div>
+        </div>
+    </div>
+</div>
+
+<!-- Operations -->
+<div class="section" id="operations">
+    <div class="section-header" onclick="toggleSection(this)">
+        <h2>Operations Quick Reference</h2>
+        <span class="toggle">&#9660;</span>
+    </div>
+    <div class="section-content">
+        <h3>Start/Stop</h3>
+        <pre>pm2 start ecosystem.config.js          # Start all 9 processes
+pm2 list                                # Show process status
+pm2 logs [name]                         # Tail logs
+pm2 restart all                         # Restart (keeps env vars)
+pm2 delete all && pm2 start ecosystem.config.js  # Full restart (re-reads env vars)</pre>
+
+        <h3>Health Checks</h3>
+        <pre>curl localhost:8080/api/scan/summary    # Bloodhound status
+curl localhost:8086/status              # Gateway circuit breakers
+curl localhost:8080/api/cache/stats     # Cache efficiency
+curl localhost:8080/api/internals/latest # Market breadth
+curl localhost:8080/api/v1/health       # Full system health</pre>
+
+        <h3>Manual Triggers</h3>
+        <pre>node monitor/eod-wrapup.js --now        # Force EOD summary
+node monitor/eod-gap-tracker.js --now   # Force gap tracking
+curl localhost:8081/scan                # Force Bloodhound scan
+curl localhost:8083/scan                # Force Opportunity scan</pre>
+
+        <h3>Backtest Workflow</h3>
+        <pre># Step 1: Build forward returns
+node scripts/audit-build-returns.js --fresh
+
+# Step 2: Run analysis
+node scripts/audit-factor-analysis.js
+node scripts/audit-flow-analysis.js
+
+# Step 3: MA backtesting
+node scripts/ma-backtest.js alignment --symbol ALL --sweep --save
+
+# Step 4: Per-symbol report
+node scripts/ticker-report.js NVDA --run</pre>
+    </div>
+</div>
+
+<!-- Configuration -->
+<div class="section" id="config">
+    <div class="section-header" onclick="toggleSection(this)">
+        <h2>Configuration</h2>
+        <span class="toggle">&#9660;</span>
+    </div>
+    <div class="section-content">
+        <h3>Config Files</h3>
+        <table>
+            <tr><th>File</th><th>Purpose</th></tr>
+            <tr><td><code>ecosystem.config.js</code></td><td>PM2 process definitions (9 processes, memory, stagger offsets)</td></tr>
+            <tr><td><code>monitor/config.json</code></td><td>API endpoints, Telegram credentials, port assignments</td></tr>
+            <tr><td><code>monitor/config-loader.js</code></td><td>Config.json + env var overrides</td></tr>
+            <tr><td><code>CLAUDE.md</code></td><td>AI assistant instructions (comprehensive system guide)</td></tr>
+        </table>
+
+        <h3>Environment Variables</h3>
+        <table>
+            <tr><th>Variable</th><th>Default</th><th>Purpose</th></tr>
+            <tr><td><code>OPTIONS_API</code></td><td>http://192.168.10.60:8000</td><td>Options API endpoint</td></tr>
+            <tr><td><code>INTEL_API</code></td><td>http://192.168.10.60:3000</td><td>Intel API endpoint</td></tr>
+            <tr><td><code>SCAN_OFFSET_MS</code></td><td>Per-process</td><td>Scan stagger offset</td></tr>
+            <tr><td><code>TELEGRAM_BOT_TOKEN</code></td><td>From config.json</td><td>Telegram bot token</td></tr>
+        </table>
+        <p><strong>Important:</strong> After changing <code>ecosystem.config.js</code> env vars, you must <code>pm2 delete &lt;name&gt; && pm2 start ecosystem.config.js</code>. <code>pm2 restart --update-env</code> does NOT re-read ecosystem env vars.</p>
+    </div>
+</div>
+
+</div><!-- /container -->
+
+<!-- Mermaid.js -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+// Mermaid config
+mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+        primaryColor: '#151821',
+        primaryTextColor: '#e5e7eb',
+        primaryBorderColor: '#2a3641',
+        lineColor: '#4a9eff',
+        secondaryColor: '#1a1f2e',
+        tertiaryColor: '#0a0e1a',
+        background: '#0d1117',
+        mainBkg: '#151821',
+        nodeBorder: '#2a3641',
+        clusterBkg: '#0d1117',
+        clusterBorder: '#2a3641',
+        titleColor: '#00d4aa',
+        edgeLabelBackground: '#151821',
+        nodeTextColor: '#e5e7eb'
+    },
+    flowchart: { curve: 'basis', padding: 15 },
+    gantt: {
+        titleTopMargin: 25,
+        barHeight: 20,
+        barGap: 4,
+        topPadding: 50,
+        leftPadding: 120
+    }
+});
+
+// Collapsible sections
+function toggleSection(header) {
+    const section = header.parentElement;
+    section.classList.toggle('open');
+}
+
+// Open first section by default (status dashboard)
+document.addEventListener('DOMContentLoaded', () => {
+    // Status and architecture are already open via class="open"
+});
+</script>
+
+</body>
+</html>
