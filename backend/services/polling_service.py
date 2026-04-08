@@ -41,6 +41,16 @@ class PollingService:
         self._running = False
         self._task: Optional[asyncio.Task] = None
         self._previous_rankings = []
+        self._cache = {
+            'rankings': {'data': None, 'timestamp': 0},
+            'regime': {'data': None, 'timestamp': 0},
+            'divergences': {'data': None, 'timestamp': 0},
+        }
+
+    def get_cached(self, key: str):
+        """Get cached data by key. Returns (data, timestamp) or (None, 0)."""
+        entry = self._cache.get(key, {})
+        return entry.get('data'), entry.get('timestamp', 0)
 
     def start(self):
         """Start the polling service"""
@@ -214,6 +224,9 @@ class PollingService:
             # Store for rotation detection
             self._previous_rankings = rankings_data
 
+            # Cache for API routes
+            self._cache['rankings'] = {'data': rankings_data, 'timestamp': time.time()}
+
             # Broadcast
             manager = get_connection_manager()
             await manager.broadcast_to_channel("rankings", rankings_data)
@@ -290,6 +303,9 @@ class PollingService:
                             data=div.to_dict()
                         )
 
+            # Cache for API routes
+            self._cache['divergences'] = {'data': divergences_data, 'timestamp': time.time()}
+
             # Broadcast
             manager = get_connection_manager()
             await manager.broadcast_to_channel("divergences", divergences_data)
@@ -309,6 +325,9 @@ class PollingService:
                 return
 
             regime = determine_market_regime(sector_rankings)
+
+            # Cache for API routes
+            self._cache['regime'] = {'data': regime.to_dict(), 'timestamp': time.time()}
 
             manager = get_connection_manager()
             await manager.broadcast_to_channel("rotations", {

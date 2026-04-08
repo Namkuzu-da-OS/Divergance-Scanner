@@ -21,24 +21,33 @@ async def scan_divergences(
 ):
     """
     Scan for inter-market divergences across all configured pairs.
-
-    Returns divergences sorted by strength.
+    Serves from polling cache when no specific pairs requested.
     """
+    # If no specific pairs requested, serve from cache
+    if not pairs:
+        from backend.services.polling_service import get_polling_service
+        service = get_polling_service()
+        data, timestamp = service.get_cached('divergences')
+        if data is not None:
+            return {
+                "divergences": data,
+                "count": len(data),
+                "pairs_scanned": len(DIVERGENCE_PAIRS),
+            }
+
+    # Specific pairs requested OR cache cold — fetch live
     client = get_data_client()
 
-    # Parse pairs if provided
     if pairs:
         parsed_pairs = [tuple(p.strip().split("-")) for p in pairs.split(",")]
     else:
         parsed_pairs = DIVERGENCE_PAIRS
 
-    # Get all unique symbols needed
     symbols_needed = set()
     for a, b in parsed_pairs:
         symbols_needed.add(a.upper())
         symbols_needed.add(b.upper())
 
-    # Fetch price history - need 6 months for proper correlation baseline (60+ data points)
     history = await client.get_batch_history(
         list(symbols_needed),
         period_type="month",
@@ -47,7 +56,6 @@ async def scan_divergences(
         frequency=1
     )
 
-    # Convert to numpy arrays
     price_data = {}
     for symbol, candles in history.items():
         if candles:
@@ -55,7 +63,6 @@ async def scan_divergences(
             if len(prices) > 0:
                 price_data[symbol] = prices
 
-    # Analyze all pairs
     divergences = analyze_all_pairs(
         parsed_pairs,
         price_data,

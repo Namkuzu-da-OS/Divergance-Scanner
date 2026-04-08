@@ -17,12 +17,26 @@ async def get_rankings(
 ):
     """
     Get RS rankings for all tracked symbols.
-
-    Returns symbols sorted by RS score descending with ranks and percentiles.
+    Serves from polling cache — instant response, no Schwab API calls.
     """
+    # Try cache first
+    from backend.services.polling_service import get_polling_service
+    service = get_polling_service()
+    data, timestamp = service.get_cached('rankings')
+
+    if data is not None:
+        results = data
+        if category:
+            results = [r for r in results if r.get('category') == category]
+        return {
+            "rankings": results,
+            "count": len(results),
+            "timestamp": None,
+        }
+
+    # Cold start fallback — fetch live
     client = get_data_client()
 
-    # Fetch price history for all symbols
     history = await client.get_batch_history(
         ALL_SYMBOLS,
         period_type="month",
@@ -31,10 +45,8 @@ async def get_rankings(
         frequency=1
     )
 
-    # Fetch current quotes
     quotes = await client.get_quotes(ALL_SYMBOLS)
 
-    # Create rankings
     rankings = []
     for symbol in ALL_SYMBOLS:
         info = get_symbol_info(symbol)
@@ -50,10 +62,8 @@ async def get_rankings(
         )
         rankings.append(ranking)
 
-    # Rank the universe
     ranked = rank_universe(rankings)
 
-    # Filter by category if specified
     if category:
         ranked = filter_by_category(ranked, category)
 
