@@ -166,3 +166,70 @@ async def get_symbol_ranking(symbol: str):
     )
 
     return ranking.to_dict()
+
+
+@router.get("/history")
+async def get_rs_history(
+    days: int = Query(20, ge=3, le=90, description="Calendar-day lookback of EOD RS history"),
+):
+    """
+    Daily end-of-day RS history per symbol from the persisted rs_snapshots table.
+
+    One point per symbol per calendar date (the last intraday snapshot of that date).
+    Powers RRG rotation *tails* + true delta-rank velocity on the consumer side
+    (the Data platform's /rotation.html RRG map).
+
+    Reads local SQLite only - no Schwab / data-client calls - so it is instant and
+    cannot fail on an upstream provider. rs_snapshots is written ~every 15 min by the
+    polling service, with 90-day retention, so tails are available immediately.
+    """
+    from backend.db.database import get_db
+
+    with get_db() as conn:
+        cur = conn.cursor()
+        cur.execute(
+            """
+            WITH eod AS (
+                SELECT symbol,
+                       date(snapshot_at) AS d,
+                       rs_score,
+                       rs_rank,
+                       performance_5d,
+                       performance_20d,
+                       performance_60d,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY symbol, date(snapshot_at)
+                           ORDER BY snapshot_at DESC
+                       ) AS rn
+                FROM rs_snapshots
+                WHERE snapshot_at > datetime('now', ?)
+            )
+            SELECT symbol, d, rs_score, rs_rank,
+                   performance_5d, performance_20d, performance_60d
+            FROM eod
+            WHERE rn = 1
+            ORDER BY symbol ASC, d ASC
+            """,
+            (f"-{days} days",),
+        )
+        rows = cur.fetchall()
+
+    series: dict = {}
+    for r in rows:
+        series.setdefault(r["symbol"], []).append({
+            "date": r["d"],
+            "rs_score": r["rs_score"],
+            "rs_rank": r["rs_rank"],
+            "p5": r["performance_5d"],
+            "p20": r["performance_20d"],
+            "p60": r["performance_60d"],
+        })
+
+    as_of = max((pts[-1]["date"] for pts in series.values() if pts), default=None)
+
+    return {
+        "days": days,
+        "as_of": as_of,
+        "symbol_count": len(series),
+        "symbols": series,
+    }
