@@ -204,9 +204,15 @@ class PollingService:
             ranked = rank_universe(rankings)
             rankings_data = [r.to_dict() for r in ranked]
 
-            # Save RS snapshots every 15 minutes for trend analysis
-            current_minute = int(time.time() / 60)
-            if current_minute % 15 == 0:
+            # Save RS snapshots every ~15 minutes for trend analysis.
+            # Elapsed-based, NOT the minute-modulo check (minute % 15 == 0): the old
+            # minute-alias gate beat against the ~300s scan cycle (~0.5s/cycle
+            # drift) — ~12h of saves then ~36h of silence, repeating every ~48h
+            # (rs_snapshots had ZERO rows on 2026-07-20/22/24/26/28, alternating
+            # days; .60's EOD rotation digest held all evening on each of them).
+            now_ts = time.time()
+            if now_ts - getattr(self, '_last_rs_snapshot_ts', 0.0) >= 15 * 60:
+                self._last_rs_snapshot_ts = now_ts
                 for r in ranked:
                     snapshot = RSSnapshot(
                         id=None,
