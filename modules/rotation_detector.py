@@ -235,14 +235,23 @@ def determine_market_regime(
     # Calculate confidence (0-1)
     confidence = max_score / 3.0
 
-    # Generate message
-    phase_descriptions = {
-        RotationPhase.EARLY_CYCLE: "Early cycle recovery - Financials and Consumer Discretionary leading",
-        RotationPhase.MID_CYCLE: "Mid cycle expansion - Technology and Industrials leading",
-        RotationPhase.LATE_CYCLE: "Late cycle - Energy and Materials leading",
-        RotationPhase.RECESSION: "Defensive rotation - Utilities and Healthcare leading",
-        RotationPhase.UNKNOWN: "Mixed signals - No clear regime detected",
+    # Generate message from the ACTUAL leaders driving the call, not a canned
+    # per-phase sector list. The old static strings could contradict the live
+    # arrays (2026-07-29: phase=RECESSION printed "Utilities and Healthcare
+    # leading" while XLU sat in lagging_sectors).
+    phase_prefix = {
+        RotationPhase.EARLY_CYCLE: "Early cycle recovery",
+        RotationPhase.MID_CYCLE: "Mid cycle expansion",
+        RotationPhase.LATE_CYCLE: "Late cycle",
+        RotationPhase.RECESSION: "Defensive rotation",
     }
+    if dominant_phase == RotationPhase.UNKNOWN:
+        message = "Mixed signals - No clear regime detected"
+    else:
+        names = {r["symbol"]: r.get("name", r["symbol"]) for r in sector_rankings[:3]}
+        drivers = [s for s in top_3 if s in PHASE_SECTORS[dominant_phase]] or top_3
+        lead_names = [names.get(s, s) for s in drivers[:2]]
+        message = phase_prefix[dominant_phase] + " - " + " and ".join(lead_names) + " leading"
 
     return MarketRegime(
         phase=dominant_phase,
@@ -250,7 +259,7 @@ def determine_market_regime(
         leading_sectors=top_3,
         lagging_sectors=bottom_3,
         phase_scores=scores,
-        message=phase_descriptions.get(dominant_phase, "Unknown regime"),
+        message=message,
     )
 
 
