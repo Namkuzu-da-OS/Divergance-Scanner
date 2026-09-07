@@ -25,6 +25,13 @@ SYMBOL_UNIVERSE: Dict[str, Dict[str, Dict]] = {
         "XLB": {"name": "Materials", "weight": "cyclical"},
         "XLY": {"name": "Consumer Disc.", "weight": "cyclical"},
     },
+    "sub_sectors": {
+        "IHI": {"name": "Medical Devices", "weight": "defensive"},
+        "XBI": {"name": "Biotech", "weight": "growth"},
+        "IHF": {"name": "Healthcare Providers", "weight": "defensive"},
+        "XPH": {"name": "Pharma", "weight": "defensive"},
+        "ARKG": {"name": "Genomics", "weight": "speculative"},
+    },
     "international": {
         "EFA": {"name": "Developed Markets", "region": "eafe"},
         "EEM": {"name": "Emerging Markets", "region": "em"},
