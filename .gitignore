@@ -76,3 +76,9 @@ coverage.xml
 temp_*.json
 analysis_*.json
 nul
+
+# TS incremental build artifact
+*.tsbuildinfo
+
+# Backup convention here is a hyphen, which *.bak misses
+*.bak-*
