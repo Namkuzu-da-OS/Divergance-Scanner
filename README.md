@@ -3,8 +3,6 @@
 **AI-Assisted Trading Platform for Stocks/Options/Crypto**
 
 Status: ✓ **LIVE & TRADING**
-Account: **$23,526.10** (+17.88% YTD)
-Win Rate: **100%** (1 trade logged)
 System Version: **v1.0 VWAP + Divergence**
 
 ---
@@ -82,27 +80,6 @@ System Version: **v1.0 VWAP + Divergence**
 
 ---
 
-## Current Account Status
-
-```
-Starting Balance:    $20,000.00 (Sept 3, 2025)
-Current Balance:     $23,526.10 (Nov 3, 2025)
-YTD P&L:            +$3,576.57 (+17.88%)
-
-Daily Goal:          $83.33   ($0.00 / $83.33 today)
-Weekly Goal:         $577.25  ($102.00 / $577.25)
-Monthly Goal:        $2,500   ($102.00 / $2,500)
-Yearly Goal:         $30,000  ($3,576.57 / $30,000)
-
-Risk Used (Daily):   $0 / $500
-Risk Used (Weekly):  $102 / $1,000
-Trades Logged:       1
-Win Rate:            100%
-Best Trade:          +$102 (TQQQ daily_range_play)
-```
-
----
-
 ## Next Steps
 
 ### Today
@@ -119,7 +96,7 @@ Best Trade:          +$102 (TQQQ daily_range_play)
 5. [ ] Track which indicators work best
 
 ### This Month
-1. [ ] Reach $2,500 monthly goal
+1. [ ] Reach monthly goal
 2. [ ] Maintain >50% win rate
 3. [ ] Identify best signal combinations
 4. [ ] Update WINGMAN_MIND.md with insights
